@@ -523,6 +523,39 @@ export type Database = {
         }
         Relationships: []
       }
+      activities: {
+        Row: {
+          created_at: string | null
+          duration: number | null
+          id: string
+          intensity: number | null
+          notes: string | null
+          timestamp: string | null
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          duration?: number | null
+          id?: string
+          intensity?: number | null
+          notes?: string | null
+          timestamp?: string | null
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          duration?: number | null
+          id?: string
+          intensity?: number | null
+          notes?: string | null
+          timestamp?: string | null
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       activity_points: {
         Row: {
           activity_type: Database["public"]["Enums"]["activity_type"]
@@ -4661,6 +4694,39 @@ export type Database = {
           },
         ]
       }
+      consultation_requests: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          preferred_date: string
+          status: string | null
+          type: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          preferred_date: string
+          status?: string | null
+          type?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          preferred_date?: string
+          status?: string | null
+          type?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       consultation_resources: {
         Row: {
           content: string | null
@@ -6688,6 +6754,36 @@ export type Database = {
           notes?: string | null
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      energy_metrics: {
+        Row: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          timestamp: string | null
+          type: string | null
+          user_id: string | null
+          value: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          timestamp?: string | null
+          type?: string | null
+          user_id?: string | null
+          value?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          timestamp?: string | null
+          type?: string | null
+          user_id?: string | null
+          value?: number | null
         }
         Relationships: []
       }
@@ -17716,6 +17812,42 @@ export type Database = {
           search_rank?: number | null
           search_vector?: unknown | null
           seasonal_changes?: string | null
+        }
+        Relationships: []
+      }
+      recipes: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          energy_impact: number | null
+          id: string
+          ingredients: string[]
+          instructions: string[]
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          energy_impact?: number | null
+          id?: string
+          ingredients: string[]
+          instructions: string[]
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          energy_impact?: number | null
+          id?: string
+          ingredients?: string[]
+          instructions?: string[]
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
