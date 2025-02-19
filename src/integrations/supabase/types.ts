@@ -2671,6 +2671,39 @@ export type Database = {
           },
         ]
       }
+      brain_game_scores: {
+        Row: {
+          created_at: string | null
+          difficulty: number | null
+          duration_seconds: number | null
+          game_type: string
+          id: string
+          metadata: Json | null
+          score: number
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          difficulty?: number | null
+          duration_seconds?: number | null
+          game_type: string
+          id?: string
+          metadata?: Json | null
+          score: number
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          difficulty?: number | null
+          duration_seconds?: number | null
+          game_type?: string
+          id?: string
+          metadata?: Json | null
+          score?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       caffeine_products: {
         Row: {
           affiliate_link: string | null
