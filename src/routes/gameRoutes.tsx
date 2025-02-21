@@ -1,3 +1,4 @@
+
 import { Suspense, lazy } from "react"
 
 const BreathingGame = lazy(() => import("@/components/games/BreathingGame"))
@@ -6,7 +7,7 @@ const ZenGarden = lazy(() => import("@/components/games/ZenGarden"))
 
 export const gameRoutes = [
   {
-    path: "/breathing-pufferfish",
+    path: "breathing-pufferfish", // Removed leading slash
     element: (
       <Suspense fallback={<div>Loading...</div>}>
         <BreathingGame />
@@ -14,7 +15,7 @@ export const gameRoutes = [
     ),
   },
   {
-    path: "/breathing-balloon",
+    path: "breathing-balloon", // Removed leading slash
     element: (
       <Suspense fallback={<div>Loading...</div>}>
         <BalloonJourney />
@@ -22,7 +23,7 @@ export const gameRoutes = [
     ),
   },
   {
-    path: "/breathing-zen",
+    path: "breathing-zen", // Removed leading slash
     element: (
       <Suspense fallback={<div>Loading...</div>}>
         <ZenGarden />

@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BreathingVisualizer } from "@/components/breathing/BreathingVisualizer";
@@ -33,7 +34,7 @@ const Breathing = () => {
               <p className="text-muted-foreground mb-4">
                 Control a pufferfish with your breath in this relaxing underwater adventure.
               </p>
-              <Link to="/breathing-pufferfish">
+              <Link to="/games/breathing-pufferfish">
                 <Button>Play Pufferfish Game</Button>
               </Link>
             </Card>
@@ -43,7 +44,7 @@ const Breathing = () => {
               <p className="text-muted-foreground mb-4">
                 Guide a balloon through peaceful skies using controlled breathing.
               </p>
-              <Link to="/breathing-balloon">
+              <Link to="/games/breathing-balloon">
                 <Button>Play Balloon Game</Button>
               </Link>
             </Card>
@@ -53,7 +54,7 @@ const Breathing = () => {
               <p className="text-muted-foreground mb-4">
                 Practice mindful breathing while tending to a peaceful zen garden.
               </p>
-              <Link to="/breathing-zen">
+              <Link to="/games/breathing-zen">
                 <Button>Enter Zen Garden</Button>
               </Link>
             </Card>
