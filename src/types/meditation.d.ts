@@ -38,6 +38,10 @@ export interface MeditationPreset {
   suitable_times: ('morning' | 'afternoon' | 'evening' | 'night')[];
   difficulty_level: 'beginner' | 'intermediate' | 'advanced';
   benefits: string[];
+  total_sessions: number;
+  total_minutes: number;
+  current_streak: number;
+  mood_improvement: number;
   created_at: string;
   updated_at: string;
 }
