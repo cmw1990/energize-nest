@@ -6,14 +6,26 @@ import { mainRoutes } from "@/routes/mainRoutes";
 import { toolRoutes } from "@/routes/toolRoutes";
 import { gameRoutes } from "@/routes/gameRoutes";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 1,
+    },
+  },
+});
 
 // Combine all routes
 const router = createBrowserRouter([
+  ...mainRoutes,
   {
-    path: "/",
-    children: [...mainRoutes, ...toolRoutes, ...gameRoutes]
-  }
+    path: "tools",
+    children: toolRoutes,
+  },
+  {
+    path: "games",
+    children: gameRoutes,
+  },
 ]);
 
 function App() {
@@ -26,3 +38,4 @@ function App() {
 }
 
 export default App;
+
