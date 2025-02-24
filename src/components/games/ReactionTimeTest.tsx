@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 
-const ReactionTimeTest = () => {
+export const ReactionTimeTest = () => {
   const { session } = useAuth();
   const { toast } = useToast();
   const [gameState, setGameState] = useState<'waiting' | 'ready' | 'clicked' | 'finished'>('waiting');
@@ -165,5 +165,3 @@ const ReactionTimeTest = () => {
     </Card>
   );
 };
-
-export default ReactionTimeTest;

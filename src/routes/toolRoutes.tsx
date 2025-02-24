@@ -1,6 +1,9 @@
-import { Suspense, lazy } from "react"
-import WebTools from "@/pages/WebTools"
+import { lazy } from "react"
+import { RouteObject } from "react-router-dom"
+import { RouteGuard } from "@/components/routing/RouteGuard"
+import { ToolLayout } from "@/components/layouts/ToolLayout"
 
+// Tool Pages
 const WhiteNoise = lazy(() => import("@/pages/tools/WhiteNoise"))
 const BMICalculator = lazy(() => import("@/pages/tools/BMICalculator"))
 const BodyFatCalculator = lazy(() => import("@/pages/tools/BodyFatCalculator"))
@@ -43,380 +46,120 @@ const SleepEnvironment = lazy(() => import("@/pages/tools/SleepEnvironment"))
 const SleepAnalytics = lazy(() => import("@/pages/tools/SleepAnalytics"))
 const SleepGoals = lazy(() => import("@/pages/tools/SleepGoals"))
 const SmartAlarm = lazy(() => import("@/pages/tools/SmartAlarm"))
-
 const CreatineGuide = lazy(() => import("@/pages/tools/CreatineGuide"))
 const HerbalTeaGuide = lazy(() => import("@/pages/tools/HerbalTeaGuide"))
 
-export const toolRoutes = {
-  path: "/tools",
-  children: [
-    {
-      path: "",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <WebTools />
-        </Suspense>
-      ),
-    },
-    {
-      path: "white-noise",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <WhiteNoise />
-        </Suspense>
-      ),
-    },
-    {
-      path: "bmi-calculator",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <BMICalculator />
-        </Suspense>
-      ),
-    },
-    {
-      path: "body-fat-calculator",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <BodyFatCalculator />
-        </Suspense>
-      ),
-    },
-    {
-      path: "bmr-calculator",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <BMRCalculator />
-        </Suspense>
-      ),
-    },
-    {
-      path: "biological-age-calculator",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <BiologicalAgeCalculator />
-        </Suspense>
-      ),
-    },
-    {
-      path: "hrv-calculator",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <HRVCalculator />
-        </Suspense>
-      ),
-    },
-    {
-      path: "breathing-rate-calculator",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <BreathingRateCalculator />
-        </Suspense>
-      ),
-    },
-    {
-      path: "calorie-calculator",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <CalorieCalculator />
-        </Suspense>
-      ),
-    },
-    {
-      path: "macro-calculator",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <MacroCalculator />
-        </Suspense>
-      ),
-    },
-    {
-      path: "water-intake-calculator",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <WaterIntakeCalculator />
-        </Suspense>
-      ),
-    },
-    {
-      path: "binaural-beats",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <BinauralBeats />
-        </Suspense>
-      ),
-    },
-    {
-      path: "nature-sounds",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <NatureSounds />
-        </Suspense>
-      ),
-    },
-    {
-      path: "focus-timer",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <FocusTimer />
-        </Suspense>
-      ),
-    },
-    {
-      path: "color-match",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <ColorMatch />
-        </Suspense>
-      ),
-    },
-    {
-      path: "brain-match",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <BrainMatch3 />
-        </Suspense>
-      ),
-    },
-    {
-      path: "reaction-time",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <ReactionTime />
-        </Suspense>
-      ),
-    },
-    {
-      path: "memory-cards",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <MemoryCards />
-        </Suspense>
-      ),
-    },
-    {
-      path: "sequence-memory",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <SequenceMemory />
-        </Suspense>
-      ),
-    },
-    {
-      path: "word-scramble",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <WordScramble />
-        </Suspense>
-      ),
-    },
-    {
-      path: "mental-rotation",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <MentalRotation />
-        </Suspense>
-      ),
-    },
-    {
-      path: "reversi",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <Reversi />
-        </Suspense>
-      ),
-    },
-    {
-      path: "breathing-exercises",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <BreathingExercises />
-        </Suspense>
-      ),
-    },
-    {
-      path: "stress-check",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <StressCheck />
-        </Suspense>
-      ),
-    },
-    {
-      path: "sleep-calculator",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <SleepCalculator />
-        </Suspense>
-      ),
-    },
-    {
-      path: "caffeine-calculator",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <CaffeineCalculator />
-        </Suspense>
-      ),
-    },
-    {
-      path: "withdrawal-tracker",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <WithdrawalTracker />
-        </Suspense>
-      ),
-    },
-    {
-      path: "breath-training-devices",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <BreathTraining />
-        </Suspense>
-      ),
-    },
-    {
-      path: "mouth-taping-guide",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <MouthTaping />
-        </Suspense>
-      ),
-    },
-    {
-      path: "red-light-therapy",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <RedLightTherapy />
-        </Suspense>
-      ),
-    },
-    {
-      path: "nootropics-database",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <NootropicsDatabase />
-        </Suspense>
-      ),
-    },
-    {
-      path: "cold-therapy-tools",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <ColdTherapy />
-        </Suspense>
-      ),
-    },
-    {
-      path: "emf-protection",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <EMFProtection />
-        </Suspense>
-      ),
-    },
-    {
-      path: "blue-light-blockers",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <BlueLightBlockers />
-        </Suspense>
-      ),
-    },
-    {
-      path: "grounding-earthing",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <Grounding />
-        </Suspense>
-      ),
-    },
-    {
-      path: "sleep-guide",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <SleepGuide />
-        </Suspense>
-      ),
-    },
-    {
-      path: "sleep-guide/:slug",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <SleepGuideArticle />
-        </Suspense>
-      ),
-    },
-    {
-      path: "sleep-tracking",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <SleepTracking />
-        </Suspense>
-      ),
-    },
-    {
-      path: "sleep-hygiene",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <SleepHygieneChecklist />
-        </Suspense>
-      ),
-    },
-    {
-      path: "sleep-environment",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <SleepEnvironment />
-        </Suspense>
-      ),
-    },
-    {
-      path: "sleep-analytics",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <SleepAnalytics />
-        </Suspense>
-      ),
-    },
-    {
-      path: "sleep-goals",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <SleepGoals />
-        </Suspense>
-      ),
-    },
-    {
-      path: "smart-alarm",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <SmartAlarm />
-        </Suspense>
-      ),
-    },
-    {
-      path: "creatine-guide",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <CreatineGuide />
-        </Suspense>
-      ),
-    },
-    {
-      path: "herbal-tea-guide",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <HerbalTeaGuide />
-        </Suspense>
-      ),
-    },
-    {
-      path: ":toolSlug",
-      element: (
-        <Suspense fallback={<div>Loading...</div>}>
-          <WebTools />
-        </Suspense>
-      ),
-    }
-  ],
+// Tool Categories
+const categories = {
+  calculators: {
+    name: "Health Calculators",
+    tools: [
+      { path: "bmi", element: <BMICalculator />, name: "BMI Calculator" },
+      { path: "body-fat", element: <BodyFatCalculator />, name: "Body Fat Calculator" },
+      { path: "bmr", element: <BMRCalculator />, name: "BMR Calculator" },
+      { path: "biological-age", element: <BiologicalAgeCalculator />, name: "Biological Age Calculator" },
+      { path: "hrv", element: <HRVCalculator />, name: "HRV Calculator" },
+      { path: "breathing-rate", element: <BreathingRateCalculator />, name: "Breathing Rate Calculator" },
+      { path: "calorie", element: <CalorieCalculator />, name: "Calorie Calculator" },
+      { path: "macro", element: <MacroCalculator />, name: "Macro Calculator" },
+      { path: "water-intake", element: <WaterIntakeCalculator />, name: "Water Intake Calculator" },
+    ]
+  },
+  focus: {
+    name: "Focus Tools",
+    tools: [
+      { path: "white-noise", element: <WhiteNoise />, name: "White Noise Generator" },
+      { path: "binaural-beats", element: <BinauralBeats />, name: "Binaural Beats" },
+      { path: "nature-sounds", element: <NatureSounds />, name: "Nature Sounds" },
+      { path: "focus-timer", element: <FocusTimer />, name: "Focus Timer" },
+    ]
+  },
+  brain: {
+    name: "Brain Training",
+    tools: [
+      { path: "color-match", element: <ColorMatch />, name: "Color Match" },
+      { path: "brain-match3", element: <BrainMatch3 />, name: "Brain Match 3" },
+      { path: "reaction-time", element: <ReactionTime />, name: "Reaction Time" },
+      { path: "memory-cards", element: <MemoryCards />, name: "Memory Cards" },
+      { path: "sequence-memory", element: <SequenceMemory />, name: "Sequence Memory" },
+      { path: "word-scramble", element: <WordScramble />, name: "Word Scramble" },
+      { path: "mental-rotation", element: <MentalRotation />, name: "Mental Rotation" },
+      { path: "reversi", element: <Reversi />, name: "Reversi" },
+    ]
+  },
+  wellness: {
+    name: "Wellness Tools",
+    tools: [
+      { path: "breathing-exercises", element: <BreathingExercises />, name: "Breathing Exercises" },
+      { path: "stress-check", element: <StressCheck />, name: "Stress Check" },
+      { path: "sleep-calculator", element: <SleepCalculator />, name: "Sleep Calculator" },
+      { path: "caffeine-calculator", element: <CaffeineCalculator />, name: "Caffeine Calculator" },
+      { path: "withdrawal-tracker", element: <WithdrawalTracker />, name: "Withdrawal Tracker" },
+    ]
+  },
+  biohacking: {
+    name: "Biohacking",
+    tools: [
+      { path: "breath-training", element: <BreathTraining />, name: "Breath Training" },
+      { path: "mouth-taping", element: <MouthTaping />, name: "Mouth Taping Guide" },
+      { path: "red-light-therapy", element: <RedLightTherapy />, name: "Red Light Therapy" },
+      { path: "nootropics", element: <NootropicsDatabase />, name: "Nootropics Database" },
+      { path: "cold-therapy", element: <ColdTherapy />, name: "Cold Therapy" },
+      { path: "emf-protection", element: <EMFProtection />, name: "EMF Protection" },
+      { path: "blue-light-blockers", element: <BlueLightBlockers />, name: "Blue Light Blockers" },
+    ]
+  },
+  sleep: {
+    name: "Sleep Tools",
+    tools: [
+      { path: "sleep-guide", element: <SleepGuide />, name: "Sleep Guide" },
+      { path: "sleep-tracking", element: <SleepTracking />, name: "Sleep Tracking" },
+      { path: "sleep-hygiene", element: <SleepHygieneChecklist />, name: "Sleep Hygiene Checklist" },
+      { path: "sleep-environment", element: <SleepEnvironment />, name: "Sleep Environment" },
+      { path: "sleep-analytics", element: <SleepAnalytics />, name: "Sleep Analytics" },
+      { path: "sleep-goals", element: <SleepGoals />, name: "Sleep Goals" },
+      { path: "smart-alarm", element: <SmartAlarm />, name: "Smart Alarm" },
+    ]
+  },
+  guides: {
+    name: "Guides",
+    tools: [
+      { path: "creatine-guide", element: <CreatineGuide />, name: "Creatine Guide" },
+      { path: "herbal-tea-guide", element: <HerbalTeaGuide />, name: "Herbal Tea Guide" },
+    ]
+  }
+}
+
+// Create route objects with guards
+const createToolRoute = (tool: { path: string; element: JSX.Element; name: string }) => ({
+  path: tool.path,
+  element: (
+    <RouteGuard
+      requirements={{
+        permission: 'public',
+        platform: ['webapp', 'webtool'],
+        features: ['tools']
+      }}
+    >
+      {tool.element}
+    </RouteGuard>
+  )
+})
+
+// Export routes
+export const toolRoutes: RouteObject = {
+  path: "tools",
+  element: (
+    <RouteGuard
+      requirements={{
+        permission: 'public',
+        platform: ['webapp', 'webtool']
+      }}
+    >
+      <ToolLayout />
+    </RouteGuard>
+  ),
+  children: Object.values(categories).flatMap(category => 
+    category.tools.map(tool => createToolRoute(tool))
+  )
 }

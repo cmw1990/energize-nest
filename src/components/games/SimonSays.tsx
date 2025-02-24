@@ -14,7 +14,7 @@ const COLOR_CLASSES = {
   yellow: "bg-yellow-500"
 };
 
-const SimonSays = () => {
+export const SimonSays = () => {
   const [sequence, setSequence] = useState<string[]>([]);
   const [userSequence, setUserSequence] = useState<string[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -158,5 +158,3 @@ const SimonSays = () => {
     </Card>
   );
 };
-
-export default SimonSays;

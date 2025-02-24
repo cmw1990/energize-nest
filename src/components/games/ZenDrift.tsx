@@ -103,7 +103,7 @@ const Game = () => {
   );
 };
 
-const ZenDrift = () => {
+export const ZenDrift = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [isLoadingAssets, setIsLoadingAssets] = useState(true);
@@ -279,5 +279,3 @@ const ZenDrift = () => {
     </Card>
   );
 };
-
-export default ZenDrift;

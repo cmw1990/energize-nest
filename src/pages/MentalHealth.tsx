@@ -1,39 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Skeleton } from "@/components/ui/skeleton";
-import CBTExercises from "@/components/cbt/CBTExercises";
-import { ConsultationBooking } from "@/components/mentalHealth/ConsultationBooking";
-import { ProfessionalDirectory } from "@/components/mentalHealth/ProfessionalDirectory";
 import { MoodTracker } from "@/components/mentalHealth/MoodTracker";
-import { MoodJournal } from "@/components/mentalHealth/journal/MoodJournal";
-import { TherapyDashboard } from "@/components/mentalHealth/TherapyDashboard";
-import { SupportGroups } from "@/components/mentalHealth/groups/SupportGroups";
-import { EmergencyResources } from "@/components/mentalHealth/crisis/EmergencyResources";
-import { ConsultationPackages } from "@/components/mentalHealth/packages/ConsultationPackages";
-import { ProfessionalDashboard } from "@/components/mentalHealth/professionals/ProfessionalDashboard";
-import { ClientDashboard } from "@/components/mentalHealth/clients/ClientDashboard";
-import { TreatmentPlanManager } from "@/components/mentalHealth/treatment/TreatmentPlanManager";
-import { TriggerTracker } from "@/components/mentalHealth/TriggerTracker";
-import { CopingStrategies } from "@/components/mentalHealth/CopingStrategies";
-import { useToast } from "@/hooks/use-toast";
+import { AnxietyDashboard } from "@/components/mentalHealth/anxiety/AnxietyDashboard";
+import { MindfulnessTracker } from "@/components/mentalHealth/mindfulness/MindfulnessTracker";
+import { TherapyGoals } from "@/components/mentalHealth/therapy/TherapyGoals";
+import { SocialConnections } from "@/components/mentalHealth/social/SocialConnections";
+import { SleepMental } from "@/components/mentalHealth/sleep/SleepMental";
 import { useAuth } from "@/components/AuthProvider";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { 
   Brain, 
-  Users, 
-  Calendar, 
-  Activity, 
-  LineChart,
-  MessagesSquare,
-  Package,
-  AlertTriangle,
-  Loader2,
-  ClipboardList,
-  Shield,
-  Target
+  HeartPulse,
+  Lotus,
+  Target,
+  Users,
+  Moon
 } from "lucide-react";
 
 const fadeIn = {
@@ -49,184 +31,85 @@ const stagger = {
   }
 };
 
-const tabVariants = {
-  hidden: { opacity: 0, x: -20 },
-  visible: { 
-    opacity: 1, 
-    x: 0,
-    transition: { duration: 0.3, ease: "easeOut" }
-  }
-};
-
 export default function MentalHealth() {
   const { session } = useAuth();
-  const { toast } = useToast();
-  const [userRole, setUserRole] = useState<'client' | 'professional' | null>(null);
+  const [activeTab, setActiveTab] = useState("mood");
 
-  const { data: profile, isLoading } = useQuery({
-    queryKey: ['user-profile', session?.user?.id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', session?.user?.id)
-        .single();
-      
-      if (error) {
-        toast({
-          title: "Error loading profile",
-          description: "Please try again later",
-          variant: "destructive"
-        });
-        throw error;
-      }
-      return data;
-    },
-    enabled: !!session?.user?.id
-  });
-
-  useEffect(() => {
-    if (profile?.role) {
-      setUserRole(profile.role as 'client' | 'professional');
-    }
-  }, [profile]);
-
-  if (isLoading) {
+  if (!session) {
     return (
-      <motion.div 
-        initial="hidden"
-        animate="visible"
-        variants={fadeIn}
-        className="container mx-auto p-4 space-y-6"
-      >
-        <div className="flex items-center gap-2 mb-6">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <h1 className="text-3xl font-bold">Loading...</h1>
-        </div>
-        <div className="grid gap-4">
-          <Skeleton className="h-12 w-full animate-pulse" />
-          <Skeleton className="h-[200px] w-full animate-pulse" />
-          <Skeleton className="h-[200px] w-full animate-pulse" />
-        </div>
-      </motion.div>
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+        <Card className="p-6">
+          <p>Please sign in to access mental health features.</p>
+        </Card>
+      </div>
     );
   }
 
-  if (userRole === 'professional') {
-    return <ProfessionalDashboard />;
-  }
-
-  if (userRole === 'client') {
-    return <ClientDashboard />;
-  }
-
   return (
-    <motion.div 
+    <motion.div
       initial="hidden"
       animate="visible"
-      variants={fadeIn}
-      className="container mx-auto p-4 space-y-6"
+      variants={stagger}
+      className="container mx-auto py-6 max-w-4xl"
     >
-      <motion.div 
+      <motion.h1
         variants={fadeIn}
-        className="flex items-center gap-2 mb-6"
+        className="text-3xl font-bold mb-6"
       >
-        <Brain className="h-8 w-8 text-primary animate-pulse" />
-        <h1 className="text-3xl font-bold">Mental Health Support</h1>
-      </motion.div>
+        Mental Health & Wellbeing
+      </motion.h1>
 
-      <Tabs defaultValue="dashboard" className="space-y-6">
-        <motion.div variants={stagger}>
-          <TabsList className="grid grid-cols-2 lg:grid-cols-10 gap-4">
-            {[
-              { value: "dashboard", icon: <Activity className="h-4 w-4" />, label: "Dashboard" },
-              { value: "professionals", icon: <Users className="h-4 w-4" />, label: "Find Professional" },
-              { value: "consultations", icon: <Calendar className="h-4 w-4" />, label: "Consultations" },
-              { value: "packages", icon: <Package className="h-4 w-4" />, label: "Packages" },
-              { value: "groups", icon: <MessagesSquare className="h-4 w-4" />, label: "Support Groups" },
-              { value: "exercises", icon: <Brain className="h-4 w-4" />, label: "CBT Exercises" },
-              { value: "mood", icon: <LineChart className="h-4 w-4" />, label: "Mood Tracking" },
-              { value: "triggers", icon: <Target className="h-4 w-4" />, label: "Triggers" },
-              { value: "coping", icon: <Shield className="h-4 w-4" />, label: "Coping" },
-              { value: "emergency", icon: <AlertTriangle className="h-4 w-4" />, label: "Emergency" }
-            ].map((tab) => (
-              <motion.div key={tab.value} variants={tabVariants}>
-                <TabsTrigger 
-                  value={tab.value} 
-                  className="gap-2 hover-lift subtle-scale"
-                >
-                  {tab.icon}
-                  {tab.label}
-                </TabsTrigger>
-              </motion.div>
-            ))}
-          </TabsList>
-        </motion.div>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid grid-cols-6 gap-4 mb-6">
+          <TabsTrigger value="mood" className="flex items-center gap-2">
+            <HeartPulse className="h-4 w-4" />
+            Mood
+          </TabsTrigger>
+          <TabsTrigger value="anxiety" className="flex items-center gap-2">
+            <Brain className="h-4 w-4" />
+            Anxiety
+          </TabsTrigger>
+          <TabsTrigger value="mindfulness" className="flex items-center gap-2">
+            <Lotus className="h-4 w-4" />
+            Mindfulness
+          </TabsTrigger>
+          <TabsTrigger value="goals" className="flex items-center gap-2">
+            <Target className="h-4 w-4" />
+            Goals
+          </TabsTrigger>
+          <TabsTrigger value="social" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Social
+          </TabsTrigger>
+          <TabsTrigger value="sleep" className="flex items-center gap-2">
+            <Moon className="h-4 w-4" />
+            Sleep
+          </TabsTrigger>
+        </TabsList>
 
         <motion.div variants={fadeIn}>
-          <TabsContent value="dashboard">
-            <Card className="elegant-card">
-              <TherapyDashboard />
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="professionals">
-            <Card className="elegant-card">
-              <ProfessionalDirectory />
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="consultations">
-            <Card className="elegant-card">
-              <ConsultationBooking />
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="packages">
-            <Card className="elegant-card">
-              <ConsultationPackages />
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="groups">
-            <Card className="elegant-card">
-              <SupportGroups />
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="exercises">
-            <Card className="elegant-card">
-              <CBTExercises />
-            </Card>
-          </TabsContent>
-
           <TabsContent value="mood">
-            <div className="space-y-4">
-              <Card className="elegant-card">
-                <MoodTracker />
-              </Card>
-              <Card className="elegant-card">
-                <MoodJournal />
-              </Card>
-            </div>
+            <MoodTracker />
           </TabsContent>
 
-          <TabsContent value="triggers">
-            <Card className="elegant-card">
-              <TriggerTracker />
-            </Card>
+          <TabsContent value="anxiety">
+            <AnxietyDashboard />
           </TabsContent>
 
-          <TabsContent value="coping">
-            <Card className="elegant-card">
-              <CopingStrategies />
-            </Card>
+          <TabsContent value="mindfulness">
+            <MindfulnessTracker />
           </TabsContent>
 
-          <TabsContent value="emergency">
-            <Card className="elegant-card">
-              <EmergencyResources />
-            </Card>
+          <TabsContent value="goals">
+            <TherapyGoals />
+          </TabsContent>
+
+          <TabsContent value="social">
+            <SocialConnections />
+          </TabsContent>
+
+          <TabsContent value="sleep">
+            <SleepMental />
           </TabsContent>
         </motion.div>
       </Tabs>

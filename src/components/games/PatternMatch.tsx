@@ -14,7 +14,7 @@ const COLOR_CLASSES = {
   yellow: "bg-yellow-500"
 };
 
-const PatternMatch = () => {
+export const PatternMatch = () => {
   const [pattern, setPattern] = useState<string[]>([]);
   const [userPattern, setUserPattern] = useState<string[]>([]);
   const [isShowingPattern, setIsShowingPattern] = useState(false);
@@ -157,5 +157,3 @@ const PatternMatch = () => {
     </Card>
   );
 };
-
-export default PatternMatch;

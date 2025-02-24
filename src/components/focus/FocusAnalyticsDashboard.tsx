@@ -21,7 +21,7 @@ export const FocusAnalyticsDashboard = () => {
     queryKey: ['focus-analytics'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('focus_analytics')
+        .from('focus_analytics8')
         .select('*')
         .order('date', { ascending: false })
         .limit(1)

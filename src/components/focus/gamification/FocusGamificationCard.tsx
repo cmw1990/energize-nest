@@ -25,7 +25,7 @@ export const FocusGamificationCard = () => {
   const loadGamificationData = async () => {
     try {
       const { data: rawData, error } = await supabase
-        .from('focus_gamification')
+        .from('focus_gamification8')
         .select('*')
         .eq('user_id', session?.user.id)
         .single();
@@ -109,7 +109,7 @@ export const FocusGamificationCard = () => {
 
       // Update in the database
       const { error } = await supabase
-        .from('focus_gamification')
+        .from('focus_gamification8')
         .update(updatePayload)
         .eq('user_id', session.user.id);
 

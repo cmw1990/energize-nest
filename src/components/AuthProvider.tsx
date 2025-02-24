@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Session } from "@supabase/supabase-js";
@@ -11,12 +10,16 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   userRole: string | null;
+  signIn: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({ 
   session: null, 
   loading: true,
-  userRole: null 
+  userRole: null,
+  signIn: async () => {},
+  signOut: async () => {}
 });
 
 export const useAuth = () => {
@@ -54,15 +57,41 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Create or update user settings on authentication
   const initializeUserSettings = async (userId: string) => {
-    const { error } = await supabase
-      .from('user_settings')
-      .upsert({
-        user_id: userId,
-        updated_at: new Date().toISOString()
-      });
+    try {
+      // First check if user settings exist
+      const { data: existingSettings, error: fetchError } = await supabase
+        .from('user_settings')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
 
-    if (error) {
-      console.error('Error initializing user settings:', error);
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        console.error('Error fetching user settings:', fetchError);
+        return;
+      }
+
+      if (!existingSettings) {
+        // Create new settings if they don't exist
+        const { error: insertError } = await supabase
+          .from('user_settings')
+          .insert({
+            user_id: userId,
+            theme: 'light',
+            notifications_enabled: true,
+            updated_at: new Date().toISOString()
+          });
+
+        if (insertError) {
+          console.error('Error creating user settings:', insertError);
+          toast({
+            title: "Settings Error",
+            description: "Could not initialize user settings. Some features may be limited.",
+            variant: "destructive",
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error in initializeUserSettings:', error);
     }
   };
 
@@ -73,72 +102,81 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [roleData]);
 
   useEffect(() => {
-    // Refresh token function
-    const refreshToken = async () => {
-      const { data: { session: newSession }, error } = await supabase.auth.refreshSession();
-      if (error) {
-        console.error('Error refreshing token:', error);
-        toast({
-          title: "Session Error",
-          description: "Please sign in again",
-          variant: "destructive",
-        });
-        navigate("/auth");
-      } else if (newSession) {
-        setSession(newSession);
-        if (newSession.user?.id) {
-          initializeUserSettings(newSession.user.id);
-        }
-      }
-    };
-
+    console.log('AuthProvider: Starting session initialization');
+    
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session?.user?.id) {
+      console.log('AuthProvider: Got initial session', { hasSession: !!session });
+      if (session?.user) {
+        setSession(session);
         initializeUserSettings(session.user.id);
       }
       setLoading(false);
-
-      // Set up token refresh interval
-      const tokenRefreshInterval = setInterval(() => {
-        if (session) {
-          refreshToken();
-        }
-      }, 3600000); // Refresh token every hour
-
-      return () => clearInterval(tokenRefreshInterval);
-    }).catch((error) => {
-      console.error("Error getting session:", error);
+    }).catch(error => {
+      console.error('AuthProvider: Error getting session:', error);
       setLoading(false);
-      toast({
-        title: "Authentication Error",
-        description: "Please try logging in again",
-        variant: "destructive",
-      });
     });
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setSession(session);
-      if (!session) {
-        navigate("/auth");
-      } else if (session.user?.id) {
-        initializeUserSettings(session.user.id);
+      console.log('AuthProvider: Auth state changed', { event: _event, hasSession: !!session });
+      if (session?.user) {
+        setSession(session);
+        await initializeUserSettings(session.user.id);
+      } else {
+        setSession(null);
       }
+      setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
-  }, [navigate, toast]);
+    return () => {
+      console.log('AuthProvider: Cleaning up subscription');
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const signIn = async (email: string, password: string) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Authentication Error",
+          description: error.message,
+        });
+        throw error;
+      }
+
+      if (data?.user) {
+        navigate("/webapp/dashboard");
+      }
+    } catch (error) {
+      console.error("SignIn error:", error);
+      throw error;
+    }
+  };
+
+  const signOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      navigate("/");
+    } catch (error) {
+      console.error("SignOut error:", error);
+      throw error;
+    }
+  };
 
   return (
-    <>
-      <AuthContext.Provider value={{ session, loading, userRole }}>
-        {children}
-      </AuthContext.Provider>
+    <AuthContext.Provider value={{ session, loading, userRole, signIn, signOut }}>
+      {children}
       <Toaster />
-    </>
+    </AuthContext.Provider>
   );
 };

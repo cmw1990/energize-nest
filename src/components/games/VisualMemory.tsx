@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { Brain } from "lucide-react";
 
-const VisualMemory = () => {
+export const VisualMemory = () => {
   const [gridSize, setGridSize] = useState(3);
   const [pattern, setPattern] = useState<boolean[]>([]);
   const [userPattern, setUserPattern] = useState<boolean[]>([]);
@@ -170,5 +170,3 @@ const VisualMemory = () => {
     </Card>
   );
 };
-
-export default VisualMemory;

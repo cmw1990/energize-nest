@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
@@ -31,42 +30,42 @@ const navigationGroups = [
     label: "Core Energy",
     links: [
       {
-        to: "/app/dashboard",
+        to: "/webapp/dashboard",
         icon: Activity,
         label: "Overview",
       },
       {
-        to: "/app/sleep",
+        to: "/webapp/sleep",
         icon: Moon,
         label: "Sleep",
       },
       {
-        to: "/app/relax",
+        to: "/webapp/relax",
         icon: Flower2,
         label: "Relax",
       },
       {
-        to: "/app/focus",
+        to: "/webapp/focus",
         icon: Focus,
         label: "Focus",
       },
       {
-        to: "/app/meditation",
+        to: "/webapp/meditation",
         icon: Sparkles,
         label: "Meditation",
       },
       {
-        to: "/app/exercise",
+        to: "/webapp/exercise",
         icon: Dumbbell,
         label: "Exercise",
       },
       {
-        to: "/app/eye-exercises",
+        to: "/webapp/eye-exercises",
         icon: Eye,
         label: "Eye Care",
       },
       {
-        to: "/app/bathing",
+        to: "/webapp/bathing",
         icon: Bath,
         label: "Bathing",
       },

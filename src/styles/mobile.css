@@ -1,0 +1,238 @@
+:root {
+  --ion-safe-area-top: env(safe-area-inset-top);
+  --ion-safe-area-bottom: env(safe-area-inset-bottom);
+  --ion-safe-area-left: env(safe-area-inset-left);
+  --ion-safe-area-right: env(safe-area-inset-right);
+  
+  /* Base font sizes */
+  --font-size-xs: 0.75rem;  /* 12px */
+  --font-size-sm: 0.875rem; /* 14px */
+  --font-size-base: 1rem;   /* 16px */
+  --font-size-lg: 1.125rem; /* 18px */
+  --font-size-xl: 1.25rem;  /* 20px */
+  
+  /* Spacing */
+  --spacing-xs: 0.5rem;   /* 8px */
+  --spacing-sm: 0.75rem;  /* 12px */
+  --spacing-base: 1rem;   /* 16px */
+  --spacing-lg: 1.5rem;   /* 24px */
+  --spacing-xl: 2rem;     /* 32px */
+  
+  /* Mobile-specific CSS variables */
+  --mobile-font-size-xs: 0.75rem;    /* 12px */
+  --mobile-font-size-sm: 0.813rem;   /* 13px */
+  --mobile-font-size-base: 0.875rem; /* 14px */
+  --mobile-font-size-lg: 1rem;       /* 16px */
+  --mobile-font-size-xl: 1.125rem;   /* 18px */
+  --mobile-font-size-2xl: 1.25rem;   /* 20px */
+
+  /* Spacing */
+  --mobile-spacing-xs: 0.25rem;  /* 4px */
+  --mobile-spacing-sm: 0.5rem;   /* 8px */
+  --mobile-spacing-md: 0.75rem;  /* 12px */
+  --mobile-spacing-lg: 1rem;     /* 16px */
+  --mobile-spacing-xl: 1.25rem;  /* 20px */
+
+  /* Component Sizes */
+  --mobile-card-padding: 0.75rem;
+  --mobile-list-item-height: 2.75rem;
+  --mobile-avatar-size: 2rem;
+  --mobile-icon-size: 1.25rem;
+  --mobile-badge-size: 1.25rem;
+}
+
+/* Base styles */
+body {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  overflow-x: hidden;
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+}
+
+/* Typography */
+h1 { font-size: var(--font-size-xl); }
+h2 { font-size: var(--font-size-lg); }
+h3 { font-size: var(--font-size-base); }
+p { font-size: var(--font-size-sm); }
+
+/* Card styles */
+ion-card {
+  margin: var(--spacing-xs);
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* List styles */
+ion-list {
+  padding: 0;
+  margin: var(--spacing-xs) 0;
+}
+
+ion-item {
+  --padding-start: var(--spacing-base);
+  --padding-end: var(--spacing-base);
+  --inner-padding-end: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+}
+
+/* Icon sizes */
+ion-icon {
+  font-size: 24px;
+}
+
+/* Header styles */
+ion-header {
+  ion-toolbar {
+    --padding-top: var(--ion-safe-area-top);
+    --min-height: 44px;
+  }
+  
+  ion-title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+  }
+}
+
+/* Tab bar styles */
+ion-tab-bar {
+  --padding-bottom: var(--ion-safe-area-bottom);
+  height: calc(56px + var(--ion-safe-area-bottom));
+  
+  ion-label {
+    font-size: var(--font-size-xs);
+  }
+  
+  ion-icon {
+    font-size: 22px;
+  }
+}
+
+/* Content padding */
+ion-content {
+  --padding-start: var(--spacing-base);
+  --padding-end: var(--spacing-base);
+  --padding-top: var(--spacing-base);
+  --padding-bottom: calc(var(--spacing-base) + var(--ion-safe-area-bottom));
+}
+
+/* Custom components */
+.energy-card {
+  background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-tint) 100%);
+  color: white;
+  padding: var(--spacing-base);
+  border-radius: 16px;
+  margin-bottom: var(--spacing-base);
+}
+
+.stat-number {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: var(--font-size-sm);
+  opacity: 0.8;
+}
+
+/* Safe area adjustments */
+.safe-area-top {
+  padding-top: var(--ion-safe-area-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: var(--ion-safe-area-bottom);
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 768px) {
+  /* Full width container */
+  .ion-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .ion-content {
+    --padding-start: 0 !important;
+    --padding-end: 0 !important;
+    --padding-top: 0 !important;
+    --padding-bottom: 0 !important;
+  }
+
+  /* Card styles */
+  .card {
+    margin: 0.5rem 0 !important;
+    padding: 1rem !important;
+    border-radius: 0.75rem !important;
+  }
+
+  /* Typography */
+  h1 {
+    font-size: 1.25rem !important;
+    line-height: 1.75rem !important;
+  }
+
+  h2 {
+    font-size: 1.125rem !important;
+    line-height: 1.5rem !important;
+  }
+
+  h3 {
+    font-size: 1rem !important;
+    line-height: 1.5rem !important;
+  }
+
+  p, div {
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+  }
+
+  /* Navigation */
+  .ion-tab-bar {
+    height: 3.5rem !important;
+    padding-bottom: env(safe-area-inset-bottom) !important;
+  }
+
+  .ion-tab-button {
+    font-size: 0.75rem !important;
+  }
+
+  /* Lists */
+  .list-item {
+    padding: 0.75rem 1rem !important;
+  }
+
+  /* Buttons */
+  .button {
+    height: 2.5rem !important;
+    padding: 0 1rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  /* Form inputs */
+  input, select, textarea {
+    height: 2.75rem !important;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  /* Spacing */
+  .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Safe area handling */
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top) !important;
+  }
+
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom) !important;
+  }
+}

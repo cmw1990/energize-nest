@@ -8,7 +8,7 @@ import { GameGrid } from "./brain-match/GameGrid";
 import { GameFooter } from "./brain-match/GameFooter";
 import { useGameLogic } from "./brain-match/useGameLogic";
 
-const BrainMatch3 = () => {
+export const BrainMatch3 = () => {
   const { session } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -67,5 +67,3 @@ const BrainMatch3 = () => {
     </Card>
   );
 };
-
-export default BrainMatch3;

@@ -15,7 +15,7 @@ const COLOR_CLASSES = {
   purple: "bg-purple-500"
 };
 
-const ColorMatch = () => {
+export const ColorMatch = () => {
   const [word, setWord] = useState("");
   const [color, setColor] = useState("");
   const [score, setScore] = useState(0);
@@ -182,5 +182,3 @@ const ColorMatch = () => {
     </Card>
   );
 };
-
-export default ColorMatch;

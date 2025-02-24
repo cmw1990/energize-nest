@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,7 +27,7 @@ export const FocusHabitTracker = () => {
   const loadHabits = async () => {
     try {
       const { data, error } = await supabase
-        .from('focus_habits')
+        .from('focus_habits8')
         .select('*')
         .eq('user_id', session?.user.id)
         .order('created_at', { ascending: false });
@@ -49,7 +48,7 @@ export const FocusHabitTracker = () => {
     if (!newHabit.habit_name) return;
 
     try {
-      const { error } = await supabase.from('focus_habits').insert({
+      const { error } = await supabase.from('focus_habits8').insert({
         user_id: session?.user.id,
         habit_name: newHabit.habit_name,
         frequency: newHabit.frequency,

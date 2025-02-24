@@ -1,17 +1,16 @@
-
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowRight, Brain, Globe, Zap, Wrench, Battery, Settings2 as Settings, Pill, Wind, Coffee, Smartphone, Tablet, Laptop, Monitor, Chrome, Star } from "lucide-react"
 import { Link } from "react-router-dom"
 import { TopNav } from "@/components/layout/TopNav"
 
-const LandingPage = () => {
+export const LandingPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       <TopNav />
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20">
+      <section className="container mx-auto px-4 py-20 bg-white">
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <h1 className="text-4xl md:text-6xl font-bold text-primary">
             Optimize Your Energy & Performance
@@ -36,27 +35,27 @@ const LandingPage = () => {
             <h3 className="text-lg font-semibold mb-4">Available Everywhere You Need It</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
               <Link to="/download/ios" className="flex items-center gap-2 p-3 rounded-lg hover:bg-primary/10 transition-colors">
-                <Smartphone className="h-5 w-5 text-primary" />
+                <Smartphone className="size-5 text-primary" />
                 <span>iOS App</span>
               </Link>
               <Link to="/download/android" className="flex items-center gap-2 p-3 rounded-lg hover:bg-primary/10 transition-colors">
-                <Smartphone className="h-5 w-5 text-primary" />
+                <Smartphone className="size-5 text-primary" />
                 <span>Android App</span>
               </Link>
               <Link to="/download/mac" className="flex items-center gap-2 p-3 rounded-lg hover:bg-primary/10 transition-colors">
-                <Laptop className="h-5 w-5 text-primary" />
+                <Laptop className="size-5 text-primary" />
                 <span>Mac App</span>
               </Link>
               <Link to="/download/windows" className="flex items-center gap-2 p-3 rounded-lg hover:bg-primary/10 transition-colors">
-                <Monitor className="h-5 w-5 text-primary" />
+                <Monitor className="size-5 text-primary" />
                 <span>Windows App</span>
               </Link>
               <Link to="/chrome-extension" className="flex items-center gap-2 p-3 rounded-lg hover:bg-primary/10 transition-colors">
-                <Chrome className="h-5 w-5 text-primary" />
+                <Chrome className="size-5 text-primary" />
                 <span>Chrome Extension</span>
               </Link>
-              <Link to="/tools" className="flex items-center gap-2 p-3 rounded-lg hover:bg-primary/10 transition-colors">
-                <Globe className="h-5 w-5 text-primary" />
+              <Link to="/webapp" className="flex items-center gap-2 p-3 rounded-lg hover:bg-primary/10 transition-colors">
+                <Globe className="size-5 text-primary" />
                 <span>Web Tools</span>
               </Link>
             </div>
@@ -66,13 +65,13 @@ const LandingPage = () => {
             <Link to="/auth">
               <Button size="lg" className="group">
                 Get Started
-                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="size-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Link to="/tools">
+            <Link to="/webapp">
               <Button size="lg" variant="outline">
-                Explore Tools
-                <Wrench className="ml-2 h-4 w-4" />
+                Launch Web App
+                <Wrench className="size-4 ml-2" />
               </Button>
             </Link>
           </div>
@@ -80,7 +79,7 @@ const LandingPage = () => {
             <Link to="/why-us">
               <Button variant="ghost" size="lg" className="group">
                 Why The Well-Charged?
-                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="size-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
           </div>
@@ -91,7 +90,7 @@ const LandingPage = () => {
       <section className="container mx-auto px-4 py-12 bg-primary/5 rounded-3xl my-8">
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <div className="inline-flex items-center gap-2 text-primary">
-            <Star className="h-6 w-6" />
+            <Star className="size-6" />
             <h2 className="text-3xl font-bold">Celebrity Energy Recipes</h2>
           </div>
           <p className="text-lg text-muted-foreground">
@@ -99,10 +98,10 @@ const LandingPage = () => {
             Learn from their proven strategies and adapt them to your lifestyle.
           </p>
           <div className="flex justify-center">
-            <Link to="/app/energy-plans">
+            <Link to="/webapp/energy">
               <Button size="lg" className="group">
                 Explore Celebrity Plans
-                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="size-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
           </div>
@@ -114,7 +113,7 @@ const LandingPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <Card className="bg-background border-2 border-primary/20">
             <CardHeader>
-              <Brain className="h-8 w-8 text-primary mb-2" />
+              <Brain className="size-8 text-primary mb-2" />
               <CardTitle>Cognitive Enhancement</CardTitle>
               <CardDescription>
                 Science-backed tools and comprehensive guides for optimal mental performance
@@ -123,7 +122,7 @@ const LandingPage = () => {
           </Card>
           <Card className="bg-background border-2 border-primary/20">
             <CardHeader>
-              <Globe className="h-8 w-8 text-primary mb-2" />
+              <Globe className="size-8 text-primary mb-2" />
               <CardTitle>Accessible Anywhere</CardTitle>
               <CardDescription>
                 Use our tools directly in your browser - no downloads or installations needed
@@ -132,7 +131,7 @@ const LandingPage = () => {
           </Card>
           <Card className="bg-background border-2 border-primary/20">
             <CardHeader>
-              <Zap className="h-8 w-8 text-primary mb-2" />
+              <Zap className="size-8 text-primary mb-2" />
               <CardTitle>Energy Management</CardTitle>
               <CardDescription>
                 Optimize your energy levels with our guides and tracking tools
@@ -151,19 +150,19 @@ const LandingPage = () => {
               title: "White Noise Generator",
               description: "Enhance focus and productivity with customizable white noise",
               icon: Wind,
-              path: "/tools/white-noise"
+              path: "/webapp/tools/white-noise"
             },
             {
               title: "Supplement Guide",
               description: "Comprehensive guide to nootropics and cognitive enhancement",
               icon: Pill,
-              path: "/tools/supplement-guide"
+              path: "/webapp/tools/supplement-guide"
             },
             {
               title: "Caffeine Guide",
               description: "Optimize your caffeine intake for better energy and focus",
               icon: Coffee,
-              path: "/tools/caffeine-guide"
+              path: "/webapp/tools/caffeine-guide"
             }
           ].map((tool) => (
             <Link key={tool.title} to={tool.path}>
@@ -171,7 +170,7 @@ const LandingPage = () => {
                 <CardHeader>
                   <div className="flex items-center gap-2">
                     <div className="p-2 bg-primary/10 rounded-full">
-                      <tool.icon className="h-6 w-6 text-primary" />
+                      <tool.icon className="size-6 text-primary" />
                     </div>
                     <CardTitle className="text-xl">{tool.title}</CardTitle>
                   </div>
@@ -186,10 +185,10 @@ const LandingPage = () => {
           ))}
         </div>
         <div className="text-center mt-8">
-          <Link to="/tools">
+          <Link to="/webapp/tools">
             <Button size="lg" variant="outline">
               View All Tools
-              <ArrowRight className="ml-2 h-4 w-4" />
+              <ArrowRight className="size-4 ml-2" />
             </Button>
           </Link>
         </div>
@@ -200,23 +199,17 @@ const LandingPage = () => {
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
-              <Battery className="h-5 w-5 text-primary" />
-              <span className="text-lg font-semibold">The Well-Charged</span>
+              <Battery className="size-6 text-primary" />
+              <span className="text-xl font-semibold">The Well-Charged</span>
             </div>
-            <div className="flex gap-4">
-              <Link to="/tools" className="text-muted-foreground hover:text-foreground">
-                Tools
-              </Link>
-              <Link to="/auth" className="text-muted-foreground hover:text-foreground">
-                Sign In
-              </Link>
+            <div className="flex items-center gap-4">
+              <Link to="/privacy">Privacy</Link>
+              <Link to="/terms">Terms</Link>
+              <Link to="/contact">Contact</Link>
             </div>
           </div>
         </div>
       </footer>
     </div>
-  );
-};
-
-export default LandingPage;
-
+  )
+}

@@ -16,7 +16,7 @@ interface CardType {
   matched: boolean;
 }
 
-const MemoryCards = () => {
+export const MemoryCards = () => {
   const [cards, setCards] = useState<CardType[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [matches, setMatches] = useState(0);
@@ -157,5 +157,3 @@ const MemoryCards = () => {
     </Card>
   );
 };
-
-export default MemoryCards;

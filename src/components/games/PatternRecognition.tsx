@@ -15,7 +15,7 @@ type Shape = {
 const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4'];
 const SHAPES = ['circle', 'square', 'triangle', 'diamond'] as const;
 
-const PatternRecognition = () => {
+export const PatternRecognition = () => {
   const [pattern, setPattern] = useState<Shape[]>([]);
   const [userPattern, setUserPattern] = useState<Shape[]>([]);
   const [isShowingPattern, setIsShowingPattern] = useState(false);
@@ -204,5 +204,3 @@ const PatternRecognition = () => {
     </Card>
   );
 };
-
-export default PatternRecognition;

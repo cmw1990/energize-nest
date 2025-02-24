@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -111,7 +110,7 @@ export const WaterIntakeTracker = () => {
     <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Droplet className="h-5 w-5 text-blue-500" />
+          <Droplet className="size-5 text-blue-500" />
           Water Intake Tracker
         </CardTitle>
       </CardHeader>
@@ -162,7 +161,7 @@ export const WaterIntakeTracker = () => {
                 step="50"
               />
               <Button onClick={addWaterIntake}>
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="size-4 mr-2" />
                 Add
               </Button>
             </div>
@@ -193,11 +192,11 @@ export const WaterIntakeTracker = () => {
               <Card key={log.id} className="p-3 bg-white/50 dark:bg-gray-800/50">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Droplet className="h-4 w-4 text-blue-500" />
+                    <Droplet className="size-4 text-blue-500" />
                     <span className="font-medium">{log.amount_ml}ml</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4" />
+                    <Clock className="size-4" />
                     {new Date(log.timestamp).toLocaleTimeString()}
                   </div>
                 </div>

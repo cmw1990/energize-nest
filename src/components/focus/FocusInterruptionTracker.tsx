@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,7 +19,7 @@ export const FocusInterruptionTracker = () => {
     if (!session?.user) return;
 
     try {
-      const { error } = await supabase.from('focus_interruption_logs').insert({
+      const { error } = await supabase.from('focus_interruption_logs8').insert({
         user_id: session.user.id,
         interruption_type: interruptionType,
         coping_strategy: copingStrategy,

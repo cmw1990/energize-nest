@@ -1,4 +1,3 @@
-
 import { RouteObject } from "react-router-dom";
 import Layout from "@/components/Layout";
 import Dashboard from "@/pages/Dashboard";
@@ -10,6 +9,7 @@ import { EnergyPlanDetailsPage } from "@/pages/EnergyPlanDetailsPage";
 import { CreateEnergyPlanPage } from "@/pages/CreateEnergyPlanPage";
 import { EditEnergyPlanPage } from "@/pages/EditEnergyPlanPage";
 import { AdBlockerPage } from "@/pages/AdBlockerPage";
+import { devRoutes } from './devRoutes';
 
 export const mainRoutes: RouteObject[] = [
   {
@@ -54,5 +54,5 @@ export const mainRoutes: RouteObject[] = [
       }
     ],
   },
+  ...devRoutes,
 ];
-

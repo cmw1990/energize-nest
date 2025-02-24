@@ -22,7 +22,7 @@ export const FocusAchievements = () => {
     queryKey: ['focus-achievements'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('focus_achievements')
+        .from('focus_achievements8')
         .select('*')
         .order('achieved_at', { ascending: false })
         .limit(3);

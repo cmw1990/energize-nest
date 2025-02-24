@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { Brain } from "lucide-react";
 
-const MathSpeed = () => {
+export const MathSpeed = () => {
   const [num1, setNum1] = useState(0);
   const [num2, setNum2] = useState(0);
   const [operator, setOperator] = useState<'+' | '-' | '×'>('+');
@@ -179,5 +179,3 @@ const MathSpeed = () => {
     </Card>
   );
 };
-
-export default MathSpeed;

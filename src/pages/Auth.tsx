@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -20,7 +19,7 @@ const Auth = () => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate("/app");
+        navigate("/webapp");
       }
     };
     checkUser();
@@ -82,7 +81,7 @@ const Auth = () => {
       });
 
       if (error) throw error;
-      navigate("/app");
+      navigate("/webapp");
     } catch (error) {
       toast({
         title: "Error",

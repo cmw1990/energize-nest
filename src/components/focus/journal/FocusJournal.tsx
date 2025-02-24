@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,7 +25,7 @@ export const FocusJournal = () => {
     if (!session?.user) return;
 
     try {
-      const { error } = await supabase.from('focus_journal').insert({
+      const { error } = await supabase.from('focus_journal8').insert({
         user_id: session.user.id,
         productivity_rating: entry.productivity_rating,
         energy_level: entry.energy_level,

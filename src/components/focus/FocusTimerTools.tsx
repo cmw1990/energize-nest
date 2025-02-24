@@ -1,15 +1,15 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Timer, Pause, Play, RefreshCw, Clock, Brain } from "lucide-react";
+import { Timer, Pause, Play, RefreshCw, Clock, Brain, Zap } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BackgroundMusicPlayer } from "@/components/audio/BackgroundMusicPlayer";
 import { useAuth } from "@/components/AuthProvider";
+import { focusDb } from "@/lib/focus-db";
 
 export const FocusTimerTools = () => {
   const { session } = useAuth();
@@ -22,24 +22,21 @@ export const FocusTimerTools = () => {
   const [isBreak, setIsBreak] = useState(false);
   const [moodBefore, setMoodBefore] = useState<number | null>(null);
   const [energyLevel, setEnergyLevel] = useState<number | null>(null);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
 
   const startSession = useMutation({
     mutationFn: async () => {
       if (!session?.user?.id) throw new Error("No user ID");
       
-      const { error } = await supabase
-        .from('focus_timer_sessions')
-        .insert({
-          user_id: session.user.id,
-          timer_type: 'pomodoro',
-          work_duration: workDuration,
-          break_duration: breakDuration,
-          mood_before: moodBefore,
-          energy_level: energyLevel,
-          started_at: new Date().toISOString()
-        });
+      const result = await focusDb.createTimerSession({
+        timer_type: 'pomodoro',
+        work_duration: workDuration,
+        break_duration: breakDuration,
+        mood_before: moodBefore || undefined,
+        energy_level: energyLevel || undefined,
+      });
 
-      if (error) throw error;
+      setCurrentSessionId(result.id);
     },
     onSuccess: () => {
       toast({
@@ -50,41 +47,27 @@ export const FocusTimerTools = () => {
     },
   });
 
-  const completeSession = useMutation({
-    mutationFn: async (moodAfter: number) => {
-      const { data: session } = await supabase
-        .from('focus_timer_sessions')
-        .select()
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (session) {
-        const { error } = await supabase
-          .from('focus_timer_sessions')
-          .update({
-            completed: true,
-            mood_after: moodAfter,
-            completed_at: new Date().toISOString(),
-            actual_duration: workDuration * 60 - time
-          })
-          .eq('id', session.id);
-
-        if (error) throw error;
-      }
+  const endSession = useMutation({
+    mutationFn: async () => {
+      if (!currentSessionId) return;
+      
+      await focusDb.updateTimerSession(currentSessionId, {
+        ended_at: new Date().toISOString(),
+      });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['focus-analytics'] });
       toast({
-        title: "Session completed!",
-        description: "Great job staying focused!",
+        title: "Focus session completed",
+        description: "Great work! Your session has been saved.",
       });
+      setCurrentSessionId(null);
+      setIsActive(false);
+      queryClient.invalidateQueries({ queryKey: ['focus-sessions'] });
     },
   });
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-
     if (isActive && time > 0) {
       interval = setInterval(() => {
         setTime((prevTime) => prevTime - 1);
@@ -94,63 +77,55 @@ export const FocusTimerTools = () => {
         setTime(workDuration * 60);
         setIsBreak(false);
         toast({
-          title: "Break finished!",
-          description: "Time to focus again.",
+          title: "Break time over",
+          description: "Time to focus!",
         });
       } else {
         setTime(breakDuration * 60);
         setIsBreak(true);
         toast({
-          title: "Time for a break!",
+          title: "Time for a break",
           description: `Take ${breakDuration} minutes to recharge.`,
         });
       }
     }
-
     return () => clearInterval(interval);
-  }, [isActive, time, isBreak, workDuration, breakDuration]);
+  }, [isActive, time, workDuration, breakDuration, isBreak]);
+
+  const toggleTimer = () => {
+    if (!isActive && !currentSessionId) {
+      startSession.mutate();
+    } else {
+      setIsActive(!isActive);
+    }
+  };
+
+  const resetTimer = () => {
+    if (currentSessionId) {
+      endSession.mutate();
+    }
+    setTime(workDuration * 60);
+    setIsBreak(false);
+    setIsActive(false);
+  };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  const handleStart = () => {
-    if (!session?.user?.id) {
-      toast({
-        title: "Please sign in",
-        description: "You need to be signed in to use the focus timer.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!moodBefore || !energyLevel) {
-      toast({
-        title: "Please rate your state",
-        description: "Set your mood and energy level before starting.",
-        variant: "destructive",
-      });
-      return;
-    }
-    startSession.mutate();
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
-    <Card className="bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20">
+    <Card className="hover:shadow-lg transition-shadow">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Timer className="h-5 w-5 text-violet-500" />
+          <Timer className="h-5 w-5 text-primary" />
           Focus Timer
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="text-center">
-          <div className="text-4xl font-bold font-mono mb-2">{formatTime(time)}</div>
-          <p className="text-sm text-muted-foreground">
-            {isBreak ? "Break Time" : "Focus Time"}
-          </p>
+        <div className="text-6xl font-bold text-center text-primary">
+          {formatTime(time)}
         </div>
 
         <div className="space-y-4">
@@ -178,7 +153,7 @@ export const FocusTimerTools = () => {
             />
           </div>
 
-          {!isActive && (
+          {!isActive && !currentSessionId && (
             <>
               <div className="space-y-2">
                 <Label>Current Mood (1-10)</Label>
@@ -206,39 +181,43 @@ export const FocusTimerTools = () => {
         </div>
 
         <div className="flex justify-center gap-4">
-          {!isActive ? (
-            <Button onClick={handleStart} className="w-32">
-              <Play className="h-4 w-4 mr-2" />
-              Start
-            </Button>
-          ) : (
-            <>
-              <Button 
-                onClick={() => setIsActive(false)} 
-                variant="outline" 
-                className="w-32"
-              >
+          <Button onClick={toggleTimer} size="lg" className="w-32">
+            {isActive ? (
+              <>
                 <Pause className="h-4 w-4 mr-2" />
                 Pause
-              </Button>
-              <Button 
-                onClick={() => {
-                  setIsActive(false);
-                  completeSession.mutate(7);
-                }} 
-                variant="destructive"
-                className="w-32"
-              >
-                <Clock className="h-4 w-4 mr-2" />
-                End
-              </Button>
-            </>
-          )}
+              </>
+            ) : (
+              <>
+                <Play className="h-4 w-4 mr-2" />
+                Start
+              </>
+            )}
+          </Button>
+          <Button onClick={resetTimer} variant="outline" size="lg" className="w-32">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Reset
+          </Button>
         </div>
 
         <BackgroundMusicPlayer />
+
+        {isBreak && (
+          <Card className="bg-primary/5 p-4">
+            <div className="flex items-center gap-2 text-primary">
+              <Zap className="h-5 w-5" />
+              <p className="font-medium">Break Time Activities:</p>
+            </div>
+            <ul className="mt-2 space-y-1 text-sm">
+              <li>• Stand up and stretch</li>
+              <li>• Take a short walk</li>
+              <li>• Drink water</li>
+              <li>• Deep breathing exercises</li>
+              <li>• Rest your eyes</li>
+            </ul>
+          </Card>
+        )}
       </CardContent>
     </Card>
   );
 };
-

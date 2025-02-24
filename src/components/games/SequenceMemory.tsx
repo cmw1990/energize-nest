@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { Brain, Zap } from "lucide-react";
 
-const SequenceMemory = () => {
+export const SequenceMemory = () => {
   const [sequence, setSequence] = useState<number[]>([]);
   const [playbackIndex, setPlaybackIndex] = useState(-1);
   const [userSequence, setUserSequence] = useState<number[]>([]);
@@ -156,5 +156,3 @@ const SequenceMemory = () => {
     </Card>
   );
 };
-
-export default SequenceMemory;

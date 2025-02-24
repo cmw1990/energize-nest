@@ -47,7 +47,7 @@ export const ActivityTracker = () => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Activity className="h-5 w-5 text-primary" />
+          <Activity className="size-5 text-primary" />
           Activity Tracking
         </CardTitle>
       </CardHeader>
@@ -60,12 +60,12 @@ export const ActivityTracker = () => {
           >
             {isTracking ? (
               <>
-                <StopCircle className="mr-2 h-4 w-4" />
+                <StopCircle className="size-4 mr-2" />
                 Stop Tracking
               </>
             ) : (
               <>
-                <PlayCircle className="mr-2 h-4 w-4" />
+                <PlayCircle className="size-4 mr-2" />
                 Start Tracking
               </>
             )}

@@ -13,7 +13,7 @@ const WORD_PAIRS = [
   { word: "FIRE", related: ["HEAT", "FLAME", "SMOKE"], unrelated: ["ICE", "SNOW", "FROST"] },
 ];
 
-const WordAssociation = () => {
+export const WordAssociation = () => {
   const [currentPair, setCurrentPair] = useState(0);
   const [options, setOptions] = useState<string[]>([]);
   const [score, setScore] = useState(0);
@@ -170,5 +170,3 @@ const WordAssociation = () => {
     </Card>
   );
 };
-
-export default WordAssociation;
