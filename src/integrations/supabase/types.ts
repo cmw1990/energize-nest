@@ -523,6 +523,39 @@ export type Database = {
         }
         Relationships: []
       }
+      activities: {
+        Row: {
+          created_at: string | null
+          duration: number | null
+          id: string
+          intensity: number | null
+          notes: string | null
+          timestamp: string | null
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          duration?: number | null
+          id?: string
+          intensity?: number | null
+          notes?: string | null
+          timestamp?: string | null
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          duration?: number | null
+          id?: string
+          intensity?: number | null
+          notes?: string | null
+          timestamp?: string | null
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       activity_points: {
         Row: {
           activity_type: Database["public"]["Enums"]["activity_type"]
@@ -1246,6 +1279,84 @@ export type Database = {
           expires_at?: string | null
           granted_at?: string | null
           id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      analytics8: {
+        Row: {
+          created_at: string | null
+          date: string
+          goals: Json | null
+          id: string
+          insights: string[] | null
+          metrics: Json
+          progress: Json | null
+          trends: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          goals?: Json | null
+          id?: string
+          insights?: string[] | null
+          metrics: Json
+          progress?: Json | null
+          trends?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          goals?: Json | null
+          id?: string
+          insights?: string[] | null
+          metrics?: Json
+          progress?: Json | null
+          trends?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      anxiety_tracking8: {
+        Row: {
+          anxiety_level: number
+          coping_strategies: string[] | null
+          created_at: string | null
+          id: string
+          notes: string | null
+          physical_symptoms: string[] | null
+          thoughts: string[] | null
+          timestamp: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          anxiety_level: number
+          coping_strategies?: string[] | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          physical_symptoms?: string[] | null
+          thoughts?: string[] | null
+          timestamp: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          anxiety_level?: number
+          coping_strategies?: string[] | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          physical_symptoms?: string[] | null
+          thoughts?: string[] | null
+          timestamp?: string
           updated_at?: string | null
           user_id?: string
         }
@@ -2554,6 +2665,42 @@ export type Database = {
           id?: string
           max_participants?: number | null
           recurring_schedule?: Json | null
+          template_name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      body_doubling_templates8: {
+        Row: {
+          activity_type: string
+          created_at: string | null
+          duration: number
+          id: string
+          preferences: Json | null
+          structure: Json | null
+          template_name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string | null
+          duration: number
+          id?: string
+          preferences?: Json | null
+          structure?: Json | null
+          template_name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string | null
+          duration?: number
+          id?: string
+          preferences?: Json | null
+          structure?: Json | null
           template_name?: string
           updated_at?: string | null
           user_id?: string
@@ -4661,6 +4808,39 @@ export type Database = {
           },
         ]
       }
+      consultation_requests: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          preferred_date: string
+          status: string | null
+          type: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          preferred_date: string
+          status?: string | null
+          type?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          preferred_date?: string
+          status?: string | null
+          type?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       consultation_resources: {
         Row: {
           content: string | null
@@ -4844,6 +5024,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      consultation8: {
+        Row: {
+          chat_history: Json | null
+          created_at: string | null
+          duration: number | null
+          expert_id: string
+          id: string
+          notes: string | null
+          scheduled_at: string | null
+          status: string
+          type: string
+          updated_at: string | null
+          user_id: string
+          video_url: string | null
+        }
+        Insert: {
+          chat_history?: Json | null
+          created_at?: string | null
+          duration?: number | null
+          expert_id: string
+          id?: string
+          notes?: string | null
+          scheduled_at?: string | null
+          status: string
+          type: string
+          updated_at?: string | null
+          user_id: string
+          video_url?: string | null
+        }
+        Update: {
+          chat_history?: Json | null
+          created_at?: string | null
+          duration?: number | null
+          expert_id?: string
+          id?: string
+          notes?: string | null
+          scheduled_at?: string | null
+          status?: string
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+          video_url?: string | null
+        }
+        Relationships: []
       }
       content_connections: {
         Row: {
@@ -6691,6 +6916,72 @@ export type Database = {
         }
         Relationships: []
       }
+      energy_focus_logs8: {
+        Row: {
+          activities: Json | null
+          created_at: string | null
+          energy_level: number
+          factors: Json | null
+          focus_level: number
+          id: string
+          timestamp: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          activities?: Json | null
+          created_at?: string | null
+          energy_level: number
+          factors?: Json | null
+          focus_level: number
+          id?: string
+          timestamp: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          activities?: Json | null
+          created_at?: string | null
+          energy_level?: number
+          factors?: Json | null
+          focus_level?: number
+          id?: string
+          timestamp?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      energy_metrics: {
+        Row: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          timestamp: string | null
+          type: string | null
+          user_id: string | null
+          value: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          timestamp?: string | null
+          type?: string | null
+          user_id?: string | null
+          value?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          timestamp?: string | null
+          type?: string | null
+          user_id?: string | null
+          value?: number | null
+        }
+        Relationships: []
+      }
       energy_plan_components: {
         Row: {
           completion_criteria: Json | null
@@ -6968,6 +7259,45 @@ export type Database = {
           },
         ]
       }
+      energy_plans8: {
+        Row: {
+          activities: Json | null
+          created_at: string | null
+          date: string
+          energy_level: number | null
+          id: string
+          notifications: Json | null
+          recommendations: string[] | null
+          schedule: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          activities?: Json | null
+          created_at?: string | null
+          date: string
+          energy_level?: number | null
+          id?: string
+          notifications?: Json | null
+          recommendations?: string[] | null
+          schedule?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          activities?: Json | null
+          created_at?: string | null
+          date?: string
+          energy_level?: number | null
+          id?: string
+          notifications?: Json | null
+          recommendations?: string[] | null
+          schedule?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       energy_products: {
         Row: {
           caffeine_content: number | null
@@ -7110,6 +7440,39 @@ export type Database = {
         }
         Relationships: []
       }
+      executive_function_tools8: {
+        Row: {
+          created_at: string | null
+          effectiveness_rating: number | null
+          id: string
+          settings: Json | null
+          tool_type: string
+          updated_at: string | null
+          usage_stats: Json | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          effectiveness_rating?: number | null
+          id?: string
+          settings?: Json | null
+          tool_type: string
+          updated_at?: string | null
+          usage_stats?: Json | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          effectiveness_rating?: number | null
+          id?: string
+          settings?: Json | null
+          tool_type?: string
+          updated_at?: string | null
+          usage_stats?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       exercise_assets: {
         Row: {
           asset_url: string
@@ -7131,6 +7494,42 @@ export type Database = {
           exercise_name?: string
           exercise_type?: string
           id?: string
+        }
+        Relationships: []
+      }
+      exercise_sessions8: {
+        Row: {
+          calories: number | null
+          created_at: string | null
+          duration: number
+          id: string
+          intensity: number | null
+          notes: string | null
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          calories?: number | null
+          created_at?: string | null
+          duration: number
+          id?: string
+          intensity?: number | null
+          notes?: string | null
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          calories?: number | null
+          created_at?: string | null
+          duration?: number
+          id?: string
+          intensity?: number | null
+          notes?: string | null
+          type?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -8136,6 +8535,144 @@ export type Database = {
         }
         Relationships: []
       }
+      focus_blocked_sites8: {
+        Row: {
+          created_at: string | null
+          domain: string
+          id: string
+          is_blocked: boolean | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          domain: string
+          id?: string
+          is_blocked?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          domain?: string
+          id?: string
+          is_blocked?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      focus_blocking_settings8: {
+        Row: {
+          allowlist: string[] | null
+          block_ads: boolean | null
+          block_notifications: boolean | null
+          block_social_media: boolean | null
+          created_at: string | null
+          id: string
+          schedule_enabled: boolean | null
+          schedule_end: string | null
+          schedule_start: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          allowlist?: string[] | null
+          block_ads?: boolean | null
+          block_notifications?: boolean | null
+          block_social_media?: boolean | null
+          created_at?: string | null
+          id?: string
+          schedule_enabled?: boolean | null
+          schedule_end?: string | null
+          schedule_start?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          allowlist?: string[] | null
+          block_ads?: boolean | null
+          block_notifications?: boolean | null
+          block_social_media?: boolean | null
+          created_at?: string | null
+          id?: string
+          schedule_enabled?: boolean | null
+          schedule_end?: string | null
+          schedule_start?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      focus_body_doubling_participants8: {
+        Row: {
+          audio_enabled: boolean | null
+          created_at: string | null
+          id: string
+          is_host: boolean | null
+          task_description: string
+          updated_at: string | null
+          user_id: string | null
+          video_enabled: boolean | null
+        }
+        Insert: {
+          audio_enabled?: boolean | null
+          created_at?: string | null
+          id?: string
+          is_host?: boolean | null
+          task_description: string
+          updated_at?: string | null
+          user_id?: string | null
+          video_enabled?: boolean | null
+        }
+        Update: {
+          audio_enabled?: boolean | null
+          created_at?: string | null
+          id?: string
+          is_host?: boolean | null
+          task_description?: string
+          updated_at?: string | null
+          user_id?: string | null
+          video_enabled?: boolean | null
+        }
+        Relationships: []
+      }
+      focus_body_doubling_settings8: {
+        Row: {
+          allow_chat: boolean | null
+          break_reminders: boolean | null
+          created_at: string | null
+          duration: number | null
+          id: string
+          show_timer: boolean | null
+          task_description: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          allow_chat?: boolean | null
+          break_reminders?: boolean | null
+          created_at?: string | null
+          duration?: number | null
+          id?: string
+          show_timer?: boolean | null
+          task_description?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          allow_chat?: boolean | null
+          break_reminders?: boolean | null
+          created_at?: string | null
+          duration?: number | null
+          id?: string
+          show_timer?: boolean | null
+          task_description?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       focus_celebrations: {
         Row: {
           achievement_type: string
@@ -8322,6 +8859,45 @@ export type Database = {
         }
         Relationships: []
       }
+      focus_habits8: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          frequency: Json | null
+          habit_name: string
+          id: string
+          reminders: Json | null
+          status: string | null
+          streak: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          frequency?: Json | null
+          habit_name: string
+          id?: string
+          reminders?: Json | null
+          status?: string | null
+          streak?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          frequency?: Json | null
+          habit_name?: string
+          id?: string
+          reminders?: Json | null
+          status?: string | null
+          streak?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       focus_interruption_logs: {
         Row: {
           context: string | null
@@ -8362,6 +8938,53 @@ export type Database = {
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "focus_timer_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      focus_interruption_logs8: {
+        Row: {
+          created_at: string | null
+          duration: number | null
+          id: string
+          impact_level: number | null
+          interruption_type: string
+          notes: string | null
+          session_id: string | null
+          timestamp: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          duration?: number | null
+          id?: string
+          impact_level?: number | null
+          interruption_type: string
+          notes?: string | null
+          session_id?: string | null
+          timestamp: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          duration?: number | null
+          id?: string
+          impact_level?: number | null
+          interruption_type?: string
+          notes?: string | null
+          session_id?: string | null
+          timestamp?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "focus_interruption_logs8_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "focus_sessions8"
             referencedColumns: ["id"]
           },
         ]
@@ -8492,6 +9115,45 @@ export type Database = {
         }
         Relationships: []
       }
+      focus_priority_queue8: {
+        Row: {
+          created_at: string | null
+          deadline: string | null
+          estimated_duration: number | null
+          id: string
+          notes: string | null
+          priority: number
+          status: string | null
+          task_name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          deadline?: string | null
+          estimated_duration?: number | null
+          id?: string
+          notes?: string | null
+          priority: number
+          status?: string | null
+          task_name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          deadline?: string | null
+          estimated_duration?: number | null
+          id?: string
+          notes?: string | null
+          priority?: number
+          status?: string | null
+          task_name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       focus_rewards: {
         Row: {
           adaptive_difficulty: boolean | null
@@ -8585,6 +9247,111 @@ export type Database = {
         }
         Relationships: []
       }
+      focus_routines8: {
+        Row: {
+          active_days: number[] | null
+          created_at: string | null
+          duration: number | null
+          id: string
+          preferred_time: string | null
+          routine_name: string
+          steps: Json
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          active_days?: number[] | null
+          created_at?: string | null
+          duration?: number | null
+          id?: string
+          preferred_time?: string | null
+          routine_name: string
+          steps: Json
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          active_days?: number[] | null
+          created_at?: string | null
+          duration?: number | null
+          id?: string
+          preferred_time?: string | null
+          routine_name?: string
+          steps?: Json
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      focus_sessions: {
+        Row: {
+          completed: boolean | null
+          created_at: string | null
+          duration: number
+          id: string
+          started_at: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string | null
+          duration: number
+          id?: string
+          started_at?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string | null
+          duration?: number
+          id?: string
+          started_at?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      focus_sessions8: {
+        Row: {
+          created_at: string | null
+          distractions: number | null
+          end_time: string | null
+          id: string
+          notes: string | null
+          score: number | null
+          start_time: string
+          task: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          distractions?: number | null
+          end_time?: string | null
+          id?: string
+          notes?: string | null
+          score?: number | null
+          start_time: string
+          task: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          distractions?: number | null
+          end_time?: string | null
+          id?: string
+          notes?: string | null
+          score?: number | null
+          start_time?: string
+          task?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       focus_skill_training: {
         Row: {
           accuracy_score: number | null
@@ -8618,6 +9385,39 @@ export type Database = {
           skill_type?: string
           training_date?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      focus_stats: {
+        Row: {
+          average_duration: number | null
+          created_at: string | null
+          id: string
+          sessions_completed: number | null
+          streak_days: number | null
+          total_time: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          average_duration?: number | null
+          created_at?: string | null
+          id?: string
+          sessions_completed?: number | null
+          streak_days?: number | null
+          total_time?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          average_duration?: number | null
+          created_at?: string | null
+          id?: string
+          sessions_completed?: number | null
+          streak_days?: number | null
+          total_time?: number | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -11866,6 +12666,45 @@ export type Database = {
         }
         Relationships: []
       }
+      medication_reminders8: {
+        Row: {
+          created_at: string | null
+          dosage: string | null
+          frequency: Json
+          id: string
+          medication_name: string
+          notes: string | null
+          reminder_times: string[] | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          dosage?: string | null
+          frequency: Json
+          id?: string
+          medication_name: string
+          notes?: string | null
+          reminder_times?: string[] | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          dosage?: string | null
+          frequency?: Json
+          id?: string
+          medication_name?: string
+          notes?: string | null
+          reminder_times?: string[] | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       meditation_audio: {
         Row: {
           audio_url: string
@@ -12346,6 +13185,81 @@ export type Database = {
           },
         ]
       }
+      mental_health8: {
+        Row: {
+          anxiety_level: number | null
+          created_at: string | null
+          date: string
+          id: string
+          meditation_minutes: number | null
+          mood: number | null
+          notes: string | null
+          stress_level: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          anxiety_level?: number | null
+          created_at?: string | null
+          date: string
+          id?: string
+          meditation_minutes?: number | null
+          mood?: number | null
+          notes?: string | null
+          stress_level?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          anxiety_level?: number | null
+          created_at?: string | null
+          date?: string
+          id?: string
+          meditation_minutes?: number | null
+          mood?: number | null
+          notes?: string | null
+          stress_level?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mindfulness_sessions8: {
+        Row: {
+          created_at: string | null
+          duration_minutes: number
+          focus_rating: number | null
+          id: string
+          notes: string | null
+          session_type: string
+          start_time: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          duration_minutes: number
+          focus_rating?: number | null
+          id?: string
+          notes?: string | null
+          session_type: string
+          start_time: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          duration_minutes?: number
+          focus_rating?: number | null
+          id?: string
+          notes?: string | null
+          session_type?: string
+          start_time?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       mood_journals: {
         Row: {
           activities: string[] | null
@@ -12487,6 +13401,45 @@ export type Database = {
           user_id?: string | null
           weather_data?: Json | null
           weather_impact_score?: number | null
+        }
+        Relationships: []
+      }
+      mood_tracking8: {
+        Row: {
+          activities: string[] | null
+          created_at: string | null
+          energy_level: number
+          id: string
+          mood_score: number
+          notes: string | null
+          timestamp: string
+          triggers: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          activities?: string[] | null
+          created_at?: string | null
+          energy_level: number
+          id?: string
+          mood_score: number
+          notes?: string | null
+          timestamp: string
+          triggers?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          activities?: string[] | null
+          created_at?: string | null
+          energy_level?: number
+          id?: string
+          mood_score?: number
+          notes?: string | null
+          timestamp?: string
+          triggers?: string[] | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -17719,6 +18672,81 @@ export type Database = {
         }
         Relationships: []
       }
+      recipes: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          energy_impact: number | null
+          id: string
+          ingredients: string[]
+          instructions: string[]
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          energy_impact?: number | null
+          id?: string
+          ingredients: string[]
+          instructions: string[]
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          energy_impact?: number | null
+          id?: string
+          ingredients?: string[]
+          instructions?: string[]
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      recipes8: {
+        Row: {
+          created_at: string | null
+          id: string
+          ingredients: Json
+          meal_type: string | null
+          name: string
+          nutrition_info: Json
+          preparation_steps: string[] | null
+          tags: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          ingredients: Json
+          meal_type?: string | null
+          name: string
+          nutrition_info: Json
+          preparation_steps?: string[] | null
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          ingredients?: Json
+          meal_type?: string | null
+          name?: string
+          nutrition_info?: Json
+          preparation_steps?: string[] | null
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       recovery_milestones: {
         Row: {
           achieved_at: string
@@ -17763,6 +18791,45 @@ export type Database = {
           money_saved?: number | null
           physical_improvements?: string[] | null
           substance_type?: Database["public"]["Enums"]["substance_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      recovery8: {
+        Row: {
+          created_at: string | null
+          date: string
+          exercise_readiness: number | null
+          id: string
+          metrics: Json | null
+          recommendations: string[] | null
+          recovery_status: number | null
+          rest_quality: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          exercise_readiness?: number | null
+          id?: string
+          metrics?: Json | null
+          recommendations?: string[] | null
+          recovery_status?: number | null
+          rest_quality?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          exercise_readiness?: number | null
+          id?: string
+          metrics?: Json | null
+          recommendations?: string[] | null
+          recovery_status?: number | null
+          rest_quality?: number | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -20109,6 +21176,39 @@ export type Database = {
           temperature_range_min?: number | null
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      sleep_records8: {
+        Row: {
+          created_at: string | null
+          date: string
+          duration: number
+          id: string
+          notes: string | null
+          quality: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          duration: number
+          id?: string
+          notes?: string | null
+          quality?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          duration?: number
+          id?: string
+          notes?: string | null
+          quality?: number | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -22514,6 +23614,60 @@ export type Database = {
           origin?: string | null
           type?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      test_connection: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string | null
+        }
+        Relationships: []
+      }
+      therapy_goals8: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          progress_notes: string[] | null
+          status: string
+          target_date: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          progress_notes?: string[] | null
+          status?: string
+          target_date?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          progress_notes?: string[] | null
+          status?: string
+          target_date?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -25863,6 +27017,42 @@ export type Database = {
           },
         ]
       }
+      wellness_achievements: {
+        Row: {
+          achieved_at: string | null
+          category: string
+          created_at: string | null
+          description: string | null
+          id: string
+          points: number | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          achieved_at?: string | null
+          category: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          points?: number | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          achieved_at?: string | null
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          points?: number | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       wellness_goals: {
         Row: {
           category: string
@@ -26132,6 +27322,16 @@ export type Database = {
       }
     }
     Functions: {
+      award_achievement: {
+        Args: {
+          p_user_id: string
+          p_title: string
+          p_description: string
+          p_category: string
+          p_points: number
+        }
+        Returns: string
+      }
       calculate_available_discount: {
         Args: {
           _user_id: string
@@ -26237,6 +27437,10 @@ export type Database = {
           "": number
         }
         Returns: number
+      }
+      get_auth_user: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       get_similar_products: {
         Args: {

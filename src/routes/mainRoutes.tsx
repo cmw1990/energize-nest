@@ -4,6 +4,7 @@ import CreateEnergyPlanPage from "@/pages/CreateEnergyPlanPage";
 import EnergyPlans from "@/pages/EnergyPlans";
 import Pregnancy from "@/pages/Pregnancy";
 import LandingPage from "@/pages/LandingPage";
+import Dashboard from "@/pages/Dashboard";
 import { InsuranceDashboard } from "@/pages/insurance/Dashboard";
 import { InsuranceClaimSubmission } from "@/pages/insurance/SubmitClaim";
 import { InsuranceCoverageVerification } from "@/pages/insurance/VerifyCoverage";
@@ -15,6 +16,14 @@ export const mainRoutes: RouteObject[] = [
       {
         index: true,
         element: <LandingPage />,
+      },
+      {
+        path: "app",
+        element: <Dashboard />,
+      },
+      {
+        path: "app/dashboard",
+        element: <Dashboard />,
       },
       {
         path: "energy-plans",
