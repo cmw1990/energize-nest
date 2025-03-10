@@ -1,0 +1,29 @@
+// Import the shim
+import '../react-refresh-shim';
+
+import React from "react";
+
+/**
+ * Dashboard component for the Mission Fresh app
+ * 
+ * @param {Object} props - Component props
+ * @param {Object} props.session - User session information
+ * @param {Object} props.supabaseClient - Supabase client instance
+ * @returns {JSX.Element} Dashboard component
+ */
+const Dashboard = ({ session, supabaseClient }) => {
+  return (
+    <div className="p-6 bg-white rounded-lg shadow-md">
+      <h2 className="text-2xl font-semibold mb-4">Dashboard</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="p-4 bg-blue-50 rounded-lg">
+          <h3 className="font-medium text-lg">Active Tasks</h3>
+          <p className="text-3xl font-bold">12</p>
+        </div>
+        <div className="p-4 bg-green-50 rounded-lg">
+          <h3 className="font-medium text-lg">Complete Tasks</h3>
+          <p className="text-3xl font-bold">8</p>
+        </div>
+        <div className="p-4 bg-purple-50 rounded-lg">
+          <h3 className="font-medium text-lg">Total Progress</h3>
+          <p className="text-3xl font-bold">65
