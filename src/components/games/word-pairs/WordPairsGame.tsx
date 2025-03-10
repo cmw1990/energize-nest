@@ -1,164 +1,180 @@
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { Loader2 } from 'lucide-react';
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
+import { useAuth } from "@/components/AuthProvider";
+import { Brain } from "lucide-react";
 
-type WordPair = {
+interface WordPair {
+  id: string;
   word1: string;
   word2: string;
-};
+  category: string;
+}
 
-const INITIAL_PAIRS: WordPair[] = [
-  { word1: "Sky", word2: "Blue" },
-  { word1: "Fire", word2: "Hot" },
-  { word1: "Ice", word2: "Cold" },
-  { word1: "Tree", word2: "Green" },
-  { word1: "Sun", word2: "Bright" },
-  { word1: "Night", word2: "Dark" },
-  { word1: "Sugar", word2: "Sweet" },
-  { word1: "Lemon", word2: "Sour" },
+const WORD_PAIRS: WordPair[] = [
+  { id: '1', word1: 'sky', word2: 'blue', category: 'nature' },
+  { id: '2', word1: 'fire', word2: 'hot', category: 'elements' },
+  { id: '3', word1: 'tree', word2: 'green', category: 'nature' },
+  { id: '4', word1: 'snow', word2: 'cold', category: 'weather' },
+  { id: '5', word1: 'sun', word2: 'bright', category: 'nature' },
+  { id: '6', word1: 'moon', word2: 'night', category: 'nature' },
+  { id: '7', word1: 'rain', word2: 'wet', category: 'weather' },
+  { id: '8', word1: 'wind', word2: 'blow', category: 'weather' }
 ];
 
 export const WordPairsGame = () => {
-  const { toast } = useToast();
-  const [pairs, setPairs] = useState<WordPair[]>([]);
-  const [displayedWords, setDisplayedWords] = useState<string[]>([]);
-  const [selectedWord, setSelectedWord] = useState<string | null>(null);
+  const [availableWords, setAvailableWords] = useState<string[]>([]);
+  const [selectedWords, setSelectedWords] = useState<string[]>([]);
   const [score, setScore] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [gamePhase, setGamePhase] = useState<'study' | 'test'>('study');
-  const [timeLeft, setTimeLeft] = useState(30);
+  const [isActive, setIsActive] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  const { session } = useAuth();
 
   useEffect(() => {
-    startNewGame();
-  }, []);
-
-  useEffect(() => {
-    if (gamePhase === 'study' && timeLeft > 0) {
-      const timer = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
-
-      if (timeLeft === 0) {
-        setGamePhase('test');
-        shuffleWords();
-      }
-
-      return () => clearInterval(timer);
+    if (selectedWords.length === 2) {
+      checkPair();
     }
-  }, [timeLeft, gamePhase]);
+  }, [selectedWords]);
 
-  const startNewGame = () => {
-    setPairs([...INITIAL_PAIRS]);
-    setTimeLeft(30);
-    setGamePhase('study');
+  const startGame = () => {
+    const allWords = WORD_PAIRS.flatMap(pair => [pair.word1, pair.word2]).sort(() => Math.random() - 0.5);
+    setAvailableWords(allWords);
+    setSelectedWords([]);
     setScore(0);
-    setSelectedWord(null);
+    setIsActive(true);
   };
 
-  const shuffleWords = () => {
-    const allWords = pairs.flatMap(pair => [pair.word1, pair.word2]);
-    const shuffled = [...allWords].sort(() => Math.random() - 0.5);
-    setDisplayedWords(shuffled);
-  };
-
-  const handleWordClick = async (word: string) => {
-    if (gamePhase !== 'test') return;
-
-    if (!selectedWord) {
-      setSelectedWord(word);
-      return;
+  const handleWordClick = (word: string) => {
+    if (selectedWords.length < 2 && !selectedWords.includes(word)) {
+      setSelectedWords([...selectedWords, word]);
     }
+  };
 
-    const isMatch = pairs.some(
-      pair => 
-        (pair.word1 === selectedWord && pair.word2 === word) ||
-        (pair.word2 === selectedWord && pair.word1 === word)
+  const checkPair = () => {
+    const [word1, word2] = selectedWords;
+    const isPair = WORD_PAIRS.some(pair => 
+      (pair.word1 === word1 && pair.word2 === word2) || 
+      (pair.word1 === word2 && pair.word2 === word1)
     );
 
-    if (isMatch) {
-      setScore(prev => prev + 10);
-      setDisplayedWords(prev => prev.filter(w => w !== word && w !== selectedWord));
+    if (isPair) {
+      setScore(prev => prev + 1);
+      setAvailableWords(prev => prev.filter(word => !selectedWords.includes(word)));
       toast({
-        title: "Correct match!",
-        description: "Keep going!",
+        title: "Correct!",
+        description: "You found a matching pair!",
       });
     } else {
-      setScore(prev => Math.max(0, prev - 5));
       toast({
-        title: "Not a match",
-        description: "Try again",
+        title: "Incorrect",
+        description: "These words don't form a pair",
         variant: "destructive",
       });
     }
 
-    setSelectedWord(null);
+    setTimeout(() => {
+      setSelectedWords([]);
+      if (isPair && availableWords.length <= 2) {
+        endGame();
+      }
+    }, 1000);
+  };
 
-    if (displayedWords.length <= 2) {
-      setIsLoading(true);
+  const endGame = async () => {
+    setIsActive(false);
+    setIsSubmitting(true);
+    
+    if (session?.user) {
       try {
-        await supabase
-          .from('board_games')
-          .insert({
-            game_type: 'word_pairs',
-            score,
-            game_state: { pairs },
-            status: 'completed'
-          });
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/energy_focus_logs`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${session.access_token}`,
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({
+              user_id: session.user.id,
+              activity_type: "word_pairs",
+              activity_name: "Word Pairs",
+              duration_minutes: Math.ceil(score / 2),
+              focus_rating: Math.round((score / WORD_PAIRS.length) * 10),
+              energy_rating: null,
+              notes: `Completed Word Pairs with score: ${score}/${WORD_PAIRS.length}`
+            })
+          }
+        );
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || response.statusText);
+        }
 
         toast({
           title: "Game Complete!",
-          description: `Final score: ${score}`,
+          description: `Final score: ${score}/${WORD_PAIRS.length}. Well done!`,
         });
       } catch (error) {
-        console.error('Error saving game:', error);
+        console.error("Error logging Word Pairs:", error);
+        toast({
+          title: "Error Saving Results",
+          description: "There was a problem saving your game results.",
+          variant: "destructive",
+        });
       } finally {
-        setIsLoading(false);
-        startNewGame();
+        setIsSubmitting(false);
       }
     }
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-4xl">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold mb-4">Word Pairs Memory Game</h1>
-        <div className="flex justify-between items-center mb-4">
-          <div className="text-xl">Score: {score}</div>
-          {gamePhase === 'study' && (
-            <div className="text-xl">Time to memorize: {timeLeft}s</div>
-          )}
-          <Button onClick={startNewGame} disabled={isLoading}>
-            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'New Game'}
-          </Button>
+    <Card className="p-6 hover:shadow-lg transition-shadow">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-full animate-float">
+            <Brain className="h-5 w-5 text-primary" />
+          </div>
+          <h2 className="text-2xl font-bold">Word Pairs</h2>
+        </div>
+        <div className="text-lg font-semibold">
+          Score: {score}/{WORD_PAIRS.length}
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {gamePhase === 'study' ? (
-          pairs.map((pair, index) => (
-            <Card key={index} className="p-4 text-center">
-              <div className="font-semibold">{pair.word1}</div>
-              <div className="text-muted-foreground">goes with</div>
-              <div className="font-semibold">{pair.word2}</div>
-            </Card>
-          ))
-        ) : (
-          displayedWords.map((word, index) => (
+      {!isActive ? (
+        <Button 
+          onClick={startGame} 
+          className="w-full animate-pulse bg-primary/90 hover:bg-primary"
+          disabled={isSubmitting}
+        >
+          Start Game
+        </Button>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {availableWords.map((word, index) => (
             <Button
               key={index}
               onClick={() => handleWordClick(word)}
-              className={`h-24 ${selectedWord === word ? 'bg-primary' : ''}`}
-              variant={selectedWord === word ? "default" : "outline"}
+              variant={selectedWords.includes(word) ? "default" : "outline"}
+              className="h-16 text-lg font-medium"
+              disabled={selectedWords.length === 2 || isSubmitting}
             >
               {word}
             </Button>
-          ))
-        )}
+          ))}
+        </div>
+      )}
+
+      <div className="mt-6 text-sm text-muted-foreground">
+        Find matching pairs of words that are related to each other. Click two words to check if they form a pair.
       </div>
-    </div>
+    </Card>
   );
 };
 

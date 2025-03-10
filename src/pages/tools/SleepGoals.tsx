@@ -1,7 +1,6 @@
-
 import React from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { supabase } from "@/integrations/supabase/client"
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TopNav } from "@/components/layout/TopNav"
 import { ToolAnalyticsWrapper } from "@/components/tools/ToolAnalyticsWrapper"
@@ -11,30 +10,48 @@ import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
 import { Moon, Clock, Bell } from "lucide-react"
 import { format, parse } from "date-fns"
-import { Database } from "@/integrations/supabase/types"
+import { useAuth } from "@/components/AuthProvider"
 
-type SleepGoal = Database['public']['Tables']['sleep_goals']['Row']
+interface SleepGoal {
+  id: string;
+  user_id: string;
+  target_sleep_duration: number;
+  target_bedtime: string;
+  target_wake_time: string;
+  created_at?: string;
+  updated_at?: string;
+}
 
 export default function SleepGoals() {
   const { toast } = useToast()
   const queryClient = useQueryClient()
+  const { session } = useAuth()
 
   const { data: sleepGoal, isLoading } = useQuery({
     queryKey: ['sleep_goals'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('sleep_goals')
-        .select('*')
-        .limit(1)
-        .single()
-      
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching sleep goals:', error)
-        return null
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/sleep_goals?limit=1`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session?.access_token}`
+          }
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        if (error.code === 'PGRST116') {
+          return null;
+        }
+        throw new Error(error.message || response.statusText);
       }
-      
-      return data as SleepGoal
-    }
+
+      const data = await response.json();
+      return data[0] as SleepGoal;
+    },
+    enabled: !!session?.access_token
   })
 
   const updateGoalsMutation = useMutation({
@@ -44,26 +61,50 @@ export default function SleepGoals() {
       target_wake_time: string
     }) => {
       if (sleepGoal?.id) {
-        const { error } = await supabase
-          .from('sleep_goals')
-          .update(values)
-          .eq('id', sleepGoal.id)
-        
-        if (error) throw error
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/sleep_goals?id=eq.${sleepGoal.id}`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${session?.access_token}`,
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify(values)
+          }
+        );
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || response.statusText);
+        }
       } else {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) throw new Error('User not authenticated')
-        
-        const { error } = await supabase
-          .from('sleep_goals')
-          .insert({
-            user_id: user.id,
-            target_sleep_duration: values.target_sleep_duration,
-            target_bedtime: values.target_bedtime,
-            target_wake_time: values.target_wake_time
-          })
-        
-        if (error) throw error
+        if (!session?.user?.id) throw new Error('User not authenticated');
+
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/sleep_goals`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${session.access_token}`,
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({
+              user_id: session.user.id,
+              target_sleep_duration: values.target_sleep_duration,
+              target_bedtime: values.target_bedtime,
+              target_wake_time: values.target_wake_time
+            })
+          }
+        );
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || response.statusText);
+        }
       }
     },
     onSuccess: () => {

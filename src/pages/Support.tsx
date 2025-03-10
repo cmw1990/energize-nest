@@ -111,9 +111,11 @@ export default function Support() {
               <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
+                name="name"
                 value={newContact.name}
                 onChange={(e) => setNewContact(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="Contact name"
+                aria-label="Contact name"
               />
             </div>
 
@@ -121,9 +123,11 @@ export default function Support() {
               <Label htmlFor="relationship">Relationship</Label>
               <Input
                 id="relationship"
+                name="relationship"
                 value={newContact.relationship}
                 onChange={(e) => setNewContact(prev => ({ ...prev, relationship: e.target.value }))}
                 placeholder="e.g., Friend, Family, Sponsor"
+                aria-label="Relationship"
               />
             </div>
 
@@ -131,20 +135,27 @@ export default function Support() {
               <Label htmlFor="contact">Contact Information</Label>
               <Input
                 id="contact"
+                name="contact"
                 value={newContact.contact_info}
                 onChange={(e) => setNewContact(prev => ({ ...prev, contact_info: e.target.value }))}
                 placeholder="Phone number or email"
+                aria-label="Contact information"
               />
             </div>
 
             <div className="flex items-center space-x-2">
               <input
+                id="emergency-contact"
+                name="emergency-contact"
                 type="checkbox"
                 checked={newContact.is_emergency}
                 onChange={(e) => setNewContact(prev => ({ ...prev, is_emergency: e.target.checked }))}
-                className="rounded border-gray-300"
+                title="Mark as emergency contact"
+                aria-label="Emergency contact status"
               />
-              <span>Emergency contact</span>
+              <Label htmlFor="emergency-contact" className="cursor-pointer">
+                This is an emergency contact
+              </Label>
             </div>
 
             <Button 

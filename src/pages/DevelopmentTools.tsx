@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExerciseAssetsGenerator } from "@/components/exercises/ExerciseAssetsGenerator";
 import { GameAssetsGenerator } from "@/components/GameAssetsGenerator";
@@ -14,7 +13,7 @@ const DevelopmentTools = () => {
 
   useEffect(() => {
     if (!isDev) {
-      navigate("/app");
+      navigate("/webapp");
     }
   }, [navigate]);
 

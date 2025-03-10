@@ -1,19 +1,18 @@
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/AuthProvider";
-import { supabase } from "@/integrations/supabase/client";
 import { Pill, Clock, Plus, X } from "lucide-react";
-import { format } from "date-fns";
+import { focusDb } from "@/lib/focus-db";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const MedicationReminders = () => {
   const { session } = useAuth();
   const { toast } = useToast();
-  const [reminders, setReminders] = useState<any[]>([]);
+  const queryClient = useQueryClient();
   const [newReminder, setNewReminder] = useState({
     medication_name: "",
     dosage: "",
@@ -21,46 +20,20 @@ export const MedicationReminders = () => {
     reminder_time: "",
   });
 
-  useEffect(() => {
-    if (session?.user) {
-      loadReminders();
-    }
-  }, [session?.user]);
+  const { data: reminders = [] } = useQuery({
+    queryKey: ['medication-reminders'],
+    queryFn: () => focusDb.getMedicationReminders(),
+    enabled: !!session?.user
+  });
 
-  const loadReminders = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('medication_reminders')
-        .select('*')
-        .eq('user_id', session?.user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setReminders(data || []);
-    } catch (error) {
-      console.error('Error loading reminders:', error);
-      toast({
-        title: "Error loading reminders",
-        description: "Please try again later",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const addReminder = async () => {
-    if (!newReminder.medication_name || !newReminder.dosage || !newReminder.reminder_time) return;
-
-    try {
-      const { error } = await supabase.from('medication_reminders').insert({
-        user_id: session?.user.id,
-        medication_name: newReminder.medication_name,
-        dosage: newReminder.dosage,
-        frequency: newReminder.frequency,
-        reminder_times: [newReminder.reminder_time],
-      });
-
-      if (error) throw error;
-
+  const addReminderMutation = useMutation({
+    mutationFn: () => {
+      if (!newReminder.medication_name || !newReminder.dosage || !newReminder.reminder_time) {
+        throw new Error("Missing required fields");
+      }
+      return focusDb.addMedicationReminder(newReminder);
+    },
+    onSuccess: () => {
       toast({
         title: "Reminder added",
         description: "Your medication reminder has been created"
@@ -72,8 +45,10 @@ export const MedicationReminders = () => {
         frequency: "daily",
         reminder_time: ""
       });
-      loadReminders();
-    } catch (error) {
+      
+      queryClient.invalidateQueries({ queryKey: ['medication-reminders'] });
+    },
+    onError: (error) => {
       console.error('Error adding reminder:', error);
       toast({
         title: "Error adding reminder",
@@ -81,24 +56,19 @@ export const MedicationReminders = () => {
         variant: "destructive"
       });
     }
-  };
+  });
 
-  const deleteReminder = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from('medication_reminders')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-
+  const deleteReminderMutation = useMutation({
+    mutationFn: (id: string) => focusDb.deleteMedicationReminder(id),
+    onSuccess: () => {
       toast({
         title: "Reminder deleted",
         description: "The medication reminder has been removed"
       });
-
-      loadReminders();
-    } catch (error) {
+      
+      queryClient.invalidateQueries({ queryKey: ['medication-reminders'] });
+    },
+    onError: (error) => {
       console.error('Error deleting reminder:', error);
       toast({
         title: "Error deleting reminder",
@@ -106,6 +76,14 @@ export const MedicationReminders = () => {
         variant: "destructive"
       });
     }
+  });
+
+  const addReminder = () => {
+    addReminderMutation.mutate();
+  };
+
+  const deleteReminder = (id: string) => {
+    deleteReminderMutation.mutate(id);
   };
 
   return (
@@ -159,7 +137,7 @@ export const MedicationReminders = () => {
                   </p>
                   <div className="flex items-center text-sm text-muted-foreground">
                     <Clock className="h-4 w-4 mr-1" />
-                    {reminder.reminder_times?.[0]}
+                    {Array.isArray(reminder.reminder_time) && reminder.reminder_time[0]}
                   </div>
                 </div>
                 <Button

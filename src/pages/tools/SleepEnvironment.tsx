@@ -1,7 +1,6 @@
-
 import React, { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { supabase } from "@/integrations/supabase/client"
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TopNav } from "@/components/layout/TopNav"
 import { ToolAnalyticsWrapper } from "@/components/tools/ToolAnalyticsWrapper"
@@ -10,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
 import { Thermometer, Droplet, VolumeX, Sun, Wind, CloudFog } from "lucide-react"
+import { useAuth } from "@/components/AuthProvider"
 import {
   LineChart,
   Line,
@@ -38,6 +38,7 @@ type SleepEnvironmentLog = {
 export default function SleepEnvironment() {
   const { toast } = useToast()
   const queryClient = useQueryClient()
+  const { session } = useAuth()
   const [temperature, setTemperature] = useState("")
   const [humidity, setHumidity] = useState("")
   const [noiseLevel, setNoiseLevel] = useState("")
@@ -49,15 +50,24 @@ export default function SleepEnvironment() {
   const { data: environmentLogs, isLoading } = useQuery({
     queryKey: ["sleep_environment_logs"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("sleep_environment_logs")
-        .select("*")
-        .order("date", { ascending: false })
-        .limit(7)
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/sleep_environment_logs?order=date.desc&limit=7`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session?.access_token}`
+          }
+        }
+      );
 
-      if (error) throw error
-      return data as SleepEnvironmentLog[]
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
+
+      return await response.json() as SleepEnvironmentLog[];
     },
+    enabled: !!session?.access_token
   })
 
   const addEnvironmentLog = useMutation({
@@ -70,17 +80,30 @@ export default function SleepEnvironment() {
       comfort_rating: number
       notes: string
     }) => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error("Not authenticated")
+      if (!session?.user?.id) throw new Error("Not authenticated");
 
-      const { error } = await supabase.from("sleep_environment_logs").insert([
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/sleep_environment_logs`,
         {
-          user_id: user.id,
-          ...values,
-        },
-      ])
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            user_id: session.user.id,
+            ...values,
+            date: new Date().toISOString()
+          })
+        }
+      );
 
-      if (error) throw error
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sleep_environment_logs"] })
@@ -109,6 +132,15 @@ export default function SleepEnvironment() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!session?.user?.id) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to record environment data.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     const values = {
       temperature: parseFloat(temperature),
@@ -252,7 +284,7 @@ export default function SleepEnvironment() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="comfortRating">Overall Comfort Rating (1-5)</Label>
+                    <Label htmlFor="comfortRating">Overall Comfort (1-5)</Label>
                     <Input
                       id="comfortRating"
                       type="number"
@@ -275,11 +307,11 @@ export default function SleepEnvironment() {
                   </div>
 
                   <Button 
-                    type="submit" 
+                    type="submit"
                     className="w-full"
                     disabled={addEnvironmentLog.isPending}
                   >
-                    {addEnvironmentLog.isPending ? "Saving..." : "Log Environment"}
+                    {addEnvironmentLog.isPending ? "Saving..." : "Save Environment Log"}
                   </Button>
                 </form>
               </CardContent>
@@ -287,10 +319,10 @@ export default function SleepEnvironment() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Environment Trends</CardTitle>
+                <CardTitle>Environment History</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-[400px]">
+                <div className="h-[300px]">
                   {chartData && chartData.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={chartData}>
@@ -298,29 +330,29 @@ export default function SleepEnvironment() {
                         <XAxis dataKey="date" />
                         <YAxis />
                         <Tooltip />
-                        <Line 
-                          type="monotone" 
-                          dataKey="temperature" 
-                          stroke="#8884d8" 
-                          name="Temperature" 
+                        <Line
+                          type="monotone"
+                          dataKey="temperature"
+                          stroke="#8884d8"
+                          name="Temperature"
                         />
-                        <Line 
-                          type="monotone" 
-                          dataKey="humidity" 
-                          stroke="#82ca9d" 
-                          name="Humidity" 
+                        <Line
+                          type="monotone"
+                          dataKey="humidity"
+                          stroke="#82ca9d"
+                          name="Humidity"
                         />
-                        <Line 
-                          type="monotone" 
-                          dataKey="noise" 
-                          stroke="#ffc658" 
-                          name="Noise" 
+                        <Line
+                          type="monotone"
+                          dataKey="noise"
+                          stroke="#ffc658"
+                          name="Noise"
                         />
-                        <Line 
-                          type="monotone" 
-                          dataKey="light" 
-                          stroke="#ff7300" 
-                          name="Light" 
+                        <Line
+                          type="monotone"
+                          dataKey="light"
+                          stroke="#ff7300"
+                          name="Light"
                         />
                       </LineChart>
                     </ResponsiveContainer>
@@ -330,24 +362,6 @@ export default function SleepEnvironment() {
                     </div>
                   )}
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Optimal Sleep Environment</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 list-disc list-inside text-muted-foreground">
-                  <li>Temperature: 18-22°C (65-72°F)</li>
-                  <li>Humidity: 30-50%</li>
-                  <li>Noise Level: Below 30 dB</li>
-                  <li>Light Level: Below 5 lux</li>
-                  <li>Ensure good ventilation for fresh air</li>
-                  <li>Consider using blackout curtains</li>
-                  <li>Use white noise if ambient noise is an issue</li>
-                  <li>Keep electronics away from the bed</li>
-                </ul>
               </CardContent>
             </Card>
           </div>

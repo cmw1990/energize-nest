@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
 import { useAuth } from "@/components/AuthProvider";
 import { Brain } from "lucide-react";
 
@@ -14,7 +14,7 @@ const COLOR_CLASSES = {
   yellow: "bg-yellow-500"
 };
 
-const PatternMatch = () => {
+export const PatternMatch = () => {
   const [pattern, setPattern] = useState<string[]>([]);
   const [userPattern, setUserPattern] = useState<string[]>([]);
   const [isShowingPattern, setIsShowingPattern] = useState(false);
@@ -85,17 +85,32 @@ const PatternMatch = () => {
     
     if (session?.user) {
       try {
-        const { error } = await supabase.from("energy_focus_logs").insert({
-          user_id: session.user.id,
-          activity_type: "pattern_match",
-          activity_name: "Pattern Match",
-          duration_minutes: Math.ceil(score / 2),
-          focus_rating: Math.round((score / 10) * 10),
-          energy_rating: null,
-          notes: `Completed Pattern Match with score: ${score}`
-        });
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/energy_focus_logs`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${session.access_token}`,
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({
+              user_id: session.user.id,
+              activity_type: "pattern_match",
+              activity_name: "Pattern Match",
+              duration_minutes: Math.ceil(score / 2),
+              focus_rating: Math.round((score / 10) * 10),
+              energy_rating: null,
+              notes: `Completed Pattern Match with score: ${score}`
+            })
+          }
+        );
 
-        if (error) throw error;
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || response.statusText);
+        }
 
         toast({
           title: "Game Over!",
@@ -157,5 +172,3 @@ const PatternMatch = () => {
     </Card>
   );
 };
-
-export default PatternMatch;

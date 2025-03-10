@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,7 +23,7 @@ export const FocusEnvironment = () => {
       if (!session?.user?.id) return null;
       
       const { data, error } = await supabase
-        .from('focus_environment_preferences')
+        .from('focus_environment_preferences8')
         .select('*')
         .eq('user_id', session.user.id)
         .order('created_at', { ascending: false })
@@ -42,7 +41,7 @@ export const FocusEnvironment = () => {
       if (!session?.user?.id) throw new Error("No user ID");
 
       const { error } = await supabase
-        .from('focus_environment_preferences')
+        .from('focus_environment_preferences8')
         .upsert({
           user_id: session.user.id,
           noise_type: whiteNoise ? ['white'] : [],
@@ -141,4 +140,3 @@ export const FocusEnvironment = () => {
     </Card>
   );
 };
-

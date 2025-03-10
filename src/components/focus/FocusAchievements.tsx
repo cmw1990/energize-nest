@@ -1,8 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trophy, Star, Target } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
+import { focusDb } from "@/lib/focus-db";
 
 interface AchievementDetails {
   title: string;
@@ -20,16 +20,7 @@ interface Achievement {
 export const FocusAchievements = () => {
   const { data: achievements } = useQuery({
     queryKey: ['focus-achievements'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('focus_achievements')
-        .select('*')
-        .order('achieved_at', { ascending: false })
-        .limit(3);
-
-      if (error) throw error;
-      return data as unknown as Achievement[];
-    }
+    queryFn: () => focusDb.getAchievements(3)
   });
 
   const parseDetails = (detailsStr: string): AchievementDetails => {

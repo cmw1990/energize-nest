@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { SUPABASE_URL, SUPABASE_KEY } from '@/integrations/supabase/db-client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/components/AuthProvider';
 
 export interface PufferfishAssets {
   pufferfish: string;
@@ -13,6 +14,7 @@ export interface PufferfishAssets {
 }
 
 export const usePufferfishAssets = () => {
+  const { session } = useAuth();
   const [assets, setAssets] = useState<PufferfishAssets>({
     pufferfish: '/placeholder.svg',
     bubbles: '/placeholder.svg',
@@ -33,13 +35,17 @@ export const usePufferfishAssets = () => {
         const loadedAssets: Partial<PufferfishAssets> = {};
 
         for (const name of assetNames) {
-          const { data } = await supabase
-            .storage
-            .from('game-assets')
-            .getPublicUrl(`pufferfish/${name}.png`);
+          const response = await fetch(
+            `${SUPABASE_URL}/storage/v1/object/public/game-assets/pufferfish/${name}.png`,
+            {
+              headers: {
+                'apikey': SUPABASE_KEY
+              }
+            }
+          );
 
-          if (data?.publicUrl) {
-            loadedAssets[name as keyof PufferfishAssets] = data.publicUrl;
+          if (response.ok) {
+            loadedAssets[name as keyof PufferfishAssets] = response.url;
           }
         }
 
@@ -66,11 +72,33 @@ export const usePufferfishAssets = () => {
   }, [toast]);
 
   const generateAssets = async () => {
+    if (!session?.access_token) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to generate assets",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setIsLoading(true);
-      const { error } = await supabase.functions.invoke('generate-pufferfish-assets');
-      
-      if (error) throw error;
+      const response = await fetch(
+        `${SUPABASE_URL}/functions/v1/generate-pufferfish-assets`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`
+          }
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
       
       toast({
         title: "Assets Generated",

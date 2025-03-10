@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,9 +7,10 @@ import { NoiseControls } from "@/components/audio/NoiseControls";
 import { NatureSoundControls } from "@/components/audio/NatureSoundControls";
 import { BinauralControls } from "@/components/audio/BinauralControls";
 import { useAudioGenerator } from "@/hooks/useAudioGenerator";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/components/AuthProvider";
 import type { Json } from "@/integrations/supabase/types";
 
 const WhiteNoise = () => {
@@ -25,37 +25,35 @@ const WhiteNoise = () => {
   } = useAudioGenerator();
   
   const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
-  const [user, setUser] = useState(null);
+  const { session } = useAuth();
   const { toast } = useToast();
 
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user || null);
-    };
-    checkUser();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
   const logSession = async () => {
-    if (!user || !sessionStartTime) return;
+    if (!session?.user || !sessionStartTime) return;
 
     try {
       const sessionDuration = Math.round((Date.now() - sessionStartTime) / 1000);
-      const { error } = await supabase.from("tool_usage_logs").insert({
-        user_id: user.id,
-        tool_type: "audio",
-        tool_name: "noise_generator",
-        session_duration: sessionDuration,
-        audio_settings: settings as unknown as Json
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/tool_usage_logs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${session.access_token}`,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          user_id: session.user.id,
+          tool_type: "audio",
+          tool_name: "noise_generator",
+          session_duration: sessionDuration,
+          audio_settings: settings as unknown as Json
+        })
       });
 
-      if (error) throw error;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
     } catch (error) {
       console.error("Error logging session:", error);
       toast({
@@ -90,7 +88,7 @@ const WhiteNoise = () => {
                 <Wind className="h-6 w-6 text-primary" />
                 <CardTitle>Advanced Noise Generator</CardTitle>
               </div>
-              {!user && (
+              {!session?.user && (
                 <Link to="/auth" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
                   <User className="h-4 w-4" />
                   Sign in to track usage
@@ -138,7 +136,7 @@ const WhiteNoise = () => {
 
             <div className="text-sm text-muted-foreground text-center">
               Mix different types of noise with nature sounds and binaural beats for a personalized ambient soundscape.
-              {user && isPlaying && (
+              {session?.user && isPlaying && (
                 <div className="mt-2 text-primary">
                   Session in progress - your settings are being tracked
                 </div>

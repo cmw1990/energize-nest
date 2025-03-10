@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { SUPABASE_URL, SUPABASE_KEY } from '@/integrations/supabase/db-client';
 import { useAuth } from '@/components/AuthProvider';
 import { Brain, RotateCw } from 'lucide-react';
 
@@ -81,17 +81,32 @@ const MentalRotation = () => {
     
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("energy_focus_logs").insert({
-        user_id: session.user.id,
-        activity_type: "brain_game",
-        activity_name: "Mental Rotation",
-        duration_minutes: Math.ceil(score / 30),
-        focus_rating: Math.min(Math.round((score / 100) * 10), 10),
-        energy_rating: null,
-        notes: `Completed Mental Rotation game with score ${score}`
-      });
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/energy_focus_logs`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            user_id: session.user.id,
+            activity_type: "brain_game",
+            activity_name: "Mental Rotation",
+            duration_minutes: Math.ceil(score / 30),
+            focus_rating: Math.min(Math.round((score / 100) * 10), 10),
+            energy_rating: null,
+            notes: `Completed Mental Rotation game with score ${score}`
+          })
+        }
+      );
 
-      if (error) throw error;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
 
       toast({
         title: "Game Over!",

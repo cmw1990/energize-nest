@@ -1,202 +1,152 @@
-import { Capacitor } from '@capacitor/core';
-import { LocalNotifications } from '@capacitor/local-notifications';
-import { PushNotifications } from '@capacitor/push-notifications';
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
 
 export class NotificationService {
   private static instance: NotificationService;
-  private initialized = false;
-  private permissionGranted = false;
+  private initialized: boolean = false;
 
   private constructor() {}
 
-  static getInstance(): NotificationService {
+  public static getInstance(): NotificationService {
     if (!NotificationService.instance) {
       NotificationService.instance = new NotificationService();
     }
     return NotificationService.instance;
   }
 
-  async initialize() {
+  private async supabaseRestCall(endpoint: string, options: RequestInit = {}) {
+    const response = await fetch(`${SUPABASE_URL}${endpoint}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        ...options.headers
+      }
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || response.statusText);
+    }
+
+    return await response.json();
+  }
+
+  public async initialize(): Promise<void> {
     if (this.initialized) return;
 
     try {
-      if (Capacitor.isNativePlatform()) {
-        await this.initializePushNotifications();
-      } else {
-        await this.initializeWebNotifications();
-      }
-
-      this.initialized = true;
-    } catch (error) {
-      console.error('Error initializing notifications:', error);
-      throw new Error('Failed to initialize notifications');
-    }
-  }
-
-  private async initializePushNotifications() {
-    try {
-      const permStatus = await PushNotifications.checkPermissions();
+      await this.supabaseRestCall('/rest/v1/rpc/initialize_notifications', {
+        method: 'POST'
+      });
       
-      if (permStatus.receive === 'prompt') {
-        const result = await PushNotifications.requestPermissions();
-        this.permissionGranted = result.receive === 'granted';
-      } else {
-        this.permissionGranted = permStatus.receive === 'granted';
-      }
-
-      if (this.permissionGranted) {
-        await PushNotifications.register();
-        
-        PushNotifications.addListener('pushNotificationReceived', notification => {
-          console.log('Push notification received:', notification);
-          this.scheduleLocalNotification({
-            title: notification.title || '',
-            body: notification.body || '',
-            id: Math.floor(Math.random() * 10000)
-          });
-        });
-
-        PushNotifications.addListener('pushNotificationActionPerformed', notification => {
-          console.log('Push notification action performed:', notification);
-        });
-      }
+      this.initialized = true;
+      console.log('Notification service initialized');
     } catch (error) {
-      console.error('Error initializing push notifications:', error);
+      console.error('Failed to initialize notification service:', error);
       throw error;
     }
   }
 
-  private async initializeWebNotifications() {
-    if ('Notification' in window) {
-      const permission = await Notification.requestPermission();
-      this.permissionGranted = permission === 'granted';
-    }
-  }
-
-  async scheduleLocalNotification(options: {
-    title: string;
-    body: string;
-    id: number;
-    schedule?: { at: Date };
-    data?: any;
-  }) {
-    if (!this.initialized) {
-      await this.initialize();
-    }
-
+  public async getNotifications(userId: string): Promise<any[]> {
     try {
-      if (Capacitor.isNativePlatform()) {
-        await LocalNotifications.schedule({
-          notifications: [{
-            title: options.title,
-            body: options.body,
-            id: options.id,
-            schedule: options.schedule,
-            extra: options.data,
-            sound: options.schedule ? 'beep.wav' : undefined,
-            smallIcon: 'ic_stat_icon_config_sample',
-            iconColor: '#488AFF'
-          }]
-        });
-      } else if (this.permissionGranted) {
-        if (options.schedule) {
-          const delay = options.schedule.at.getTime() - Date.now();
-          if (delay > 0) {
-            setTimeout(() => {
-              this.showWebNotification(options);
-            }, delay);
-          }
-        } else {
-          this.showWebNotification(options);
+      const data = await this.supabaseRestCall(
+        `/rest/v1/notifications?user_id=eq.${userId}&order=created_at.desc`,
+        {
+          method: 'GET'
         }
-      }
+      );
+      return data;
     } catch (error) {
-      console.error('Error scheduling notification:', error);
+      console.error('Failed to get notifications:', error);
       throw error;
     }
   }
 
-  private showWebNotification(options: {
+  public async markAsRead(notificationId: string): Promise<void> {
+    try {
+      await this.supabaseRestCall(
+        `/rest/v1/notifications?id=eq.${notificationId}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({
+            read: true,
+            read_at: new Date().toISOString()
+          })
+        }
+      );
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+      throw error;
+    }
+  }
+
+  public async createNotification(data: {
+    user_id: string;
+    type: string;
     title: string;
-    body: string;
-    data?: any;
-  }) {
-    const notification = new Notification(options.title, {
-      body: options.body,
-      data: options.data,
-      icon: '/favicon.ico'
-    });
-
-    notification.onclick = () => {
-      window.focus();
-      if (options.data?.url) {
-        window.location.href = options.data.url;
-      }
-    };
-  }
-
-  async cancelNotification(id: number) {
+    message: string;
+    metadata?: Record<string, any>;
+  }): Promise<void> {
     try {
-      if (Capacitor.isNativePlatform()) {
-        await LocalNotifications.cancel({ notifications: [{ id }] });
-      }
+      await this.supabaseRestCall('/rest/v1/notifications', {
+        method: 'POST',
+        body: JSON.stringify({
+          ...data,
+          created_at: new Date().toISOString(),
+          read: false
+        })
+      });
     } catch (error) {
-      console.error('Error canceling notification:', error);
+      console.error('Failed to create notification:', error);
       throw error;
     }
   }
 
-  async getUserPreferences(userId: string) {
+  public async deleteNotification(notificationId: string): Promise<void> {
     try {
-      const { data, error } = await supabase
-        .from('notification_preferences')
-        .select('preferences')
-        .eq('user_id', userId)
-        .single();
-
-      if (error) throw error;
-      return data?.preferences;
+      await this.supabaseRestCall(
+        `/rest/v1/notifications?id=eq.${notificationId}`,
+        {
+          method: 'DELETE'
+        }
+      );
     } catch (error) {
-      console.error('Error fetching notification preferences:', error);
+      console.error('Failed to delete notification:', error);
       throw error;
     }
   }
 
-  async updateUserPreferences(userId: string, preferences: any) {
+  public async updateNotificationPreferences(userId: string, preferences: Record<string, boolean>): Promise<void> {
     try {
-      const { error } = await supabase
-        .from('notification_preferences')
-        .upsert({
-          user_id: userId,
-          preferences,
-          updated_at: new Date().toISOString()
-        });
-
-      if (error) throw error;
+      await this.supabaseRestCall(
+        `/rest/v1/notification_preferences?user_id=eq.${userId}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({
+            preferences,
+            updated_at: new Date().toISOString()
+          })
+        }
+      );
     } catch (error) {
-      console.error('Error updating notification preferences:', error);
+      console.error('Failed to update notification preferences:', error);
       throw error;
     }
   }
 
-  async checkPermissions() {
-    if (Capacitor.isNativePlatform()) {
-      return await PushNotifications.checkPermissions();
-    } else {
-      return { receive: Notification.permission as 'granted' | 'denied' | 'prompt' };
-    }
-  }
-
-  async requestPermissions() {
-    if (Capacitor.isNativePlatform()) {
-      return await PushNotifications.requestPermissions();
-    } else {
-      const permission = await Notification.requestPermission();
-      return { receive: permission as 'granted' | 'denied' | 'prompt' };
+  public async getNotificationPreferences(userId: string): Promise<Record<string, boolean>> {
+    try {
+      const data = await this.supabaseRestCall(
+        `/rest/v1/notification_preferences?user_id=eq.${userId}`,
+        {
+          method: 'GET'
+        }
+      );
+      return data[0]?.preferences || {};
+    } catch (error) {
+      console.error('Failed to get notification preferences:', error);
+      throw error;
     }
   }
 }
-
-export const notificationService = NotificationService.getInstance();

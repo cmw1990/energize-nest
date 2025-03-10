@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,12 +8,14 @@ import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Clock, Moon, Bell, Settings } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
 import { format } from "date-fns";
+import { useAuth } from "@/components/AuthProvider";
 
 export default function SmartAlarm() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { session } = useAuth();
   const [wakeTime, setWakeTime] = useState("07:00");
   const [isActive, setIsActive] = useState(true);
   const [smartWakeEnabled, setSmartWakeEnabled] = useState(true);
@@ -22,15 +23,25 @@ export default function SmartAlarm() {
   const { data: alarmSettings, isLoading } = useQuery({
     queryKey: ["sleep_alarms"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("sleep_alarms")
-        .select("*")
-        .limit(1)
-        .maybeSingle();
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/sleep_alarms?limit=1`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session?.access_token}`
+          }
+        }
+      );
 
-      if (error) throw error;
-      return data;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
+
+      const data = await response.json();
+      return data[0] || null;
     },
+    enabled: !!session?.access_token
   });
 
   const updateAlarm = useMutation({
@@ -39,15 +50,29 @@ export default function SmartAlarm() {
       is_active: boolean;
       smart_wake_window_minutes: number;
     }) => {
-      const { error } = await supabase.from("sleep_alarms").upsert([
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/sleep_alarms`,
         {
-          wake_time: values.wake_time,
-          is_active: values.is_active,
-          smart_wake_window_minutes: values.smart_wake_window_minutes,
-        },
-      ]);
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session?.access_token}`,
+            'Prefer': 'resolution=merge-duplicates'
+          },
+          body: JSON.stringify({
+            user_id: session?.user?.id,
+            wake_time: values.wake_time,
+            is_active: values.is_active,
+            smart_wake_window_minutes: values.smart_wake_window_minutes,
+          })
+        }
+      );
 
-      if (error) throw error;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sleep_alarms"] });
@@ -66,6 +91,15 @@ export default function SmartAlarm() {
   });
 
   const handleSaveAlarm = () => {
+    if (!session?.user?.id) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to save alarm settings.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     updateAlarm.mutate({
       wake_time: wakeTime,
       is_active: isActive,

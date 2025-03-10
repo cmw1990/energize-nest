@@ -1,13 +1,32 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, ShieldCheck } from "lucide-react";
-import type { InsuranceProvider, InsuranceEligibilityCheck } from "@/types/insurance";
+import { useAuth } from "@/components/AuthProvider";
+
+interface InsuranceProvider {
+  id: string;
+  name: string;
+  verification_method: string;
+}
+
+interface InsuranceEligibilityCheck {
+  id: string;
+  client_insurance_id: string;
+  professional_id: string;
+  status: 'pending' | 'verified' | 'failed';
+  error_message?: string;
+  coverage_details?: string;
+  copay_amount?: number;
+  coinsurance_percentage?: number;
+  deductible_remaining?: number;
+  created_at: string;
+  updated_at: string;
+}
 
 export const InsuranceVerification = ({ 
   sessionId,
@@ -19,6 +38,7 @@ export const InsuranceVerification = ({
   professionalId: string;
 }) => {
   const { toast } = useToast();
+  const { session } = useAuth();
   const [selectedInsurance, setSelectedInsurance] = useState<string>("");
   const [isVerifying, setIsVerifying] = useState(false);
 
@@ -26,39 +46,49 @@ export const InsuranceVerification = ({
   const { data: insuranceOptions, isLoading: isLoadingInsurance } = useQuery({
     queryKey: ['client-insurance', clientId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('client_insurance')
-        .select(`
-          id,
-          insurance_providers (
-            id,
-            name,
-            verification_method
-          )
-        `)
-        .eq('client_id', clientId);
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/client_insurance?select=id,insurance_providers(id,name,verification_method)&client_id=eq.${clientId}`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session?.access_token}`
+          }
+        }
+      );
 
-      if (error) throw error;
-      return data;
-    }
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
+
+      return await response.json();
+    },
+    enabled: !!session?.access_token
   });
 
   // Fetch verification status if exists
   const { data: verificationStatus, isLoading: isLoadingVerification } = useQuery({
     queryKey: ['insurance-verification', selectedInsurance],
-    enabled: !!selectedInsurance,
+    enabled: !!selectedInsurance && !!session?.access_token,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('insurance_eligibility_checks')
-        .select('*')
-        .eq('client_insurance_id', selectedInsurance)
-        .eq('professional_id', professionalId)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/insurance_eligibility_checks?client_insurance_id=eq.${selectedInsurance}&professional_id=eq.${professionalId}&order=created_at.desc&limit=1`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session?.access_token}`
+          }
+        }
+      );
 
-      if (error && error.code !== 'PGRST116') throw error; // PGRST116 is "no rows returned"
-      return data as InsuranceEligibilityCheck;
+      if (!response.ok) {
+        const error = await response.json();
+        if (error.code === 'PGRST116') return null; // No rows returned
+        throw new Error(error.message || response.statusText);
+      }
+
+      const data = await response.json();
+      return data[0] as InsuranceEligibilityCheck;
     }
   });
 
@@ -66,16 +96,27 @@ export const InsuranceVerification = ({
     try {
       setIsVerifying(true);
       
-      const { data, error } = await supabase.rpc(
-        'check_insurance_eligibility',
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/rpc/check_insurance_eligibility`,
         {
-          _insurance_id: selectedInsurance,
-          _professional_id: professionalId,
-          _service_type: 'consultation'
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session?.access_token}`
+          },
+          body: JSON.stringify({
+            _insurance_id: selectedInsurance,
+            _professional_id: professionalId,
+            _service_type: 'consultation'
+          })
         }
       );
 
-      if (error) throw error;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
 
       toast({
         title: "Verification initiated",

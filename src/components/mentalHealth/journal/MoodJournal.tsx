@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,11 +8,29 @@ import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
 import { BookOpen, Plus, Brain, Heart, Moon, Battery, Sparkles } from "lucide-react";
-import type { MoodJournalEntry } from "@/types/supabase";
+import { useAuth } from "@/components/AuthProvider";
+
+interface MoodJournalEntry {
+  id: string;
+  user_id: string;
+  mood_rating: number;
+  journal_entry: string;
+  gratitude_points: string[];
+  activities: string[];
+  sleep_quality: number;
+  energy_level: number;
+  anxiety_level: number;
+  positive_thoughts: string[];
+  challenges: string[];
+  solutions: string[];
+  created_at: string;
+  updated_at: string;
+}
 
 export const MoodJournal = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { session } = useAuth();
   const [newEntry, setNewEntry] = useState({
     mood_rating: 5,
     journal_entry: "",
@@ -30,35 +47,60 @@ export const MoodJournal = () => {
   const { data: entries } = useQuery<MoodJournalEntry[]>({
     queryKey: ['mood-journal'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('mood_journals')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data;
-    }
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/mood_journals?order=created_at.desc`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session?.access_token}`
+          }
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
+
+      return await response.json();
+    },
+    enabled: !!session?.access_token
   });
 
   const addEntry = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase
-        .from('mood_journals')
-        .insert([{
-          user_id: (await supabase.auth.getUser()).data.user?.id,
-          mood_rating: newEntry.mood_rating,
-          journal_entry: newEntry.journal_entry,
-          gratitude_points: newEntry.gratitude_points.filter(Boolean),
-          activities: newEntry.activities,
-          sleep_quality: newEntry.sleep_quality,
-          energy_level: newEntry.energy_level,
-          anxiety_level: newEntry.anxiety_level,
-          positive_thoughts: newEntry.positive_thoughts,
-          challenges: newEntry.challenges,
-          solutions: newEntry.solutions
-        }]);
+      if (!session?.user?.id) throw new Error('Not authenticated');
 
-      if (error) throw error;
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/mood_journals`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            user_id: session.user.id,
+            mood_rating: newEntry.mood_rating,
+            journal_entry: newEntry.journal_entry,
+            gratitude_points: newEntry.gratitude_points.filter(Boolean),
+            activities: newEntry.activities,
+            sleep_quality: newEntry.sleep_quality,
+            energy_level: newEntry.energy_level,
+            anxiety_level: newEntry.anxiety_level,
+            positive_thoughts: newEntry.positive_thoughts,
+            challenges: newEntry.challenges,
+            solutions: newEntry.solutions
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mood-journal'] });

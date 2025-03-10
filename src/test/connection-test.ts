@@ -1,0 +1,1 @@
+import { testSupabaseConnection } from '../integrations/supabase/test-connection'; (async () => { console.log('Testing Supabase connection...'); try { const result = await testSupabaseConnection(); console.log('Test result:', result); } catch (err) { console.error('Test failed with error:', err); } })();

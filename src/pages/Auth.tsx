@@ -1,12 +1,11 @@
-
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -18,9 +17,24 @@ const Auth = () => {
   // Check if user is already logged in
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate("/app");
+      const storedSession = localStorage.getItem('supabase.auth.token');
+      const session = storedSession ? JSON.parse(storedSession) : null;
+      
+      if (session?.access_token) {
+        try {
+          const response = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+            headers: {
+              'Authorization': `Bearer ${session.access_token}`,
+              'apikey': SUPABASE_KEY
+            }
+          });
+
+          if (response.ok) {
+            navigate("/mission-fresh/app");
+          }
+        } catch (error) {
+          console.error('Error checking session:', error);
+        }
       }
     };
     checkUser();
@@ -40,12 +54,22 @@ const Auth = () => {
     setLoading(true);
     
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
+      const response = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY
+        },
+        body: JSON.stringify({
+          email,
+          password
+        })
       });
 
-      if (error) throw error;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
 
       toast({
         title: "Success!",
@@ -76,13 +100,31 @@ const Auth = () => {
     setLoading(true);
     
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY
+        },
+        body: JSON.stringify({
+          email,
+          password
+        })
       });
 
-      if (error) throw error;
-      navigate("/app");
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
+
+      const data = await response.json();
+      localStorage.setItem('supabase.auth.token', JSON.stringify({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+        expires_at: Date.now() + (data.expires_in * 1000)
+      }));
+
+      navigate("/mission-fresh/app");
     } catch (error) {
       toast({
         title: "Error",
@@ -98,9 +140,9 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Welcome to The Well-Charged</CardTitle>
+          <CardTitle>Welcome to Mission Fresh</CardTitle>
           <CardDescription>
-            Track your energy levels and improve your well-being
+            Your journey to quit smoking with comprehensive energy and mood support
           </CardDescription>
         </CardHeader>
         <CardContent>

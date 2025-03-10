@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
 import type { Json } from "@/integrations/supabase/types";
 import { checkWin, isValidMove, handleSwap2Move } from '../rules';
 import type { GomokuState, GomokuSettings } from '../types';
+import { useAuth } from "@/components/AuthProvider";
 
 export const useGomokuGame = () => {
+  const { session } = useAuth();
   const [gameState, setGameState] = useState<GomokuState>({
     board: Array(15).fill(null).map(() => Array(15).fill('')),
     currentPlayer: 'black',
@@ -30,12 +32,23 @@ export const useGomokuGame = () => {
 
   const loadOrCreateGame = async () => {
     try {
-      const { data: existingGame, error } = await supabase
-        .from('board_games')
-        .select('*')
-        .eq('game_type', 'gomoku')
-        .eq('status', 'in_progress')
-        .maybeSingle();
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/board_games?game_type=eq.gomoku&status=eq.in_progress&limit=1`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session?.access_token}`
+          }
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
+
+      const data = await response.json();
+      const existingGame = data[0];
 
       if (existingGame) {
         const loadedGameState = existingGame.game_state as unknown as GomokuState;
@@ -59,7 +72,15 @@ export const useGomokuGame = () => {
   };
 
   const createNewGame = async () => {
-    const user = await supabase.auth.getUser();
+    if (!session?.user?.id) {
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to create a game.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     const initialGameState: GomokuState = {
       board: Array(settings.boardSize).fill(null).map(() => Array(settings.boardSize).fill('')),
       currentPlayer: 'black',
@@ -75,19 +96,32 @@ export const useGomokuGame = () => {
     };
 
     try {
-      const { error } = await supabase
-        .from('board_games')
-        .insert([{
-          game_type: 'gomoku',
-          difficulty_level: parseInt(settings.difficulty),
-          game_state: initialGameState as unknown as Json,
-          variant: settings.variant,
-          board_size: settings.boardSize,
-          status: 'in_progress',
-          user_id: user.data.user?.id,
-        }]);
-      
-      if (error) throw error;
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/board_games`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            game_type: 'gomoku',
+            difficulty_level: parseInt(settings.difficulty),
+            game_state: initialGameState as unknown as Json,
+            variant: settings.variant,
+            board_size: settings.boardSize,
+            status: 'in_progress',
+            user_id: session.user.id,
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
       
       setGameState(initialGameState);
     } catch (error) {
@@ -130,18 +164,29 @@ export const useGomokuGame = () => {
     setGameState(newState);
 
     try {
-      const { error } = await supabase
-        .from('board_games')
-        .update({
-          game_state: newState as unknown as Json,
-          status: newState.status,
-          winner: newState.winner,
-          last_move_at: new Date().toISOString(),
-        })
-        .eq('game_type', 'gomoku')
-        .eq('status', 'in_progress');
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/board_games?game_type=eq.gomoku&status=eq.in_progress`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session?.access_token}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            game_state: newState as unknown as Json,
+            status: newState.status,
+            winner: newState.winner,
+            last_move_at: new Date().toISOString(),
+          })
+        }
+      );
 
-      if (error) throw error;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
     } catch (error) {
       console.error('Error updating game:', error);
       toast({

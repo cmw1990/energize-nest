@@ -1,0 +1,1 @@
+CREATE OR REPLACE FUNCTION get_current_user_groups() RETURNS SETOF care_group_members LANGUAGE plpgsql SECURITY DEFINER AS $$ BEGIN RETURN QUERY SELECT * FROM care_group_members WHERE user_id = auth.uid(); END; $$;

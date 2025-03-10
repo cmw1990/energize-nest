@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
 import { useAuth } from "@/components/AuthProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -15,16 +15,22 @@ const Caffeine = () => {
   const { data: caffeineHistory, isLoading: isHistoryLoading } = useQuery({
     queryKey: ["caffeineHistory"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("energy_focus_logs")
-        .select("*")
-        .eq("user_id", session?.user?.id)
-        .eq("activity_type", "caffeine")
-        .order("created_at", { ascending: false })
-        .limit(10);
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/energy_focus_logs?user_id=eq.${session?.user?.id}&activity_type=eq.caffeine&order=created_at.desc&limit=10`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session?.access_token}`
+          }
+        }
+      );
 
-      if (error) throw error;
-      return data;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
+
+      return await response.json();
     },
     enabled: !!session?.user?.id,
   });
@@ -32,17 +38,23 @@ const Caffeine = () => {
   const { data: chartData, isLoading: isChartLoading } = useQuery({
     queryKey: ["caffeineChartData"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("energy_focus_logs")
-        .select("*")
-        .eq("user_id", session?.user?.id)
-        .eq("activity_type", "caffeine")
-        .order("created_at", { ascending: true })
-        .gte("created_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
-        .limit(50);
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/energy_focus_logs?user_id=eq.${session?.user?.id}&activity_type=eq.caffeine&order=created_at.asc&created_at=gte.${sevenDaysAgo}&limit=50`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session?.access_token}`
+          }
+        }
+      );
 
-      if (error) throw error;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
 
+      const data = await response.json();
       const processedData = data.map(log => ({
         date: new Date(log.created_at).toLocaleDateString(),
         amount: parseInt(log.activity_name.split(":")[1]),
@@ -56,15 +68,27 @@ const Caffeine = () => {
 
   const logCaffeineMutation = useMutation({
     mutationFn: async (values: { amount: string; energyRating: string; consumedAt: string }) => {
-      const { error } = await supabase.from("energy_focus_logs").insert({
-        user_id: session?.user?.id,
-        activity_type: "caffeine",
-        activity_name: `Caffeine Intake: ${values.amount}mg`,
-        energy_rating: parseInt(values.energyRating),
-        created_at: values.consumedAt,
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/energy_focus_logs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${session?.access_token}`,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          user_id: session?.user?.id,
+          activity_type: "caffeine",
+          activity_name: `Caffeine Intake: ${values.amount}mg`,
+          energy_rating: parseInt(values.energyRating),
+          created_at: values.consumedAt,
+        })
       });
 
-      if (error) throw error;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["caffeineHistory"] });

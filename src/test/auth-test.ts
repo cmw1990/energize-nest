@@ -1,0 +1,1 @@
+import { supabase } from '../integrations/supabase/client'; (async () => { console.log('Testing auth session...'); try { const { data, error } = await supabase.auth.getSession(); console.log('Session data:', data); console.log('Session error:', error); } catch (err) { console.error('Test failed with error:', err); } })();

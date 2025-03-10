@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,11 +9,13 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Shield, Plus, Check } from "lucide-react";
+import { useAuth } from "@/components/AuthProvider";
 import type { CopingStrategy } from "@/types/supabase";
 
 export const CopingStrategies = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { session } = useAuth();
   const [newStrategy, setNewStrategy] = useState({
     name: "",
     category: "relaxation",
@@ -25,29 +26,54 @@ export const CopingStrategies = () => {
   const { data: strategies } = useQuery<CopingStrategy[]>({
     queryKey: ['coping-strategies'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('coping_strategies')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data;
-    }
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/coping_strategies?order=created_at.desc`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session?.access_token}`
+          }
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
+
+      return await response.json();
+    },
+    enabled: !!session?.access_token
   });
 
   const addStrategy = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase
-        .from('coping_strategies')
-        .insert([{
-          user_id: (await supabase.auth.getUser()).data.user?.id,
-          strategy_name: newStrategy.name,
-          category: newStrategy.category,
-          effectiveness_rating: newStrategy.effectiveness,
-          notes: newStrategy.notes
-        }]);
+      if (!session?.user?.id) throw new Error('Not authenticated');
 
-      if (error) throw error;
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/coping_strategies`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            user_id: session.user.id,
+            strategy_name: newStrategy.name,
+            category: newStrategy.category,
+            effectiveness_rating: newStrategy.effectiveness,
+            notes: newStrategy.notes
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['coping-strategies'] });
@@ -76,12 +102,26 @@ export const CopingStrategies = () => {
       const strategy = strategies?.find(s => s.id === strategyId);
       if (!strategy) return;
 
-      const { error } = await supabase
-        .from('coping_strategies')
-        .update({ used_count: (strategy.used_count || 0) + 1 })
-        .eq('id', strategyId);
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/coping_strategies?id=eq.${strategyId}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session?.access_token}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            used_count: (strategy.used_count || 0) + 1
+          })
+        }
+      );
 
-      if (error) throw error;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['coping-strategies'] });

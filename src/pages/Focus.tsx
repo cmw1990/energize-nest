@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
 import { useAuth } from "@/components/AuthProvider";
 import { Brain, Target, Puzzle, Users, Zap, Clock, BookOpen, Moon, Flower2 } from "lucide-react";
 import {
@@ -75,13 +75,22 @@ const Focus = () => {
     if (!session?.user) return;
 
     try {
-      const { data, error } = await supabase
-        .from('body_doubling_sessions')
-        .select('*')
-        .eq('status', 'active')
-        .order('start_time', { ascending: true });
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/body_doubling_sessions?status=eq.active&order=start_time.asc`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`
+          }
+        }
+      );
 
-      if (error) throw error;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
+
+      const data = await response.json();
       setActiveSessions(data || []);
     } catch (error) {
       console.error('Error loading sessions:', error);
@@ -94,39 +103,32 @@ const Focus = () => {
   };
 
   const subscribeToBodyDoublingSessions = () => {
-    const channel = supabase
-      .channel('body-doubling-updates')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'body_doubling_sessions'
-        },
-        (payload) => {
-          console.log('Session update:', payload);
-          loadActiveSessions();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    // Note: Real-time subscriptions require WebSocket connection
+    // For now, we'll poll every 30 seconds as a fallback
+    const interval = setInterval(loadActiveSessions, 30000);
+    return () => clearInterval(interval);
   };
 
   const checkAndCelebrateStreaks = async () => {
     if (!session?.user) return;
 
     try {
-      const { data: achievements, error } = await supabase
-        .from('focus_achievements')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .order('achieved_at', { ascending: false })
-        .limit(1);
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/focus_achievements?user_id=eq.${session.user.id}&order=achieved_at.desc&limit=1`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`
+          }
+        }
+      );
 
-      if (error) throw error;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
+
+      const achievements = await response.json();
 
       if (achievements && achievements.length > 0) {
         const latestAchievement = achievements[0];
@@ -145,16 +147,28 @@ const Focus = () => {
     if (!session?.user) return;
 
     try {
-      const { error } = await supabase.from('energy_focus_logs').insert({
-        user_id: session.user.id,
-        activity_type: 'focus_exercise',
-        activity_name: exercise,
-        focus_rating: score,
-        duration_minutes: 5,
-        notes: `Completed ${exercise} exercise`
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/energy_focus_logs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${session.access_token}`,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          user_id: session.user.id,
+          activity_type: 'focus_exercise',
+          activity_name: exercise,
+          focus_rating: score,
+          duration_minutes: 5,
+          notes: `Completed ${exercise} exercise`
+        })
       });
 
-      if (error) throw error;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
 
       toast({
         title: "Score saved!",
@@ -174,12 +188,24 @@ const Focus = () => {
     if (!session?.user) return;
 
     try {
-      const { error } = await supabase.from('body_doubling_participants').insert({
-        session_id: sessionId,
-        user_id: session.user.id
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/body_doubling_participants`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${session.access_token}`,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          session_id: sessionId,
+          user_id: session.user.id
+        })
       });
 
-      if (error) throw error;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
 
       toast({
         title: "Joined session",
@@ -248,25 +274,22 @@ const Focus = () => {
           <Users className="h-5 w-5 text-blue-500" />
           <h2 className="text-xl font-semibold">Active Body Doubling Sessions</h2>
         </div>
-        <div className="space-y-4">
-          {activeSessions.length === 0 ? (
-            <p className="text-muted-foreground text-center">No active sessions at the moment</p>
-          ) : (
-            activeSessions.map((s) => (
-              <Card key={s.id} className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium">{s.title}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Started at: {new Date(s.start_time).toLocaleTimeString()}
-                    </p>
-                  </div>
-                  <Button onClick={() => joinBodyDoublingSession(s.id)}>
-                    Join Session
-                  </Button>
-                </div>
-              </Card>
-            ))
+        <div className="grid gap-4">
+          {activeSessions.map((session) => (
+            <div key={session.id} className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+              <div>
+                <h3 className="font-medium">{session.title}</h3>
+                <p className="text-sm text-gray-500">
+                  Started: {new Date(session.start_time).toLocaleTimeString()}
+                </p>
+              </div>
+              <Button onClick={() => joinBodyDoublingSession(session.id)}>
+                Join Session
+              </Button>
+            </div>
+          ))}
+          {activeSessions.length === 0 && (
+            <p className="text-center text-gray-500">No active sessions at the moment</p>
           )}
         </div>
       </Card>

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
 import { useAuth } from "@/components/AuthProvider";
 import { Brain } from "lucide-react";
 
@@ -15,7 +15,7 @@ const COLOR_CLASSES = {
   purple: "bg-purple-500"
 };
 
-const ColorMatch = () => {
+export const ColorMatch = () => {
   const [word, setWord] = useState("");
   const [color, setColor] = useState("");
   const [score, setScore] = useState(0);
@@ -83,17 +83,32 @@ const ColorMatch = () => {
     
     if (session?.user) {
       try {
-        const { error } = await supabase.from("energy_focus_logs").insert({
-          user_id: session.user.id,
-          activity_type: "color_match",
-          activity_name: "Color Match",
-          duration_minutes: 0.5,
-          focus_rating: Math.round((score / 30) * 10),
-          energy_rating: null,
-          notes: `Completed color match with score: ${score}`
-        });
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/energy_focus_logs`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${session.access_token}`,
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({
+              user_id: session.user.id,
+              activity_type: "color_match",
+              activity_name: "Color Match",
+              duration_minutes: 0.5,
+              focus_rating: Math.round((score / 30) * 10),
+              energy_rating: null,
+              notes: `Completed color match with score: ${score}`
+            })
+          }
+        );
 
-        if (error) throw error;
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || response.statusText);
+        }
 
         toast({
           title: "Game Complete!",
@@ -182,5 +197,3 @@ const ColorMatch = () => {
     </Card>
   );
 };
-
-export default ColorMatch;

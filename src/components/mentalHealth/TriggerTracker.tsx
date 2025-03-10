@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,11 +9,13 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Brain, Plus } from "lucide-react";
+import { useAuth } from "@/components/AuthProvider";
 import type { MoodTrigger } from "@/types/supabase";
 
 export const TriggerTracker = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { session } = useAuth();
   const [newTrigger, setNewTrigger] = useState({
     name: "",
     category: "emotional",
@@ -26,30 +27,55 @@ export const TriggerTracker = () => {
   const { data: triggers } = useQuery<MoodTrigger[]>({
     queryKey: ['mood-triggers'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('mood_triggers')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data;
-    }
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/mood_triggers?order=created_at.desc`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session?.access_token}`
+          }
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
+
+      return await response.json();
+    },
+    enabled: !!session?.access_token
   });
 
   const addTrigger = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase
-        .from('mood_triggers')
-        .insert([{
-          user_id: (await supabase.auth.getUser()).data.user?.id,
-          trigger_name: newTrigger.name,
-          trigger_category: newTrigger.category,
-          impact_level: newTrigger.impact,
-          frequency: newTrigger.frequency,
-          notes: newTrigger.notes
-        }]);
+      if (!session?.user?.id) throw new Error('Not authenticated');
 
-      if (error) throw error;
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/mood_triggers`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            user_id: session.user.id,
+            trigger_name: newTrigger.name,
+            trigger_category: newTrigger.category,
+            impact_level: newTrigger.impact,
+            frequency: newTrigger.frequency,
+            notes: newTrigger.notes
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mood-triggers'] });

@@ -3,6 +3,18 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  background-color: white;
+}
+
+body {
+  background-color: white;
+  color: hsl(240 10% 3.9%);
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background-color: white;
 }
 
 .logo {

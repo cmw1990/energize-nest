@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Connection</title>
+</head>
+<body>
+    <h1>Testing connection to localhost:8001</h1>
+    <div id="result">Checking...</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const resultDiv = document.getElementById('result');
+            
+            fetch('http://localhost:8001', {
+                method: 'GET',
+                mode: 'no-cors' // This allows the request to be made without CORS
+            })
+            .then(response => {
+                resultDiv.innerHTML = 'Connection successful! Server is running.';
+                resultDiv.style.color = 'green';
+            })
+            .catch(error => {
+                resultDiv.innerHTML = 'Connection failed: ' + error.message;
+                resultDiv.style.color = 'red';
+            });
+        });
+    </script>
+</body>
+</html> 

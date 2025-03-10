@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -15,13 +14,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
 
 const claimFormSchema = z.object({
   service_date: z.date({
@@ -48,9 +47,11 @@ export function SubmitClaim() {
   async function onSubmit(values: z.infer<typeof claimFormSchema>) {
     setIsSubmitting(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      // Get user from stored session
+      const storedSession = localStorage.getItem('supabase.auth.token');
+      const session = storedSession ? JSON.parse(storedSession) : null;
       
-      if (!user) {
+      if (!session || !session.access_token) {
         toast({
           title: "Authentication required",
           description: "Please log in to submit claims",
@@ -59,17 +60,45 @@ export function SubmitClaim() {
         return;
       }
 
-      const { error } = await supabase.from("insurance_claims").insert({
-        service_date: values.service_date.toISOString(),
-        billed_amount: parseFloat(values.billed_amount),
-        diagnosis_codes: values.diagnosis_codes.split(",").map(code => code.trim()),
-        procedure_codes: values.procedure_codes.split(",").map(code => code.trim()),
-        notes: values.notes,
-        status: "pending",
-        submission_date: new Date().toISOString(),
+      // Get user info
+      const userResponse = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'apikey': SUPABASE_KEY
+        }
       });
 
-      if (error) throw error;
+      if (!userResponse.ok) {
+        throw new Error('Failed to get user info');
+      }
+
+      const user = await userResponse.json();
+
+      // Submit claim
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/insurance_claims`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${session.access_token}`,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          service_date: values.service_date.toISOString(),
+          billed_amount: parseFloat(values.billed_amount),
+          diagnosis_codes: values.diagnosis_codes.split(",").map(code => code.trim()),
+          procedure_codes: values.procedure_codes.split(",").map(code => code.trim()),
+          notes: values.notes,
+          status: "pending",
+          submission_date: new Date().toISOString(),
+          user_id: user.id
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
 
       toast({
         title: "Claim submitted successfully",

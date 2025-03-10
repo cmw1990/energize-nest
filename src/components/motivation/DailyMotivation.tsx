@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,25 +8,42 @@ import { useToast } from "@/hooks/use-toast";
 import { Sparkles, Target, Trophy, RefreshCw } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 
+interface MotivationQuote {
+  id: string;
+  content: string;
+  author: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export const DailyMotivation = () => {
   const { toast } = useToast();
   const { session } = useAuth();
   const [dailyGoal, setDailyGoal] = useState("");
   const [isGeneratingQuote, setIsGeneratingQuote] = useState(false);
 
-  const { data: quote, refetch: refetchQuote } = useQuery({
+  const { data: quote, refetch: refetchQuote } = useQuery<MotivationQuote>({
     queryKey: ["dailyQuote"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("motivation_quotes")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .single();
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/motivation_quotes?order=created_at.desc&limit=1`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session?.access_token}`
+          }
+        }
+      );
 
-      if (error) throw error;
-      return data;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
+
+      const data = await response.json();
+      return data[0];
     },
+    enabled: !!session?.access_token
   });
 
   const generatePersonalizedQuote = async () => {
@@ -34,11 +51,25 @@ export const DailyMotivation = () => {
     
     setIsGeneratingQuote(true);
     try {
-      const { data, error } = await supabase.functions.invoke("generate-motivation-quote", {
-        body: { user_id: session.user.id }
-      });
+      const response = await fetch(
+        `${SUPABASE_URL}/functions/v1/generate-motivation-quote`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({
+            user_id: session.user.id
+          })
+        }
+      );
 
-      if (error) throw error;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
       
       await refetchQuote();
       
@@ -61,25 +92,41 @@ export const DailyMotivation = () => {
   const saveDailyGoal = async () => {
     if (!session?.user?.id) return;
 
-    const { error } = await supabase
-      .from("motivation_tracking")
-      .insert([{ 
-        user_id: session.user.id,
-        daily_goal: dailyGoal 
-      }]);
+    try {
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/motivation_tracking`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            user_id: session.user.id,
+            daily_goal: dailyGoal
+          })
+        }
+      );
 
-    if (error) {
-      toast({
-        title: "Error saving goal",
-        description: "Please try again",
-        variant: "destructive",
-      });
-    } else {
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
+
       toast({
         title: "Goal saved!",
         description: "Keep pushing forward!",
       });
       setDailyGoal("");
+    } catch (error) {
+      console.error("Error saving goal:", error);
+      toast({
+        title: "Error saving goal",
+        description: "Please try again",
+        variant: "destructive",
+      });
     }
   };
 

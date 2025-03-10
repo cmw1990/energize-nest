@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -45,7 +44,7 @@ export const FocusPriorityQueue = () => {
   const loadTasks = async () => {
     try {
       const { data, error } = await supabase
-        .from('focus_priority_queue')
+        .from('focus_priority_queue8')
         .select('*')
         .eq('user_id', session?.user.id)
         .order('created_at', { ascending: false });
@@ -82,7 +81,7 @@ export const FocusPriorityQueue = () => {
     }
 
     try {
-      const { error } = await supabase.from('focus_priority_queue').insert({
+      const { error } = await supabase.from('focus_priority_queue8').insert({
         user_id: session?.user.id,
         task_name: newTask.task_name,
         energy_level: newTask.energy_level,
@@ -120,7 +119,7 @@ export const FocusPriorityQueue = () => {
   const toggleTaskCompletion = async (taskId: string, completed: boolean) => {
     try {
       const { error } = await supabase
-        .from('focus_priority_queue')
+        .from('focus_priority_queue8')
         .update({ completed })
         .eq('id', taskId);
 

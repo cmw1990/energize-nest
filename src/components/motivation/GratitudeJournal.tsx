@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Heart, Plus } from "lucide-react";
+import { useAuth } from "@/components/AuthProvider";
 import {
   Select,
   SelectContent,
@@ -16,13 +17,12 @@ import {
 
 export const GratitudeJournal = () => {
   const { toast } = useToast();
+  const { session } = useAuth();
   const [entry, setEntry] = useState("");
   const [category, setCategory] = useState<"people" | "experiences" | "things" | "personal_growth" | "nature" | "other">("experiences");
 
   const saveJournalEntry = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
+    if (!session?.user?.id) {
       toast({
         title: "Please log in",
         description: "You need to be logged in to save journal entries",
@@ -31,27 +31,42 @@ export const GratitudeJournal = () => {
       return;
     }
 
-    const { error } = await supabase
-      .from("gratitude_journal")
-      .insert([{ 
-        content: entry, 
-        category,
-        user_id: user.id
-      }]);
+    try {
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/gratitude_journal`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            content: entry,
+            category,
+            user_id: session.user.id
+          })
+        }
+      );
 
-    if (error) {
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
+
+      toast({
+        title: "Entry saved!",
+        description: "Keep practicing gratitude!",
+      });
+      setEntry("");
+    } catch (error) {
       console.error("Error saving gratitude entry:", error);
       toast({
         title: "Error saving entry",
         description: "Please try again",
         variant: "destructive",
       });
-    } else {
-      toast({
-        title: "Entry saved!",
-        description: "Keep practicing gratitude!",
-      });
-      setEntry("");
     }
   };
 

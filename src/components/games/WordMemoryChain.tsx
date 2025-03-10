@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
 import { useAuth } from "@/components/AuthProvider";
 import { Brain, BookOpen } from "lucide-react";
 
@@ -70,17 +70,32 @@ const WordMemoryChain = () => {
     
     if (session?.user) {
       try {
-        const { error } = await supabase.from("energy_focus_logs").insert({
-          user_id: session.user.id,
-          activity_type: "word_memory",
-          activity_name: "Word Memory Chain",
-          duration_minutes: Math.ceil(wordChain.length / 2),
-          focus_rating: Math.round((score / 50) * 10),
-          energy_rating: null,
-          notes: `Completed word chain with ${wordChain.length} words and score: ${score}`
-        });
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/energy_focus_logs`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${session.access_token}`,
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({
+              user_id: session.user.id,
+              activity_type: "word_memory",
+              activity_name: "Word Memory Chain",
+              duration_minutes: Math.ceil(wordChain.length / 2),
+              focus_rating: Math.round((score / 50) * 10),
+              energy_rating: null,
+              notes: `Completed word chain with ${wordChain.length} words and score: ${score}`
+            })
+          }
+        );
 
-        if (error) throw error;
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || response.statusText);
+        }
 
         toast({
           title: "Game Over!",

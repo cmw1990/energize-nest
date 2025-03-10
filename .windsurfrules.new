@@ -1,0 +1,350 @@
+version: "2.0"
+
+# Preview Windows Configuration
+preview_windows:
+  website:
+    port: 8001
+    auto_refresh: true
+    type: website_version
+  mobile:
+    port: 8002
+    auto_refresh: true
+    type: mobile_app_version
+
+# Port Management
+port_constraints:
+  range:
+    min: 8001
+    max: 8999
+  components:
+    - server
+    - backend
+    - frontend
+    - api
+
+# Technology Stack
+tech_stack:
+  core:
+    framework: "React"
+    version: "18.3.1"
+    language: "TypeScript"
+    build_tool: "Vite"
+  ui:
+    primary: "shadcn/ui"
+    styling: "Tailwind CSS"
+    icons: 
+      package: "Lucide React"
+      version: "0.462.0"
+    drawer:
+      package: "Vaul"
+      version: "0.9.3"
+  data:
+    fetching:
+      package: "@tanstack/react-query"
+      version: "5.56.2"
+    backend:
+      package: "Supabase"
+      version: "2.48.1"
+  additional:
+    data_visualization:
+      package: "Recharts"
+      version: "2.12.7"
+    routing:
+      package: "React Router DOM"
+      version: "6.26.2"
+    forms:
+      package: "React Hook Form"
+      version: "7.53.0"
+    validation:
+      package: "Zod"
+      version: "3.23.8"
+    theming:
+      package: "Next-themes"
+      version: "0.3.0"
+    dates:
+      package: "Date-fns"
+      version: "3.6.0"
+    animation:
+      package: "Framer Motion"
+      version: "12.4.4"
+    notifications:
+      package: "Sonner"
+      version: "1.5.0"
+    carousel:
+      package: "Embla Carousel"
+      version: "8.3.0"
+  base:
+    - lovable
+    - supabase
+  requirements:
+    - follow_lovable_best_practices: true
+    - follow_supabase_best_practices: true
+  routing:
+    framework: react-router
+    version: "v6"
+    enforce_version: true
+    reason: "Project requirement to only use React Router v6"
+
+# Version Control
+version_control:
+  provider: github
+  repository: "https://github.com/cmw1990/energize-nest/tree/surf1"
+  branch: "surf1"
+  access_token: "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"
+  settings:
+    auto_sync: true
+
+# Database Configuration
+database:
+  type: supabase
+  host_type: cloud
+  credentials:
+    access_token: "sbp_fca39aadfe2d2b4e34054ea5c97f2d6a8b27c417"
+    project_id: "zoubqdwxemivxrjruvam"
+    db_password: "Superstrongpasswordfor5527@@@"
+    public_key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpvdWJxZHd4ZW1pdnhyanJ1dmFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg0MjAxOTcsImV4cCI6MjA1Mzk5NjE5N30.tq2ssOiA8CbFUZc6HXWXMEev1dODzKZxzNrpvyzbbXs"
+    service_role_key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpvdWJxZHd4ZW1pdnhyanJ1dmFtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczODQyMDE5NywiZXhwIjoyMDUzOTk2MTk3fQ.VMGEmVXub9PA-lQiE4b1XJu-dqjdUq1UpqVnppynYFw"
+  settings:
+    auto_sync: true
+    direction: "bidirectional"
+    local_supabase_prohibited: true
+
+# Data Management
+data_management:
+  policy:
+    use_real_data: true
+    mock_data_prohibited: true
+    data_storage: cloud_supabase
+    demo_pages:
+      use_real_data: true
+      reason: "To detect potential database/backend connection and editing issues early"
+
+# Development Standards
+development_standards:
+  environment: production
+  feature_requirements:
+    completeness:
+      backend: required
+      frontend: required
+      connectivity: required
+      navigation: required
+    user_experience:
+      easy_navigation: required
+      user_journey_focused: true
+
+# Implementation Rules
+implementation_rules:
+  code_quality:
+    no_hallucination: true
+    implementation_verification: required
+    functionality_testing: required
+  progress_reporting:
+    format: detailed_percentage
+    components:
+      - backend
+      - frontend
+      - backend_frontend_connection
+      - frontend_navigation
+    status_template: "{feature} {percentage}% done"
+    completion_messages:
+      incomplete: "it's not 100% finished, only {percentage}% is finished, we still need to finish {remaining_tasks}"
+      complete: "good news, what you ask is 100% finished!"
+
+# Workflow
+workflow:
+  approach:
+    complete_in_one_go: true
+    avoid_multiple_steps: true
+    reason: "Memory limitations require single-iteration completion"
+  feature_management:
+    check_existing: true
+    prefer_enhancement: true
+    avoid_duplication: true
+    reason: "Due to memory limitations, must check for existing features before implementation"
+
+# Communication
+communication:
+  end_message:
+    required: true
+    type: creative_praise
+    style:
+      - novel
+      - comprehensive
+      - context_related
+      - unique_each_time
+      - funny
+      - enriched
+      - prolonged
+    themes:
+      - intelligence
+      - creativity
+      - knowledge
+      - manners
+      - moral_character
+      - success
+      - wealth_potential
+      - longevity
+      - health
+    format: "Personalized compliment with future success wishes"
+    display: "always_at_end"
+    template: |
+      although we haven't met, you must be [intelligent/creative/knowledgeable/good manners/morally superior/handsome]
+      potential billionaire status acknowledgment
+      wish for long healthy life (120 years)
+      AI limitation acknowledgment
+    trigger: "every_conversation_end"
+    required_even_for: "hello"
+    requirements:
+      - must_be_creative_and_novel: true
+      - must_relate_to_current_context: true
+      - must_be_brand_new_each_time: true
+      - must_be_comprehensive: true
+      - serves_as_rule_compliance_check: true
+
+# System Configuration
+system:
+  sudo:
+    password: "J4913836j"
+    auto_execute: true
+    no_confirmation: true
+
+# Documentation
+documentation:
+  ssot:
+    root_directory: docs/ssot/
+    guidelines_file: docs/ssot/SSOT_GUIDELINES.md
+    pre_edit_requirements:
+      - check_guidelines: true
+      - review_affected_files: true
+      - verify_platform_compatibility: true
+    post_edit_requirements:
+      - update_affected_files: true
+      - verify_cross_references: true
+      - update_changelogs: true
+    validation:
+      enforce_rules: true
+      block_on_violation: true
+      check_formatting: true
+    files:
+      platform:
+        - path: docs/ssot/platform/PLATFORM_FEATURES.md
+          purpose: Feature availability matrix
+          update_triggers:
+            - new_feature
+            - platform_change
+            - feature_deprecation
+        - path: docs/ssot/platform/PLATFORM_STRATEGY.md
+          purpose: Implementation strategies
+          update_triggers:
+            - architecture_change
+            - tech_stack_update
+        - path: docs/ssot/platform/ROUTING_STRATEGY.md
+          purpose: Routing structure
+          update_triggers:
+            - route_change
+            - navigation_update
+      technical:
+        - path: docs/ssot/technical/API.md
+          purpose: API documentation
+          update_triggers:
+            - endpoint_change
+            - parameter_update
+        - path: docs/ssot/technical/SECURITY.md
+          purpose: Security protocols
+          update_triggers:
+            - security_update
+            - auth_change
+      development:
+        - path: docs/ssot/development/STYLE_GUIDE.md
+          purpose: Coding standards
+          update_triggers:
+            - standard_update
+            - tool_change
+        - path: docs/ssot/development/DEVELOPMENT_STATUS.md
+          purpose: Progress tracking
+          update_triggers:
+            - feature_update
+            - sprint_completion
+
+  required_files:
+    - path: docs/overview/ARCHITECTURE.md
+      description: System architecture and technical design
+      required: true
+    - path: docs/features/FEATURES.md
+      description: Detailed feature documentation
+      required: true
+    - path: docs/DEVELOPMENT_STATUS.md
+      description: Implementation status tracker
+      required: true
+
+  update_rules:
+    pre_edit_checks:
+      - check: development_status
+        file: docs/DEVELOPMENT_STATUS.md
+        required: true
+      - check: feature_documentation
+        file: docs/features/FEATURES.md
+        required: true
+      - check: architecture_review
+        file: docs/overview/ARCHITECTURE.md
+        required: true
+
+    post_edit_updates:
+      - update: development_status
+        file: docs/DEVELOPMENT_STATUS.md
+        fields:
+          - status
+          - last_updated
+          - test_coverage
+          - dependencies
+        required: true
+      - update: feature_documentation
+        file: docs/features/FEATURES.md
+        when: new_feature_added
+        required: true
+      - update: architecture_documentation
+        file: docs/overview/ARCHITECTURE.md
+        when: architecture_changed
+        required: true
+
+  process:
+    pr_required: true
+    tech_lead_approval: true
+    ticket_reference: true
+    documentation_update: true
+
+  validation:
+    enforce_rules: true
+    block_on_violation: true
+    notification_on_violation: true
+    auto_check_enabled: true
+
+  paths:
+    documentation_root: docs/
+    status_file: docs/DEVELOPMENT_STATUS.md
+    features_file: docs/features/FEATURES.md
+    architecture_file: docs/overview/ARCHITECTURE.md
+
+  templates:
+    status_update: |
+      ### {Feature Name} ({Status Icon} {Status})
+      - **Location**: `{File Path}`
+      - **Database Tables**: {Tables}
+      - **Last Updated**: {Date}
+      - **Dependencies**: {Dependencies}
+      - **Test Coverage**: {Coverage}%
+
+    feature_update: |
+      ### {Feature Name}
+      **Location**: `{File Path}`
+      - {Feature Description}
+      - {Implementation Details}
+      - {API Endpoints}
+      - {Database Schema}
+
+    architecture_update: |
+      ### {Component Name}
+      - **Type**: {Component Type}
+      - **Purpose**: {Purpose}
+      - **Dependencies**: {Dependencies}
+      - **Design Pattern**: {Pattern}

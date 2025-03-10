@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,8 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/AuthProvider";
-import { supabase } from "@/integrations/supabase/client";
 import { BookOpen, Brain, Battery } from "lucide-react";
+import { focusDb } from "@/lib/focus-db";
+import { useMutation } from "@tanstack/react-query";
 
 export const FocusJournal = () => {
   const { session } = useAuth();
@@ -22,22 +22,20 @@ export const FocusJournal = () => {
     notes: ""
   });
 
-  const saveEntry = async () => {
-    if (!session?.user) return;
-
-    try {
-      const { error } = await supabase.from('focus_journal').insert({
-        user_id: session.user.id,
+  const saveEntryMutation = useMutation({
+    mutationFn: async () => {
+      if (!session?.user) throw new Error("User not authenticated");
+      
+      await focusDb.createJournalEntry({
         productivity_rating: entry.productivity_rating,
         energy_level: entry.energy_level,
         focus_challenges: entry.focus_challenges.split('\n').filter(Boolean),
         wins: entry.wins.split('\n').filter(Boolean),
         improvements: entry.improvements.split('\n').filter(Boolean),
-        notes: entry.notes
+        notes: entry.notes || undefined
       });
-
-      if (error) throw error;
-
+    },
+    onSuccess: () => {
       toast({
         title: "Journal entry saved",
         description: "Your focus journal entry has been recorded"
@@ -51,7 +49,8 @@ export const FocusJournal = () => {
         improvements: "",
         notes: ""
       });
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error('Error saving journal entry:', error);
       toast({
         title: "Error saving entry",
@@ -59,6 +58,10 @@ export const FocusJournal = () => {
         variant: "destructive"
       });
     }
+  });
+
+  const saveEntry = () => {
+    saveEntryMutation.mutate();
   };
 
   return (

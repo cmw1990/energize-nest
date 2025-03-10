@@ -1,18 +1,16 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>The Well-Charged</title>
-    <meta name="description" content="The Well-Charged - Your guide to optimal performance and energy" />
-    <meta name="author" content="The Well-Charged" />
-    <meta property="og:image" content="/og-image.png" />
+    <title>Care Connector</title>
   </head>
-
   <body>
     <div id="root"></div>
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module">
+      import renderApp from './src/main.tsx';
+      renderApp(document.getElementById('root'));
+    </script>
   </body>
 </html>

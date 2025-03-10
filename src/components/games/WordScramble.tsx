@@ -12,7 +12,7 @@ const WORDS = [
   "STUDY", "MIND", "SHARP", "QUICK", "ALERT"
 ];
 
-const WordScramble = () => {
+export const WordScramble = () => {
   const [word, setWord] = useState("");
   const [scrambledWord, setScrambledWord] = useState("");
   const [userGuess, setUserGuess] = useState("");
@@ -135,5 +135,3 @@ const WordScramble = () => {
     </Card>
   );
 };
-
-export default WordScramble;

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
 import { useAuth } from "@/components/AuthProvider";
 import { Brain } from "lucide-react";
 
@@ -14,12 +14,12 @@ const COLOR_CLASSES = {
   yellow: "bg-yellow-500"
 };
 
-const SimonSays = () => {
+export const SimonSays = () => {
   const [sequence, setSequence] = useState<string[]>([]);
   const [userSequence, setUserSequence] = useState<string[]>([]);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isShowingSequence, setIsShowingSequence] = useState(false);
   const [score, setScore] = useState(0);
+  const [isActive, setIsActive] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { session } = useAuth();
@@ -30,7 +30,6 @@ const SimonSays = () => {
       let i = 0;
       const showNext = () => {
         if (i < sequence.length) {
-          // Flash the color
           const button = document.getElementById(`simon-${sequence[i]}`);
           if (button) {
             button.classList.add("opacity-100");
@@ -50,7 +49,7 @@ const SimonSays = () => {
   }, [isShowingSequence, sequence]);
 
   const startGame = () => {
-    setIsPlaying(true);
+    setIsActive(true);
     setScore(0);
     addToSequence();
   };
@@ -81,22 +80,37 @@ const SimonSays = () => {
   };
 
   const endGame = async () => {
-    setIsPlaying(false);
+    setIsActive(false);
     setIsSubmitting(true);
     
     if (session?.user) {
       try {
-        const { error } = await supabase.from("energy_focus_logs").insert({
-          user_id: session.user.id,
-          activity_type: "simon_says",
-          activity_name: "Simon Says",
-          duration_minutes: Math.ceil(score / 2),
-          focus_rating: Math.round((score / 10) * 10),
-          energy_rating: null,
-          notes: `Completed Simon Says with score: ${score}`
-        });
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/energy_focus_logs`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${session.access_token}`,
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({
+              user_id: session.user.id,
+              activity_type: "simon_says",
+              activity_name: "Simon Says",
+              duration_minutes: Math.ceil(score / 2),
+              focus_rating: Math.round((score / 10) * 10),
+              energy_rating: null,
+              notes: `Completed Simon Says with score: ${score}`
+            })
+          }
+        );
 
-        if (error) throw error;
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || response.statusText);
+        }
 
         toast({
           title: "Game Over!",
@@ -120,18 +134,18 @@ const SimonSays = () => {
     <Card className="p-6 hover:shadow-lg transition-shadow">
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-full animate-shimmer">
+          <div className="p-2 bg-primary/10 rounded-full animate-float">
             <Brain className="h-5 w-5 text-primary" />
           </div>
           <h2 className="text-2xl font-bold">Simon Says</h2>
         </div>
-        <div className="text-lg">Score: {score}</div>
+        <div className="text-lg font-semibold">Score: {score}</div>
       </div>
 
-      {!isPlaying ? (
+      {!isActive ? (
         <Button 
           onClick={startGame} 
-          className="w-full animate-pulse"
+          className="w-full animate-pulse bg-primary/90 hover:bg-primary"
           disabled={isSubmitting}
         >
           Start Game
@@ -143,9 +157,7 @@ const SimonSays = () => {
               key={color}
               id={`simon-${color}`}
               onClick={() => handleColorClick(color)}
-              className={`h-24 transition-all duration-300 opacity-60 hover:opacity-100 ${COLOR_CLASSES[color as keyof typeof COLOR_CLASSES]} ${
-                isShowingSequence ? 'animate-breathe' : ''
-              }`}
+              className={`h-24 transition-all duration-300 opacity-60 hover:opacity-100 ${COLOR_CLASSES[color as keyof typeof COLOR_CLASSES]}`}
               disabled={isShowingSequence || isSubmitting}
             />
           ))}
@@ -158,5 +170,3 @@ const SimonSays = () => {
     </Card>
   );
 };
-
-export default SimonSays;

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
 import { useAuth } from "@/components/AuthProvider";
 import { AIAssistant } from "@/components/AIAssistant";
 import {
@@ -29,34 +29,50 @@ const SleepTrack = () => {
   const { data: sleepLogs } = useQuery({
     queryKey: ["sleepLogs"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("energy_focus_logs")
-        .select("*")
-        .eq("user_id", session?.user.id)
-        .eq("activity_type", "sleep")
-        .order("created_at", { ascending: false })
-        .limit(7);
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/energy_focus_logs?user_id=eq.${session?.user.id}&activity_type=eq.sleep&order=created_at.desc&limit=7`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session?.access_token}`
+          }
+        }
+      );
 
-      if (error) throw error;
-      return data;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
+
+      return await response.json();
     },
   });
 
   // Mutation to add sleep log
   const addSleepLog = useMutation({
     mutationFn: async (values: { hours: number; quality: number }) => {
-      const { error } = await supabase.from("energy_focus_logs").insert([
-        {
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/energy_focus_logs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${session?.access_token}`,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
           user_id: session?.user.id,
           activity_type: "sleep",
           activity_name: "Sleep Session",
           duration_minutes: values.hours * 60,
           energy_rating: values.quality,
           focus_rating: values.quality,
-        },
-      ]);
+        })
+      });
 
-      if (error) throw error;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sleepLogs"] });

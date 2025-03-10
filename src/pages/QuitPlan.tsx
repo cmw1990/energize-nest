@@ -122,9 +122,11 @@ export default function QuitPlan() {
               <Label htmlFor="productType">Product Type</Label>
               <Input
                 id="productType"
+                name="productType"
                 value={productType}
                 onChange={(e) => setProductType(e.target.value)}
                 placeholder="e.g., Cigarettes, Vape"
+                aria-label="Product type"
               />
             </div>
 
@@ -133,10 +135,12 @@ export default function QuitPlan() {
                 <Label htmlFor="initialUsage">Current Daily Usage</Label>
                 <Input
                   id="initialUsage"
+                  name="initialUsage"
                   type="number"
                   value={initialUsage}
                   onChange={(e) => setInitialUsage(e.target.value)}
                   placeholder="Amount per day"
+                  aria-label="Current daily usage"
                 />
               </div>
 
@@ -144,10 +148,12 @@ export default function QuitPlan() {
                 <Label htmlFor="targetUsage">Target Daily Usage</Label>
                 <Input
                   id="targetUsage"
+                  name="targetUsage"
                   type="number"
                   value={targetUsage}
                   onChange={(e) => setTargetUsage(e.target.value)}
                   placeholder="Target amount"
+                  aria-label="Target daily usage"
                 />
               </div>
             </div>
@@ -156,9 +162,11 @@ export default function QuitPlan() {
               <Label htmlFor="targetDate">Target Quit Date</Label>
               <Input
                 id="targetDate"
+                name="targetDate"
                 type="date"
                 value={targetDate}
                 onChange={(e) => setTargetDate(e.target.value)}
+                aria-label="Target quit date"
               />
             </div>
 
@@ -166,18 +174,26 @@ export default function QuitPlan() {
               <Label>Work Pattern</Label>
               <div className="flex items-center space-x-2">
                 <input
+                  id="shift-worker"
+                  name="shift-worker"
                   type="checkbox"
                   checked={isShiftWorker}
                   onChange={(e) => setIsShiftWorker(e.target.checked)}
-                  className="rounded border-gray-300"
+                  title="Indicate if you are a shift worker"
+                  aria-label="Shift worker status"
                 />
-                <span>I work shifts</span>
+                <Label htmlFor="shift-worker" className="cursor-pointer">
+                  I am a shift worker
+                </Label>
               </div>
               {isShiftWorker && (
                 <Input
+                  id="shift-pattern"
+                  name="shift-pattern"
                   placeholder="Describe your shift pattern"
                   value={shiftPattern}
                   onChange={(e) => setShiftPattern(e.target.value)}
+                  aria-label="Shift pattern description"
                 />
               )}
             </div>

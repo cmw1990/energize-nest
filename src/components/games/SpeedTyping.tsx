@@ -14,7 +14,7 @@ const WORDS = [
   "power", "logic", "solve", "puzzle", "speed"
 ];
 
-const SpeedTyping = () => {
+export const SpeedTyping = () => {
   const [currentWord, setCurrentWord] = useState("");
   const [userInput, setUserInput] = useState("");
   const [score, setScore] = useState(0);
@@ -161,5 +161,3 @@ const SpeedTyping = () => {
     </Card>
   );
 };
-
-export default SpeedTyping;

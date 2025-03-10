@@ -1,0 +1,128 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john@example.com",
+      "preferences": {
+        "theme": "dark",
+        "notifications": true
+      }
+    }
+  ],
+  "health_metrics": {
+    "sleep": [
+      {
+        "id": 1,
+        "date": "2025-02-21",
+        "duration": 7.5,
+        "quality": 8,
+        "deep_sleep": 2.3
+      }
+    ],
+    "exercise": [
+      {
+        "id": 1,
+        "date": "2025-02-21",
+        "type": "running",
+        "duration": 45,
+        "intensity": "moderate",
+        "calories": 450
+      }
+    ],
+    "focus": [
+      {
+        "id": 1,
+        "date": "2025-02-21",
+        "duration": 120,
+        "productivity_score": 85,
+        "breaks_taken": 2
+      }
+    ],
+    "energy": [
+      {
+        "id": 1,
+        "date": "2025-02-21",
+        "level": 8,
+        "mood": "energetic",
+        "factors": ["good_sleep", "exercise", "healthy_meal"]
+      }
+    ]
+  },
+  "tools": {
+    "pomodoro": {
+      "settings": {
+        "work_duration": 25,
+        "break_duration": 5,
+        "long_break_duration": 15,
+        "sessions_before_long_break": 4
+      },
+      "sessions": [
+        {
+          "id": 1,
+          "date": "2025-02-21",
+          "completed_sessions": 6,
+          "total_focus_time": 150
+        }
+      ]
+    },
+    "meditation": {
+      "sessions": [
+        {
+          "id": 1,
+          "date": "2025-02-21",
+          "duration": 15,
+          "type": "mindfulness",
+          "completed": true
+        }
+      ],
+      "favorites": [
+        {
+          "id": 1,
+          "name": "Morning Calm",
+          "duration": 10,
+          "type": "guided"
+        }
+      ]
+    },
+    "white_noise": {
+      "sounds": [
+        {
+          "id": 1,
+          "name": "Rain",
+          "category": "nature",
+          "duration": 60
+        },
+        {
+          "id": 2,
+          "name": "Ocean Waves",
+          "category": "nature",
+          "duration": 60
+        },
+        {
+          "id": 3,
+          "name": "White Noise",
+          "category": "ambient",
+          "duration": 60
+        }
+      ],
+      "favorites": [1, 2]
+    }
+  },
+  "recommendations": [
+    {
+      "id": 1,
+      "type": "sleep",
+      "title": "Optimize Your Sleep Schedule",
+      "description": "Based on your recent sleep patterns, we recommend adjusting your bedtime to 10:30 PM",
+      "priority": "high"
+    },
+    {
+      "id": 2,
+      "type": "exercise",
+      "title": "Increase Workout Intensity",
+      "description": "Your fitness level has improved. Consider adding more high-intensity intervals",
+      "priority": "medium"
+    }
+  ]
+}

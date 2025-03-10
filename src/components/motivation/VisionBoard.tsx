@@ -1,38 +1,55 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
 import { Card } from "@/components/ui/card";
 import { Eye, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/components/AuthProvider";
+
+interface VisionItem {
+  id: string;
+  title: string;
+  goal_type: string;
+  description: string;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export const VisionBoard = () => {
   const { toast } = useToast();
+  const { session } = useAuth();
   const [imageUrl, setImageUrl] = useState("");
 
-  const { data: visionItems } = useQuery({
+  const { data: visionItems } = useQuery<VisionItem[]>({
     queryKey: ["visionBoard"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return [];
+      if (!session?.user?.id) return [];
 
-      const { data, error } = await supabase
-        .from("goals")
-        .select("*")
-        .eq("goal_type", "vision")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/goals?goal_type=eq.vision&user_id=eq.${session.user.id}&order=created_at.desc`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`
+          }
+        }
+      );
 
-      if (error) throw error;
-      return data;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
+
+      return await response.json();
     },
+    enabled: !!session?.access_token
   });
 
   const addVisionItem = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
+    if (!session?.user?.id) {
       toast({
         title: "Please log in",
         description: "You need to be logged in to add vision items",
@@ -41,27 +58,43 @@ export const VisionBoard = () => {
       return;
     }
 
-    const { error } = await supabase
-      .from("goals")
-      .insert([{
-        title: "Vision Board Item",
-        goal_type: "vision",
-        description: imageUrl,
-        user_id: user.id
-      }]);
+    try {
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/goals`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            title: "Vision Board Item",
+            goal_type: "vision",
+            description: imageUrl,
+            user_id: session.user.id
+          })
+        }
+      );
 
-    if (error) {
-      toast({
-        title: "Error adding item",
-        description: "Please try again",
-        variant: "destructive",
-      });
-    } else {
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
+
       toast({
         title: "Item added!",
         description: "Keep building your vision!",
       });
       setImageUrl("");
+    } catch (error) {
+      toast({
+        title: "Error adding item",
+        description: "Please try again",
+        variant: "destructive",
+      });
+      console.error('Error adding vision item:', error);
     }
   };
 

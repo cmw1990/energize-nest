@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
 import { Loader2 } from "lucide-react";
 
 export function VerifyCoverage() {
@@ -21,9 +20,11 @@ export function VerifyCoverage() {
     setIsVerifying(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      // Get user from stored session
+      const storedSession = localStorage.getItem('supabase.auth.token');
+      const session = storedSession ? JSON.parse(storedSession) : null;
       
-      if (!user) {
+      if (!session || !session.access_token) {
         toast({
           title: "Authentication required",
           description: "Please log in to verify coverage",
@@ -32,14 +33,42 @@ export function VerifyCoverage() {
         return;
       }
 
-      const { error } = await supabase.from("insurance_eligibility_checks").insert({
-        policy_number: policyNumber,
-        subscriber_id: subscriberId,
-        status: "pending",
-        verification_date: new Date().toISOString(),
+      // Get user info
+      const userResponse = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'apikey': SUPABASE_KEY
+        }
       });
 
-      if (error) throw error;
+      if (!userResponse.ok) {
+        throw new Error('Failed to get user info');
+      }
+
+      const user = await userResponse.json();
+
+      // Submit verification request
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/insurance_eligibility_checks`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${session.access_token}`,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          policy_number: policyNumber,
+          subscriber_id: subscriberId,
+          status: "pending",
+          verification_date: new Date().toISOString(),
+          user_id: user.id
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
+      }
 
       toast({
         title: "Verification initiated",

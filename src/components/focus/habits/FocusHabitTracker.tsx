@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/AuthProvider";
-import { supabase } from "@/integrations/supabase/client";
+import { getFocusHabits, addFocusHabit } from "@/lib/focus";
 import { PlusCircle, CheckCircle2, Clock } from "lucide-react";
 
 export const FocusHabitTracker = () => {
@@ -27,13 +26,7 @@ export const FocusHabitTracker = () => {
 
   const loadHabits = async () => {
     try {
-      const { data, error } = await supabase
-        .from('focus_habits')
-        .select('*')
-        .eq('user_id', session?.user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      const data = await getFocusHabits(session?.user);
       setHabits(data || []);
     } catch (error) {
       console.error('Error loading habits:', error);
@@ -45,18 +38,15 @@ export const FocusHabitTracker = () => {
     }
   };
 
-  const addHabit = async () => {
+  const handleAddHabit = async () => {
     if (!newHabit.habit_name) return;
 
     try {
-      const { error } = await supabase.from('focus_habits').insert({
-        user_id: session?.user.id,
+      await addFocusHabit(session?.user, {
         habit_name: newHabit.habit_name,
         frequency: newHabit.frequency,
-        reminder_time: newHabit.reminder_time || null
+        reminder_time: newHabit.reminder_time || undefined
       });
-
-      if (error) throw error;
 
       toast({
         title: "Habit added",
@@ -96,7 +86,7 @@ export const FocusHabitTracker = () => {
               value={newHabit.habit_name}
               onChange={(e) => setNewHabit({ ...newHabit, habit_name: e.target.value })}
             />
-            <Button onClick={addHabit}>
+            <Button onClick={handleAddHabit}>
               <PlusCircle className="h-4 w-4 mr-2" />
               Add
             </Button>

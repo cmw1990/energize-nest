@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from '@/integrations/supabase/client';
+import { SUPABASE_URL, SUPABASE_KEY } from '@/integrations/supabase/db-client';
+import { useAuth } from '@/components/AuthProvider';
 
 const NumberMemoryGame = () => {
   const [sequence, setSequence] = useState<number[]>([]);
@@ -13,6 +14,7 @@ const NumberMemoryGame = () => {
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(3); // Start with 3 digits
   const { toast } = useToast();
+  const { session } = useAuth();
 
   const generateSequence = useCallback(() => {
     const newSequence = Array.from(
@@ -49,15 +51,31 @@ const NumberMemoryGame = () => {
 
       // Save the score to Supabase
       try {
-        const { error } = await supabase.from('board_games').insert({
-          game_type: 'digit_span',
-          score: newScore,
-          difficulty_level: level,
-          game_state: { sequence, userInput: userSequence },
-          status: 'completed'
-        });
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/board_games`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${session?.access_token}`,
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({
+              game_type: 'digit_span',
+              score: newScore,
+              difficulty_level: level,
+              game_state: { sequence, userInput: userSequence },
+              status: 'completed',
+              user_id: session?.user?.id
+            })
+          }
+        );
 
-        if (error) throw error;
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || response.statusText);
+        }
       } catch (error) {
         console.error('Error saving score:', error);
       }

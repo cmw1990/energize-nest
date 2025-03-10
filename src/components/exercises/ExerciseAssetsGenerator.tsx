@@ -1,11 +1,11 @@
-
 import { useState } from "react";
 import { Button } from "../ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, SUPABASE_KEY } from "@/integrations/supabase/db-client";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Activity, Dumbbell } from "lucide-react";
 import { Alert, AlertDescription } from "../ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { useAuth } from "@/components/AuthProvider";
 
 const isDevelopment = import.meta.env.DEV;
 
@@ -13,6 +13,7 @@ export const ExerciseAssetsGenerator = () => {
   if (!isDevelopment) return null;
   
   const { toast } = useToast();
+  const { session } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentBatch, setCurrentBatch] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -50,6 +51,15 @@ export const ExerciseAssetsGenerator = () => {
   ];
 
   const generateAsset = async (batch: string, type: string = 'eye_exercise') => {
+    if (!session?.access_token) {
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to generate assets',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setCurrentBatch(batch);
     setIsGenerating(true);
     setError(null);
@@ -58,21 +68,29 @@ export const ExerciseAssetsGenerator = () => {
       console.log(`Starting generation for ${batch} (${type})...`);
       
       // Generate new asset
-      const { data, error: functionError } = await supabase.functions.invoke(
-        'generate-assets',
+      const response = await fetch(
+        `${SUPABASE_URL}/functions/v1/generate-assets`,
         {
-          body: {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({
             type: 'exercise-assets',
             batch,
             exerciseType: type
-          }
+          })
         }
       );
 
-      if (functionError) {
-        console.error(`Function error for ${batch}:`, functionError);
-        throw new Error(`Function error: ${functionError.message}`);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || response.statusText);
       }
+
+      const data = await response.json();
 
       if (!data?.url) {
         console.error(`No URL in response for ${batch}:`, data);
@@ -82,29 +100,44 @@ export const ExerciseAssetsGenerator = () => {
       console.log(`Generated asset for ${batch}:`, data);
       
       // Delete existing asset if it exists
-      const { error: deleteError } = await supabase
-        .from('exercise_assets')
-        .delete()
-        .eq('exercise_name', batch)
-        .eq('exercise_type', type);
+      const deleteResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/exercise_assets?exercise_name=eq.${batch}&exercise_type=eq.${type}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`
+          }
+        }
+      );
 
-      if (deleteError) {
-        console.error('Error deleting existing asset:', deleteError);
-        // Continue anyway as the upsert might still work
+      if (!deleteResponse.ok && deleteResponse.status !== 404) {
+        console.error('Error deleting existing asset:', await deleteResponse.text());
+        // Continue anyway as the insert might still work
       }
 
       // Insert new asset
-      const { error: insertError } = await supabase
-        .from('exercise_assets')
-        .insert({
-          exercise_name: batch,
-          exercise_type: type,
-          asset_url: data.url
-        });
+      const insertResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/exercise_assets`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${session.access_token}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            exercise_name: batch,
+            exercise_type: type,
+            asset_url: data.url
+          })
+        }
+      );
 
-      if (insertError) {
-        console.error('Error saving to database:', insertError);
-        throw new Error(`Failed to save asset to database: ${insertError.message}`);
+      if (!insertResponse.ok) {
+        const error = await insertResponse.json();
+        throw new Error(`Failed to save asset to database: ${error.message || insertResponse.statusText}`);
       }
 
       toast({
