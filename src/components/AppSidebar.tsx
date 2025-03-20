@@ -1,3 +1,4 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
@@ -7,12 +8,7 @@ import {
   Focus,
   Wind,
   Coffee,
-  ShieldBan,
   Utensils,
-  BarChart3,
-  Crown,
-  CircleDot,
-  Grid3X3,
   Gamepad2,
   Flower2,
   Sparkles,
@@ -24,6 +20,9 @@ import {
   Wrench,
   Bath,
   TestTube,
+  Grid3X3,
+  Target,
+  Battery,
 } from "lucide-react";
 
 const navigationGroups = [
@@ -76,9 +75,9 @@ const navigationGroups = [
     label: "Support Tools",
     links: [
       {
-        to: "/test",
-        icon: TestTube,
-        label: "Test Connection",
+        to: "/tools",
+        icon: Wrench,
+        label: "Tools Hub",
       },
       {
         to: "/breathing",
@@ -111,7 +110,51 @@ const navigationGroups = [
         icon: Heart,
         label: "Sobriety",
       },
-      // Development Tools link (only shown in dev mode)
+    ]
+  },
+  {
+    label: "Game Center",
+    links: [
+      {
+        to: "/games",
+        icon: Gamepad2,
+        label: "Games Hub",
+      },
+      {
+        to: "/tools/brain-match",
+        icon: Brain,
+        label: "Brain Match",
+      },
+      {
+        to: "/tools/memory-cards",
+        icon: Grid3X3,
+        label: "Memory Cards",
+      },
+      {
+        to: "/tools/mental-rotation",
+        icon: Target,
+        label: "Mental Rotation",
+      },
+    ]
+  },
+  {
+    label: "Planning & Health",
+    links: [
+      {
+        to: "/energy-plans",
+        icon: Battery,
+        label: "Energy Plans",
+      },
+      {
+        to: "/pregnancy",
+        icon: Heart,
+        label: "Pregnancy",
+      },
+      {
+        to: "/insurance/dashboard",
+        icon: Activity,
+        label: "Insurance",
+      },
       ...(import.meta.env.DEV ? [{
         to: "/development",
         icon: Wrench,
@@ -139,7 +182,7 @@ export const AppSidebar = () => {
                   to={link.to}
                   className={cn(
                     "flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground",
-                    location.pathname === link.to
+                    location.pathname === link.to || location.pathname.startsWith(link.to + '/')
                       ? "bg-accent text-accent-foreground"
                       : "text-muted-foreground"
                   )}

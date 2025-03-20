@@ -8,8 +8,18 @@ import { gameRoutes } from "@/routes/gameRoutes";
 import Layout from "@/components/Layout";
 import ErrorBoundary from "@/components/layout/ErrorBoundary";
 
-const queryClient = new QueryClient();
+// Create a new query client with better caching defaults
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
+// Create the router with all routes
 const router = createBrowserRouter([
   {
     path: "/",

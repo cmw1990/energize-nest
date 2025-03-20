@@ -8,6 +8,8 @@ import Dashboard from "@/pages/Dashboard";
 import { InsuranceDashboard } from "@/pages/insurance/Dashboard";
 import { InsuranceClaimSubmission } from "@/pages/insurance/SubmitClaim";
 import { InsuranceCoverageVerification } from "@/pages/insurance/VerifyCoverage";
+import Tools from "@/pages/tools/Tools";
+import GamesHub from "@/pages/games/GamesHub";
 
 export const mainRoutes: RouteObject[] = [
   {
@@ -48,6 +50,14 @@ export const mainRoutes: RouteObject[] = [
       {
         path: "insurance/verify-coverage",
         element: <InsuranceCoverageVerification />,
+      },
+      {
+        path: "tools",
+        element: <Tools />,
+      },
+      {
+        path: "games",
+        element: <GamesHub />,
       },
     ],
   }

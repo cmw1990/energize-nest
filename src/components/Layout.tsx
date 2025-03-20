@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Activity, User, Menu, Battery } from "lucide-react";
+import { Activity, User, Menu, Battery, Moon, Sun, Home } from "lucide-react";
 import { Toolbar } from "@/components/ui/toolbar/Toolbar";
 import {
   Sheet,
@@ -24,6 +24,7 @@ import {
 import { useNavigate, Outlet, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { DevModeWatermark } from "./DevModeWatermark";
+import { useEffect, useState } from "react";
 
 interface LayoutProps {
   children?: React.ReactNode;
@@ -34,6 +35,7 @@ const Layout = ({ children }: LayoutProps) => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   // Fetch user settings
   const { data: userSettings } = useQuery({
@@ -69,6 +71,27 @@ const Layout = ({ children }: LayoutProps) => {
       });
     }
   };
+
+  // Theme toggler function
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    document.documentElement.classList.toggle('dark');
+  };
+
+  // Apply theme on initial load
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    setTheme(savedTheme as 'light' | 'dark');
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+
+  // Save theme preference
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   if (!session) {
     return <div className="min-h-screen">{children || <Outlet />}</div>;
@@ -116,29 +139,41 @@ const Layout = ({ children }: LayoutProps) => {
                   </>
                 )}
               </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full">
-                    <User className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link to="/settings" className="cursor-pointer">
-                      Settings
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleSignOut}>
-                    Sign Out
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem disabled className="text-xs text-muted-foreground">
-                    Version 1.0.0
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="flex items-center gap-3">
+                <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">
+                  {theme === 'light' ? (
+                    <Moon className="h-5 w-5" />
+                  ) : (
+                    <Sun className="h-5 w-5" />
+                  )}
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="rounded-full">
+                  <Home className="h-5 w-5" />
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="rounded-full">
+                      <User className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/settings" className="cursor-pointer">
+                        Settings
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleSignOut}>
+                      Sign Out
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem disabled className="text-xs text-muted-foreground">
+                      Version 1.0.0
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
             <Toolbar />
           </div>

@@ -556,6 +556,51 @@ export type Database = {
         }
         Relationships: []
       }
+      activity_events4: {
+        Row: {
+          created_at: string | null
+          event_data: Json
+          event_type: string
+          group_id: string | null
+          id: string
+          metadata: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_data: Json
+          event_type: string
+          group_id?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_data?: Json
+          event_type?: string
+          group_id?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_events4_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care_groups4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_events4_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       activity_points: {
         Row: {
           activity_type: Database["public"]["Enums"]["activity_type"]
@@ -995,15 +1040,7 @@ export type Database = {
           user_id?: string
           visual_tags?: Json | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "adhd_task_organization_task_id_fkey"
-            columns: ["task_id"]
-            isOneToOne: false
-            referencedRelation: "tasks"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       affiliate_clicks: {
         Row: {
@@ -1254,6 +1291,117 @@ export type Database = {
         }
         Relationships: []
       }
+      alternative_product_vendors8: {
+        Row: {
+          created_at: string
+          id: string
+          in_stock: boolean
+          price: string | null
+          product_id: string
+          vendor_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          in_stock?: boolean
+          price?: string | null
+          product_id: string
+          vendor_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          in_stock?: boolean
+          price?: string | null
+          product_id?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alternative_product_vendors8_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "alternative_products8"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alternative_product_vendors8_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      alternative_products8: {
+        Row: {
+          available: boolean
+          best_for: string[]
+          brand: string
+          chemicals_of_concern: string[]
+          cons: string[]
+          created_at: string
+          description: string
+          flavors: string[]
+          gum_health_rating: number
+          id: string
+          image_url: string | null
+          name: string
+          price: string
+          pros: string[]
+          rating: number
+          reviews: number
+          strength_options: string[]
+          type: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          available?: boolean
+          best_for?: string[]
+          brand: string
+          chemicals_of_concern?: string[]
+          cons?: string[]
+          created_at?: string
+          description: string
+          flavors?: string[]
+          gum_health_rating?: number
+          id?: string
+          image_url?: string | null
+          name: string
+          price: string
+          pros?: string[]
+          rating?: number
+          reviews?: number
+          strength_options?: string[]
+          type: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          available?: boolean
+          best_for?: string[]
+          brand?: string
+          chemicals_of_concern?: string[]
+          cons?: string[]
+          created_at?: string
+          description?: string
+          flavors?: string[]
+          gum_health_rating?: number
+          id?: string
+          image_url?: string | null
+          name?: string
+          price?: string
+          pros?: string[]
+          rating?: number
+          reviews?: number
+          strength_options?: string[]
+          type?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       analytics_access: {
         Row: {
           access_level: string
@@ -1322,6 +1470,127 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      announcement_attachments4: {
+        Row: {
+          announcement_id: string
+          created_at: string
+          created_by: string
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          announcement_id: string
+          created_at?: string
+          created_by: string
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          announcement_id?: string
+          created_at?: string
+          created_by?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcement_attachments4_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "group_announcements4"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      announcement_comments4: {
+        Row: {
+          announcement_id: string
+          content: string
+          content_format: string | null
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          announcement_id: string
+          content: string
+          content_format?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          announcement_id?: string
+          content?: string
+          content_format?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcement_comments4_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "group_announcements4"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      announcement_mentions4: {
+        Row: {
+          announcement_id: string | null
+          comment_id: string | null
+          created_at: string
+          id: string
+          mentioned_user_id: string
+        }
+        Insert: {
+          announcement_id?: string | null
+          comment_id?: string | null
+          created_at?: string
+          id?: string
+          mentioned_user_id: string
+        }
+        Update: {
+          announcement_id?: string | null
+          comment_id?: string | null
+          created_at?: string
+          id?: string
+          mentioned_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcement_mentions4_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "group_announcements4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "announcement_mentions4_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "announcement_comments4"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       anxiety_tracking8: {
         Row: {
@@ -1634,6 +1903,56 @@ export type Database = {
             columns: ["realm_id"]
             isOneToOne: false
             referencedRelation: "realms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      availability_slots4: {
+        Row: {
+          created_at: string | null
+          day_of_week: number | null
+          end_time: string
+          id: string
+          is_available: boolean | null
+          is_recurring: boolean | null
+          provider_id: string | null
+          provider_type: string | null
+          specific_date: string | null
+          start_time: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_week?: number | null
+          end_time: string
+          id?: string
+          is_available?: boolean | null
+          is_recurring?: boolean | null
+          provider_id?: string | null
+          provider_type?: string | null
+          specific_date?: string | null
+          start_time: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          day_of_week?: number | null
+          end_time?: string
+          id?: string
+          is_available?: boolean | null
+          is_recurring?: boolean | null
+          provider_id?: string | null
+          provider_type?: string | null
+          specific_date?: string | null
+          start_time?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_slots4_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "users4"
             referencedColumns: ["id"]
           },
         ]
@@ -2818,6 +3137,27 @@ export type Database = {
           },
         ]
       }
+      bookmarked_milestones8: {
+        Row: {
+          created_at: string
+          id: string
+          milestone_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          milestone_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          milestone_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       brain_game_scores: {
         Row: {
           created_at: string | null
@@ -2911,6 +3251,62 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_events4: {
+        Row: {
+          attendees: string[] | null
+          created_at: string | null
+          created_by: string
+          description: string | null
+          end_time: string
+          event_type: string
+          group_id: string
+          id: string
+          location: string | null
+          recurring: string | null
+          start_time: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          attendees?: string[] | null
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          end_time: string
+          event_type: string
+          group_id: string
+          id?: string
+          location?: string | null
+          recurring?: string | null
+          start_time: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          attendees?: string[] | null
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          end_time?: string
+          event_type?: string
+          group_id?: string
+          id?: string
+          location?: string | null
+          recurring?: string | null
+          start_time?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_events4_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care_groups4"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       card_sorting_responses: {
         Row: {
           card_groups: Json
@@ -2987,6 +3383,3278 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      care_activity_log: {
+        Row: {
+          activity_data: Json
+          activity_type: string
+          created_at: string | null
+          group_id: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          activity_data: Json
+          activity_type: string
+          created_at?: string | null
+          group_id?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          activity_data?: Json
+          activity_type?: string
+          created_at?: string | null
+          group_id?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      care_advisor_profiles4: {
+        Row: {
+          base_rate: number | null
+          bio: string | null
+          certifications: string[] | null
+          consultation_fee: number | null
+          consultation_rate: number | null
+          created_at: string | null
+          experience_years: number | null
+          featured: boolean | null
+          hourly_rate: number | null
+          id: string
+          languages: string[] | null
+          profile_visibility: string | null
+          rating: number | null
+          reviews_count: number | null
+          services: string[] | null
+          specializations: string[] | null
+          specialties: string[] | null
+          updated_at: string | null
+          user_id: string | null
+          video_platforms: string[] | null
+          virtual_consultations: boolean | null
+        }
+        Insert: {
+          base_rate?: number | null
+          bio?: string | null
+          certifications?: string[] | null
+          consultation_fee?: number | null
+          consultation_rate?: number | null
+          created_at?: string | null
+          experience_years?: number | null
+          featured?: boolean | null
+          hourly_rate?: number | null
+          id: string
+          languages?: string[] | null
+          profile_visibility?: string | null
+          rating?: number | null
+          reviews_count?: number | null
+          services?: string[] | null
+          specializations?: string[] | null
+          specialties?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+          video_platforms?: string[] | null
+          virtual_consultations?: boolean | null
+        }
+        Update: {
+          base_rate?: number | null
+          bio?: string | null
+          certifications?: string[] | null
+          consultation_fee?: number | null
+          consultation_rate?: number | null
+          created_at?: string | null
+          experience_years?: number | null
+          featured?: boolean | null
+          hourly_rate?: number | null
+          id?: string
+          languages?: string[] | null
+          profile_visibility?: string | null
+          rating?: number | null
+          reviews_count?: number | null
+          services?: string[] | null
+          specializations?: string[] | null
+          specialties?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+          video_platforms?: string[] | null
+          virtual_consultations?: boolean | null
+        }
+        Relationships: []
+      }
+      care_group_comments: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string
+          id: string
+          post_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by: string
+          id?: string
+          post_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          post_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_group_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "care_group_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_group_post_comments: {
+        Row: {
+          content: string
+          created_at: string | null
+          created_by: string
+          id: string
+          post_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          created_by: string
+          id?: string
+          post_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          post_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_group_post_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "care_group_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_group_post_reactions: {
+        Row: {
+          created_at: string | null
+          id: string
+          post_id: string
+          reaction_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          post_id: string
+          reaction_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          post_id?: string
+          reaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_group_post_reactions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "care_group_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_group_posts: {
+        Row: {
+          content: string
+          created_at: string | null
+          created_by: string
+          group_id: string
+          id: string
+          image_url: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          created_by: string
+          group_id: string
+          id?: string
+          image_url?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          created_by?: string
+          group_id?: string
+          id?: string
+          image_url?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      care_groups4: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string
+          recipient_name: string | null
+          type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          recipient_name?: string | null
+          type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          recipient_name?: string | null
+          type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_groups4_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_health_records: {
+        Row: {
+          created_at: string | null
+          data: Json
+          group_id: string | null
+          id: string
+          notes: string | null
+          record_date: string | null
+          record_type: string
+          shared_with: string[] | null
+          user_id: string
+          visibility: string
+        }
+        Insert: {
+          created_at?: string | null
+          data: Json
+          group_id?: string | null
+          id?: string
+          notes?: string | null
+          record_date?: string | null
+          record_type: string
+          shared_with?: string[] | null
+          user_id: string
+          visibility?: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json
+          group_id?: string | null
+          id?: string
+          notes?: string | null
+          record_date?: string | null
+          record_type?: string
+          shared_with?: string[] | null
+          user_id?: string
+          visibility?: string
+        }
+        Relationships: []
+      }
+      care_home_events4: {
+        Row: {
+          care_home_id: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string
+          end_date: string
+          event_type: string
+          id: string
+          is_featured: boolean | null
+          is_virtual: boolean | null
+          location: string
+          max_attendees: number | null
+          photo_url: string | null
+          registration_required: boolean | null
+          registration_url: string | null
+          start_date: string
+          status: string
+          title: string
+          updated_at: string | null
+          virtual_url: string | null
+        }
+        Insert: {
+          care_home_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description: string
+          end_date: string
+          event_type: string
+          id?: string
+          is_featured?: boolean | null
+          is_virtual?: boolean | null
+          location: string
+          max_attendees?: number | null
+          photo_url?: string | null
+          registration_required?: boolean | null
+          registration_url?: string | null
+          start_date: string
+          status?: string
+          title: string
+          updated_at?: string | null
+          virtual_url?: string | null
+        }
+        Update: {
+          care_home_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string
+          end_date?: string
+          event_type?: string
+          id?: string
+          is_featured?: boolean | null
+          is_virtual?: boolean | null
+          location?: string
+          max_attendees?: number | null
+          photo_url?: string | null
+          registration_required?: boolean | null
+          registration_url?: string | null
+          start_date?: string
+          status?: string
+          title?: string
+          updated_at?: string | null
+          virtual_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_home_events4_care_home_id_fkey"
+            columns: ["care_home_id"]
+            isOneToOne: false
+            referencedRelation: "care_homes4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_home_events4_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_home_reviews4: {
+        Row: {
+          activities_rating: number | null
+          care_home_id: string | null
+          care_quality_rating: number | null
+          cons: string | null
+          content: string | null
+          created_at: string | null
+          facilities_rating: number | null
+          flagged: boolean | null
+          flagged_reason: string | null
+          food_rating: number | null
+          helpful_count: number | null
+          id: string
+          is_featured: boolean | null
+          is_verified: boolean | null
+          overall_rating: number | null
+          pros: string | null
+          resident_duration: string | null
+          resident_relation: string | null
+          response: string | null
+          response_at: string | null
+          response_by: string | null
+          reviewer_id: string | null
+          staff_rating: number | null
+          title: string | null
+          updated_at: string | null
+          value_rating: number | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          activities_rating?: number | null
+          care_home_id?: string | null
+          care_quality_rating?: number | null
+          cons?: string | null
+          content?: string | null
+          created_at?: string | null
+          facilities_rating?: number | null
+          flagged?: boolean | null
+          flagged_reason?: string | null
+          food_rating?: number | null
+          helpful_count?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          overall_rating?: number | null
+          pros?: string | null
+          resident_duration?: string | null
+          resident_relation?: string | null
+          response?: string | null
+          response_at?: string | null
+          response_by?: string | null
+          reviewer_id?: string | null
+          staff_rating?: number | null
+          title?: string | null
+          updated_at?: string | null
+          value_rating?: number | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          activities_rating?: number | null
+          care_home_id?: string | null
+          care_quality_rating?: number | null
+          cons?: string | null
+          content?: string | null
+          created_at?: string | null
+          facilities_rating?: number | null
+          flagged?: boolean | null
+          flagged_reason?: string | null
+          food_rating?: number | null
+          helpful_count?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          overall_rating?: number | null
+          pros?: string | null
+          resident_duration?: string | null
+          resident_relation?: string | null
+          response?: string | null
+          response_at?: string | null
+          response_by?: string | null
+          reviewer_id?: string | null
+          staff_rating?: number | null
+          title?: string | null
+          updated_at?: string | null
+          value_rating?: number | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_home_reviews4_care_home_id_fkey"
+            columns: ["care_home_id"]
+            isOneToOne: false
+            referencedRelation: "care_homes4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_home_reviews4_response_by_fkey"
+            columns: ["response_by"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_home_reviews4_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_home_reviews4_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_home_saved4: {
+        Row: {
+          care_home_id: string | null
+          created_at: string | null
+          id: string
+          notes: string | null
+          user_id: string | null
+        }
+        Insert: {
+          care_home_id?: string | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          care_home_id?: string | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_home_saved4_care_home_id_fkey"
+            columns: ["care_home_id"]
+            isOneToOne: false
+            referencedRelation: "care_homes4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_home_saved4_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_homes4: {
+        Row: {
+          address_line1: string | null
+          address_line2: string | null
+          amenities: string[] | null
+          brochure_url: string | null
+          capacity: number | null
+          city: string | null
+          claimed_at: string | null
+          claimed_by: string | null
+          country: string | null
+          created_at: string | null
+          current_availability: number | null
+          description: string | null
+          email: string | null
+          facility_type: string | null
+          floor_plans: string[] | null
+          has_claimed_listing: boolean | null
+          id: string
+          is_featured: boolean | null
+          is_verified: boolean | null
+          languages_supported: string[] | null
+          latitude: number | null
+          license_number: string | null
+          license_verified: boolean | null
+          license_verified_at: string | null
+          longitude: number | null
+          minimum_age: number | null
+          name: string
+          owner_id: string | null
+          payment_options: string[] | null
+          phone: string | null
+          photos: string[] | null
+          price_range_max: number | null
+          price_range_min: number | null
+          rating: number | null
+          reviews_count: number | null
+          room_types: string[] | null
+          search_vector: unknown | null
+          services_offered: string[] | null
+          short_description: string | null
+          special_accommodations: string[] | null
+          staff_ratio: string | null
+          state: string | null
+          status: string | null
+          updated_at: string | null
+          virtual_tour_url: string | null
+          website: string | null
+          zip_code: string | null
+        }
+        Insert: {
+          address_line1?: string | null
+          address_line2?: string | null
+          amenities?: string[] | null
+          brochure_url?: string | null
+          capacity?: number | null
+          city?: string | null
+          claimed_at?: string | null
+          claimed_by?: string | null
+          country?: string | null
+          created_at?: string | null
+          current_availability?: number | null
+          description?: string | null
+          email?: string | null
+          facility_type?: string | null
+          floor_plans?: string[] | null
+          has_claimed_listing?: boolean | null
+          id?: string
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          languages_supported?: string[] | null
+          latitude?: number | null
+          license_number?: string | null
+          license_verified?: boolean | null
+          license_verified_at?: string | null
+          longitude?: number | null
+          minimum_age?: number | null
+          name: string
+          owner_id?: string | null
+          payment_options?: string[] | null
+          phone?: string | null
+          photos?: string[] | null
+          price_range_max?: number | null
+          price_range_min?: number | null
+          rating?: number | null
+          reviews_count?: number | null
+          room_types?: string[] | null
+          search_vector?: unknown | null
+          services_offered?: string[] | null
+          short_description?: string | null
+          special_accommodations?: string[] | null
+          staff_ratio?: string | null
+          state?: string | null
+          status?: string | null
+          updated_at?: string | null
+          virtual_tour_url?: string | null
+          website?: string | null
+          zip_code?: string | null
+        }
+        Update: {
+          address_line1?: string | null
+          address_line2?: string | null
+          amenities?: string[] | null
+          brochure_url?: string | null
+          capacity?: number | null
+          city?: string | null
+          claimed_at?: string | null
+          claimed_by?: string | null
+          country?: string | null
+          created_at?: string | null
+          current_availability?: number | null
+          description?: string | null
+          email?: string | null
+          facility_type?: string | null
+          floor_plans?: string[] | null
+          has_claimed_listing?: boolean | null
+          id?: string
+          is_featured?: boolean | null
+          is_verified?: boolean | null
+          languages_supported?: string[] | null
+          latitude?: number | null
+          license_number?: string | null
+          license_verified?: boolean | null
+          license_verified_at?: string | null
+          longitude?: number | null
+          minimum_age?: number | null
+          name?: string
+          owner_id?: string | null
+          payment_options?: string[] | null
+          phone?: string | null
+          photos?: string[] | null
+          price_range_max?: number | null
+          price_range_min?: number | null
+          rating?: number | null
+          reviews_count?: number | null
+          room_types?: string[] | null
+          search_vector?: unknown | null
+          services_offered?: string[] | null
+          short_description?: string | null
+          special_accommodations?: string[] | null
+          staff_ratio?: string | null
+          state?: string | null
+          status?: string | null
+          updated_at?: string | null
+          virtual_tour_url?: string | null
+          website?: string | null
+          zip_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_homes4_claimed_by_fkey"
+            columns: ["claimed_by"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care_homes4_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_provider_reviews: {
+        Row: {
+          created_at: string | null
+          id: string
+          provider_id: string
+          rating: number
+          review_text: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          provider_id: string
+          rating: number
+          review_text?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          provider_id?: string
+          rating?: number
+          review_text?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_provider_reviews_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "care_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_providers: {
+        Row: {
+          availability: Json | null
+          average_rating: number | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          is_verified: boolean | null
+          location: string | null
+          name: string
+          provider_type: string
+          rates: Json | null
+          review_count: number | null
+          services: Json | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          availability?: Json | null
+          average_rating?: number | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_verified?: boolean | null
+          location?: string | null
+          name: string
+          provider_type: string
+          rates?: Json | null
+          review_count?: number | null
+          services?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          availability?: Json | null
+          average_rating?: number | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_verified?: boolean | null
+          location?: string | null
+          name?: string
+          provider_type?: string
+          rates?: Json | null
+          review_count?: number | null
+          services?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      care_schedules4: {
+        Row: {
+          activity_type: string
+          created_at: string | null
+          days: string[] | null
+          duration: number | null
+          id: string
+          notes: string | null
+          patient_id: string
+          scheduled_time: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string | null
+          days?: string[] | null
+          duration?: number | null
+          id?: string
+          notes?: string | null
+          patient_id: string
+          scheduled_time?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string | null
+          days?: string[] | null
+          duration?: number | null
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          scheduled_time?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_patient"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patient_profiles4"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_tasks: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string | null
+          created_by: string
+          description: string | null
+          due_date: string | null
+          group_id: string
+          id: string
+          priority: string | null
+          status: string
+          title: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          due_date?: string | null
+          group_id: string
+          id?: string
+          priority?: string | null
+          status?: string
+          title: string
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          due_date?: string | null
+          group_id?: string
+          id?: string
+          priority?: string | null
+          status?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      care_tips4: {
+        Row: {
+          category: string | null
+          condition: string | null
+          content: string
+          created_at: string | null
+          id: string
+          source: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          condition?: string | null
+          content: string
+          created_at?: string | null
+          id?: string
+          source?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          condition?: string | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          source?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      care8_alert_notifications: {
+        Row: {
+          alert_id: string
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          member_id: string
+          read_at: string | null
+        }
+        Insert: {
+          alert_id: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          member_id: string
+          read_at?: string | null
+        }
+        Update: {
+          alert_id?: string
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          member_id?: string
+          read_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_alert_notifications_alert_id_fkey"
+            columns: ["alert_id"]
+            isOneToOne: false
+            referencedRelation: "care8_emergency_alerts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care8_alert_notifications_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "care8_group_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_bookings: {
+        Row: {
+          client_id: string | null
+          client_notes: string | null
+          created_at: string | null
+          end_time: string
+          id: string
+          location_details: string | null
+          location_type: string | null
+          payment_status: string | null
+          price: number | null
+          provider_id: string | null
+          provider_notes: string | null
+          service_details: string | null
+          service_type: string
+          start_time: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          client_notes?: string | null
+          created_at?: string | null
+          end_time: string
+          id?: string
+          location_details?: string | null
+          location_type?: string | null
+          payment_status?: string | null
+          price?: number | null
+          provider_id?: string | null
+          provider_notes?: string | null
+          service_details?: string | null
+          service_type: string
+          start_time: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          client_notes?: string | null
+          created_at?: string | null
+          end_time?: string
+          id?: string
+          location_details?: string | null
+          location_type?: string | null
+          payment_status?: string | null
+          price?: number | null
+          provider_id?: string | null
+          provider_notes?: string | null
+          service_details?: string | null
+          service_type?: string
+          start_time?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_bookings_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "care8_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_care_facilities: {
+        Row: {
+          address: string
+          amenities: string[]
+          available_beds: number
+          beds: number
+          created_at: string | null
+          description: string
+          distance: string | null
+          id: string
+          image: string | null
+          medical_services: string[]
+          name: string
+          phone: string
+          price_range: string
+          rating: number
+          review_count: number
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          address: string
+          amenities: string[]
+          available_beds?: number
+          beds: number
+          created_at?: string | null
+          description: string
+          distance?: string | null
+          id?: string
+          image?: string | null
+          medical_services: string[]
+          name: string
+          phone: string
+          price_range: string
+          rating?: number
+          review_count?: number
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string
+          amenities?: string[]
+          available_beds?: number
+          beds?: number
+          created_at?: string | null
+          description?: string
+          distance?: string | null
+          id?: string
+          image?: string | null
+          medical_services?: string[]
+          name?: string
+          phone?: string
+          price_range?: string
+          rating?: number
+          review_count?: number
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      care8_care_plan_tasks: {
+        Row: {
+          assigned_to: string | null
+          care_plan_id: string
+          created_at: string | null
+          created_by: string
+          description: string | null
+          frequency: string | null
+          id: string
+          status: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          care_plan_id: string
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          frequency?: string | null
+          id?: string
+          status?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          care_plan_id?: string
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          frequency?: string | null
+          id?: string
+          status?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_care_plan_tasks_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "care8_group_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care8_care_plan_tasks_care_plan_id_fkey"
+            columns: ["care_plan_id"]
+            isOneToOne: false
+            referencedRelation: "care8_care_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_care_plans: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          description: string
+          end_date: string | null
+          group_id: string
+          id: string
+          privacy_setting_id: string | null
+          start_date: string | null
+          status: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          description: string
+          end_date?: string | null
+          group_id: string
+          id?: string
+          privacy_setting_id?: string | null
+          start_date?: string | null
+          status?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          description?: string
+          end_date?: string | null
+          group_id?: string
+          id?: string
+          privacy_setting_id?: string | null
+          start_date?: string | null
+          status?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_care_plans_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care8_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care8_care_plans_privacy_setting_id_fkey"
+            columns: ["privacy_setting_id"]
+            isOneToOne: false
+            referencedRelation: "care8_group_privacy_settings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_care_products: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string
+          features: string[]
+          free_shipping: boolean
+          id: string
+          image: string | null
+          in_stock: boolean
+          name: string
+          popular: boolean
+          price: number
+          rating: number
+          review_count: number
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description: string
+          features: string[]
+          free_shipping?: boolean
+          id?: string
+          image?: string | null
+          in_stock?: boolean
+          name: string
+          popular?: boolean
+          price: number
+          rating?: number
+          review_count?: number
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string
+          features?: string[]
+          free_shipping?: boolean
+          id?: string
+          image?: string | null
+          in_stock?: boolean
+          name?: string
+          popular?: boolean
+          price?: number
+          rating?: number
+          review_count?: number
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      care8_caregivers: {
+        Row: {
+          availability: string
+          avatar: string | null
+          bio: string
+          created_at: string | null
+          distance: string | null
+          hourly_rate: string
+          id: string
+          location: string
+          name: string
+          rating: number
+          review_count: number
+          specialties: string[]
+          updated_at: string | null
+          verified: boolean
+        }
+        Insert: {
+          availability: string
+          avatar?: string | null
+          bio: string
+          created_at?: string | null
+          distance?: string | null
+          hourly_rate: string
+          id?: string
+          location: string
+          name: string
+          rating?: number
+          review_count?: number
+          specialties: string[]
+          updated_at?: string | null
+          verified?: boolean
+        }
+        Update: {
+          availability?: string
+          avatar?: string | null
+          bio?: string
+          created_at?: string | null
+          distance?: string | null
+          hourly_rate?: string
+          id?: string
+          location?: string
+          name?: string
+          rating?: number
+          review_count?: number
+          specialties?: string[]
+          updated_at?: string | null
+          verified?: boolean
+        }
+        Relationships: []
+      }
+      care8_client_favorites: {
+        Row: {
+          client_id: string | null
+          created_at: string | null
+          id: string
+          provider_id: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string | null
+          id?: string
+          provider_id?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string | null
+          id?: string
+          provider_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_client_favorites_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "care8_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_companions: {
+        Row: {
+          availability: string
+          avatar: string | null
+          bio: string
+          created_at: string | null
+          distance: string | null
+          hourly_rate: string
+          id: string
+          interests: string[]
+          location: string
+          name: string
+          rating: number
+          review_count: number
+          updated_at: string | null
+          verified: boolean
+        }
+        Insert: {
+          availability: string
+          avatar?: string | null
+          bio: string
+          created_at?: string | null
+          distance?: string | null
+          hourly_rate: string
+          id?: string
+          interests: string[]
+          location: string
+          name: string
+          rating?: number
+          review_count?: number
+          updated_at?: string | null
+          verified?: boolean
+        }
+        Update: {
+          availability?: string
+          avatar?: string | null
+          bio?: string
+          created_at?: string | null
+          distance?: string | null
+          hourly_rate?: string
+          id?: string
+          interests?: string[]
+          location?: string
+          name?: string
+          rating?: number
+          review_count?: number
+          updated_at?: string | null
+          verified?: boolean
+        }
+        Relationships: []
+      }
+      care8_emergency_alerts: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          description: string
+          group_id: string
+          id: string
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          status: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          description: string
+          group_id: string
+          id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          description?: string
+          group_id?: string
+          id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_emergency_alerts_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care8_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_emergency_contacts: {
+        Row: {
+          address: string | null
+          created_at: string | null
+          created_by: string
+          email: string | null
+          group_id: string
+          id: string
+          is_primary: boolean | null
+          name: string
+          notes: string | null
+          phone: string
+          privacy_setting_id: string | null
+          relationship: string
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string | null
+          created_by: string
+          email?: string | null
+          group_id: string
+          id?: string
+          is_primary?: boolean | null
+          name: string
+          notes?: string | null
+          phone: string
+          privacy_setting_id?: string | null
+          relationship: string
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string | null
+          created_by?: string
+          email?: string | null
+          group_id?: string
+          id?: string
+          is_primary?: boolean | null
+          name?: string
+          notes?: string | null
+          phone?: string
+          privacy_setting_id?: string | null
+          relationship?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_emergency_contacts_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care8_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care8_emergency_contacts_privacy_setting_id_fkey"
+            columns: ["privacy_setting_id"]
+            isOneToOne: false
+            referencedRelation: "care8_group_privacy_settings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_facilities: {
+        Row: {
+          address: string | null
+          average_rating: number | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          is_verified: boolean | null
+          name: string
+          type: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          average_rating?: number | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_verified?: boolean | null
+          name: string
+          type?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          average_rating?: number | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_verified?: boolean | null
+          name?: string
+          type?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      care8_facility_reviews: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          facility_id: string
+          id: string
+          rating: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          facility_id: string
+          id?: string
+          rating: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          facility_id?: string
+          id?: string
+          rating?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_facility_reviews_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "care8_facilities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_group_chats: {
+        Row: {
+          created_at: string | null
+          group_id: string
+          id: string
+          is_system_message: boolean | null
+          message: string
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          group_id: string
+          id?: string
+          is_system_message?: boolean | null
+          message: string
+          sender_id: string
+        }
+        Update: {
+          created_at?: string | null
+          group_id?: string
+          id?: string
+          is_system_message?: boolean | null
+          message?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_group_chats_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care8_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_group_events: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          description: string | null
+          end_time: string
+          event_type: string | null
+          group_id: string
+          id: string
+          is_recurring: boolean | null
+          location: string | null
+          notification_minutes: number | null
+          privacy_setting_id: string | null
+          recurrence_end_date: string | null
+          recurrence_pattern: string | null
+          start_time: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          end_time: string
+          event_type?: string | null
+          group_id: string
+          id?: string
+          is_recurring?: boolean | null
+          location?: string | null
+          notification_minutes?: number | null
+          privacy_setting_id?: string | null
+          recurrence_end_date?: string | null
+          recurrence_pattern?: string | null
+          start_time: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          end_time?: string
+          event_type?: string | null
+          group_id?: string
+          id?: string
+          is_recurring?: boolean | null
+          location?: string | null
+          notification_minutes?: number | null
+          privacy_setting_id?: string | null
+          recurrence_end_date?: string | null
+          recurrence_pattern?: string | null
+          start_time?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_group_events_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care8_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care8_group_events_privacy_setting_id_fkey"
+            columns: ["privacy_setting_id"]
+            isOneToOne: false
+            referencedRelation: "care8_group_privacy_settings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_group_invitations: {
+        Row: {
+          created_at: string | null
+          expires_at: string | null
+          group_id: string
+          id: string
+          invited_by: string
+          invited_email: string
+          status: string
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at?: string | null
+          group_id: string
+          id?: string
+          invited_by: string
+          invited_email: string
+          status?: string
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string | null
+          group_id?: string
+          id?: string
+          invited_by?: string
+          invited_email?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_group_invitations_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care8_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_group_members: {
+        Row: {
+          group_id: string
+          id: string
+          is_primary_caregiver: boolean | null
+          joined_at: string | null
+          member_type: string | null
+          notes: string | null
+          profession: string | null
+          role: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          is_primary_caregiver?: boolean | null
+          joined_at?: string | null
+          member_type?: string | null
+          notes?: string | null
+          profession?: string | null
+          role: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          is_primary_caregiver?: boolean | null
+          joined_at?: string | null
+          member_type?: string | null
+          notes?: string | null
+          profession?: string | null
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care8_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_group_notes: {
+        Row: {
+          content: string
+          created_at: string | null
+          created_by: string
+          group_id: string
+          id: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          created_by: string
+          group_id: string
+          id?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          created_by?: string
+          group_id?: string
+          id?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_group_notes_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care8_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_group_posts: {
+        Row: {
+          content: string
+          created_at: string | null
+          group_id: string
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          group_id: string
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          group_id?: string
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_group_posts_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care8_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_group_privacy_settings: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          description: string | null
+          group_id: string
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          group_id: string
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          group_id?: string
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_group_privacy_settings_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care8_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_group_resources: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          description: string | null
+          group_id: string
+          id: string
+          resource_type: string
+          resource_url: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          group_id: string
+          id?: string
+          resource_type: string
+          resource_url?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          group_id?: string
+          id?: string
+          resource_type?: string
+          resource_url?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_group_resources_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care8_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_group_tasks: {
+        Row: {
+          assigned_to: string | null
+          created_at: string | null
+          created_by: string
+          description: string | null
+          due_date: string | null
+          group_id: string
+          id: string
+          status: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          due_date?: string | null
+          group_id: string
+          id?: string
+          status?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          due_date?: string | null
+          group_id?: string
+          id?: string
+          status?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_group_tasks_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care8_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_group_volunteers: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          description: string | null
+          end_time: string
+          group_id: string
+          id: string
+          location: string | null
+          max_volunteers: number
+          start_time: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          end_time: string
+          group_id: string
+          id?: string
+          location?: string | null
+          max_volunteers?: number
+          start_time: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          end_time?: string
+          group_id?: string
+          id?: string
+          location?: string | null
+          max_volunteers?: number
+          start_time?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_group_volunteers_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care8_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_groups: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_public: boolean
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_public?: boolean
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_public?: boolean
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      care8_legal_experts: {
+        Row: {
+          avatar: string | null
+          bio: string
+          consultation_types: string[]
+          created_at: string | null
+          distance: string | null
+          id: string
+          location: string
+          name: string
+          rate: string
+          rating: number
+          review_count: number
+          specialties: string[]
+          updated_at: string | null
+          verified: boolean
+          years_experience: number
+        }
+        Insert: {
+          avatar?: string | null
+          bio: string
+          consultation_types: string[]
+          created_at?: string | null
+          distance?: string | null
+          id?: string
+          location: string
+          name: string
+          rate: string
+          rating?: number
+          review_count?: number
+          specialties: string[]
+          updated_at?: string | null
+          verified?: boolean
+          years_experience: number
+        }
+        Update: {
+          avatar?: string | null
+          bio?: string
+          consultation_types?: string[]
+          created_at?: string | null
+          distance?: string | null
+          id?: string
+          location?: string
+          name?: string
+          rate?: string
+          rating?: number
+          review_count?: number
+          specialties?: string[]
+          updated_at?: string | null
+          verified?: boolean
+          years_experience?: number
+        }
+        Relationships: []
+      }
+      care8_medical_information: {
+        Row: {
+          category: string
+          content: string
+          created_at: string | null
+          created_by: string
+          group_id: string
+          id: string
+          privacy_setting_id: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string | null
+          created_by: string
+          group_id: string
+          id?: string
+          privacy_setting_id?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string | null
+          created_by?: string
+          group_id?: string
+          id?: string
+          privacy_setting_id?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_medical_information_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care8_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care8_medical_information_privacy_setting_id_fkey"
+            columns: ["privacy_setting_id"]
+            isOneToOne: false
+            referencedRelation: "care8_group_privacy_settings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_medication_logs: {
+        Row: {
+          administered_at: string
+          administered_by: string | null
+          created_at: string | null
+          id: string
+          medication_id: string
+          notes: string | null
+          status: string
+        }
+        Insert: {
+          administered_at?: string
+          administered_by?: string | null
+          created_at?: string | null
+          id?: string
+          medication_id: string
+          notes?: string | null
+          status?: string
+        }
+        Update: {
+          administered_at?: string
+          administered_by?: string | null
+          created_at?: string | null
+          id?: string
+          medication_id?: string
+          notes?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_medication_logs_administered_by_fkey"
+            columns: ["administered_by"]
+            isOneToOne: false
+            referencedRelation: "care8_group_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care8_medication_logs_medication_id_fkey"
+            columns: ["medication_id"]
+            isOneToOne: false
+            referencedRelation: "care8_medications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_medication_reminders: {
+        Row: {
+          created_at: string | null
+          days_of_week: number[] | null
+          enabled: boolean | null
+          id: string
+          is_active: boolean | null
+          medication_id: string
+          notification_sent: boolean | null
+          remind_at: string
+          reminder_time: string
+          reminder_type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          days_of_week?: number[] | null
+          enabled?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          medication_id: string
+          notification_sent?: boolean | null
+          remind_at: string
+          reminder_time: string
+          reminder_type?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          days_of_week?: number[] | null
+          enabled?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          medication_id?: string
+          notification_sent?: boolean | null
+          remind_at?: string
+          reminder_time?: string
+          reminder_type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_medication_reminders_medication_id_fkey"
+            columns: ["medication_id"]
+            isOneToOne: false
+            referencedRelation: "care8_personal_medications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_medications: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          dosage: string
+          end_date: string | null
+          frequency: string
+          group_id: string
+          id: string
+          instructions: string | null
+          name: string
+          privacy_setting_id: string | null
+          start_date: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          dosage: string
+          end_date?: string | null
+          frequency: string
+          group_id: string
+          id?: string
+          instructions?: string | null
+          name: string
+          privacy_setting_id?: string | null
+          start_date?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          dosage?: string
+          end_date?: string | null
+          frequency?: string
+          group_id?: string
+          id?: string
+          instructions?: string | null
+          name?: string
+          privacy_setting_id?: string | null
+          start_date?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_medications_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care8_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care8_medications_privacy_setting_id_fkey"
+            columns: ["privacy_setting_id"]
+            isOneToOne: false
+            referencedRelation: "care8_group_privacy_settings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_member_access_levels: {
+        Row: {
+          access_level: Database["public"]["Enums"]["access_level"]
+          created_at: string | null
+          group_id: string
+          id: string
+          member_id: string
+          privacy_setting_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          access_level?: Database["public"]["Enums"]["access_level"]
+          created_at?: string | null
+          group_id: string
+          id?: string
+          member_id: string
+          privacy_setting_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          access_level?: Database["public"]["Enums"]["access_level"]
+          created_at?: string | null
+          group_id?: string
+          id?: string
+          member_id?: string
+          privacy_setting_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_member_access_levels_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care8_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care8_member_access_levels_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "care8_group_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care8_member_access_levels_privacy_setting_id_fkey"
+            columns: ["privacy_setting_id"]
+            isOneToOne: false
+            referencedRelation: "care8_group_privacy_settings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_messages: {
+        Row: {
+          attachment_urls: string[] | null
+          booking_id: string | null
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message_text: string
+          read_at: string | null
+          recipient_id: string | null
+          sender_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          attachment_urls?: string[] | null
+          booking_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message_text: string
+          read_at?: string | null
+          recipient_id?: string | null
+          sender_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          attachment_urls?: string[] | null
+          booking_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message_text?: string
+          read_at?: string | null
+          recipient_id?: string | null
+          sender_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_messages_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "care8_bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_personal_medications: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          doctor_name: string | null
+          dosage: string
+          end_date: string | null
+          frequency: string
+          id: string
+          instructions: string | null
+          name: string
+          notes: string | null
+          pharmacy_name: string | null
+          pharmacy_phone: string | null
+          refill_date: string | null
+          refill_reminder: boolean | null
+          start_date: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          doctor_name?: string | null
+          dosage: string
+          end_date?: string | null
+          frequency: string
+          id?: string
+          instructions?: string | null
+          name: string
+          notes?: string | null
+          pharmacy_name?: string | null
+          pharmacy_phone?: string | null
+          refill_date?: string | null
+          refill_reminder?: boolean | null
+          start_date: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          doctor_name?: string | null
+          dosage?: string
+          end_date?: string | null
+          frequency?: string
+          id?: string
+          instructions?: string | null
+          name?: string
+          notes?: string | null
+          pharmacy_name?: string | null
+          pharmacy_phone?: string | null
+          refill_date?: string | null
+          refill_reminder?: boolean | null
+          start_date?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      care8_product_reviews: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          id: string
+          product_id: string
+          rating: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          product_id: string
+          rating: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          product_id?: string
+          rating?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_product_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "care8_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_products: {
+        Row: {
+          average_rating: number | null
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          is_verified: boolean | null
+          manufacturer: string | null
+          name: string
+          price: number | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          average_rating?: number | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_verified?: boolean | null
+          manufacturer?: string | null
+          name: string
+          price?: number | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          average_rating?: number | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_verified?: boolean | null
+          manufacturer?: string | null
+          name?: string
+          price?: number | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      care8_provider_availability: {
+        Row: {
+          created_at: string | null
+          day_of_week: number
+          end_time: string
+          id: string
+          is_recurring: boolean | null
+          provider_id: string | null
+          specific_date: string | null
+          start_time: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_recurring?: boolean | null
+          provider_id?: string | null
+          specific_date?: string | null
+          start_time: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_recurring?: boolean | null
+          provider_id?: string | null
+          specific_date?: string | null
+          start_time?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_provider_availability_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "care8_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_provider_blocked_dates: {
+        Row: {
+          created_at: string | null
+          end_date: string
+          id: string
+          provider_id: string | null
+          reason: string | null
+          start_date: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          end_date: string
+          id?: string
+          provider_id?: string | null
+          reason?: string | null
+          start_date: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          end_date?: string
+          id?: string
+          provider_id?: string | null
+          reason?: string | null
+          start_date?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_provider_blocked_dates_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "care8_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_provider_reviews: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          id: string
+          provider_id: string
+          rating: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          provider_id: string
+          rating: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          provider_id?: string
+          rating?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_provider_reviews_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "care8_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_provider_services: {
+        Row: {
+          category_id: string | null
+          created_at: string | null
+          description: string | null
+          duration_minutes: number
+          id: string
+          is_active: boolean | null
+          price: number
+          provider_id: string | null
+          service_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration_minutes: number
+          id?: string
+          is_active?: boolean | null
+          price: number
+          provider_id?: string | null
+          service_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean | null
+          price?: number
+          provider_id?: string | null
+          service_name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_provider_services_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "care8_service_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care8_provider_services_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "care8_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_providers: {
+        Row: {
+          address: string | null
+          avatar_url: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          hourly_rate: number | null
+          id: string
+          is_verified: boolean | null
+          location: string | null
+          name: string
+          provider_type: string | null
+          radius_miles: number | null
+          specialty: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          avatar_url?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          hourly_rate?: number | null
+          id?: string
+          is_verified?: boolean | null
+          location?: string | null
+          name: string
+          provider_type?: string | null
+          radius_miles?: number | null
+          specialty?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          avatar_url?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          hourly_rate?: number | null
+          id?: string
+          is_verified?: boolean | null
+          location?: string | null
+          name?: string
+          provider_type?: string | null
+          radius_miles?: number | null
+          specialty?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      care8_reminder_notifications: {
+        Row: {
+          delivery_status: string
+          id: string
+          notification_channel: string
+          reminder_id: string
+          sent_at: string | null
+        }
+        Insert: {
+          delivery_status: string
+          id?: string
+          notification_channel: string
+          reminder_id: string
+          sent_at?: string | null
+        }
+        Update: {
+          delivery_status?: string
+          id?: string
+          notification_channel?: string
+          reminder_id?: string
+          sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_reminder_notifications_reminder_id_fkey"
+            columns: ["reminder_id"]
+            isOneToOne: false
+            referencedRelation: "care8_medication_reminders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_service_categories: {
+        Row: {
+          category_name: string
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          provider_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          category_name: string
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          provider_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          category_name?: string
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          provider_type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      care8_shared_resources: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          description: string | null
+          file_url: string | null
+          group_id: string
+          id: string
+          privacy_setting_id: string | null
+          resource_type: string
+          title: string
+          updated_at: string | null
+          url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          file_url?: string | null
+          group_id: string
+          id?: string
+          privacy_setting_id?: string | null
+          resource_type?: string
+          title: string
+          updated_at?: string | null
+          url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          file_url?: string | null
+          group_id?: string
+          id?: string
+          privacy_setting_id?: string | null
+          resource_type?: string
+          title?: string
+          updated_at?: string | null
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_shared_resources_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care8_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "care8_shared_resources_privacy_setting_id_fkey"
+            columns: ["privacy_setting_id"]
+            isOneToOne: false
+            referencedRelation: "care8_group_privacy_settings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_volunteer_applications: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string | null
+          opportunity_id: string
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          opportunity_id: string
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          opportunity_id?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_volunteer_applications_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "care8_volunteer_opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care8_volunteer_opportunities: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          description: string | null
+          end_time: string
+          group_id: string
+          id: string
+          location: string | null
+          max_volunteers: number
+          skills_needed: string[] | null
+          slots_filled: number
+          start_time: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          end_time: string
+          group_id: string
+          id?: string
+          location?: string | null
+          max_volunteers?: number
+          skills_needed?: string[] | null
+          slots_filled?: number
+          start_time: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          end_time?: string
+          group_id?: string
+          id?: string
+          location?: string | null
+          max_volunteers?: number
+          skills_needed?: string[] | null
+          slots_filled?: number
+          start_time?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care8_volunteer_opportunities_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care8_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      caregiver_bookings4: {
+        Row: {
+          booking_type: string | null
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
+          caregiver_id: string | null
+          client_id: string | null
+          created_at: string | null
+          duration: number | null
+          end_time: string
+          id: string
+          location: string | null
+          location_details: string | null
+          payment_status: string | null
+          price: number | null
+          reviewed: boolean | null
+          services_requested: string[] | null
+          special_instructions: string | null
+          start_time: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          booking_type?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          caregiver_id?: string | null
+          client_id?: string | null
+          created_at?: string | null
+          duration?: number | null
+          end_time: string
+          id?: string
+          location?: string | null
+          location_details?: string | null
+          payment_status?: string | null
+          price?: number | null
+          reviewed?: boolean | null
+          services_requested?: string[] | null
+          special_instructions?: string | null
+          start_time: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          booking_type?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          caregiver_id?: string | null
+          client_id?: string | null
+          created_at?: string | null
+          duration?: number | null
+          end_time?: string
+          id?: string
+          location?: string | null
+          location_details?: string | null
+          payment_status?: string | null
+          price?: number | null
+          reviewed?: boolean | null
+          services_requested?: string[] | null
+          special_instructions?: string | null
+          start_time?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "caregiver_bookings4_cancelled_by_fkey"
+            columns: ["cancelled_by"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "caregiver_bookings4_caregiver_id_fkey"
+            columns: ["caregiver_id"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "caregiver_bookings4_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      caregiver_profiles4: {
+        Row: {
+          availability_schedule: Json | null
+          availability_status: string | null
+          background_check_verified_at: string | null
+          bio: string | null
+          certifications: string[] | null
+          created_at: string | null
+          experience_years: number | null
+          featured: boolean | null
+          has_background_check: boolean | null
+          hourly_rate: number | null
+          id: string
+          languages: string[] | null
+          metadata: Json | null
+          overnight_rate: number | null
+          profile_visibility: string | null
+          rating: number | null
+          reviews_count: number | null
+          service_radius: number | null
+          services: string[] | null
+          special_needs_rate: number | null
+          specialties: string[] | null
+          transportation_type: string | null
+          updated_at: string | null
+          user_id: string | null
+          verification_level: number | null
+          virtual_services_offered: boolean | null
+          works_with_age_groups: string[] | null
+        }
+        Insert: {
+          availability_schedule?: Json | null
+          availability_status?: string | null
+          background_check_verified_at?: string | null
+          bio?: string | null
+          certifications?: string[] | null
+          created_at?: string | null
+          experience_years?: number | null
+          featured?: boolean | null
+          has_background_check?: boolean | null
+          hourly_rate?: number | null
+          id?: string
+          languages?: string[] | null
+          metadata?: Json | null
+          overnight_rate?: number | null
+          profile_visibility?: string | null
+          rating?: number | null
+          reviews_count?: number | null
+          service_radius?: number | null
+          services?: string[] | null
+          special_needs_rate?: number | null
+          specialties?: string[] | null
+          transportation_type?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          verification_level?: number | null
+          virtual_services_offered?: boolean | null
+          works_with_age_groups?: string[] | null
+        }
+        Update: {
+          availability_schedule?: Json | null
+          availability_status?: string | null
+          background_check_verified_at?: string | null
+          bio?: string | null
+          certifications?: string[] | null
+          created_at?: string | null
+          experience_years?: number | null
+          featured?: boolean | null
+          has_background_check?: boolean | null
+          hourly_rate?: number | null
+          id?: string
+          languages?: string[] | null
+          metadata?: Json | null
+          overnight_rate?: number | null
+          profile_visibility?: string | null
+          rating?: number | null
+          reviews_count?: number | null
+          service_radius?: number | null
+          services?: string[] | null
+          special_needs_rate?: number | null
+          specialties?: string[] | null
+          transportation_type?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          verification_level?: number | null
+          virtual_services_offered?: boolean | null
+          works_with_age_groups?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "caregiver_profiles4_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      caregiver_verification_documents4: {
+        Row: {
+          caregiver_id: string | null
+          created_at: string | null
+          document_name: string
+          document_type: string | null
+          document_url: string
+          expiration_date: string | null
+          id: string
+          updated_at: string | null
+          verification_notes: string | null
+          verification_status: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          caregiver_id?: string | null
+          created_at?: string | null
+          document_name: string
+          document_type?: string | null
+          document_url: string
+          expiration_date?: string | null
+          id?: string
+          updated_at?: string | null
+          verification_notes?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          caregiver_id?: string | null
+          created_at?: string | null
+          document_name?: string
+          document_type?: string | null
+          document_url?: string
+          expiration_date?: string | null
+          id?: string
+          updated_at?: string | null
+          verification_notes?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "caregiver_verification_documents4_caregiver_id_fkey"
+            columns: ["caregiver_id"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "caregiver_verification_documents4_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       cbt_exercises: {
         Row: {
@@ -3121,6 +6789,68 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      chat_messages4: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          role: string
+          session_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          role: string
+          session_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          role?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_session"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "chat_sessions4"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_sessions4: {
+        Row: {
+          created_at: string | null
+          group_id: string | null
+          id: string
+          patient_id: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          group_id?: string | null
+          id?: string
+          patient_id?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          group_id?: string | null
+          id?: string
+          patient_id?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       child_faith_milestones: {
         Row: {
@@ -3781,6 +7511,42 @@ export type Database = {
         }
         Relationships: []
       }
+      cigarette_prices8: {
+        Row: {
+          cigarettes_per_pack: number
+          country: string
+          created_at: string
+          currency: string
+          effective_date: string
+          id: string
+          price_per_pack: number
+          region: string | null
+          updated_at: string
+        }
+        Insert: {
+          cigarettes_per_pack?: number
+          country: string
+          created_at?: string
+          currency?: string
+          effective_date?: string
+          id?: string
+          price_per_pack: number
+          region?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cigarettes_per_pack?: number
+          country?: string
+          created_at?: string
+          currency?: string
+          effective_date?: string
+          id?: string
+          price_per_pack?: number
+          region?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       client_emergency_contacts: {
         Row: {
           client_id: string | null
@@ -4429,6 +8195,184 @@ export type Database = {
         }
         Relationships: []
       }
+      companion_bookings4: {
+        Row: {
+          activities: string[] | null
+          booking_type: string | null
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
+          client_id: string | null
+          companion_id: string | null
+          created_at: string | null
+          duration: number | null
+          end_time: string
+          id: string
+          is_virtual: boolean | null
+          location: string | null
+          payment_status: string | null
+          price: number | null
+          reviewed: boolean | null
+          special_instructions: string | null
+          start_time: string
+          status: string | null
+          updated_at: string | null
+          virtual_meeting_link: string | null
+          virtual_platform: string | null
+        }
+        Insert: {
+          activities?: string[] | null
+          booking_type?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          client_id?: string | null
+          companion_id?: string | null
+          created_at?: string | null
+          duration?: number | null
+          end_time: string
+          id?: string
+          is_virtual?: boolean | null
+          location?: string | null
+          payment_status?: string | null
+          price?: number | null
+          reviewed?: boolean | null
+          special_instructions?: string | null
+          start_time: string
+          status?: string | null
+          updated_at?: string | null
+          virtual_meeting_link?: string | null
+          virtual_platform?: string | null
+        }
+        Update: {
+          activities?: string[] | null
+          booking_type?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          client_id?: string | null
+          companion_id?: string | null
+          created_at?: string | null
+          duration?: number | null
+          end_time?: string
+          id?: string
+          is_virtual?: boolean | null
+          location?: string | null
+          payment_status?: string | null
+          price?: number | null
+          reviewed?: boolean | null
+          special_instructions?: string | null
+          start_time?: string
+          status?: string | null
+          updated_at?: string | null
+          virtual_meeting_link?: string | null
+          virtual_platform?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "companion_bookings4_cancelled_by_fkey"
+            columns: ["cancelled_by"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "companion_bookings4_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "companion_bookings4_companion_id_fkey"
+            columns: ["companion_id"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      companion_profiles4: {
+        Row: {
+          availability_schedule: Json | null
+          availability_status: string | null
+          background_check_verified_at: string | null
+          bio: string | null
+          companion_type: string[] | null
+          created_at: string | null
+          featured: boolean | null
+          has_background_check: boolean | null
+          hourly_rate: number | null
+          id: string
+          in_person_services: boolean | null
+          interests: string[] | null
+          languages: string[] | null
+          profile_visibility: string | null
+          rating: number | null
+          reviews_count: number | null
+          service_radius: number | null
+          skills: string[] | null
+          updated_at: string | null
+          user_id: string | null
+          verification_level: number | null
+          virtual_hourly_rate: number | null
+          virtual_platforms: string[] | null
+          virtual_services: boolean | null
+        }
+        Insert: {
+          availability_schedule?: Json | null
+          availability_status?: string | null
+          background_check_verified_at?: string | null
+          bio?: string | null
+          companion_type?: string[] | null
+          created_at?: string | null
+          featured?: boolean | null
+          has_background_check?: boolean | null
+          hourly_rate?: number | null
+          id: string
+          in_person_services?: boolean | null
+          interests?: string[] | null
+          languages?: string[] | null
+          profile_visibility?: string | null
+          rating?: number | null
+          reviews_count?: number | null
+          service_radius?: number | null
+          skills?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+          verification_level?: number | null
+          virtual_hourly_rate?: number | null
+          virtual_platforms?: string[] | null
+          virtual_services?: boolean | null
+        }
+        Update: {
+          availability_schedule?: Json | null
+          availability_status?: string | null
+          background_check_verified_at?: string | null
+          bio?: string | null
+          companion_type?: string[] | null
+          created_at?: string | null
+          featured?: boolean | null
+          has_background_check?: boolean | null
+          hourly_rate?: number | null
+          id?: string
+          in_person_services?: boolean | null
+          interests?: string[] | null
+          languages?: string[] | null
+          profile_visibility?: string | null
+          rating?: number | null
+          reviews_count?: number | null
+          service_radius?: number | null
+          skills?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+          verification_level?: number | null
+          virtual_hourly_rate?: number | null
+          virtual_platforms?: string[] | null
+          virtual_services?: boolean | null
+        }
+        Relationships: []
+      }
       consultation_availability: {
         Row: {
           created_at: string
@@ -5070,6 +9014,54 @@ export type Database = {
         }
         Relationships: []
       }
+      consumption_logs8: {
+        Row: {
+          consumption_date: string | null
+          consumption_time: string | null
+          created_at: string | null
+          id: string
+          intensity: number | null
+          location: string | null
+          mood: string | null
+          notes: string | null
+          product_type: string
+          quantity: number
+          trigger: string | null
+          unit: string
+          user_id: string | null
+        }
+        Insert: {
+          consumption_date?: string | null
+          consumption_time?: string | null
+          created_at?: string | null
+          id?: string
+          intensity?: number | null
+          location?: string | null
+          mood?: string | null
+          notes?: string | null
+          product_type: string
+          quantity: number
+          trigger?: string | null
+          unit: string
+          user_id?: string | null
+        }
+        Update: {
+          consumption_date?: string | null
+          consumption_time?: string | null
+          created_at?: string | null
+          id?: string
+          intensity?: number | null
+          location?: string | null
+          mood?: string | null
+          notes?: string | null
+          product_type?: string
+          quantity?: number
+          trigger?: string | null
+          unit?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       content_connections: {
         Row: {
           accuracy_rating: number | null
@@ -5117,6 +9109,41 @@ export type Database = {
           title?: string
         }
         Relationships: []
+      }
+      conversation_history2: {
+        Row: {
+          id: number
+          patient_id: string | null
+          sender: string
+          session_id: string
+          text: string
+          timestamp: string | null
+        }
+        Insert: {
+          id?: number
+          patient_id?: string | null
+          sender: string
+          session_id: string
+          text: string
+          timestamp?: string | null
+        }
+        Update: {
+          id?: number
+          patient_id?: string | null
+          sender?: string
+          session_id?: string
+          text?: string
+          timestamp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_history2_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients2"
+            referencedColumns: ["patient_id"]
+          },
+        ]
       }
       coping_strategies: {
         Row: {
@@ -5300,6 +9327,51 @@ export type Database = {
           notes?: string | null
           success_rating?: number | null
           trigger_type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      craving_logs8: {
+        Row: {
+          coping_strategy: string | null
+          created_at: string
+          duration_minutes: number | null
+          id: string
+          intensity: number
+          location: string | null
+          notes: string | null
+          success: boolean | null
+          timestamp: string
+          trigger: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          coping_strategy?: string | null
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          intensity: number
+          location?: string | null
+          notes?: string | null
+          success?: boolean | null
+          timestamp?: string
+          trigger?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          coping_strategy?: string | null
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          intensity?: number
+          location?: string | null
+          notes?: string | null
+          success?: boolean | null
+          timestamp?: string
+          trigger?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -6135,6 +10207,83 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_routines2: {
+        Row: {
+          activity: string
+          created_at: string | null
+          id: number
+          patient_id: string | null
+          time: string
+        }
+        Insert: {
+          activity: string
+          created_at?: string | null
+          id?: number
+          patient_id?: string | null
+          time: string
+        }
+        Update: {
+          activity?: string
+          created_at?: string | null
+          id?: number
+          patient_id?: string | null
+          time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_routines2_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients2"
+            referencedColumns: ["patient_id"]
+          },
+        ]
+      }
+      daily_tasks8: {
+        Row: {
+          category: string | null
+          created_at: string
+          day_number: number | null
+          description: string | null
+          estimated_duration: string | null
+          id: string
+          is_completed: boolean | null
+          priority: string | null
+          task_date: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          day_number?: number | null
+          description?: string | null
+          estimated_duration?: string | null
+          id?: string
+          is_completed?: boolean | null
+          priority?: string | null
+          task_date?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          day_number?: number | null
+          description?: string | null
+          estimated_duration?: string | null
+          id?: string
+          is_completed?: boolean | null
+          priority?: string | null
+          task_date?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_wellness_logs: {
         Row: {
           challenges_faced: string[] | null
@@ -6332,6 +10481,39 @@ export type Database = {
           },
         ]
       }
+      dementia_resources4: {
+        Row: {
+          created_at: string | null
+          fact: string
+          id: string
+          myth: string | null
+          recommendations: string[] | null
+          sources: string[] | null
+          topic: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          fact: string
+          id?: string
+          myth?: string | null
+          recommendations?: string[] | null
+          sources?: string[] | null
+          topic: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          fact?: string
+          id?: string
+          myth?: string | null
+          recommendations?: string[] | null
+          sources?: string[] | null
+          topic?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       design_surveys: {
         Row: {
           created_at: string | null
@@ -6364,6 +10546,110 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      device_metrics8: {
+        Row: {
+          active_minutes: number | null
+          blood_pressure: Json | null
+          body_battery: number | null
+          brainwave_data: Json | null
+          cig_consumption_metrics: Json | null
+          cortisol_level: number | null
+          created_at: string
+          device_id: string
+          ecg_data: Json | null
+          ecg_waveform: number[] | null
+          glucose: number | null
+          heart_rate: number | null
+          hrv: number | null
+          hydration_level: number | null
+          id: string
+          lung_capacity: number | null
+          oxygen_saturation: number | null
+          respiratory_rate: number | null
+          skin_temperature: number | null
+          sleep_score: number | null
+          st_scores: Json | null
+          steps: number | null
+          stress_score: number | null
+          taste_perception: number | null
+          temperature: number | null
+          timestamp: string
+          updated_at: string
+          user_id: string
+          vo2_max: number | null
+        }
+        Insert: {
+          active_minutes?: number | null
+          blood_pressure?: Json | null
+          body_battery?: number | null
+          brainwave_data?: Json | null
+          cig_consumption_metrics?: Json | null
+          cortisol_level?: number | null
+          created_at?: string
+          device_id: string
+          ecg_data?: Json | null
+          ecg_waveform?: number[] | null
+          glucose?: number | null
+          heart_rate?: number | null
+          hrv?: number | null
+          hydration_level?: number | null
+          id?: string
+          lung_capacity?: number | null
+          oxygen_saturation?: number | null
+          respiratory_rate?: number | null
+          skin_temperature?: number | null
+          sleep_score?: number | null
+          st_scores?: Json | null
+          steps?: number | null
+          stress_score?: number | null
+          taste_perception?: number | null
+          temperature?: number | null
+          timestamp?: string
+          updated_at?: string
+          user_id: string
+          vo2_max?: number | null
+        }
+        Update: {
+          active_minutes?: number | null
+          blood_pressure?: Json | null
+          body_battery?: number | null
+          brainwave_data?: Json | null
+          cig_consumption_metrics?: Json | null
+          cortisol_level?: number | null
+          created_at?: string
+          device_id?: string
+          ecg_data?: Json | null
+          ecg_waveform?: number[] | null
+          glucose?: number | null
+          heart_rate?: number | null
+          hrv?: number | null
+          hydration_level?: number | null
+          id?: string
+          lung_capacity?: number | null
+          oxygen_saturation?: number | null
+          respiratory_rate?: number | null
+          skin_temperature?: number | null
+          sleep_score?: number | null
+          st_scores?: Json | null
+          steps?: number | null
+          stress_score?: number | null
+          taste_perception?: number | null
+          temperature?: number | null
+          timestamp?: string
+          updated_at?: string
+          user_id?: string
+          vo2_max?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_metrics8_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "user_devices8"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       devotional_plan_days: {
         Row: {
@@ -6841,6 +11127,64 @@ export type Database = {
         }
         Relationships: []
       }
+      emergency_alerts4: {
+        Row: {
+          created_at: string | null
+          group_id: string | null
+          id: string
+          message: string
+          resolved: boolean | null
+          resolved_at: string | null
+          resolved_by: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          group_id?: string | null
+          id?: string
+          message: string
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          group_id?: string | null
+          id?: string
+          message?: string
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emergency_alerts4_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care_groups4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "emergency_alerts4_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "emergency_alerts4_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       emergency_resources: {
         Row: {
           availability: string
@@ -6979,6 +11323,51 @@ export type Database = {
           type?: string | null
           user_id?: string | null
           value?: number | null
+        }
+        Relationships: []
+      }
+      energy_metrics8: {
+        Row: {
+          created_at: string | null
+          emotional_energy: number | null
+          energy_level: number
+          factors: string[] | null
+          id: string
+          mental_clarity: number | null
+          notes: string | null
+          physical_energy: number | null
+          social_energy: number | null
+          timestamp: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          emotional_energy?: number | null
+          energy_level: number
+          factors?: string[] | null
+          id?: string
+          mental_clarity?: number | null
+          notes?: string | null
+          physical_energy?: number | null
+          social_energy?: number | null
+          timestamp?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          emotional_energy?: number | null
+          energy_level?: number
+          factors?: string[] | null
+          id?: string
+          mental_clarity?: number | null
+          notes?: string | null
+          physical_energy?: number | null
+          social_energy?: number | null
+          timestamp?: string | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -7827,6 +12216,41 @@ export type Database = {
           },
         ]
       }
+      family_members2: {
+        Row: {
+          created_at: string | null
+          id: number
+          name: string
+          patient_id: string | null
+          phone: string | null
+          relation: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          name: string
+          patient_id?: string | null
+          phone?: string | null
+          relation: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          name?: string
+          patient_id?: string | null
+          phone?: string | null
+          relation?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_members2_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients2"
+            referencedColumns: ["patient_id"]
+          },
+        ]
+      }
       family_planning: {
         Row: {
           biblical_principles: string[] | null
@@ -8285,6 +12709,42 @@ export type Database = {
         }
         Relationships: []
       }
+      financial_tracking8: {
+        Row: {
+          avg_price_per_unit: number
+          created_at: string | null
+          date: string
+          id: string
+          money_saved: number
+          product_type: string
+          quantity_avoided: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avg_price_per_unit: number
+          created_at?: string | null
+          date: string
+          id?: string
+          money_saved: number
+          product_type: string
+          quantity_avoided: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avg_price_per_unit?: number
+          created_at?: string | null
+          date?: string
+          id?: string
+          money_saved?: number
+          product_type?: string
+          quantity_avoided?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       first_click_responses: {
         Row: {
           click_coordinates: Json
@@ -8463,6 +12923,39 @@ export type Database = {
         }
         Relationships: []
       }
+      focus_achievements8: {
+        Row: {
+          achieved_at: string | null
+          achievement_type: string
+          created_at: string | null
+          details: string | null
+          id: string
+          points_earned: number | null
+          streak_count: number | null
+          user_id: string
+        }
+        Insert: {
+          achieved_at?: string | null
+          achievement_type: string
+          created_at?: string | null
+          details?: string | null
+          id?: string
+          points_earned?: number | null
+          streak_count?: number | null
+          user_id: string
+        }
+        Update: {
+          achieved_at?: string | null
+          achievement_type?: string
+          created_at?: string | null
+          details?: string | null
+          id?: string
+          points_earned?: number | null
+          streak_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       focus_analytics: {
         Row: {
           context_switches: number | null
@@ -8535,6 +13028,51 @@ export type Database = {
         }
         Relationships: []
       }
+      focus_analytics8: {
+        Row: {
+          average_focus_score: number | null
+          completed_tasks: number | null
+          created_at: string | null
+          date: string | null
+          energy_correlation: number | null
+          id: string
+          interruptions: number | null
+          productivity_score: number | null
+          total_break_time: number | null
+          total_focus_time: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          average_focus_score?: number | null
+          completed_tasks?: number | null
+          created_at?: string | null
+          date?: string | null
+          energy_correlation?: number | null
+          id?: string
+          interruptions?: number | null
+          productivity_score?: number | null
+          total_break_time?: number | null
+          total_focus_time?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          average_focus_score?: number | null
+          completed_tasks?: number | null
+          created_at?: string | null
+          date?: string | null
+          energy_correlation?: number | null
+          id?: string
+          interruptions?: number | null
+          productivity_score?: number | null
+          total_break_time?: number | null
+          total_focus_time?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       focus_blocked_sites8: {
         Row: {
           created_at: string | null
@@ -8566,10 +13104,12 @@ export type Database = {
         Row: {
           allowlist: string[] | null
           block_ads: boolean | null
+          block_level: string | null
           block_notifications: boolean | null
           block_social_media: boolean | null
           created_at: string | null
           id: string
+          quiet_mode_enabled: boolean | null
           schedule_enabled: boolean | null
           schedule_end: string | null
           schedule_start: string | null
@@ -8579,10 +13119,12 @@ export type Database = {
         Insert: {
           allowlist?: string[] | null
           block_ads?: boolean | null
+          block_level?: string | null
           block_notifications?: boolean | null
           block_social_media?: boolean | null
           created_at?: string | null
           id?: string
+          quiet_mode_enabled?: boolean | null
           schedule_enabled?: boolean | null
           schedule_end?: string | null
           schedule_start?: string | null
@@ -8592,10 +13134,12 @@ export type Database = {
         Update: {
           allowlist?: string[] | null
           block_ads?: boolean | null
+          block_level?: string | null
           block_notifications?: boolean | null
           block_social_media?: boolean | null
           created_at?: string | null
           id?: string
+          quiet_mode_enabled?: boolean | null
           schedule_enabled?: boolean | null
           schedule_end?: string | null
           schedule_start?: string | null
@@ -8778,6 +13322,42 @@ export type Database = {
           temperature_preference?: string | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      focus_environment8: {
+        Row: {
+          ambient_sounds: string[] | null
+          created_at: string | null
+          id: string
+          light_preference: string | null
+          music_preferences: Json | null
+          noise_type: string[] | null
+          temperature_preference: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          ambient_sounds?: string[] | null
+          created_at?: string | null
+          id?: string
+          light_preference?: string | null
+          music_preferences?: Json | null
+          noise_type?: string[] | null
+          temperature_preference?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          ambient_sounds?: string[] | null
+          created_at?: string | null
+          id?: string
+          light_preference?: string | null
+          music_preferences?: Json | null
+          noise_type?: string[] | null
+          temperature_preference?: string | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -9028,6 +13608,45 @@ export type Database = {
           notes?: string | null
           productivity_rating?: number | null
           strategies_used?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+          wins?: string[] | null
+        }
+        Relationships: []
+      }
+      focus_journal8: {
+        Row: {
+          created_at: string | null
+          energy_level: number
+          focus_challenges: string[] | null
+          id: string
+          improvements: string[] | null
+          notes: string | null
+          productivity_rating: number
+          updated_at: string | null
+          user_id: string
+          wins: string[] | null
+        }
+        Insert: {
+          created_at?: string | null
+          energy_level: number
+          focus_challenges?: string[] | null
+          id?: string
+          improvements?: string[] | null
+          notes?: string | null
+          productivity_rating: number
+          updated_at?: string | null
+          user_id: string
+          wins?: string[] | null
+        }
+        Update: {
+          created_at?: string | null
+          energy_level?: number
+          focus_challenges?: string[] | null
+          id?: string
+          improvements?: string[] | null
+          notes?: string | null
+          productivity_rating?: number
           updated_at?: string | null
           user_id?: string
           wins?: string[] | null
@@ -9464,15 +14083,49 @@ export type Database = {
           user_id?: string | null
           visual_aids?: Json | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "focus_task_breakdowns_task_id_fkey"
-            columns: ["task_id"]
-            isOneToOne: false
-            referencedRelation: "tasks"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      focus_task_breakdowns8: {
+        Row: {
+          completed_steps: number | null
+          created_at: string | null
+          energy_level: number | null
+          id: string
+          micro_steps: Json | null
+          motivation_notes: string | null
+          reward: string | null
+          task_name: string | null
+          total_steps: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          completed_steps?: number | null
+          created_at?: string | null
+          energy_level?: number | null
+          id?: string
+          micro_steps?: Json | null
+          motivation_notes?: string | null
+          reward?: string | null
+          task_name?: string | null
+          total_steps?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          completed_steps?: number | null
+          created_at?: string | null
+          energy_level?: number | null
+          id?: string
+          micro_steps?: Json | null
+          motivation_notes?: string | null
+          reward?: string | null
+          task_name?: string | null
+          total_steps?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       focus_timer_sessions: {
         Row: {
@@ -9528,6 +14181,48 @@ export type Database = {
           timer_type?: string
           user_id?: string
           work_duration?: number
+        }
+        Relationships: []
+      }
+      focus_timer_sessions8: {
+        Row: {
+          break_duration: number | null
+          completed_cycles: number | null
+          created_at: string | null
+          ended_at: string | null
+          energy_level: number | null
+          id: string
+          mood_before: number | null
+          started_at: string | null
+          timer_type: string | null
+          user_id: string | null
+          work_duration: number | null
+        }
+        Insert: {
+          break_duration?: number | null
+          completed_cycles?: number | null
+          created_at?: string | null
+          ended_at?: string | null
+          energy_level?: number | null
+          id?: string
+          mood_before?: number | null
+          started_at?: string | null
+          timer_type?: string | null
+          user_id?: string | null
+          work_duration?: number | null
+        }
+        Update: {
+          break_duration?: number | null
+          completed_cycles?: number | null
+          created_at?: string | null
+          ended_at?: string | null
+          energy_level?: number | null
+          id?: string
+          mood_before?: number | null
+          started_at?: string | null
+          timer_type?: string | null
+          user_id?: string | null
+          work_duration?: number | null
         }
         Relationships: []
       }
@@ -9868,6 +14563,42 @@ export type Database = {
           },
         ]
       }
+      group_announcements4: {
+        Row: {
+          content: string
+          content_format: string | null
+          created_at: string
+          group_id: string
+          id: string
+          is_pinned: boolean | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          content_format?: string | null
+          created_at?: string
+          group_id: string
+          id?: string
+          is_pinned?: boolean | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          content_format?: string | null
+          created_at?: string
+          group_id?: string
+          id?: string
+          is_pinned?: boolean | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       group_bible_studies: {
         Row: {
           attachments: string[] | null
@@ -10102,32 +14833,78 @@ export type Database = {
       }
       group_members: {
         Row: {
-          created_at: string | null
+          created_at: string
           group_id: string
           id: string
+          joined_at: string
           role: string
+          status: string
+          updated_at: string
           user_id: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           group_id: string
           id?: string
+          joined_at?: string
           role?: string
+          status?: string
+          updated_at?: string
           user_id: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           group_id?: string
           id?: string
+          joined_at?: string
           role?: string
+          status?: string
+          updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      group_members4: {
+        Row: {
+          created_at: string | null
+          group_id: string | null
+          id: string
+          joined_at: string | null
+          role: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          group_id?: string | null
+          id?: string
+          joined_at?: string | null
+          role?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          group_id?: string | null
+          id?: string
+          joined_at?: string | null
+          role?: string | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "group_members_group_id_fkey"
+            foreignKeyName: "group_members4_group_id_fkey"
             columns: ["group_id"]
             isOneToOne: false
-            referencedRelation: "groups"
+            referencedRelation: "care_groups4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_members4_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users4"
             referencedColumns: ["id"]
           },
         ]
@@ -10434,6 +15211,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      group_resources4: {
+        Row: {
+          created_at: string
+          description: string | null
+          group_id: string
+          id: string
+          resource_type: string
+          title: string
+          updated_at: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          group_id: string
+          id?: string
+          resource_type: string
+          title: string
+          updated_at?: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          group_id?: string
+          id?: string
+          resource_type?: string
+          title?: string
+          updated_at?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       group_session_attendees: {
         Row: {
@@ -10756,6 +15569,45 @@ export type Database = {
         }
         Relationships: []
       }
+      guide_articles8: {
+        Row: {
+          author_id: string | null
+          category: string | null
+          content: string
+          created_at: string | null
+          id: string
+          published_at: string | null
+          slug: string
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          author_id?: string | null
+          category?: string | null
+          content: string
+          created_at?: string | null
+          id?: string
+          published_at?: string | null
+          slug: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          category?: string | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          published_at?: string | null
+          slug?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       habit_replacements: {
         Row: {
           created_at: string
@@ -10788,6 +15640,78 @@ export type Database = {
           old_habit?: string
           trigger_situation?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      health_connections8: {
+        Row: {
+          apple_health_connected: boolean | null
+          co_level: boolean | null
+          co_level_last_synced: string | null
+          co_monitor_connected: boolean | null
+          created_at: string
+          fitbit_connected: boolean | null
+          garmin_connected: boolean | null
+          google_fit_connected: boolean | null
+          heart_rate: boolean | null
+          heart_rate_last_synced: string | null
+          hrv: boolean | null
+          hrv_last_synced: string | null
+          id: string
+          oxygen_saturation: boolean | null
+          oxygen_saturation_last_synced: string | null
+          respiratory_rate: boolean | null
+          respiratory_rate_last_synced: string | null
+          sleep_quality: boolean | null
+          sleep_quality_last_synced: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          apple_health_connected?: boolean | null
+          co_level?: boolean | null
+          co_level_last_synced?: string | null
+          co_monitor_connected?: boolean | null
+          created_at?: string
+          fitbit_connected?: boolean | null
+          garmin_connected?: boolean | null
+          google_fit_connected?: boolean | null
+          heart_rate?: boolean | null
+          heart_rate_last_synced?: string | null
+          hrv?: boolean | null
+          hrv_last_synced?: string | null
+          id?: string
+          oxygen_saturation?: boolean | null
+          oxygen_saturation_last_synced?: string | null
+          respiratory_rate?: boolean | null
+          respiratory_rate_last_synced?: string | null
+          sleep_quality?: boolean | null
+          sleep_quality_last_synced?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          apple_health_connected?: boolean | null
+          co_level?: boolean | null
+          co_level_last_synced?: string | null
+          co_monitor_connected?: boolean | null
+          created_at?: string
+          fitbit_connected?: boolean | null
+          garmin_connected?: boolean | null
+          google_fit_connected?: boolean | null
+          heart_rate?: boolean | null
+          heart_rate_last_synced?: string | null
+          hrv?: boolean | null
+          hrv_last_synced?: string | null
+          id?: string
+          oxygen_saturation?: boolean | null
+          oxygen_saturation_last_synced?: string | null
+          respiratory_rate?: boolean | null
+          respiratory_rate_last_synced?: string | null
+          sleep_quality?: boolean | null
+          sleep_quality_last_synced?: string | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -10825,6 +15749,39 @@ export type Database = {
           sync_date?: string
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      health_data8: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          metric_name: string
+          metric_value: number
+          source: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          metric_name: string
+          metric_value: number
+          source: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          metric_name?: string
+          metric_value?: number
+          source?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -12078,6 +17035,45 @@ export type Database = {
         }
         Relationships: []
       }
+      journal_entries8: {
+        Row: {
+          content: string
+          created_at: string | null
+          date: string
+          id: string
+          mood: string | null
+          tags: string[] | null
+          time: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          date: string
+          id?: string
+          mood?: string | null
+          tags?: string[] | null
+          time?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          date?: string
+          id?: string
+          mood?: string | null
+          tags?: string[] | null
+          time?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       journal_templates: {
         Row: {
           category: string
@@ -12102,6 +17098,78 @@ export type Database = {
           id?: string
           prompts?: Json
           title?: string
+        }
+        Relationships: []
+      }
+      legal_expert_profiles4: {
+        Row: {
+          bio: string | null
+          certifications: string[] | null
+          consultation_fee: number | null
+          consultation_rate: number | null
+          created_at: string | null
+          experience_years: number | null
+          featured: boolean | null
+          hourly_rate: number | null
+          id: string
+          languages: string[] | null
+          practice_areas: string[] | null
+          profile_visibility: string | null
+          rating: number | null
+          reviews_count: number | null
+          services: string[] | null
+          specializations: string[] | null
+          specialties: string[] | null
+          updated_at: string | null
+          user_id: string | null
+          video_platforms: string[] | null
+          virtual_consultations: boolean | null
+        }
+        Insert: {
+          bio?: string | null
+          certifications?: string[] | null
+          consultation_fee?: number | null
+          consultation_rate?: number | null
+          created_at?: string | null
+          experience_years?: number | null
+          featured?: boolean | null
+          hourly_rate?: number | null
+          id: string
+          languages?: string[] | null
+          practice_areas?: string[] | null
+          profile_visibility?: string | null
+          rating?: number | null
+          reviews_count?: number | null
+          services?: string[] | null
+          specializations?: string[] | null
+          specialties?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+          video_platforms?: string[] | null
+          virtual_consultations?: boolean | null
+        }
+        Update: {
+          bio?: string | null
+          certifications?: string[] | null
+          consultation_fee?: number | null
+          consultation_rate?: number | null
+          created_at?: string | null
+          experience_years?: number | null
+          featured?: boolean | null
+          hourly_rate?: number | null
+          id?: string
+          languages?: string[] | null
+          practice_areas?: string[] | null
+          profile_visibility?: string | null
+          rating?: number | null
+          reviews_count?: number | null
+          services?: string[] | null
+          specializations?: string[] | null
+          specialties?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+          video_platforms?: string[] | null
+          virtual_consultations?: boolean | null
         }
         Relationships: []
       }
@@ -12705,6 +17773,111 @@ export type Database = {
         }
         Relationships: []
       }
+      medications2: {
+        Row: {
+          created_at: string | null
+          dosage: string
+          frequency: string
+          id: number
+          name: string
+          patient_id: string | null
+          time: string
+        }
+        Insert: {
+          created_at?: string | null
+          dosage: string
+          frequency: string
+          id?: number
+          name: string
+          patient_id?: string | null
+          time: string
+        }
+        Update: {
+          created_at?: string | null
+          dosage?: string
+          frequency?: string
+          id?: number
+          name?: string
+          patient_id?: string | null
+          time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medications2_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients2"
+            referencedColumns: ["patient_id"]
+          },
+        ]
+      }
+      medications4: {
+        Row: {
+          care_recipient_id: string | null
+          created_at: string | null
+          created_by: string | null
+          dosage: string | null
+          end_date: string | null
+          frequency: string | null
+          group_id: string | null
+          id: string
+          name: string
+          notes: string | null
+          start_date: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          care_recipient_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          dosage?: string | null
+          end_date?: string | null
+          frequency?: string | null
+          group_id?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          start_date?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          care_recipient_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          dosage?: string | null
+          end_date?: string | null
+          frequency?: string | null
+          group_id?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          start_date?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medications4_care_recipient_id_fkey"
+            columns: ["care_recipient_id"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medications4_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medications4_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care_groups4"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meditation_audio: {
         Row: {
           audio_url: string
@@ -13224,6 +18397,66 @@ export type Database = {
         }
         Relationships: []
       }
+      messages4: {
+        Row: {
+          content: string
+          created_at: string | null
+          group_id: string | null
+          id: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          group_id?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          group_id?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages4_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care_groups4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages4_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      migrations: {
+        Row: {
+          applied_at: string | null
+          id: number
+          name: string
+        }
+        Insert: {
+          applied_at?: string | null
+          id?: number
+          name: string
+        }
+        Update: {
+          applied_at?: string | null
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
       mindfulness_sessions8: {
         Row: {
           created_at: string | null
@@ -13632,6 +18865,48 @@ export type Database = {
           user_id?: string
           volume_level?: number | null
           white_noise_enabled?: boolean | null
+        }
+        Relationships: []
+      }
+      noise_sessions8: {
+        Row: {
+          created_at: string | null
+          duration: number | null
+          effectiveness_rating: number | null
+          end_time: string | null
+          id: string
+          noise_type: string | null
+          notes: string | null
+          start_time: string
+          updated_at: string | null
+          user_id: string | null
+          volume: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          duration?: number | null
+          effectiveness_rating?: number | null
+          end_time?: string | null
+          id?: string
+          noise_type?: string | null
+          notes?: string | null
+          start_time: string
+          updated_at?: string | null
+          user_id?: string | null
+          volume?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          duration?: number | null
+          effectiveness_rating?: number | null
+          end_time?: string | null
+          id?: string
+          noise_type?: string | null
+          notes?: string | null
+          start_time?: string
+          updated_at?: string | null
+          user_id?: string | null
+          volume?: number | null
         }
         Relationships: []
       }
@@ -14439,6 +19714,42 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications4: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string
+          metadata: Json | null
+          read: boolean | null
+          title: string
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message: string
+          metadata?: Json | null
+          read?: boolean | null
+          title: string
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string
+          metadata?: Json | null
+          read?: boolean | null
+          title?: string
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       nrt_guide_steps: {
         Row: {
           created_at: string | null
@@ -14466,6 +19777,122 @@ export type Database = {
           product_type?: string[] | null
           recommended_duration_days?: number | null
           title?: string
+        }
+        Relationships: []
+      }
+      nrt_product_reviews8: {
+        Row: {
+          cons: string[]
+          created_at: string
+          id: string
+          product_id: string
+          pros: string[]
+          rating: number
+          review_text: string
+          user_id: string
+          user_name: string | null
+        }
+        Insert: {
+          cons?: string[]
+          created_at?: string
+          id?: string
+          product_id: string
+          pros?: string[]
+          rating: number
+          review_text: string
+          user_id: string
+          user_name?: string | null
+        }
+        Update: {
+          cons?: string[]
+          created_at?: string
+          id?: string
+          product_id?: string
+          pros?: string[]
+          rating?: number
+          review_text?: string
+          user_id?: string
+          user_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nrt_product_reviews8_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "nrt_products8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nrt_products8: {
+        Row: {
+          available: boolean
+          best_for: string[]
+          brand: string
+          cons: string[]
+          created_at: string
+          description: string
+          effectiveness_rating: number
+          id: string
+          image_url: string | null
+          name: string
+          prescription_required: boolean
+          price: string
+          pros: string[]
+          rating: number
+          reviews: number
+          side_effects: string[]
+          strength_options: string[]
+          type: string
+          updated_at: string
+          usage_instructions: string[]
+          user_id: string | null
+        }
+        Insert: {
+          available?: boolean
+          best_for?: string[]
+          brand: string
+          cons?: string[]
+          created_at?: string
+          description: string
+          effectiveness_rating?: number
+          id?: string
+          image_url?: string | null
+          name: string
+          prescription_required?: boolean
+          price: string
+          pros?: string[]
+          rating?: number
+          reviews?: number
+          side_effects?: string[]
+          strength_options?: string[]
+          type: string
+          updated_at?: string
+          usage_instructions?: string[]
+          user_id?: string | null
+        }
+        Update: {
+          available?: boolean
+          best_for?: string[]
+          brand?: string
+          cons?: string[]
+          created_at?: string
+          description?: string
+          effectiveness_rating?: number
+          id?: string
+          image_url?: string | null
+          name?: string
+          prescription_required?: boolean
+          price?: string
+          pros?: string[]
+          rating?: number
+          reviews?: number
+          side_effects?: string[]
+          strength_options?: string[]
+          type?: string
+          updated_at?: string
+          usage_instructions?: string[]
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -14887,6 +20314,78 @@ export type Database = {
           start_time?: string | null
           study_id?: string
           study_type?: string
+        }
+        Relationships: []
+      }
+      patient_profiles4: {
+        Row: {
+          age: number | null
+          condition: string | null
+          created_at: string | null
+          dementia_stage: string | null
+          group_id: string | null
+          id: string
+          patient_name: string
+          preferences: Json | null
+          special_needs: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          age?: number | null
+          condition?: string | null
+          created_at?: string | null
+          dementia_stage?: string | null
+          group_id?: string | null
+          id?: string
+          patient_name: string
+          preferences?: Json | null
+          special_needs?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          age?: number | null
+          condition?: string | null
+          created_at?: string | null
+          dementia_stage?: string | null
+          group_id?: string | null
+          id?: string
+          patient_name?: string
+          preferences?: Json | null
+          special_needs?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      patients2: {
+        Row: {
+          age: number
+          created_at: string | null
+          id: number
+          name: string
+          patient_id: string
+          preferences: Json
+          stage: string
+        }
+        Insert: {
+          age: number
+          created_at?: string | null
+          id?: number
+          name: string
+          patient_id: string
+          preferences?: Json
+          stage: string
+        }
+        Update: {
+          age?: number
+          created_at?: string | null
+          id?: number
+          name?: string
+          patient_id?: string
+          preferences?: Json
+          stage?: string
         }
         Relationships: []
       }
@@ -17414,6 +22913,50 @@ export type Database = {
           },
         ]
       }
+      product_reviews8: {
+        Row: {
+          cons: string[]
+          created_at: string
+          id: string
+          product_id: string
+          pros: string[]
+          rating: number
+          review_text: string
+          user_id: string
+          user_name: string | null
+        }
+        Insert: {
+          cons?: string[]
+          created_at?: string
+          id?: string
+          product_id: string
+          pros?: string[]
+          rating: number
+          review_text: string
+          user_id: string
+          user_name?: string | null
+        }
+        Update: {
+          cons?: string[]
+          created_at?: string
+          id?: string
+          product_id?: string
+          pros?: string[]
+          rating?: number
+          review_text?: string
+          user_id?: string
+          user_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_reviews8_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "alternative_products8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_sales: {
         Row: {
           amount: number
@@ -18215,6 +23758,81 @@ export type Database = {
         }
         Relationships: []
       }
+      progress_data8: {
+        Row: {
+          coping_strategy: string | null
+          cravings_count: number | null
+          created_at: string | null
+          date: string
+          energy_level: number | null
+          hours_without_smoking: number | null
+          id: string
+          mood: string
+          notes: string | null
+          user_id: string | null
+        }
+        Insert: {
+          coping_strategy?: string | null
+          cravings_count?: number | null
+          created_at?: string | null
+          date: string
+          energy_level?: number | null
+          hours_without_smoking?: number | null
+          id?: string
+          mood: string
+          notes?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          coping_strategy?: string | null
+          cravings_count?: number | null
+          created_at?: string | null
+          date?: string
+          energy_level?: number | null
+          hours_without_smoking?: number | null
+          id?: string
+          mood?: string
+          notes?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      progress8: {
+        Row: {
+          cigarettes_avoided: number | null
+          created_at: string
+          date: string
+          health_score: number | null
+          id: string
+          money_saved: number | null
+          notes: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cigarettes_avoided?: number | null
+          created_at?: string
+          date: string
+          health_score?: number | null
+          id?: string
+          money_saved?: number | null
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cigarettes_avoided?: number | null
+          created_at?: string
+          date?: string
+          health_score?: number | null
+          id?: string
+          money_saved?: number | null
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       pronunciation_guides: {
         Row: {
           audio_url: string | null
@@ -18287,6 +23905,84 @@ export type Database = {
         }
         Relationships: []
       }
+      quit_attempts8: {
+        Row: {
+          created_at: string | null
+          daily_cost: number | null
+          end_date: string | null
+          id: string
+          notes: string | null
+          start_date: string | null
+          substance_type: string
+          success: boolean | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          daily_cost?: number | null
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          start_date?: string | null
+          substance_type: string
+          success?: boolean | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          daily_cost?: number | null
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          start_date?: string | null
+          substance_type?: string
+          success?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      quit_goals8: {
+        Row: {
+          achieved_date: string | null
+          consumption_limit: number | null
+          created_at: string | null
+          id: string
+          is_achieved: boolean | null
+          notes: string | null
+          reduction_rate: number | null
+          target_date: string
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          achieved_date?: string | null
+          consumption_limit?: number | null
+          created_at?: string | null
+          id?: string
+          is_achieved?: boolean | null
+          notes?: string | null
+          reduction_rate?: number | null
+          target_date: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          achieved_date?: string | null
+          consumption_limit?: number | null
+          created_at?: string | null
+          id?: string
+          is_achieved?: boolean | null
+          notes?: string | null
+          reduction_rate?: number | null
+          target_date?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       quit_journey_settings: {
         Row: {
           created_at: string | null
@@ -18337,6 +24033,45 @@ export type Database = {
           target_daily_usage?: number | null
           target_type?: string
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      quit_plan_settings8: {
+        Row: {
+          created_at: string
+          id: string
+          notification_preferences: Json | null
+          quit_approach_id: string | null
+          quit_date: string | null
+          quit_method_id: string | null
+          support_network: Json | null
+          tracking_method: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notification_preferences?: Json | null
+          quit_approach_id?: string | null
+          quit_date?: string | null
+          quit_method_id?: string | null
+          support_network?: Json | null
+          tracking_method?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notification_preferences?: Json | null
+          quit_approach_id?: string | null
+          quit_date?: string | null
+          quit_method_id?: string | null
+          support_network?: Json | null
+          tracking_method?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -18418,6 +24153,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      quit_plans8: {
+        Row: {
+          achieved_date: string | null
+          consumption_limit: number | null
+          created_at: string
+          id: string
+          is_achieved: boolean | null
+          notes: string | null
+          reduction_rate: number | null
+          target_date: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          achieved_date?: string | null
+          consumption_limit?: number | null
+          created_at?: string
+          id?: string
+          is_achieved?: boolean | null
+          notes?: string | null
+          reduction_rate?: number | null
+          target_date: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          achieved_date?: string | null
+          consumption_limit?: number | null
+          created_at?: string
+          id?: string
+          is_achieved?: boolean | null
+          notes?: string | null
+          reduction_rate?: number | null
+          target_date?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       quit_strategies: {
         Row: {
@@ -19539,6 +25316,78 @@ export type Database = {
           },
         ]
       }
+      reviews4: {
+        Row: {
+          attributes: Json | null
+          booking_id: string | null
+          content: string | null
+          created_at: string | null
+          helpful_count: number | null
+          id: string
+          is_visible: boolean | null
+          rating: number | null
+          replied_at: string | null
+          reply: string | null
+          reported: boolean | null
+          reviewer_id: string | null
+          target_id: string | null
+          target_type: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          attributes?: Json | null
+          booking_id?: string | null
+          content?: string | null
+          created_at?: string | null
+          helpful_count?: number | null
+          id?: string
+          is_visible?: boolean | null
+          rating?: number | null
+          replied_at?: string | null
+          reply?: string | null
+          reported?: boolean | null
+          reviewer_id?: string | null
+          target_id?: string | null
+          target_type?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          attributes?: Json | null
+          booking_id?: string | null
+          content?: string | null
+          created_at?: string | null
+          helpful_count?: number | null
+          id?: string
+          is_visible?: boolean | null
+          rating?: number | null
+          replied_at?: string | null
+          reply?: string | null
+          reported?: boolean | null
+          reviewer_id?: string | null
+          target_id?: string | null
+          target_type?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews4_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews4_target_id_fkey"
+            columns: ["target_id"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reward_thresholds: {
         Row: {
           created_at: string | null
@@ -19809,6 +25658,199 @@ export type Database = {
           title?: string
         }
         Relationships: []
+      }
+      saved_providers4: {
+        Row: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          provider_id: string | null
+          provider_type: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          provider_id?: string | null
+          provider_type?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          provider_id?: string | null
+          provider_type?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_providers4_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_providers4_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saving_contributions8: {
+        Row: {
+          amount: number
+          cigarettes_avoided: number | null
+          contribution_date: string
+          created_at: string
+          days_smoke_free: number | null
+          goal_id: string | null
+          id: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          cigarettes_avoided?: number | null
+          contribution_date?: string
+          created_at?: string
+          days_smoke_free?: number | null
+          goal_id?: string | null
+          id?: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          cigarettes_avoided?: number | null
+          contribution_date?: string
+          created_at?: string
+          days_smoke_free?: number | null
+          goal_id?: string | null
+          id?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saving_contributions8_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "savings_goals8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      savings_goals8: {
+        Row: {
+          auto_contribute: boolean
+          category: Database["public"]["Enums"]["goal_category"]
+          contribution_percentage: number
+          created_at: string
+          current_amount: number
+          description: string | null
+          id: string
+          image_url: string | null
+          start_date: string
+          status: Database["public"]["Enums"]["goal_status"]
+          target_amount: number
+          target_date: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_contribute?: boolean
+          category: Database["public"]["Enums"]["goal_category"]
+          contribution_percentage?: number
+          created_at?: string
+          current_amount?: number
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["goal_status"]
+          target_amount: number
+          target_date?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_contribute?: boolean
+          category?: Database["public"]["Enums"]["goal_category"]
+          contribution_percentage?: number
+          created_at?: string
+          current_amount?: number
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["goal_status"]
+          target_amount?: number
+          target_date?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      savings_purchases8: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          goal_id: string | null
+          id: string
+          image_url: string | null
+          is_shared: boolean
+          purchase_date: string
+          satisfaction_rating: number | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          goal_id?: string | null
+          id?: string
+          image_url?: string | null
+          is_shared?: boolean
+          purchase_date?: string
+          satisfaction_rating?: number | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          goal_id?: string | null
+          id?: string
+          image_url?: string | null
+          is_shared?: boolean
+          purchase_date?: string
+          satisfaction_rating?: number | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "savings_purchases8_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "savings_goals8"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       scheduling_rules: {
         Row: {
@@ -21702,6 +27744,30 @@ export type Database = {
         }
         Relationships: []
       }
+      spatial_ref_sys: {
+        Row: {
+          auth_name: string | null
+          auth_srid: number | null
+          proj4text: string | null
+          srid: number
+          srtext: string | null
+        }
+        Insert: {
+          auth_name?: string | null
+          auth_srid?: number | null
+          proj4text?: string | null
+          srid: number
+          srtext?: string | null
+        }
+        Update: {
+          auth_name?: string | null
+          auth_srid?: number | null
+          proj4text?: string | null
+          srid?: number
+          srtext?: string | null
+        }
+        Relationships: []
+      }
       spiritual_practices: {
         Row: {
           associated_elements: string[] | null
@@ -22835,15 +28901,7 @@ export type Database = {
           updated_at?: string | null
           urgency_level?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "task_prioritization_task_id_fkey"
-            columns: ["task_id"]
-            isOneToOne: false
-            referencedRelation: "tasks"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       task_switching_strategies: {
         Row: {
@@ -22930,15 +28988,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "task_time_estimates_task_id_fkey"
-            columns: ["task_id"]
-            isOneToOne: false
-            referencedRelation: "tasks"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       task_transitions: {
         Row: {
@@ -22974,55 +29024,71 @@ export type Database = {
           transition_duration?: number | null
           user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "task_transitions_from_task_id_fkey"
-            columns: ["from_task_id"]
-            isOneToOne: false
-            referencedRelation: "tasks"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "task_transitions_to_task_id_fkey"
-            columns: ["to_task_id"]
-            isOneToOne: false
-            referencedRelation: "tasks"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
-      tasks: {
+      tasks4: {
         Row: {
+          assigned_to: string | null
           created_at: string | null
+          created_by: string | null
           description: string | null
           due_date: string | null
+          group_id: string | null
           id: string
+          priority: string | null
           status: string | null
           title: string
           updated_at: string | null
-          user_id: string
         }
         Insert: {
+          assigned_to?: string | null
           created_at?: string | null
+          created_by?: string | null
           description?: string | null
           due_date?: string | null
+          group_id?: string | null
           id?: string
+          priority?: string | null
           status?: string | null
           title: string
           updated_at?: string | null
-          user_id: string
         }
         Update: {
+          assigned_to?: string | null
           created_at?: string | null
+          created_by?: string | null
           description?: string | null
           due_date?: string | null
+          group_id?: string | null
           id?: string
+          priority?: string | null
           status?: string | null
           title?: string
           updated_at?: string | null
-          user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tasks4_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks4_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks4_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care_groups4"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tea_articles: {
         Row: {
@@ -23749,6 +29815,38 @@ export type Database = {
         }
         Relationships: []
       }
+      todos2: {
+        Row: {
+          completed: boolean | null
+          created_at: string | null
+          id: number
+          patient_id: string | null
+          task: string
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string | null
+          id?: number
+          patient_id?: string | null
+          task: string
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string | null
+          id?: number
+          patient_id?: string | null
+          task?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "todos2_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients2"
+            referencedColumns: ["patient_id"]
+          },
+        ]
+      }
       tool_analytics: {
         Row: {
           completed_actions: number | null
@@ -24109,6 +30207,39 @@ export type Database = {
         }
         Relationships: []
       }
+      trigger_categories8: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_default: boolean | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_default?: boolean | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_default?: boolean | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       trigger_patterns: {
         Row: {
           coping_strategies: string[] | null
@@ -24222,6 +30353,39 @@ export type Database = {
           created_at?: string
           id?: string
           unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_achievements8: {
+        Row: {
+          achievement_id: string
+          created_at: string
+          description: string | null
+          earned_at: string
+          id: string
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          created_at?: string
+          description?: string | null
+          earned_at: string
+          id?: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          created_at?: string
+          description?: string | null
+          earned_at?: string
+          id?: string
+          title?: string
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -24452,6 +30616,78 @@ export type Database = {
         }
         Relationships: []
       }
+      user_devices8: {
+        Row: {
+          battery_level: number | null
+          capabilities: string[]
+          connected_at: string | null
+          connection_type: string
+          created_at: string
+          disconnected_at: string | null
+          error_message: string | null
+          firmware_version: string | null
+          id: string
+          last_sync: string | null
+          manufacturer: string
+          model: string | null
+          name: string
+          permissions: Json | null
+          priority: string | null
+          retry_attempts: number | null
+          status: string
+          sync_interval: number | null
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          battery_level?: number | null
+          capabilities: string[]
+          connected_at?: string | null
+          connection_type: string
+          created_at?: string
+          disconnected_at?: string | null
+          error_message?: string | null
+          firmware_version?: string | null
+          id?: string
+          last_sync?: string | null
+          manufacturer: string
+          model?: string | null
+          name: string
+          permissions?: Json | null
+          priority?: string | null
+          retry_attempts?: number | null
+          status: string
+          sync_interval?: number | null
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          battery_level?: number | null
+          capabilities?: string[]
+          connected_at?: string | null
+          connection_type?: string
+          created_at?: string
+          disconnected_at?: string | null
+          error_message?: string | null
+          firmware_version?: string | null
+          id?: string
+          last_sync?: string | null
+          manufacturer?: string
+          model?: string | null
+          name?: string
+          permissions?: Json | null
+          priority?: string | null
+          retry_attempts?: number | null
+          status?: string
+          sync_interval?: number | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_favorite_routines: {
         Row: {
           created_at: string
@@ -24513,6 +30749,42 @@ export type Database = {
           },
         ]
       }
+      user_financial_settings8: {
+        Row: {
+          cigarettes_per_day: number
+          cigarettes_per_pack: number
+          cost_per_pack: number
+          created_at: string | null
+          custom_items: Json | null
+          id: string
+          quit_date: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cigarettes_per_day?: number
+          cigarettes_per_pack?: number
+          cost_per_pack?: number
+          created_at?: string | null
+          custom_items?: Json | null
+          id?: string
+          quit_date?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cigarettes_per_day?: number
+          cigarettes_per_pack?: number
+          cost_per_pack?: number
+          created_at?: string | null
+          custom_items?: Json | null
+          id?: string
+          quit_date?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_follows: {
         Row: {
           created_at: string | null
@@ -24531,6 +30803,48 @@ export type Database = {
           follower_id?: string | null
           following_id?: string | null
           id?: string
+        }
+        Relationships: []
+      }
+      user_goals8: {
+        Row: {
+          created_at: string
+          description: string | null
+          focus_type: string | null
+          id: string
+          is_completed: boolean | null
+          progress: number | null
+          reminder_frequency: string | null
+          target_date: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          focus_type?: string | null
+          id?: string
+          is_completed?: boolean | null
+          progress?: number | null
+          reminder_frequency?: string | null
+          target_date?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          focus_type?: string | null
+          id?: string
+          is_completed?: boolean | null
+          progress?: number | null
+          reminder_frequency?: string | null
+          target_date?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -24671,6 +30985,57 @@ export type Database = {
           },
         ]
       }
+      user_milestones8: {
+        Row: {
+          achieved_date: string | null
+          created_at: string
+          day_number: number | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_achieved: boolean | null
+          is_custom: boolean | null
+          target_date: string | null
+          template_id: string | null
+          title: string
+          type: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          achieved_date?: string | null
+          created_at?: string
+          day_number?: number | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_achieved?: boolean | null
+          is_custom?: boolean | null
+          target_date?: string | null
+          template_id?: string | null
+          title: string
+          type?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          achieved_date?: string | null
+          created_at?: string
+          day_number?: number | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_achieved?: boolean | null
+          is_custom?: boolean | null
+          target_date?: string | null
+          template_id?: string | null
+          title?: string
+          type?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_notes: {
         Row: {
           book: string
@@ -24796,6 +31161,42 @@ export type Database = {
           preferred_product_types?: string[] | null
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_preferences8: {
+        Row: {
+          app_theme: string | null
+          created_at: string | null
+          dashboard_widgets: Json | null
+          id: string
+          notification_preferences: Json | null
+          primary_goal: string | null
+          reminder_times: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          app_theme?: string | null
+          created_at?: string | null
+          dashboard_widgets?: Json | null
+          id?: string
+          notification_preferences?: Json | null
+          primary_goal?: string | null
+          reminder_times?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          app_theme?: string | null
+          created_at?: string | null
+          dashboard_widgets?: Json | null
+          id?: string
+          notification_preferences?: Json | null
+          primary_goal?: string | null
+          reminder_times?: Json | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -25025,6 +31426,8 @@ export type Database = {
           id: string
           layout_preference: Json | null
           notification_settings: Json | null
+          notifications_enabled: boolean | null
+          theme: string | null
           theme_preference: string | null
           updated_at: string | null
           user_id: string | null
@@ -25035,6 +31438,8 @@ export type Database = {
           id?: string
           layout_preference?: Json | null
           notification_settings?: Json | null
+          notifications_enabled?: boolean | null
+          theme?: string | null
           theme_preference?: string | null
           updated_at?: string | null
           user_id?: string | null
@@ -25045,9 +31450,101 @@ export type Database = {
           id?: string
           layout_preference?: Json | null
           notification_settings?: Json | null
+          notifications_enabled?: boolean | null
+          theme?: string | null
           theme_preference?: string | null
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_settings8: {
+        Row: {
+          cigarettes_per_pack: number | null
+          cost_per_pack: number | null
+          created_at: string
+          daily_cigarettes: number | null
+          id: string
+          nicotine_product: string
+          notification_enabled: boolean | null
+          other_consumption_per_day: number | null
+          other_cost_per_week: number | null
+          pouches_cost_per_tin: number | null
+          pouches_per_day: number | null
+          pouches_per_tin: number | null
+          quit_date: string | null
+          quitting_method: string
+          reduction_goal_percent: number | null
+          reduction_timeline_days: number | null
+          reminder_time: string | null
+          replacement_product: string | null
+          secondary_products: string[] | null
+          track_energy: boolean | null
+          track_mood: boolean | null
+          track_triggers: boolean | null
+          updated_at: string
+          user_id: string
+          vaping_cost_per_ml: number | null
+          vaping_ml_per_day: number | null
+          vaping_nicotine_strength: number | null
+        }
+        Insert: {
+          cigarettes_per_pack?: number | null
+          cost_per_pack?: number | null
+          created_at?: string
+          daily_cigarettes?: number | null
+          id?: string
+          nicotine_product?: string
+          notification_enabled?: boolean | null
+          other_consumption_per_day?: number | null
+          other_cost_per_week?: number | null
+          pouches_cost_per_tin?: number | null
+          pouches_per_day?: number | null
+          pouches_per_tin?: number | null
+          quit_date?: string | null
+          quitting_method?: string
+          reduction_goal_percent?: number | null
+          reduction_timeline_days?: number | null
+          reminder_time?: string | null
+          replacement_product?: string | null
+          secondary_products?: string[] | null
+          track_energy?: boolean | null
+          track_mood?: boolean | null
+          track_triggers?: boolean | null
+          updated_at?: string
+          user_id: string
+          vaping_cost_per_ml?: number | null
+          vaping_ml_per_day?: number | null
+          vaping_nicotine_strength?: number | null
+        }
+        Update: {
+          cigarettes_per_pack?: number | null
+          cost_per_pack?: number | null
+          created_at?: string
+          daily_cigarettes?: number | null
+          id?: string
+          nicotine_product?: string
+          notification_enabled?: boolean | null
+          other_consumption_per_day?: number | null
+          other_cost_per_week?: number | null
+          pouches_cost_per_tin?: number | null
+          pouches_per_day?: number | null
+          pouches_per_tin?: number | null
+          quit_date?: string | null
+          quitting_method?: string
+          reduction_goal_percent?: number | null
+          reduction_timeline_days?: number | null
+          reminder_time?: string | null
+          replacement_product?: string | null
+          secondary_products?: string[] | null
+          track_energy?: boolean | null
+          track_mood?: boolean | null
+          track_triggers?: boolean | null
+          updated_at?: string
+          user_id?: string
+          vaping_cost_per_ml?: number | null
+          vaping_ml_per_day?: number | null
+          vaping_nicotine_strength?: number | null
         }
         Relationships: []
       }
@@ -25095,6 +31592,51 @@ export type Database = {
           sleep_challenges?: string[] | null
           sleep_goals?: string[] | null
           updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_stats8: {
+        Row: {
+          created_at: string | null
+          current_mood: string | null
+          current_streak_days: number | null
+          days_smoke_free: number | null
+          energy_level: number | null
+          health_improvements: Json | null
+          id: string
+          last_updated: string | null
+          longest_streak_days: number | null
+          money_saved: number | null
+          total_cravings_overcome: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_mood?: string | null
+          current_streak_days?: number | null
+          days_smoke_free?: number | null
+          energy_level?: number | null
+          health_improvements?: Json | null
+          id?: string
+          last_updated?: string | null
+          longest_streak_days?: number | null
+          money_saved?: number | null
+          total_cravings_overcome?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_mood?: string | null
+          current_streak_days?: number | null
+          days_smoke_free?: number | null
+          energy_level?: number | null
+          health_improvements?: Json | null
+          id?: string
+          last_updated?: string | null
+          longest_streak_days?: number | null
+          money_saved?: number | null
+          total_cravings_overcome?: number | null
           user_id?: string | null
         }
         Relationships: []
@@ -25168,6 +31710,56 @@ export type Database = {
         }
         Relationships: []
       }
+      user_triggers8: {
+        Row: {
+          category_id: string | null
+          created_at: string | null
+          id: string
+          intensity: number | null
+          location: string | null
+          notes: string | null
+          strategy: string | null
+          time_of_day: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string | null
+          id?: string
+          intensity?: number | null
+          location?: string | null
+          notes?: string | null
+          strategy?: string | null
+          time_of_day?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string | null
+          id?: string
+          intensity?: number | null
+          location?: string | null
+          notes?: string | null
+          strategy?: string | null
+          time_of_day?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_triggers8_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "trigger_categories8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_wearable_devices: {
         Row: {
           auth_token: string | null
@@ -25208,6 +31800,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      users4: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string
+          first_name: string | null
+          full_name: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          role: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email: string
+          first_name?: string | null
+          full_name?: string | null
+          id: string
+          last_name?: string | null
+          phone?: string | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string
+          first_name?: string | null
+          full_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       vendor_analytics: {
         Row: {
@@ -26169,6 +32800,39 @@ export type Database = {
         }
         Relationships: []
       }
+      vendors8: {
+        Row: {
+          countries: string[]
+          created_at: string
+          id: string
+          name: string
+          rating: number
+          shipping_info: string | null
+          updated_at: string
+          website_url: string
+        }
+        Insert: {
+          countries?: string[]
+          created_at?: string
+          id?: string
+          name: string
+          rating?: number
+          shipping_info?: string | null
+          updated_at?: string
+          website_url: string
+        }
+        Update: {
+          countries?: string[]
+          created_at?: string
+          id?: string
+          name?: string
+          rating?: number
+          shipping_info?: string | null
+          updated_at?: string
+          website_url?: string
+        }
+        Relationships: []
+      }
       verification_requests: {
         Row: {
           created_at: string | null
@@ -26488,6 +33152,56 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "strongs_concordance"
             referencedColumns: ["strongs_number"]
+          },
+        ]
+      }
+      virtual_companion_resources4: {
+        Row: {
+          companion_id: string | null
+          content: string | null
+          created_at: string | null
+          description: string | null
+          external_url: string | null
+          id: string
+          is_active: boolean | null
+          is_premium: boolean | null
+          resource_type: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          companion_id?: string | null
+          content?: string | null
+          created_at?: string | null
+          description?: string | null
+          external_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_premium?: boolean | null
+          resource_type?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          companion_id?: string | null
+          content?: string | null
+          created_at?: string | null
+          description?: string | null
+          external_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_premium?: boolean | null
+          resource_type?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "virtual_companion_resources4_companion_id_fkey"
+            columns: ["companion_id"]
+            isOneToOne: false
+            referencedRelation: "users4"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -27191,6 +33905,48 @@ export type Database = {
         }
         Relationships: []
       }
+      wishlist_items8: {
+        Row: {
+          created_at: string | null
+          id: string
+          image_url: string | null
+          is_purchased: boolean | null
+          notes: string | null
+          price: number
+          priority: number | null
+          purchased_date: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_purchased?: boolean | null
+          notes?: string | null
+          price: number
+          priority?: number | null
+          purchased_date?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          is_purchased?: boolean | null
+          notes?: string | null
+          price?: number
+          priority?: number | null
+          purchased_date?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       wishlists: {
         Row: {
           created_at: string
@@ -27287,6 +34043,42 @@ export type Database = {
         }
         Relationships: []
       }
+      withdrawal_symptoms8: {
+        Row: {
+          coping_methods: string[] | null
+          created_at: string
+          duration_hours: number | null
+          id: string
+          intensity: number
+          notes: string | null
+          symptom_type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          coping_methods?: string[] | null
+          created_at?: string
+          duration_hours?: number | null
+          id?: string
+          intensity: number
+          notes?: string | null
+          symptom_type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          coping_methods?: string[] | null
+          created_at?: string
+          duration_hours?: number | null
+          id?: string
+          intensity?: number
+          notes?: string | null
+          symptom_type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       affiliate_analytics: {
@@ -27298,6 +34090,48 @@ export type Database = {
           total_clicks: number | null
           total_commission: number | null
           unique_clicks: number | null
+        }
+        Relationships: []
+      }
+      geography_columns: {
+        Row: {
+          coord_dimension: number | null
+          f_geography_column: unknown | null
+          f_table_catalog: unknown | null
+          f_table_name: unknown | null
+          f_table_schema: unknown | null
+          srid: number | null
+          type: string | null
+        }
+        Relationships: []
+      }
+      geometry_columns: {
+        Row: {
+          coord_dimension: number | null
+          f_geometry_column: unknown | null
+          f_table_catalog: string | null
+          f_table_name: unknown | null
+          f_table_schema: unknown | null
+          srid: number | null
+          type: string | null
+        }
+        Insert: {
+          coord_dimension?: number | null
+          f_geometry_column?: unknown | null
+          f_table_catalog?: string | null
+          f_table_name?: unknown | null
+          f_table_schema?: unknown | null
+          srid?: number | null
+          type?: string | null
+        }
+        Update: {
+          coord_dimension?: number | null
+          f_geometry_column?: unknown | null
+          f_table_catalog?: string | null
+          f_table_name?: unknown | null
+          f_table_schema?: unknown | null
+          srid?: number | null
+          type?: string | null
         }
         Relationships: []
       }
@@ -27322,6 +34156,244 @@ export type Database = {
       }
     }
     Functions: {
+      _postgis_deprecate: {
+        Args: {
+          oldname: string
+          newname: string
+          version: string
+        }
+        Returns: undefined
+      }
+      _postgis_index_extent: {
+        Args: {
+          tbl: unknown
+          col: string
+        }
+        Returns: unknown
+      }
+      _postgis_pgsql_version: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      _postgis_scripts_pgsql_version: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      _postgis_selectivity: {
+        Args: {
+          tbl: unknown
+          att_name: string
+          geom: unknown
+          mode?: string
+        }
+        Returns: number
+      }
+      _st_3dintersects: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      _st_bestsrid: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      _st_contains: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      _st_containsproperly: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      _st_coveredby:
+        | {
+            Args: {
+              geog1: unknown
+              geog2: unknown
+            }
+            Returns: boolean
+          }
+        | {
+            Args: {
+              geom1: unknown
+              geom2: unknown
+            }
+            Returns: boolean
+          }
+      _st_covers:
+        | {
+            Args: {
+              geog1: unknown
+              geog2: unknown
+            }
+            Returns: boolean
+          }
+        | {
+            Args: {
+              geom1: unknown
+              geom2: unknown
+            }
+            Returns: boolean
+          }
+      _st_crosses: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      _st_dwithin: {
+        Args: {
+          geog1: unknown
+          geog2: unknown
+          tolerance: number
+          use_spheroid?: boolean
+        }
+        Returns: boolean
+      }
+      _st_equals: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      _st_intersects: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      _st_linecrossingdirection: {
+        Args: {
+          line1: unknown
+          line2: unknown
+        }
+        Returns: number
+      }
+      _st_longestline: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: unknown
+      }
+      _st_maxdistance: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: number
+      }
+      _st_orderingequals: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      _st_overlaps: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      _st_pointoutside: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      _st_sortablehash: {
+        Args: {
+          geom: unknown
+        }
+        Returns: number
+      }
+      _st_touches: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      _st_voronoi: {
+        Args: {
+          g1: unknown
+          clip?: unknown
+          tolerance?: number
+          return_polygons?: boolean
+        }
+        Returns: unknown
+      }
+      _st_within: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      addauth: {
+        Args: {
+          "": string
+        }
+        Returns: boolean
+      }
+      addgeometrycolumn:
+        | {
+            Args: {
+              catalog_name: string
+              schema_name: string
+              table_name: string
+              column_name: string
+              new_srid_in: number
+              new_type: string
+              new_dim: number
+              use_typmod?: boolean
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              schema_name: string
+              table_name: string
+              column_name: string
+              new_srid: number
+              new_type: string
+              new_dim: number
+              use_typmod?: boolean
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              table_name: string
+              column_name: string
+              new_srid: number
+              new_type: string
+              new_dim: number
+              use_typmod?: boolean
+            }
+            Returns: string
+          }
+      admin_query: {
+        Args: {
+          query: string
+        }
+        Returns: undefined
+      }
       award_achievement: {
         Args: {
           p_user_id: string
@@ -27332,6 +34404,100 @@ export type Database = {
         }
         Returns: string
       }
+      box:
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: unknown
+          }
+      box2d:
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: unknown
+          }
+      box2d_in: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      box2d_out: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      box2df_in: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      box2df_out: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      box3d:
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: unknown
+          }
+      box3d_in: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      box3d_out: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      box3dtobox: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      bytea:
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: string
+          }
       calculate_available_discount: {
         Args: {
           _user_id: string
@@ -27357,6 +34523,19 @@ export type Database = {
         }
         Returns: number
       }
+      calculate_savings_projection: {
+        Args: {
+          user_id_param: string
+          daily_cigarettes: number
+          price_per_pack: number
+          days_projected?: number
+        }
+        Returns: {
+          days: number
+          cigarettes_avoided: number
+          money_saved: number
+        }[]
+      }
       check_insurance_eligibility: {
         Args: {
           _insurance_id: string
@@ -27364,6 +34543,37 @@ export type Database = {
           _service_type: string
         }
         Returns: Json
+      }
+      check_table_exists: {
+        Args: {
+          p_table_name: string
+        }
+        Returns: boolean
+      }
+      create_care_group: {
+        Args: {
+          p_name: string
+          p_description?: string
+          p_is_public?: boolean
+        }
+        Returns: string
+      }
+      create_group_simple: {
+        Args: {
+          name_param: string
+          description_param: string
+          is_public_param: boolean
+          user_id_param: string
+        }
+        Returns: string
+      }
+      create_group_with_owner: {
+        Args: {
+          name_param: string
+          description_param: string
+          is_public_param?: boolean
+        }
+        Returns: string
       }
       create_types_bible_file: {
         Args: Record<PropertyKey, never>
@@ -27424,13 +34634,87 @@ export type Database = {
         }
         Returns: number
       }
+      disablelongtransactions: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      dropgeometrycolumn:
+        | {
+            Args: {
+              catalog_name: string
+              schema_name: string
+              table_name: string
+              column_name: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              schema_name: string
+              table_name: string
+              column_name: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              table_name: string
+              column_name: string
+            }
+            Returns: string
+          }
+      dropgeometrytable:
+        | {
+            Args: {
+              catalog_name: string
+              schema_name: string
+              table_name: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              schema_name: string
+              table_name: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              table_name: string
+            }
+            Returns: string
+          }
       earth: {
         Args: Record<PropertyKey, never>
         Returns: number
       }
+      enablelongtransactions: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       ensure_script_tag: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      equals: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      exec_sql: {
+        Args: {
+          sql: string
+        }
+        Returns: Json
+      }
+      format_date_for_api: {
+        Args: {
+          input_date: string
+        }
+        Returns: string
       }
       gc_to_sec: {
         Args: {
@@ -27438,9 +34722,535 @@ export type Database = {
         }
         Returns: number
       }
+      geography:
+        | {
+            Args: {
+              "": string
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: unknown
+          }
+      geography_analyze: {
+        Args: {
+          "": unknown
+        }
+        Returns: boolean
+      }
+      geography_gist_compress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      geography_gist_decompress: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      geography_out: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      geography_send: {
+        Args: {
+          "": unknown
+        }
+        Returns: string
+      }
+      geography_spgist_compress_nd: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      geography_typmod_in: {
+        Args: {
+          "": unknown[]
+        }
+        Returns: number
+      }
+      geography_typmod_out: {
+        Args: {
+          "": number
+        }
+        Returns: unknown
+      }
+      geometry:
+        | {
+            Args: {
+              "": string
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              "": string
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: unknown
+          }
+      geometry_above: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      geometry_analyze: {
+        Args: {
+          "": unknown
+        }
+        Returns: boolean
+      }
+      geometry_below: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      geometry_cmp: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: number
+      }
+      geometry_contained_3d: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      geometry_contains: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      geometry_contains_3d: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      geometry_distance_box: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: number
+      }
+      geometry_distance_centroid: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: number
+      }
+      geometry_eq: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      geometry_ge: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      geometry_gist_compress_2d: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      geometry_gist_compress_nd: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      geometry_gist_decompress_2d: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      geometry_gist_decompress_nd: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      geometry_gist_sortsupport_2d: {
+        Args: {
+          "": unknown
+        }
+        Returns: undefined
+      }
+      geometry_gt: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      geometry_hash: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      geometry_in: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      geometry_le: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      geometry_left: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      geometry_lt: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      geometry_out: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      geometry_overabove: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      geometry_overbelow: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      geometry_overlaps: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      geometry_overlaps_3d: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      geometry_overleft: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      geometry_overright: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      geometry_recv: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      geometry_right: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      geometry_same: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      geometry_same_3d: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      geometry_send: {
+        Args: {
+          "": unknown
+        }
+        Returns: string
+      }
+      geometry_sortsupport: {
+        Args: {
+          "": unknown
+        }
+        Returns: undefined
+      }
+      geometry_spgist_compress_2d: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      geometry_spgist_compress_3d: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      geometry_spgist_compress_nd: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      geometry_typmod_in: {
+        Args: {
+          "": unknown[]
+        }
+        Returns: number
+      }
+      geometry_typmod_out: {
+        Args: {
+          "": number
+        }
+        Returns: unknown
+      }
+      geometry_within: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      geometrytype:
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: string
+          }
+      geomfromewkb: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      geomfromewkt: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
       get_auth_user: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_group_details: {
+        Args: {
+          group_id_param: string
+        }
+        Returns: {
+          id: string
+          name: string
+          description: string
+          created_by: string
+          created_at: string
+          updated_at: string
+          is_public: boolean
+          owner_name: string
+          owner_avatar: string
+          member_count: number
+        }[]
+      }
+      get_group_events: {
+        Args: {
+          group_id_param: string
+        }
+        Returns: {
+          id: string
+          title: string
+          description: string
+          location: string
+          start_time: string
+          end_time: string
+          created_by: string
+          created_at: string
+          creator_name: string
+          creator_avatar: string
+        }[]
+      }
+      get_group_members: {
+        Args: {
+          group_id_param: string
+        }
+        Returns: {
+          id: string
+          user_id: string
+          role: string
+          joined_at: string
+          display_name: string
+          email: string
+          avatar_url: string
+        }[]
+      }
+      get_group_posts: {
+        Args: {
+          group_id_param: string
+        }
+        Returns: {
+          id: string
+          title: string
+          content: string
+          created_at: string
+          created_by: string
+          author_name: string
+          author_avatar: string
+          comment_count: number
+        }[]
+      }
+      get_group_tasks: {
+        Args: {
+          group_id_param: string
+        }
+        Returns: {
+          id: string
+          title: string
+          description: string
+          status: string
+          priority: string
+          due_date: string
+          created_at: string
+          assigned_to: string
+          created_by: string
+          assignee_name: string
+          assignee_avatar: string
+          creator_name: string
+          creator_avatar: string
+        }[]
+      }
+      get_post_with_comments: {
+        Args: {
+          post_id_param: string
+        }
+        Returns: {
+          post_id: string
+          post_title: string
+          post_content: string
+          post_created_at: string
+          post_created_by: string
+          creator_name: string
+          creator_avatar_url: string
+          comment_id: string
+          comment_content: string
+          comment_created_at: string
+          comment_created_by: string
+          commenter_name: string
+          commenter_avatar_url: string
+        }[]
+      }
+      get_proj4_from_srid: {
+        Args: {
+          "": number
+        }
+        Returns: string
+      }
+      get_savings_breakdown: {
+        Args: {
+          user_id_param: string
+        }
+        Returns: {
+          category: Database["public"]["Enums"]["goal_category"]
+          goal_count: number
+          total_saved: number
+          total_spent: number
+          remaining_balance: number
+        }[]
       }
       get_similar_products: {
         Args: {
@@ -27450,6 +35260,78 @@ export type Database = {
           similar_product_id: string
           similarity_score: number
         }[]
+      }
+      get_tables: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          table_name: string
+        }[]
+      }
+      get_user_group_data: {
+        Args: {
+          user_id_param: string
+        }
+        Returns: {
+          membership_id: string
+          group_id: string
+          user_id: string
+          role: string
+          group_name: string
+          group_description: string
+          is_public: boolean
+        }[]
+      }
+      get_user_groups: {
+        Args: {
+          user_id_param?: string
+        }
+        Returns: {
+          id: string
+          name: string
+          description: string
+          created_by: string
+          created_at: string
+          updated_at: string
+          is_public: boolean
+          owner_name: string
+          owner_avatar: string
+          member_count: number
+          role: string
+        }[]
+      }
+      get_user_role: {
+        Args: {
+          user_id: string
+        }
+        Returns: Json
+      }
+      get_user_settings: {
+        Args: {
+          user_id: string
+        }
+        Returns: Json
+      }
+      get_user_total_savings: {
+        Args: {
+          user_id_param: string
+        }
+        Returns: number
+      }
+      gettransactionid: {
+        Args: Record<PropertyKey, never>
+        Returns: unknown
+      }
+      gidx_in: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      gidx_out: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
       }
       gtrgm_compress: {
         Args: {
@@ -27516,6 +35398,34 @@ export type Database = {
         }
         Returns: undefined
       }
+      initialize_user_settings:
+        | {
+            Args: {
+              user_id: string
+              settings?: Json
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              user_id: string
+              theme?: string
+              notifications_enabled?: boolean
+            }
+            Returns: Json
+          }
+      json: {
+        Args: {
+          "": unknown
+        }
+        Returns: Json
+      }
+      jsonb: {
+        Args: {
+          "": unknown
+        }
+        Returns: Json
+      }
       latitude: {
         Args: {
           "": unknown
@@ -27528,6 +35438,283 @@ export type Database = {
         }
         Returns: number
       }
+      longtransactionsenabled: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      path: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      pgis_asflatgeobuf_finalfn: {
+        Args: {
+          "": unknown
+        }
+        Returns: string
+      }
+      pgis_asgeobuf_finalfn: {
+        Args: {
+          "": unknown
+        }
+        Returns: string
+      }
+      pgis_asmvt_finalfn: {
+        Args: {
+          "": unknown
+        }
+        Returns: string
+      }
+      pgis_asmvt_serialfn: {
+        Args: {
+          "": unknown
+        }
+        Returns: string
+      }
+      pgis_geometry_clusterintersecting_finalfn: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown[]
+      }
+      pgis_geometry_clusterwithin_finalfn: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown[]
+      }
+      pgis_geometry_collect_finalfn: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      pgis_geometry_makeline_finalfn: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      pgis_geometry_polygonize_finalfn: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      pgis_geometry_union_parallel_finalfn: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      pgis_geometry_union_parallel_serialfn: {
+        Args: {
+          "": unknown
+        }
+        Returns: string
+      }
+      point: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      policy_exists: {
+        Args: {
+          p_policy_name: string
+          p_table_name: string
+        }
+        Returns: boolean
+      }
+      polygon: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      populate_geometry_columns:
+        | {
+            Args: {
+              tbl_oid: unknown
+              use_typmod?: boolean
+            }
+            Returns: number
+          }
+        | {
+            Args: {
+              use_typmod?: boolean
+            }
+            Returns: string
+          }
+      postgis_addbbox: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      postgis_constraint_dims: {
+        Args: {
+          geomschema: string
+          geomtable: string
+          geomcolumn: string
+        }
+        Returns: number
+      }
+      postgis_constraint_srid: {
+        Args: {
+          geomschema: string
+          geomtable: string
+          geomcolumn: string
+        }
+        Returns: number
+      }
+      postgis_constraint_type: {
+        Args: {
+          geomschema: string
+          geomtable: string
+          geomcolumn: string
+        }
+        Returns: string
+      }
+      postgis_dropbbox: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      postgis_extensions_upgrade: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      postgis_full_version: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      postgis_geos_noop: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      postgis_geos_version: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      postgis_getbbox: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      postgis_hasbbox: {
+        Args: {
+          "": unknown
+        }
+        Returns: boolean
+      }
+      postgis_index_supportfn: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      postgis_lib_build_date: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      postgis_lib_revision: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      postgis_lib_version: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      postgis_libjson_version: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      postgis_liblwgeom_version: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      postgis_libprotobuf_version: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      postgis_libxml_version: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      postgis_noop: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      postgis_proj_version: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      postgis_scripts_build_date: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      postgis_scripts_installed: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      postgis_scripts_released: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      postgis_svn_version: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      postgis_type_name: {
+        Args: {
+          geomname: string
+          coord_dimension: number
+          use_new_name?: boolean
+        }
+        Returns: string
+      }
+      postgis_typmod_dims: {
+        Args: {
+          "": number
+        }
+        Returns: number
+      }
+      postgis_typmod_srid: {
+        Args: {
+          "": number
+        }
+        Returns: number
+      }
+      postgis_typmod_type: {
+        Args: {
+          "": number
+        }
+        Returns: string
+      }
+      postgis_version: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      postgis_wagyu_version: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      process_step_points: {
+        Args: {
+          p_user_id: string
+          p_steps: number
+          p_source?: string
+        }
+        Returns: Json
+      }
       products_to_tsvector: {
         Args: {
           name: string
@@ -27536,6 +35723,10 @@ export type Database = {
           materials: string[]
         }
         Returns: unknown
+      }
+      reset_user_streaks: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       sec_to_gc: {
         Args: {
@@ -27559,14 +35750,1973 @@ export type Database = {
         }
         Returns: string[]
       }
+      spheroid_in: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      spheroid_out: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_3dclosestpoint: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: unknown
+      }
+      st_3ddistance: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: number
+      }
+      st_3dintersects: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      st_3dlength: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_3dlongestline: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: unknown
+      }
+      st_3dmakebox: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: unknown
+      }
+      st_3dmaxdistance: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: number
+      }
+      st_3dperimeter: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_3dshortestline: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: unknown
+      }
+      st_addpoint: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: unknown
+      }
+      st_angle:
+        | {
+            Args: {
+              line1: unknown
+              line2: unknown
+            }
+            Returns: number
+          }
+        | {
+            Args: {
+              pt1: unknown
+              pt2: unknown
+              pt3: unknown
+              pt4?: unknown
+            }
+            Returns: number
+          }
+      st_area:
+        | {
+            Args: {
+              "": string
+            }
+            Returns: number
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: number
+          }
+        | {
+            Args: {
+              geog: unknown
+              use_spheroid?: boolean
+            }
+            Returns: number
+          }
+      st_area2d: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_asbinary:
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: string
+          }
+      st_asencodedpolyline: {
+        Args: {
+          geom: unknown
+          nprecision?: number
+        }
+        Returns: string
+      }
+      st_asewkb: {
+        Args: {
+          "": unknown
+        }
+        Returns: string
+      }
+      st_asewkt:
+        | {
+            Args: {
+              "": string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: string
+          }
+      st_asgeojson:
+        | {
+            Args: {
+              "": string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              geog: unknown
+              maxdecimaldigits?: number
+              options?: number
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              geom: unknown
+              maxdecimaldigits?: number
+              options?: number
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              r: Record<string, unknown>
+              geom_column?: string
+              maxdecimaldigits?: number
+              pretty_bool?: boolean
+            }
+            Returns: string
+          }
+      st_asgml:
+        | {
+            Args: {
+              "": string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              geog: unknown
+              maxdecimaldigits?: number
+              options?: number
+              nprefix?: string
+              id?: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              geom: unknown
+              maxdecimaldigits?: number
+              options?: number
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              version: number
+              geog: unknown
+              maxdecimaldigits?: number
+              options?: number
+              nprefix?: string
+              id?: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              version: number
+              geom: unknown
+              maxdecimaldigits?: number
+              options?: number
+              nprefix?: string
+              id?: string
+            }
+            Returns: string
+          }
+      st_ashexewkb: {
+        Args: {
+          "": unknown
+        }
+        Returns: string
+      }
+      st_askml:
+        | {
+            Args: {
+              "": string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              geog: unknown
+              maxdecimaldigits?: number
+              nprefix?: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              geom: unknown
+              maxdecimaldigits?: number
+              nprefix?: string
+            }
+            Returns: string
+          }
+      st_aslatlontext: {
+        Args: {
+          geom: unknown
+          tmpl?: string
+        }
+        Returns: string
+      }
+      st_asmarc21: {
+        Args: {
+          geom: unknown
+          format?: string
+        }
+        Returns: string
+      }
+      st_asmvtgeom: {
+        Args: {
+          geom: unknown
+          bounds: unknown
+          extent?: number
+          buffer?: number
+          clip_geom?: boolean
+        }
+        Returns: unknown
+      }
+      st_assvg:
+        | {
+            Args: {
+              "": string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              geog: unknown
+              rel?: number
+              maxdecimaldigits?: number
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              geom: unknown
+              rel?: number
+              maxdecimaldigits?: number
+            }
+            Returns: string
+          }
+      st_astext:
+        | {
+            Args: {
+              "": string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: string
+          }
+      st_astwkb:
+        | {
+            Args: {
+              geom: unknown[]
+              ids: number[]
+              prec?: number
+              prec_z?: number
+              prec_m?: number
+              with_sizes?: boolean
+              with_boxes?: boolean
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              geom: unknown
+              prec?: number
+              prec_z?: number
+              prec_m?: number
+              with_sizes?: boolean
+              with_boxes?: boolean
+            }
+            Returns: string
+          }
+      st_asx3d: {
+        Args: {
+          geom: unknown
+          maxdecimaldigits?: number
+          options?: number
+        }
+        Returns: string
+      }
+      st_azimuth:
+        | {
+            Args: {
+              geog1: unknown
+              geog2: unknown
+            }
+            Returns: number
+          }
+        | {
+            Args: {
+              geom1: unknown
+              geom2: unknown
+            }
+            Returns: number
+          }
+      st_boundary: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_boundingdiagonal: {
+        Args: {
+          geom: unknown
+          fits?: boolean
+        }
+        Returns: unknown
+      }
+      st_buffer:
+        | {
+            Args: {
+              geom: unknown
+              radius: number
+              options?: string
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              geom: unknown
+              radius: number
+              quadsegs: number
+            }
+            Returns: unknown
+          }
+      st_buildarea: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_centroid:
+        | {
+            Args: {
+              "": string
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: unknown
+          }
+      st_cleangeometry: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_clipbybox2d: {
+        Args: {
+          geom: unknown
+          box: unknown
+        }
+        Returns: unknown
+      }
+      st_closestpoint: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: unknown
+      }
+      st_clusterintersecting: {
+        Args: {
+          "": unknown[]
+        }
+        Returns: unknown[]
+      }
+      st_collect:
+        | {
+            Args: {
+              "": unknown[]
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              geom1: unknown
+              geom2: unknown
+            }
+            Returns: unknown
+          }
+      st_collectionextract: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_collectionhomogenize: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_concavehull: {
+        Args: {
+          param_geom: unknown
+          param_pctconvex: number
+          param_allow_holes?: boolean
+        }
+        Returns: unknown
+      }
+      st_contains: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      st_containsproperly: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      st_convexhull: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_coorddim: {
+        Args: {
+          geometry: unknown
+        }
+        Returns: number
+      }
+      st_coveredby:
+        | {
+            Args: {
+              geog1: unknown
+              geog2: unknown
+            }
+            Returns: boolean
+          }
+        | {
+            Args: {
+              geom1: unknown
+              geom2: unknown
+            }
+            Returns: boolean
+          }
+      st_covers:
+        | {
+            Args: {
+              geog1: unknown
+              geog2: unknown
+            }
+            Returns: boolean
+          }
+        | {
+            Args: {
+              geom1: unknown
+              geom2: unknown
+            }
+            Returns: boolean
+          }
+      st_crosses: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      st_curvetoline: {
+        Args: {
+          geom: unknown
+          tol?: number
+          toltype?: number
+          flags?: number
+        }
+        Returns: unknown
+      }
+      st_delaunaytriangles: {
+        Args: {
+          g1: unknown
+          tolerance?: number
+          flags?: number
+        }
+        Returns: unknown
+      }
+      st_difference: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+          gridsize?: number
+        }
+        Returns: unknown
+      }
+      st_dimension: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_disjoint: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      st_distance:
+        | {
+            Args: {
+              geog1: unknown
+              geog2: unknown
+              use_spheroid?: boolean
+            }
+            Returns: number
+          }
+        | {
+            Args: {
+              geom1: unknown
+              geom2: unknown
+            }
+            Returns: number
+          }
+      st_distancesphere:
+        | {
+            Args: {
+              geom1: unknown
+              geom2: unknown
+            }
+            Returns: number
+          }
+        | {
+            Args: {
+              geom1: unknown
+              geom2: unknown
+              radius: number
+            }
+            Returns: number
+          }
+      st_distancespheroid: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: number
+      }
+      st_dump: {
+        Args: {
+          "": unknown
+        }
+        Returns: Database["public"]["CompositeTypes"]["geometry_dump"][]
+      }
+      st_dumppoints: {
+        Args: {
+          "": unknown
+        }
+        Returns: Database["public"]["CompositeTypes"]["geometry_dump"][]
+      }
+      st_dumprings: {
+        Args: {
+          "": unknown
+        }
+        Returns: Database["public"]["CompositeTypes"]["geometry_dump"][]
+      }
+      st_dumpsegments: {
+        Args: {
+          "": unknown
+        }
+        Returns: Database["public"]["CompositeTypes"]["geometry_dump"][]
+      }
+      st_dwithin: {
+        Args: {
+          geog1: unknown
+          geog2: unknown
+          tolerance: number
+          use_spheroid?: boolean
+        }
+        Returns: boolean
+      }
+      st_endpoint: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_envelope: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_equals: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      st_expand:
+        | {
+            Args: {
+              box: unknown
+              dx: number
+              dy: number
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              box: unknown
+              dx: number
+              dy: number
+              dz?: number
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              geom: unknown
+              dx: number
+              dy: number
+              dz?: number
+              dm?: number
+            }
+            Returns: unknown
+          }
+      st_exteriorring: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_flipcoordinates: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_force2d: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_force3d: {
+        Args: {
+          geom: unknown
+          zvalue?: number
+        }
+        Returns: unknown
+      }
+      st_force3dm: {
+        Args: {
+          geom: unknown
+          mvalue?: number
+        }
+        Returns: unknown
+      }
+      st_force3dz: {
+        Args: {
+          geom: unknown
+          zvalue?: number
+        }
+        Returns: unknown
+      }
+      st_force4d: {
+        Args: {
+          geom: unknown
+          zvalue?: number
+          mvalue?: number
+        }
+        Returns: unknown
+      }
+      st_forcecollection: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_forcecurve: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_forcepolygonccw: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_forcepolygoncw: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_forcerhr: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_forcesfs: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_generatepoints:
+        | {
+            Args: {
+              area: unknown
+              npoints: number
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              area: unknown
+              npoints: number
+              seed: number
+            }
+            Returns: unknown
+          }
+      st_geogfromtext: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_geogfromwkb: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_geographyfromtext: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_geohash:
+        | {
+            Args: {
+              geog: unknown
+              maxchars?: number
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              geom: unknown
+              maxchars?: number
+            }
+            Returns: string
+          }
+      st_geomcollfromtext: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_geomcollfromwkb: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_geometricmedian: {
+        Args: {
+          g: unknown
+          tolerance?: number
+          max_iter?: number
+          fail_if_not_converged?: boolean
+        }
+        Returns: unknown
+      }
+      st_geometryfromtext: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_geometrytype: {
+        Args: {
+          "": unknown
+        }
+        Returns: string
+      }
+      st_geomfromewkb: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_geomfromewkt: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_geomfromgeojson:
+        | {
+            Args: {
+              "": Json
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              "": Json
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              "": string
+            }
+            Returns: unknown
+          }
+      st_geomfromgml: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_geomfromkml: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_geomfrommarc21: {
+        Args: {
+          marc21xml: string
+        }
+        Returns: unknown
+      }
+      st_geomfromtext: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_geomfromtwkb: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_geomfromwkb: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_gmltosql: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_hasarc: {
+        Args: {
+          geometry: unknown
+        }
+        Returns: boolean
+      }
+      st_hausdorffdistance: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: number
+      }
+      st_hexagon: {
+        Args: {
+          size: number
+          cell_i: number
+          cell_j: number
+          origin?: unknown
+        }
+        Returns: unknown
+      }
+      st_hexagongrid: {
+        Args: {
+          size: number
+          bounds: unknown
+        }
+        Returns: Record<string, unknown>[]
+      }
+      st_interpolatepoint: {
+        Args: {
+          line: unknown
+          point: unknown
+        }
+        Returns: number
+      }
+      st_intersection: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+          gridsize?: number
+        }
+        Returns: unknown
+      }
+      st_intersects:
+        | {
+            Args: {
+              geog1: unknown
+              geog2: unknown
+            }
+            Returns: boolean
+          }
+        | {
+            Args: {
+              geom1: unknown
+              geom2: unknown
+            }
+            Returns: boolean
+          }
+      st_isclosed: {
+        Args: {
+          "": unknown
+        }
+        Returns: boolean
+      }
+      st_iscollection: {
+        Args: {
+          "": unknown
+        }
+        Returns: boolean
+      }
+      st_isempty: {
+        Args: {
+          "": unknown
+        }
+        Returns: boolean
+      }
+      st_ispolygonccw: {
+        Args: {
+          "": unknown
+        }
+        Returns: boolean
+      }
+      st_ispolygoncw: {
+        Args: {
+          "": unknown
+        }
+        Returns: boolean
+      }
+      st_isring: {
+        Args: {
+          "": unknown
+        }
+        Returns: boolean
+      }
+      st_issimple: {
+        Args: {
+          "": unknown
+        }
+        Returns: boolean
+      }
+      st_isvalid: {
+        Args: {
+          "": unknown
+        }
+        Returns: boolean
+      }
+      st_isvaliddetail: {
+        Args: {
+          geom: unknown
+          flags?: number
+        }
+        Returns: Database["public"]["CompositeTypes"]["valid_detail"]
+      }
+      st_isvalidreason: {
+        Args: {
+          "": unknown
+        }
+        Returns: string
+      }
+      st_isvalidtrajectory: {
+        Args: {
+          "": unknown
+        }
+        Returns: boolean
+      }
+      st_length:
+        | {
+            Args: {
+              "": string
+            }
+            Returns: number
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: number
+          }
+        | {
+            Args: {
+              geog: unknown
+              use_spheroid?: boolean
+            }
+            Returns: number
+          }
+      st_length2d: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_letters: {
+        Args: {
+          letters: string
+          font?: Json
+        }
+        Returns: unknown
+      }
+      st_linecrossingdirection: {
+        Args: {
+          line1: unknown
+          line2: unknown
+        }
+        Returns: number
+      }
+      st_linefromencodedpolyline: {
+        Args: {
+          txtin: string
+          nprecision?: number
+        }
+        Returns: unknown
+      }
+      st_linefrommultipoint: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_linefromtext: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_linefromwkb: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_linelocatepoint: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: number
+      }
+      st_linemerge: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_linestringfromwkb: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_linetocurve: {
+        Args: {
+          geometry: unknown
+        }
+        Returns: unknown
+      }
+      st_locatealong: {
+        Args: {
+          geometry: unknown
+          measure: number
+          leftrightoffset?: number
+        }
+        Returns: unknown
+      }
+      st_locatebetween: {
+        Args: {
+          geometry: unknown
+          frommeasure: number
+          tomeasure: number
+          leftrightoffset?: number
+        }
+        Returns: unknown
+      }
+      st_locatebetweenelevations: {
+        Args: {
+          geometry: unknown
+          fromelevation: number
+          toelevation: number
+        }
+        Returns: unknown
+      }
+      st_longestline: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: unknown
+      }
+      st_m: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_makebox2d: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: unknown
+      }
+      st_makeline:
+        | {
+            Args: {
+              "": unknown[]
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              geom1: unknown
+              geom2: unknown
+            }
+            Returns: unknown
+          }
+      st_makepolygon: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_makevalid:
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              geom: unknown
+              params: string
+            }
+            Returns: unknown
+          }
+      st_maxdistance: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: number
+      }
+      st_maximuminscribedcircle: {
+        Args: {
+          "": unknown
+        }
+        Returns: Record<string, unknown>
+      }
+      st_memsize: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_minimumboundingcircle: {
+        Args: {
+          inputgeom: unknown
+          segs_per_quarter?: number
+        }
+        Returns: unknown
+      }
+      st_minimumboundingradius: {
+        Args: {
+          "": unknown
+        }
+        Returns: Record<string, unknown>
+      }
+      st_minimumclearance: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_minimumclearanceline: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_mlinefromtext: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_mlinefromwkb: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_mpointfromtext: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_mpointfromwkb: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_mpolyfromtext: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_mpolyfromwkb: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_multi: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_multilinefromwkb: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_multilinestringfromtext: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_multipointfromtext: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_multipointfromwkb: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_multipolyfromwkb: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_multipolygonfromtext: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_ndims: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_node: {
+        Args: {
+          g: unknown
+        }
+        Returns: unknown
+      }
+      st_normalize: {
+        Args: {
+          geom: unknown
+        }
+        Returns: unknown
+      }
+      st_npoints: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_nrings: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_numgeometries: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_numinteriorring: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_numinteriorrings: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_numpatches: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_numpoints: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_offsetcurve: {
+        Args: {
+          line: unknown
+          distance: number
+          params?: string
+        }
+        Returns: unknown
+      }
+      st_orderingequals: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      st_orientedenvelope: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_overlaps: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      st_perimeter:
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: number
+          }
+        | {
+            Args: {
+              geog: unknown
+              use_spheroid?: boolean
+            }
+            Returns: number
+          }
+      st_perimeter2d: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_pointfromtext: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_pointfromwkb: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_pointm: {
+        Args: {
+          xcoordinate: number
+          ycoordinate: number
+          mcoordinate: number
+          srid?: number
+        }
+        Returns: unknown
+      }
+      st_pointonsurface: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_points: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_pointz: {
+        Args: {
+          xcoordinate: number
+          ycoordinate: number
+          zcoordinate: number
+          srid?: number
+        }
+        Returns: unknown
+      }
+      st_pointzm: {
+        Args: {
+          xcoordinate: number
+          ycoordinate: number
+          zcoordinate: number
+          mcoordinate: number
+          srid?: number
+        }
+        Returns: unknown
+      }
+      st_polyfromtext: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_polyfromwkb: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_polygonfromtext: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_polygonfromwkb: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_polygonize: {
+        Args: {
+          "": unknown[]
+        }
+        Returns: unknown
+      }
+      st_project: {
+        Args: {
+          geog: unknown
+          distance: number
+          azimuth: number
+        }
+        Returns: unknown
+      }
+      st_quantizecoordinates: {
+        Args: {
+          g: unknown
+          prec_x: number
+          prec_y?: number
+          prec_z?: number
+          prec_m?: number
+        }
+        Returns: unknown
+      }
+      st_reduceprecision: {
+        Args: {
+          geom: unknown
+          gridsize: number
+        }
+        Returns: unknown
+      }
+      st_relate: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: string
+      }
+      st_removerepeatedpoints: {
+        Args: {
+          geom: unknown
+          tolerance?: number
+        }
+        Returns: unknown
+      }
+      st_reverse: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_segmentize: {
+        Args: {
+          geog: unknown
+          max_segment_length: number
+        }
+        Returns: unknown
+      }
+      st_setsrid:
+        | {
+            Args: {
+              geog: unknown
+              srid: number
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              geom: unknown
+              srid: number
+            }
+            Returns: unknown
+          }
+      st_sharedpaths: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: unknown
+      }
+      st_shiftlongitude: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_shortestline: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: unknown
+      }
+      st_simplifypolygonhull: {
+        Args: {
+          geom: unknown
+          vertex_fraction: number
+          is_outer?: boolean
+        }
+        Returns: unknown
+      }
+      st_split: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: unknown
+      }
+      st_square: {
+        Args: {
+          size: number
+          cell_i: number
+          cell_j: number
+          origin?: unknown
+        }
+        Returns: unknown
+      }
+      st_squaregrid: {
+        Args: {
+          size: number
+          bounds: unknown
+        }
+        Returns: Record<string, unknown>[]
+      }
+      st_srid:
+        | {
+            Args: {
+              geog: unknown
+            }
+            Returns: number
+          }
+        | {
+            Args: {
+              geom: unknown
+            }
+            Returns: number
+          }
+      st_startpoint: {
+        Args: {
+          "": unknown
+        }
+        Returns: unknown
+      }
+      st_subdivide: {
+        Args: {
+          geom: unknown
+          maxvertices?: number
+          gridsize?: number
+        }
+        Returns: unknown[]
+      }
+      st_summary:
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              "": unknown
+            }
+            Returns: string
+          }
+      st_swapordinates: {
+        Args: {
+          geom: unknown
+          ords: unknown
+        }
+        Returns: unknown
+      }
+      st_symdifference: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+          gridsize?: number
+        }
+        Returns: unknown
+      }
+      st_symmetricdifference: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: unknown
+      }
+      st_tileenvelope: {
+        Args: {
+          zoom: number
+          x: number
+          y: number
+          bounds?: unknown
+          margin?: number
+        }
+        Returns: unknown
+      }
+      st_touches: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      st_transform:
+        | {
+            Args: {
+              geom: unknown
+              from_proj: string
+              to_proj: string
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              geom: unknown
+              from_proj: string
+              to_srid: number
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              geom: unknown
+              to_proj: string
+            }
+            Returns: unknown
+          }
+      st_triangulatepolygon: {
+        Args: {
+          g1: unknown
+        }
+        Returns: unknown
+      }
+      st_union:
+        | {
+            Args: {
+              "": unknown[]
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              geom1: unknown
+              geom2: unknown
+            }
+            Returns: unknown
+          }
+        | {
+            Args: {
+              geom1: unknown
+              geom2: unknown
+              gridsize: number
+            }
+            Returns: unknown
+          }
+      st_voronoilines: {
+        Args: {
+          g1: unknown
+          tolerance?: number
+          extend_to?: unknown
+        }
+        Returns: unknown
+      }
+      st_voronoipolygons: {
+        Args: {
+          g1: unknown
+          tolerance?: number
+          extend_to?: unknown
+        }
+        Returns: unknown
+      }
+      st_within: {
+        Args: {
+          geom1: unknown
+          geom2: unknown
+        }
+        Returns: boolean
+      }
+      st_wkbtosql: {
+        Args: {
+          wkb: string
+        }
+        Returns: unknown
+      }
+      st_wkttosql: {
+        Args: {
+          "": string
+        }
+        Returns: unknown
+      }
+      st_wrapx: {
+        Args: {
+          geom: unknown
+          wrap: number
+          move: number
+        }
+        Returns: unknown
+      }
+      st_x: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_xmax: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_xmin: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_y: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_ymax: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_ymin: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_z: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_zmax: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_zmflag: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      st_zmin: {
+        Args: {
+          "": unknown
+        }
+        Returns: number
+      }
+      start_device_pairing: {
+        Args: {
+          p_user_id: string
+          p_device_type: string
+          p_manufacturer: string
+          p_model: string
+        }
+        Returns: Json
+      }
       submit_insurance_claim: {
         Args: {
           _claim_id: string
         }
         Returns: Json
       }
+      sync_health_data: {
+        Args: {
+          p_user_id: string
+        }
+        Returns: Json
+      }
+      table_exists: {
+        Args: {
+          p_table_name: string
+        }
+        Returns: boolean
+      }
+      text: {
+        Args: {
+          "": unknown
+        }
+        Returns: string
+      }
+      unlockrows: {
+        Args: {
+          "": string
+        }
+        Returns: number
+      }
+      updategeometrysrid: {
+        Args: {
+          catalogn_name: string
+          schema_name: string
+          table_name: string
+          column_name: string
+          new_srid_in: number
+        }
+        Returns: string
+      }
     }
     Enums: {
+      access_level: "no_access" | "basic" | "standard" | "full" | "admin"
       achievement_category:
         | "quit_milestone"
         | "health_improvement"
@@ -27748,6 +37898,16 @@ export type Database = {
         | "word_pairs"
         | "reaction_time"
         | "dual_n_back"
+      goal_category:
+        | "travel"
+        | "purchase"
+        | "education"
+        | "experience"
+        | "savings"
+        | "debt"
+        | "donation"
+        | "other"
+      goal_status: "active" | "achieved" | "cancelled" | "paused"
       gratitude_category:
         | "people"
         | "experiences"
@@ -27892,6 +38052,10 @@ export type Database = {
         inactive_customers: number | null
         returning_customers: number | null
       }
+      geometry_dump: {
+        path: number[] | null
+        geom: unknown | null
+      }
       pattern_summary: {
         summary: string | null
         confidence: number | null
@@ -27906,6 +38070,11 @@ export type Database = {
         daily_revenue: number[] | null
         weekly_revenue: number[] | null
         monthly_revenue: number[] | null
+      }
+      valid_detail: {
+        valid: boolean | null
+        reason: string | null
+        location: unknown | null
       }
     }
   }
