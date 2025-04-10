@@ -1,7 +1,8 @@
 
 export interface DemographicData {
   id: string;
-  age_range: string;  // Updated from age_group to match the database field
+  age_range: string;  // Keep this to match database field
+  age_group?: string; // For backward compatibility
   gender?: string;
   location?: string;
   count?: number;
@@ -14,8 +15,8 @@ export interface CampaignStat {
   campaign_id: string;
   impressions: number;
   clicks: number;
-  conversion_count?: number; // Added to match the database field name
-  conversions?: number;      // Keep this for backward compatibility
+  conversion_count?: number; // Database field name
+  conversions?: number;      // For backward compatibility
   date: string;
   created_at: string;
   spend: number;
@@ -23,7 +24,7 @@ export interface CampaignStat {
 
 export interface AdImpression {
   id: string;
-  sponsored_product_id?: string; // Added to match what comes from database
+  sponsored_product_id?: string;
   ad_id?: string;
   user_id?: string;
   timestamp?: string;
@@ -31,7 +32,7 @@ export interface AdImpression {
   clicked_at?: string;
   location?: string;
   cost?: number;
-  sponsored_products?: any; // Add a field for the joined data
+  sponsored_products?: any;
 }
 
 export interface DisplayZone {
@@ -67,4 +68,3 @@ export interface CustomerBehavior {
   };
   created_at: string;
 }
-

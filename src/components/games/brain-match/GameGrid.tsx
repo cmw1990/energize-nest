@@ -1,28 +1,33 @@
-import { Button } from "@/components/ui/button";
+
 import { TileType } from "./types";
+import { cn } from "@/lib/utils";
 
 interface GameGridProps {
   grid: TileType[];
   onTileClick: (index: number) => void;
-  isSubmitting: boolean;
+  selectedTiles: number[];
 }
 
-export const GameGrid = ({ grid, onTileClick, isSubmitting }: GameGridProps) => {
+export function GameGrid({ grid, onTileClick, selectedTiles }: GameGridProps) {
   return (
-    <div className="grid grid-cols-8 gap-2 mb-6">
+    <div className="grid grid-cols-4 gap-2 w-full h-full">
       {grid.map((tile, index) => (
-        <Button
-          key={tile.id}
+        <button
+          key={index}
           onClick={() => onTileClick(index)}
-          variant={tile.selected ? "default" : "outline"}
-          className={`h-12 text-lg transition-all ${
-            tile.matched ? 'opacity-0' : ''
-          }`}
-          disabled={tile.matched || isSubmitting}
+          disabled={tile.matched}
+          className={cn(
+            "rounded-lg flex items-center justify-center text-xl font-bold transition-all duration-300",
+            tile.matched ? "bg-primary/20 text-primary" : "bg-card hover:bg-primary/10",
+            selectedTiles.includes(index) && !tile.matched ? "bg-primary/30 scale-95" : "",
+            "border-2",
+            tile.matched ? "border-primary/30" : "border-border",
+            "shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2"
+          )}
         >
-          {tile.value}
-        </Button>
+          {tile.matched || selectedTiles.includes(index) ? tile.value : "?"}
+        </button>
       ))}
     </div>
   );
-};
+}

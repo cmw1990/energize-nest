@@ -5,7 +5,7 @@ export interface GameHeaderProps {
 }
 
 export interface GameGridProps {
-  grid: any[];
+  grid: TileType[];
   onTileClick: (index: number) => void;
   selectedTiles: number[];
 }
@@ -17,6 +17,8 @@ export interface GameFooterProps {
 }
 
 export type TileType = {
+  id?: string;
   value: number;
   matched: boolean;
+  selected?: boolean;
 };

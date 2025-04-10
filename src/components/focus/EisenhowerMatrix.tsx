@@ -1,308 +1,380 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
-import { Copy, X, Plus, Check, Clock, AlertTriangle, BrainCircuit } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { PlusCircle, ChevronRight, AlertCircle, Check, XCircle } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type Task = {
   id: string;
   title: string;
-  is_completed: boolean;
-  user_id: string;
-  urgency: 'high' | 'low';
-  importance: 'high' | 'low';
-  created_at: string;
+  status: string;
+  priority: string;
+  description?: string;
+  due_date?: string;
+};
+
+type TaskFormState = {
+  title: string;
+  priority: string;
+  description?: string;
+  due_date?: string;
 };
 
 export function EisenhowerMatrix() {
   const { session } = useAuth();
-  const queryClient = useQueryClient();
   const { toast } = useToast();
-  
+  const queryClient = useQueryClient();
+  const [newTask, setNewTask] = useState<TaskFormState>({
+    title: "",
+    priority: "important"
+  });
+  const [isAddingTask, setIsAddingTask] = useState(false);
+
+  // Fetch tasks
   const { data: tasks, isLoading } = useQuery({
-    queryKey: ['eisenhower-tasks', session?.user?.id],
+    queryKey: ["tasks", session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return [];
       
-      // Use a type cast to resolve the table name issue
-      const { data, error } = await (supabase as any)
-        .from('tasks')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error("Error fetching tasks:", error);
-        return [];
-      }
-
-      return data as Task[];
-    },
-    enabled: !!session?.user?.id,
-  });
-
-  const [newTask, setNewTask] = useState({
-    title: "",
-    urgency: "high",
-    importance: "high",
-  });
-
-  const addTask = useMutation({
-    mutationFn: async () => {
-      const { error } = await (supabase as any)
-        .from('tasks')
-        .insert([
-          {
-            title: newTask.title,
-            urgency: newTask.urgency,
-            importance: newTask.importance,
-            user_id: session?.user?.id,
-            is_completed: false,
-          },
-        ]);
-
+      const { data, error } = await supabase
+        .from("tasks")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .order("created_at", { ascending: false });
+      
       if (error) throw error;
+      return data || [];
+    },
+    enabled: !!session?.user?.id
+  });
+
+  // Add task mutation
+  const addTaskMutation = useMutation({
+    mutationFn: async (task: TaskFormState) => {
+      const { data, error } = await supabase
+        .from("tasks")
+        .insert({
+          ...task,
+          user_id: session?.user?.id,
+          status: "todo"
+        });
+      
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['eisenhower-tasks'] });
+      queryClient.invalidateQueries({ queryKey: ["tasks", session?.user?.id] });
+      setNewTask({ title: "", priority: "important" });
+      setIsAddingTask(false);
       toast({
         title: "Task added",
-        description: "Your task has been added to the matrix.",
+        description: "Your task has been added to the matrix."
       });
-      setNewTask({ title: "", urgency: "high", importance: "high" });
     },
     onError: (error) => {
       toast({
-        title: "Error",
-        description: "Failed to add task. Please try again.",
-        variant: "destructive",
+        title: "Failed to add task",
+        description: error.message,
+        variant: "destructive"
       });
-      console.error("Error adding task:", error);
-    },
+    }
   });
 
-  const updateTask = useMutation({
-    mutationFn: async (task: Task) => {
-      const { error } = await supabase
-        .from('tasks')
-        .update({ is_completed: !task.is_completed })
-        .eq('id', task.id);
-
+  // Update task status mutation
+  const updateTaskStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { data, error } = await supabase
+        .from("tasks")
+        .update({ status })
+        .eq("id", id);
+      
       if (error) throw error;
+      return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['eisenhower-tasks'] });
+      queryClient.invalidateQueries({ queryKey: ["tasks", session?.user?.id] });
     },
     onError: (error) => {
       toast({
-        title: "Error",
-        description: "Failed to update task. Please try again.",
-        variant: "destructive",
+        title: "Failed to update task",
+        description: error.message,
+        variant: "destructive"
       });
-      console.error("Error updating task:", error);
-    },
+    }
   });
 
-  const deleteTask = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from('tasks').delete().eq('id', id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['eisenhower-tasks'] });
+  const handleAddTask = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTask.title) {
       toast({
-        title: "Task deleted",
-        description: "The task has been successfully deleted.",
+        title: "Task title required",
+        description: "Please enter a title for your task.",
+        variant: "destructive"
       });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to delete task. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
+      return;
+    }
+    
+    addTaskMutation.mutate(newTask);
+  };
 
-  const urgentAndImportantTasks = tasks?.filter(
-    (task) => task.urgency === "high" && task.importance === "high"
-  );
-  const urgentButNotImportantTasks = tasks?.filter(
-    (task) => task.urgency === "high" && task.importance === "low"
-  );
-  const notUrgentButImportantTasks = tasks?.filter(
-    (task) => task.urgency === "low" && task.importance === "high"
-  );
-  const notUrgentAndNotImportantTasks = tasks?.filter(
-    (task) => task.urgency === "low" && task.importance === "low"
-  );
+  const handleToggleStatus = (task: Task) => {
+    const newStatus = task.status === "done" ? "todo" : "done";
+    updateTaskStatusMutation.mutate({ id: task.id, status: newStatus });
+  };
+
+  // Filter tasks by quadrant
+  const urgentImportant = tasks?.filter(t => t.priority === "urgent" && t.status !== "done") || [];
+  const importantNotUrgent = tasks?.filter(t => t.priority === "important" && t.status !== "done") || [];
+  const urgentNotImportant = tasks?.filter(t => t.priority === "regular" && t.status !== "done") || [];
+  const notUrgentNotImportant = tasks?.filter(t => t.priority === "low" && t.status !== "done") || [];
+  const completedTasks = tasks?.filter(t => t.status === "done") || [];
+
+  if (isLoading) {
+    return <div>Loading matrix...</div>;
+  }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <BrainCircuit className="h-5 w-5 text-primary" />
-          Eisenhower Matrix
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input
-            type="text"
-            placeholder="Add New Task"
-            value={newTask.title}
-            onChange={(e) =>
-              setNewTask({ ...newTask, title: e.target.value })
-            }
-          />
-          <Button onClick={() => addTask.mutate()} disabled={addTask.isPending}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Task
-          </Button>
-        </div>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Eisenhower Matrix</h2>
+        <Button 
+          onClick={() => setIsAddingTask(!isAddingTask)}
+          variant="outline"
+        >
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Add Task
+        </Button>
+      </div>
 
-        <Tabs defaultValue="manage" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="manage">Manage</TabsTrigger>
-            <TabsTrigger value="delegate">Delegate</TabsTrigger>
-            <TabsTrigger value="schedule">Schedule</TabsTrigger>
-            <TabsTrigger value="eliminate">Eliminate</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="manage" className="space-y-2">
-            <h3 className="text-lg font-medium">
-              Urgent and Important (Do First)
-            </h3>
-            {urgentAndImportantTasks?.map((task) => (
-              <Card key={task.id} className="p-4">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`task-${task.id}`}
-                      checked={task.is_completed}
-                      onCheckedChange={() => updateTask.mutate(task)}
-                    />
-                    <label
-                      htmlFor={`task-${task.id}`}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      {task.title}
-                    </label>
-                  </div>
+      {isAddingTask && (
+        <Card>
+          <CardContent className="pt-6">
+            <form onSubmit={handleAddTask} className="space-y-4">
+              <div className="grid gap-2">
+                <Label htmlFor="title">Task Title</Label>
+                <Input 
+                  id="title"
+                  placeholder="What needs to be done?"
+                  value={newTask.title}
+                  onChange={(e) => setNewTask({...newTask, title: e.target.value})}
+                />
+              </div>
+              
+              <div className="grid gap-2">
+                <Label>Priority</Label>
+                <div className="grid grid-cols-2 gap-2">
                   <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteTask.mutate(task.id)}
+                    type="button"
+                    variant={newTask.priority === "urgent" ? "default" : "outline"}
+                    onClick={() => setNewTask({...newTask, priority: "urgent"})}
+                    className="justify-start"
                   >
-                    <X className="h-4 w-4" />
+                    <AlertCircle className="mr-2 h-4 w-4 text-red-500" />
+                    Urgent & Important
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={newTask.priority === "important" ? "default" : "outline"}
+                    onClick={() => setNewTask({...newTask, priority: "important"})}
+                    className="justify-start"
+                  >
+                    <ChevronRight className="mr-2 h-4 w-4 text-blue-500" />
+                    Important, Not Urgent
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={newTask.priority === "regular" ? "default" : "outline"}
+                    onClick={() => setNewTask({...newTask, priority: "regular"})}
+                    className="justify-start"
+                  >
+                    <ChevronRight className="mr-2 h-4 w-4 text-yellow-500" />
+                    Urgent, Not Important
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={newTask.priority === "low" ? "default" : "outline"}
+                    onClick={() => setNewTask({...newTask, priority: "low"})}
+                    className="justify-start"
+                  >
+                    <ChevronRight className="mr-2 h-4 w-4 text-gray-500" />
+                    Not Urgent or Important
                   </Button>
                 </div>
-              </Card>
-            ))}
-          </TabsContent>
-
-          <TabsContent value="delegate" className="space-y-2">
-            <h3 className="text-lg font-medium">
-              Urgent but Not Important (Delegate)
-            </h3>
-            {urgentButNotImportantTasks?.map((task) => (
-              <Card key={task.id} className="p-4">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`task-${task.id}`}
-                      checked={task.is_completed}
-                      onCheckedChange={() => updateTask.mutate(task)}
+              </div>
+              
+              <div className="flex justify-end gap-2">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setIsAddingTask(false)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit"
+                  disabled={addTaskMutation.isPending}
+                >
+                  {addTaskMutation.isPending ? "Adding..." : "Add Task"}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Quadrant 1: Urgent & Important */}
+        <Card className="border-l-4 border-l-red-500">
+          <CardHeader>
+            <CardTitle className="flex items-center text-red-500">
+              <AlertCircle className="mr-2 h-5 w-5" />
+              Do First (Urgent & Important)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {urgentImportant.length > 0 ? (
+                urgentImportant.map(task => (
+                  <li key={task.id} className="flex items-start gap-2 p-2 hover:bg-muted/50 rounded">
+                    <Checkbox 
+                      checked={task.status === "done"}
+                      onCheckedChange={() => handleToggleStatus(task)}
                     />
-                    <label
-                      htmlFor={`task-${task.id}`}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
+                    <div className="flex-1 truncate">
                       {task.title}
-                    </label>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteTask.mutate(task.id)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </Card>
-            ))}
-          </TabsContent>
-
-          <TabsContent value="schedule" className="space-y-2">
-            <h3 className="text-lg font-medium">
-              Not Urgent but Important (Schedule)
-            </h3>
-            {notUrgentButImportantTasks?.map((task) => (
-              <Card key={task.id} className="p-4">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`task-${task.id}`}
-                      checked={task.is_completed}
-                      onCheckedChange={() => updateTask.mutate(task)}
+                    </div>
+                  </li>
+                ))
+              ) : (
+                <p className="text-muted-foreground text-sm">No urgent and important tasks.</p>
+              )}
+            </ul>
+          </CardContent>
+        </Card>
+        
+        {/* Quadrant 2: Important, Not Urgent */}
+        <Card className="border-l-4 border-l-blue-500">
+          <CardHeader>
+            <CardTitle className="flex items-center text-blue-500">
+              <ChevronRight className="mr-2 h-5 w-5" />
+              Schedule (Important, Not Urgent)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {importantNotUrgent.length > 0 ? (
+                importantNotUrgent.map(task => (
+                  <li key={task.id} className="flex items-start gap-2 p-2 hover:bg-muted/50 rounded">
+                    <Checkbox 
+                      checked={task.status === "done"}
+                      onCheckedChange={() => handleToggleStatus(task)}
                     />
-                    <label
-                      htmlFor={`task-${task.id}`}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
+                    <div className="flex-1 truncate">
                       {task.title}
-                    </label>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteTask.mutate(task.id)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </Card>
-            ))}
-          </TabsContent>
-
-          <TabsContent value="eliminate" className="space-y-2">
-            <h3 className="text-lg font-medium">
-              Not Urgent and Not Important (Eliminate)
-            </h3>
-            {notUrgentAndNotImportantTasks?.map((task) => (
-              <Card key={task.id} className="p-4">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`task-${task.id}`}
-                      checked={task.is_completed}
-                      onCheckedChange={() => updateTask.mutate(task)}
+                    </div>
+                  </li>
+                ))
+              ) : (
+                <p className="text-muted-foreground text-sm">No important, not urgent tasks.</p>
+              )}
+            </ul>
+          </CardContent>
+        </Card>
+        
+        {/* Quadrant 3: Urgent, Not Important */}
+        <Card className="border-l-4 border-l-yellow-500">
+          <CardHeader>
+            <CardTitle className="flex items-center text-yellow-500">
+              <ChevronRight className="mr-2 h-5 w-5" />
+              Delegate (Urgent, Not Important)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {urgentNotImportant.length > 0 ? (
+                urgentNotImportant.map(task => (
+                  <li key={task.id} className="flex items-start gap-2 p-2 hover:bg-muted/50 rounded">
+                    <Checkbox 
+                      checked={task.status === "done"}
+                      onCheckedChange={() => handleToggleStatus(task)}
                     />
-                    <label
-                      htmlFor={`task-${task.id}`}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
+                    <div className="flex-1 truncate">
                       {task.title}
-                    </label>
+                    </div>
+                  </li>
+                ))
+              ) : (
+                <p className="text-muted-foreground text-sm">No urgent, not important tasks.</p>
+              )}
+            </ul>
+          </CardContent>
+        </Card>
+        
+        {/* Quadrant 4: Not Urgent, Not Important */}
+        <Card className="border-l-4 border-l-gray-500">
+          <CardHeader>
+            <CardTitle className="flex items-center text-gray-500">
+              <ChevronRight className="mr-2 h-5 w-5" />
+              Eliminate (Not Urgent or Important)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {notUrgentNotImportant.length > 0 ? (
+                notUrgentNotImportant.map(task => (
+                  <li key={task.id} className="flex items-start gap-2 p-2 hover:bg-muted/50 rounded">
+                    <Checkbox 
+                      checked={task.status === "done"}
+                      onCheckedChange={() => handleToggleStatus(task)}
+                    />
+                    <div className="flex-1 truncate">
+                      {task.title}
+                    </div>
+                  </li>
+                ))
+              ) : (
+                <p className="text-muted-foreground text-sm">No tasks in this category.</p>
+              )}
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
+      
+      {/* Completed Tasks */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Check className="mr-2 h-5 w-5 text-green-500" />
+            Completed Tasks
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="space-y-2">
+            {completedTasks.length > 0 ? (
+              completedTasks.map(task => (
+                <li key={task.id} className="flex items-start gap-2 p-2 hover:bg-muted/50 rounded text-muted-foreground line-through">
+                  <Checkbox 
+                    checked={true}
+                    onCheckedChange={() => handleToggleStatus(task)}
+                  />
+                  <div className="flex-1 truncate">
+                    {task.title}
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteTask.mutate(task.id)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </Card>
-            ))}
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+                </li>
+              ))
+            ) : (
+              <p className="text-muted-foreground text-sm">No completed tasks yet.</p>
+            )}
+          </ul>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
