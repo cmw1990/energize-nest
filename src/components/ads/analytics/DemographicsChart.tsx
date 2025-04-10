@@ -2,12 +2,11 @@
 import React from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
-import { DemographicData } from '@/types/supabase'
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
 
 interface DemographicsChartProps {
-  demographics: DemographicData[]
+  demographics: any[]
 }
 
 export function DemographicsChart({ demographics }: DemographicsChartProps) {

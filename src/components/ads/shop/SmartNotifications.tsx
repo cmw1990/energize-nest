@@ -1,126 +1,93 @@
 
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
-import { Users, TrendingUp, MessageCircle } from 'lucide-react';
-import { CustomerBehavior } from "@/types/ConsultationTypes";
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+import React from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { supabase } from "@/integrations/supabase/client"
+import { useAuth } from "@/components/AuthProvider"
+import { useQuery } from "@tanstack/react-query"
+import { Json } from '@/types/supabase'
+import { CustomerBehavior } from '@/types/DemographicData'
 
 export function SmartNotifications() {
-  const { data: customerData } = useQuery({
-    queryKey: ['customer-behavior-analysis'],
+  const { session } = useAuth()
+  
+  const { data: behavior } = useQuery<CustomerBehavior>({
+    queryKey: ['customer-behavior', session?.user?.id],
     queryFn: async () => {
-      const { data } = await supabase
-        .from('customer_behavior_analysis')
+      const { data, error } = await supabase
+        .from('customer_behavior')
         .select('*')
-        .single();
+        .eq('vendor_id', session?.user?.id)
+        .single()
+      
+      if (error) throw error
+      
+      // Cast the data to the appropriate structure
+      return data as CustomerBehavior
+    },
+    enabled: !!session?.user?.id
+  })
 
-      if (!data) return null;
+  const recommendations = React.useMemo(() => {
+    if (!behavior) return []
+    
+    const patterns = []
+    
+    // Safely access nested properties with optional chaining
+    const activeUsers = behavior.behavior_patterns?.active_users || 0
+    const engagementRate = behavior.behavior_patterns?.engagement_rate || 0
+    const responseRate = behavior.behavior_patterns?.response_rate || 0
+    const peakHoursCount = behavior.behavior_patterns?.peak_hours?.length || 0
+    const segments = behavior.behavior_patterns?.segments || []
+    
+    // Customer segments
+    const newCustomers = behavior.customer_segments?.new || 0
+    const returningCustomers = behavior.customer_segments?.returning || 0
+    const inactiveCustomers = behavior.customer_segments?.inactive || 0
+    
+    // Revenue trends
+    const dailyTrends = behavior.revenue_trends?.daily || []
+    const weeklyTrends = behavior.revenue_trends?.weekly || []
+    const monthlyTrends = behavior.revenue_trends?.monthly || []
 
-      // Handle the Json type properly by safely accessing properties
-      const behaviorPatterns = typeof data.behavior_patterns === 'object' ? data.behavior_patterns : {};
-      const customerSegments = typeof data.customer_segments === 'object' ? data.customer_segments : {};
-      const revenueTrends = typeof data.revenue_trends === 'object' ? data.revenue_trends : {};
-
-      // Transform the data to match CustomerBehavior type with proper type checking
-      return {
-        id: data.id,
-        vendor_id: data.vendor_id,
-        behavior_patterns: {
-          active_users: Number(behaviorPatterns?.active_users) || 0,
-          engagement_rate: Number(behaviorPatterns?.engagement_rate) || 0,
-          response_rate: Number(behaviorPatterns?.response_rate) || 0,
-          peak_hours: Array.isArray(behaviorPatterns?.peak_hours) ? behaviorPatterns.peak_hours : [],
-          segments: Array.isArray(behaviorPatterns?.segments) ? behaviorPatterns.segments : []
-        },
-        customer_segments: {
-          new: Number(customerSegments?.new) || 0,
-          returning: Number(customerSegments?.returning) || 0,
-          inactive: Number(customerSegments?.inactive) || 0
-        },
-        revenue_trends: {
-          daily: Array.isArray(revenueTrends?.daily) ? revenueTrends.daily : [],
-          weekly: Array.isArray(revenueTrends?.weekly) ? revenueTrends.weekly : [],
-          monthly: Array.isArray(revenueTrends?.monthly) ? revenueTrends.monthly : []
-        },
-        created_at: data.created_at
-      } as CustomerBehavior;
+    // Generate recommendations based on patterns
+    if (engagementRate < 0.3) {
+      patterns.push("Low engagement rate. Consider posting more engaging content.")
     }
-  });
+    
+    if (responseRate < 0.4) {
+      patterns.push("Response rate is low. Try improving customer service response times.")
+    }
+    
+    if (inactiveCustomers > returningCustomers) {
+      patterns.push("High ratio of inactive customers. Launch a re-engagement campaign.")
+    }
+    
+    if (peakHoursCount > 0) {
+      patterns.push(`Schedule posts during peak hours: ${behavior.behavior_patterns.peak_hours.join(', ')}.`)
+    }
+    
+    if (patterns.length === 0) {
+      patterns.push("Your shop is performing well! Keep up the good work.")
+    }
+    
+    return patterns
+  }, [behavior])
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      <Card>
-        <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-          <div className="w-full">
-            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-          </div>
-          <Users className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {customerData?.behavior_patterns?.active_users || 0}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-          <div className="w-full">
-            <CardTitle className="text-sm font-medium">Engagement Rate</CardTitle>
-          </div>
-          <TrendingUp className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {customerData?.behavior_patterns?.engagement_rate || 0}%
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-          <div className="w-full">
-            <CardTitle className="text-sm font-medium">Response Rate</CardTitle>
-          </div>
-          <MessageCircle className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {customerData?.behavior_patterns?.response_rate || 0}%
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="col-span-full">
-        <CardHeader>
-          <CardTitle>Segment Distribution</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={customerData?.behavior_patterns?.segments || []}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  label
-                >
-                  {customerData?.behavior_patterns?.segments?.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+    <Card>
+      <CardHeader>
+        <CardTitle>Smart Recommendations</CardTitle>
+        <CardDescription>AI-powered suggestions to improve your shop</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ul className="space-y-2">
+          {recommendations.map((recommendation, index) => (
+            <li key={index} className="p-3 bg-muted/40 rounded-md">
+              {recommendation}
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
+  )
 }

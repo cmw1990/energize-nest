@@ -319,11 +319,11 @@ export type UserLifeSituationRow = Database['public']['Tables']['user_life_situa
 }
 
 export type PregnancyWellnessCorrelationsRow = {
-  id: string
-  user_id: string
-  date: string
-  wellness_score?: number
-  correlation_factors?: Json
+  id: string;
+  user_id: string;
+  date: string;
+  wellness_score?: number;
+  correlation_factors?: Json;
   energy_pattern?: {
     summary: string;
     confidence: number;
@@ -369,6 +369,7 @@ export type MoodJournalEntry = {
   gratitude_points?: string[]
   anxiety_level?: number
   energy_level?: number
+  sleep_quality?: number
 }
 
 export type CopingStrategy = {

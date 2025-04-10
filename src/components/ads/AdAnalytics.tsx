@@ -1,3 +1,4 @@
+
 import React from 'react'
 import { useQuery } from "@tanstack/react-query"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -5,7 +6,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/components/AuthProvider"
 import { ChartBar, Users, Clock, Eye } from 'lucide-react'
-import { DemographicData } from '@/types/supabase'
+import { DemographicData } from '@/types/DemographicData'
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
 
@@ -55,7 +56,7 @@ export function AdAnalytics() {
     enabled: !!campaigns?.length
   })
 
-  const { data: demographics } = useQuery<DemographicData[]>({
+  const { data: demographics } = useQuery<any[]>({
     queryKey: ['ad-demographics', analytics?.map(a => a.id)],
     queryFn: async () => {
       if (!analytics?.length) return []
@@ -66,7 +67,7 @@ export function AdAnalytics() {
         .in('impression_id', analytics.map(a => a.id))
       
       if (error) throw error
-      return data as DemographicData[]
+      return data || []
     },
     enabled: !!analytics?.length
   })

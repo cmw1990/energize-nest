@@ -1,32 +1,35 @@
+
+import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Brain, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 
 interface GameHeaderProps {
   score: number;
-  onNewGame: () => void;
-  isSubmitting: boolean;
+  onReset?: () => void;
+  onNewGame?: () => void;
+  isSubmitting?: boolean;
 }
 
-export const GameHeader = ({ score, onNewGame, isSubmitting }: GameHeaderProps) => {
+export function GameHeader({ score, onReset, onNewGame, isSubmitting = false }: GameHeaderProps) {
+  // Use whichever function is provided
+  const handleReset = onReset || onNewGame;
+  
   return (
-    <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-      <div className="flex items-center gap-3">
-        <div className="p-2 bg-primary/10 rounded-full">
-          <Brain className="h-5 w-5 text-primary" />
-        </div>
-        <h2 className="text-2xl font-bold">Brain Match 3</h2>
+    <div className="flex justify-between items-center">
+      <div>
+        <h3 className="text-lg font-semibold">Score</h3>
+        <p className="text-3xl font-bold">{score}</p>
       </div>
-      <div className="flex items-center gap-4">
-        <div className="text-lg font-semibold">Score: {score}</div>
-        <Button 
-          onClick={onNewGame}
-          variant="outline"
-          size="icon"
-          disabled={isSubmitting}
-        >
-          <RefreshCw className="h-4 w-4" />
-        </Button>
-      </div>
+      
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={handleReset} 
+        disabled={isSubmitting}
+      >
+        <RefreshCw className="mr-2 h-4 w-4" />
+        New Game
+      </Button>
     </div>
   );
-};
+}

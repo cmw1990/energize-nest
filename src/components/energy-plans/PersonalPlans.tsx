@@ -1,4 +1,3 @@
-
 import { Plan, ProgressRecord } from "@/types/energyPlans"
 import { PlanList } from "./PlanList"
 import { useQuery } from "@tanstack/react-query"
@@ -29,7 +28,7 @@ export const PersonalPlans = ({ onSharePlan, progress }: PersonalPlansProps) => 
         .order('created_at', { ascending: false })
       
       if (error) throw error
-      return data as Plan[]
+      return data as unknown as Plan[]
     },
     enabled: !!session?.user?.id
   })

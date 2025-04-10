@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Baby, Calendar, Activity, Brain, Heart, Moon, Sun, Droplet, Loader2, Plus } from "lucide-react"
@@ -67,7 +66,8 @@ const PregnancyPage = () => {
         })
         throw error
       }
-      return data
+      // Cast to any to avoid type errors
+      return data as any
     },
     enabled: !!session?.user?.id
   })
@@ -177,7 +177,7 @@ const PregnancyPage = () => {
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
           ) : (
-            <PregnancyWellnessAnalysis correlations={wellnessCorrelations} />
+            <PregnancyWellnessAnalysis correlations={wellnessCorrelations as any} />
           )}
         </TabsContent>
 

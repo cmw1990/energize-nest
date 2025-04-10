@@ -5,17 +5,18 @@ import { cn } from "@/lib/utils";
 interface GameGridProps {
   grid: TileType[];
   onTileClick: (index: number) => void;
-  selectedTiles: number[];
+  selectedTiles?: number[];
+  isSubmitting?: boolean;
 }
 
-export function GameGrid({ grid, onTileClick, selectedTiles }: GameGridProps) {
+export function GameGrid({ grid, onTileClick, selectedTiles = [], isSubmitting = false }: GameGridProps) {
   return (
     <div className="grid grid-cols-4 gap-2 w-full h-full">
       {grid.map((tile, index) => (
         <button
           key={index}
           onClick={() => onTileClick(index)}
-          disabled={tile.matched}
+          disabled={tile.matched || isSubmitting}
           className={cn(
             "rounded-lg flex items-center justify-center text-xl font-bold transition-all duration-300",
             tile.matched ? "bg-primary/20 text-primary" : "bg-card hover:bg-primary/10",

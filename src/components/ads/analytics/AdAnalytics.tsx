@@ -3,7 +3,6 @@ import React from 'react'
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/components/AuthProvider"
-import { DemographicData, CampaignStat, AdImpression } from '@/types/supabase'
 import { CampaignMetrics } from './CampaignMetrics'
 import { CampaignPerformanceChart } from './CampaignPerformanceChart'
 import { DemographicsChart } from './DemographicsChart'
@@ -26,7 +25,7 @@ export function AdAnalytics() {
     enabled: !!session?.user?.id
   })
 
-  const { data: analytics, isLoading } = useQuery<AdImpression[]>({
+  const { data: analytics, isLoading } = useQuery<any[]>({
     queryKey: ['ad-analytics', campaigns?.map(c => c.id)],
     queryFn: async () => {
       if (!campaigns?.length) return []
@@ -51,12 +50,12 @@ export function AdAnalytics() {
         .order('impressed_at', { ascending: true })
       
       if (error) throw error
-      return data as AdImpression[]
+      return data || []
     },
     enabled: !!campaigns?.length
   })
 
-  const { data: campaignStats } = useQuery<CampaignStat[]>({
+  const { data: campaignStats } = useQuery<any[]>({
     queryKey: ['campaign-stats', campaigns?.map(c => c.id)],
     queryFn: async () => {
       if (!campaigns?.length) return []
@@ -72,7 +71,7 @@ export function AdAnalytics() {
     enabled: !!campaigns?.length
   })
 
-  const { data: demographics } = useQuery<DemographicData[]>({
+  const { data: demographics } = useQuery<any[]>({
     queryKey: ['ad-demographics', analytics?.map(a => a.id)],
     queryFn: async () => {
       if (!analytics?.length) return []

@@ -1,4 +1,3 @@
-
 import { Plan, PlanCategory, ProgressRecord, LifeSituation } from "@/types/energyPlans";
 import { PlanList } from "./PlanList";
 import { useQuery } from "@tanstack/react-query";
@@ -33,7 +32,7 @@ export const PlanDiscovery = ({
   const { session } = useAuth();
 
   // Fetch public plans
-  const { data: publicPlans, isLoading: isLoadingPublic } = useQuery({
+  const { data: publicPlans, isLoading: isLoadingPublic } = useQuery<Plan[]>({
     queryKey: ['energy-plans', 'public', selectedCategory, currentCyclePhase],
     queryFn: async () => {
       let query = supabase
@@ -61,7 +60,7 @@ export const PlanDiscovery = ({
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as Plan[];
+      return data as unknown as Plan[];
     },
     enabled: !!session?.user?.id
   });

@@ -40,3 +40,16 @@ export interface TasksTable {
 export interface CustomTables {
   tasks: TasksTable;
 }
+
+// Add a Task type for easier consumption
+export type Task = {
+  id: string;
+  user_id: string;
+  title: string;
+  description?: string;
+  due_date?: string;
+  priority: string; // 'urgent', 'important', 'regular', 'low'
+  status: string; // 'todo', 'in-progress', 'done'
+  created_at: string;
+  updated_at?: string;
+};

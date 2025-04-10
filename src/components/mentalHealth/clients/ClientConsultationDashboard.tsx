@@ -7,7 +7,6 @@ import { Calendar, Package } from "lucide-react";
 import { ConsultationPackages } from "@/components/mentalHealth/packages/ConsultationPackages";
 import type { ConsultationSession } from "@/types/ConsultationTypes";
 
-// Remove the conflicting PackagePurchase import and use the type directly
 interface PackagePurchaseType {
   id: string;
   package_id: string;
@@ -87,16 +86,22 @@ export function ClientConsultationDashboard() {
           <CardContent className="space-y-4">
             {upcomingSessions?.length ? (
               upcomingSessions.map((session) => (
-                <div key={session.id} className="flex justify-between items-center">
-                  <div>
-                    <p className="font-medium">{session.professional.full_name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(session.session_date).toLocaleString()}
-                    </p>
+                <div key={session.id} className="p-4 border rounded-lg">
+                  <div className="mb-2">
+                    <h3 className="font-medium">Session on {new Date(session.session_date).toLocaleDateString()}</h3>
+                    <p className="text-sm text-muted-foreground">Professional ID: {session.professional_id}</p>
                   </div>
-                  <Button variant="outline" size="sm">
-                    Join
-                  </Button>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-medium">{session.professional.full_name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(session.session_date).toLocaleString()}
+                      </p>
+                    </div>
+                    <Button variant="outline" size="sm">
+                      Join
+                    </Button>
+                  </div>
                 </div>
               ))
             ) : (

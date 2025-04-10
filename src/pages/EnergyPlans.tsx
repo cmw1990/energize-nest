@@ -19,6 +19,7 @@ import type { Plan, PlanCategory, ProgressRecord } from "@/types/energyPlans"
 import type { Database } from "@/types/supabase"
 
 type UserLifeSituationRow = Database['public']['Tables']['user_life_situations']['Row']
+type UserLifeSituation = Database['public']['Tables']['user_life_situations']['Row'] & { is_active: boolean }
 
 const EnergyPlans = () => {
   const { session } = useAuth()
@@ -28,19 +29,24 @@ const EnergyPlans = () => {
   const [showLifeSituationDialog, setShowLifeSituationDialog] = useState(false)
   const queryClient = useQueryClient()
 
-  const { data: lifeSituation } = useQuery({
+  const { data: lifeSituation } = useQuery<UserLifeSituation>({
     queryKey: ['user-life-situation', session?.user?.id],
     queryFn: async () => {
-      if (!session?.user?.id) return null
-      
       const { data, error } = await supabase
         .from('user_life_situations')
         .select('*')
         .eq('user_id', session.user.id)
-        .maybeSingle()
+        .eq('is_active', true)
+        .single()
       
-      if (error) throw error
-      return data as UserLifeSituationRow | null
+      if (error) {
+        if (error.code !== 'PGRST116') { // No rows returned
+          console.error('Error fetching life situation:', error)
+        }
+        return null
+      }
+      
+      return data as unknown as UserLifeSituation
     },
     enabled: !!session?.user?.id
   })
@@ -71,7 +77,7 @@ const EnergyPlans = () => {
           energy_plan_components (*)
         `)
         .eq('is_expert_plan', true)
-        .order('created_at', { ascending: false })
+        .limit(6)
       
       if (error) throw error
       return data as Plan[]
@@ -175,6 +181,36 @@ const EnergyPlans = () => {
     }
   })
 
+  const handleCreatePlan = async () => {
+    if (!session?.user?.id) return
+    
+    try {
+      const { data, error } = await supabase
+        .from('energy_plans')
+        .insert({
+          user_id: session.user.id,
+          plan_name: `My Plan ${Math.floor(Math.random() * 1000)}`,
+          plan_type: 'custom',
+          duration_minutes: 30,
+          activities: {}
+        })
+        .select()
+        .single()
+      
+      if (error) throw error
+      
+      // Redirect to the editor
+      navigate(`/energy-plans/${data.id}/edit`)
+    } catch (error) {
+      console.error('Error creating plan:', error)
+      toast({
+        title: "Error",
+        description: "Failed to create new plan",
+        variant: "destructive"
+      })
+    }
+  }
+
   return (
     <div className="container max-w-6xl mx-auto p-6 space-y-8">
       <div className="flex items-center justify-between">
@@ -199,7 +235,7 @@ const EnergyPlans = () => {
               <div className="space-y-4 py-4">
                 <RadioGroup 
                   onValueChange={(value) => updateLifeSituationMutation.mutate(value as UserLifeSituationRow['situation'])}
-                  defaultValue={lifeSituation?.situation || "regular"}
+                  defaultValue={lifeSituation?.situation || "Regular"}
                   className="gap-4"
                 >
                   <div className="flex items-center space-x-2 rounded-lg border p-4 hover:bg-accent">
@@ -241,9 +277,7 @@ const EnergyPlans = () => {
             selectedCategory={selectedCategory}
             onCategoryChange={setSelectedCategory}
           />
-          <NewPlanDialog onPlanCreated={() => {
-            queryClient.invalidateQueries({ queryKey: ['energy-plans'] })
-          }} />
+          <NewPlanDialog onPlanCreated={handleCreatePlan} />
         </div>
       </div>
 

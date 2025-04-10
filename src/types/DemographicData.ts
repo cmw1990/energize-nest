@@ -1,7 +1,7 @@
 
 export interface DemographicData {
   id: string;
-  age_range: string;  // Keep this to match database field
+  age_range: string;  // Primary field from database
   age_group?: string; // For backward compatibility
   gender?: string;
   location?: string;
@@ -15,7 +15,7 @@ export interface CampaignStat {
   campaign_id: string;
   impressions: number;
   clicks: number;
-  conversion_count?: number; // Database field name
+  conversion_count: number; // Database field name
   conversions?: number;      // For backward compatibility
   date: string;
   created_at: string;

@@ -76,13 +76,20 @@ const Focus = () => {
 
     try {
       const { data, error } = await supabase
-        .from('body_doubling_sessions')
-        .select('*')
-        .eq('status', 'active')
-        .order('start_time', { ascending: true });
+        .from("body_doubling_sessions")
+        .select("*")
+        .eq("status", "active")
+        .order("scheduled_start_time", { ascending: true });
 
       if (error) throw error;
-      setActiveSessions(data || []);
+
+      const sessionsWithHostIds = data.map((session) => ({
+        ...session,
+        host_id: session.host_user_id,
+        start_time: session.scheduled_start_time,
+      }));
+
+      setActiveSessions(sessionsWithHostIds);
     } catch (error) {
       console.error('Error loading sessions:', error);
       toast({

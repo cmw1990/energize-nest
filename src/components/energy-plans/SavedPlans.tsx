@@ -1,4 +1,3 @@
-
 import { Plan, ProgressRecord } from "@/types/energyPlans"
 import { PlanList } from "./PlanList"
 import { useQuery } from "@tanstack/react-query"
@@ -30,7 +29,14 @@ export const SavedPlans = ({ progress }: SavedPlansProps) => {
         .eq('user_id', session.user.id)
       
       if (error) throw error
-      return data.map(item => item.energy_plans) as Plan[]
+      
+      if (!data || data.length === 0) return []
+      
+      const plans = data
+        .filter(item => item.energy_plans)
+        .map(item => item.energy_plans) as unknown as Plan[]
+      
+      return plans
     },
     enabled: !!session?.user?.id
   })

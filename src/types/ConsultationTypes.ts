@@ -79,6 +79,8 @@ export interface ConsultationSession {
   status: string;
   created_at: string;
   updated_at?: string;
+  professional?: string; // Added for compatibility
+  meeting_link?: string; // Added for compatibility
 }
 
 export interface PackagePurchase {
@@ -100,6 +102,10 @@ export interface TreatmentPlan {
   goals: string[];
   created_at: string;
   updated_at?: string;
+  status?: string; // Added for compatibility
+  start_date?: string; // Added for compatibility
+  end_date?: string; // Added for compatibility
+  interventions?: any[]; // Added for compatibility
 }
 
 export interface ClientGoal {
@@ -112,4 +118,5 @@ export interface ClientGoal {
   target_date?: string;
   created_at: string;
   updated_at?: string;
+  progress?: number; // Added for compatibility
 }

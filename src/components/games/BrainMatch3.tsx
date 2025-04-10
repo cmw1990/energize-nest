@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -12,7 +13,7 @@ const BrainMatch3 = () => {
   const { session } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { grid, score, handleTileClick, initializeGrid } = useGameLogic();
+  const { grid, score, handleTileClick, initializeGrid, selectedTiles = [] } = useGameLogic();
 
   const saveScore = async () => {
     if (!session?.user?.id || score === 0) return;
@@ -57,6 +58,7 @@ const BrainMatch3 = () => {
       <GameGrid 
         grid={grid}
         onTileClick={handleTileClick}
+        selectedTiles={selectedTiles}
         isSubmitting={isSubmitting}
       />
       <GameFooter 

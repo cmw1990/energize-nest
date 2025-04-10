@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -61,9 +60,12 @@ export function EisenhowerMatrix() {
       const { data, error } = await supabase
         .from("tasks")
         .insert({
-          ...task,
           user_id: session?.user?.id,
-          status: "todo"
+          status: "todo",
+          title: task.title,
+          priority: task.priority.toString(),
+          description: task.description,
+          due_date: task.due_date,
         });
       
       if (error) throw error;

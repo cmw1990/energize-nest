@@ -24,7 +24,7 @@ export default function BrainMatchGame() {
       
       // Create the entry with the game_type, score, and optional metadata
       const { error } = await supabase
-        .from('game_scores')
+        .from('brain_game_scores') // Changed to a table that exists in the database
         .insert({
           user_id: user?.id,
           game_type: 'brain_match',
@@ -67,7 +67,7 @@ export default function BrainMatchGame() {
         <div className="flex flex-col space-y-6">
           <GameHeader 
             score={score} 
-            onReset={initializeGrid} 
+            onNewGame={initializeGrid} 
           />
           
           <div className="aspect-square w-full max-w-lg mx-auto">

@@ -13,7 +13,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useAuth } from "@/components/AuthProvider"
 import { AdTierSelector } from './AdTierSelector'
 import { AdPreview } from './AdPreview'
-import { DisplayZone } from '@/types/supabase'
+import { DisplayZone } from '@/types/DemographicData'
 
 const campaignFormSchema = z.object({
   productId: z.string().uuid(),
@@ -47,7 +47,7 @@ export function AdCampaignForm() {
     enabled: !!session?.user?.id
   })
 
-  const { data: displayZones } = useQuery<DisplayZone[]>({
+  const { data: displayZones } = useQuery<any[]>({
     queryKey: ['ad-display-zones'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -56,7 +56,7 @@ export function AdCampaignForm() {
         .order('price_multiplier', { ascending: true })
 
       if (error) throw error
-      return data as DisplayZone[]
+      return data || []
     }
   })
 
@@ -88,8 +88,8 @@ export function AdCampaignForm() {
       
       // Get price multiplier based on tier and placement
       const zone = displayZones?.find(z => z.zone_type === values.placementType)
-      const tierMultiplier = values.tier === 'premium' ? 2 : values.tier === 'pro' ? 1.5 : 1
-      const adjustedCpc = values.cpc * (zone?.price_multiplier || 1) * tierMultiplier
+      const tierMultiplier = values.tier === 'premium' ? 2 : values.tier === 'pro' ? 1.5 : if (zone?.price_multiplier !== undefined) ? zone.price_multiplier : 1
+      const adjustedCpc = values.cpc * tierMultiplier
 
       const { error } = await supabase.from('sponsored_products').insert({
         product_id: values.productId,

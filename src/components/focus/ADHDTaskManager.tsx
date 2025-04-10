@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -82,6 +81,7 @@ export function ADHDTaskManager() {
           ...taskData,
           user_id: session?.user?.id,
           status: "todo",
+          priority: taskData.priority.toString(),
         });
       
       if (error) throw error;
@@ -114,7 +114,10 @@ export function ADHDTaskManager() {
     mutationFn: async (task: Task) => {
       const { error } = await supabase
         .from("tasks")
-        .update(task)
+        .update({
+          ...task,
+          priority: task.priority.toString(),
+        })
         .eq("id", task.id);
       
       if (error) throw error;
@@ -267,9 +270,9 @@ export function ADHDTaskManager() {
                 <div className="flex gap-2">
                   <Button
                     type="button"
-                    variant={newTask.priority === "high" ? "default" : "outline"}
+                    variant={newTask.priority === "high" || newTask.priority === "High" ? "default" : "outline"}
                     onClick={() => setNewTask({ ...newTask, priority: "high" })}
-                    className={newTask.priority === "high" ? "bg-red-500 hover:bg-red-600" : ""}
+                    className={newTask.priority === "high" || newTask.priority === "High" ? "bg-red-500 hover:bg-red-600" : ""}
                   >
                     High
                   </Button>
@@ -353,9 +356,9 @@ export function ADHDTaskManager() {
                 <div className="flex gap-2">
                   <Button
                     type="button"
-                    variant={editingTask.priority === "high" ? "default" : "outline"}
+                    variant={editingTask.priority === "high" || editingTask.priority === "High" ? "default" : "outline"}
                     onClick={() => setEditingTask({ ...editingTask, priority: "high" })}
-                    className={editingTask.priority === "high" ? "bg-red-500 hover:bg-red-600" : ""}
+                    className={editingTask.priority === "high" || editingTask.priority === "High" ? "bg-red-500 hover:bg-red-600" : ""}
                   >
                     High
                   </Button>
@@ -466,14 +469,14 @@ export function ADHDTaskManager() {
                         <div className="flex items-center">
                           <span
                             className={`text-xs px-2 py-0.5 rounded-full ${
-                              task.priority === "high"
+                              task.priority === "high" || task.priority === "High"
                                 ? "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
                                 : task.priority === "medium"
                                 ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300"
                                 : "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
                             }`}
                           >
-                            {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)} Priority
+                            ${task.priority.toString().charAt(0).toUpperCase()}${task.priority.toString().slice(1)} Priority
                           </span>
                         </div>
                       </div>

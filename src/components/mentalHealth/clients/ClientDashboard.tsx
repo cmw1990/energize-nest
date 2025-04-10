@@ -52,7 +52,7 @@ export function ClientDashboard() {
     enabled: !!session?.user?.id
   });
 
-const { data: activePurchases } = useQuery({
+  const { data: activePurchases } = useQuery({
     queryKey: ['active-packages', session?.user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -187,17 +187,7 @@ const { data: activePurchases } = useQuery({
                       {new Date(session.session_date).toLocaleString()}
                     </p>
                   </div>
-                  {session.meeting_link && (
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        window.open(session.meeting_link, '_blank');
-                      }}
-                    >
-                      Join
-                    </Button>
-                  )}
+                  {session.meeting_link || "No meeting link available"}
                 </div>
               ))
             ) : (

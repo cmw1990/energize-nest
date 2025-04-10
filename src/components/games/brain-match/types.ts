@@ -1,13 +1,16 @@
 
 export interface GameHeaderProps {
   score: number;
-  onReset: () => void;
+  onReset?: () => void;
+  onNewGame?: () => void;
+  isSubmitting?: boolean;
 }
 
 export interface GameGridProps {
   grid: TileType[];
   onTileClick: (index: number) => void;
-  selectedTiles: number[];
+  selectedTiles?: number[];
+  isSubmitting?: boolean;
 }
 
 export interface GameFooterProps {

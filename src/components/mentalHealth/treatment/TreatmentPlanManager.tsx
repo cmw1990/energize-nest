@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -321,17 +320,19 @@ export function TreatmentPlanManager({ clientId }: TreatmentPlanManagerProps) {
 
               <div className="space-y-4">
                 <h3 className="font-medium">Interventions</h3>
-                <div className="space-y-4">
-                  {plan.interventions.map((intervention, index) => (
-                    <div key={index} className="space-y-1">
-                      <h4 className="font-medium">{intervention.type}</h4>
-                      <p className="text-sm text-muted-foreground">{intervention.description}</p>
-                      {intervention.frequency && (
-                        <p className="text-sm">Frequency: {intervention.frequency}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                {plan.interventions && Array.isArray(plan.interventions) ? (
+                  <div>
+                    <h4 className="text-sm font-medium mb-1">Interventions</h4>
+                    <ul className="list-disc pl-5">
+                      {plan.interventions.map((item: any, index: number) => (
+                        <li key={index}>
+                          {typeof item === 'string' ? item : 
+                           (item.title || item.name || 'Intervention')}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
               </div>
             </CardContent>
           </Card>
