@@ -42,6 +42,32 @@ export interface Database {
           metadata?: Json
         }
       }
+      game_scores: {  // Added to fix BrainMatchGame.tsx error
+        Row: {
+          id: string
+          user_id?: string
+          game_type: string
+          score: number
+          metadata?: Json
+          created_at?: string
+        }
+        Insert: {
+          id?: string
+          user_id?: string
+          game_type: string
+          score: number
+          metadata?: Json
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          game_type?: string
+          score?: number
+          metadata?: Json
+          created_at?: string
+        }
+      }
       user_settings: {
         Row: {
           id: string
@@ -286,63 +312,90 @@ export interface Database {
   }
 }
 
-export type UserLifeSituationRow = Database['public']['Tables']['user_life_situations']['Row']
+export type UserLifeSituationRow = Database['public']['Tables']['user_life_situations']['Row'] & {
+  situation?: string; // Add for backward compatibility
+  started_at?: string; // Add for backward compatibility
+  notes?: string; // Add for backward compatibility
+}
+
 export type PregnancyWellnessCorrelationsRow = {
   id: string
   user_id: string
   date: string
-  wellness_score: number
-  correlation_factors: Json
-  energy_pattern: {
+  wellness_score?: number
+  correlation_factors?: Json
+  energy_pattern?: {
     summary: string;
     confidence: number;
     last_updated: string;
   };
-  focus_pattern: {
+  focus_pattern?: {
     summary: string;
     confidence: number;
     last_updated: string;
   };
-  activity_impact: {
-    score: number;
-    factors: string[];
-    recommendations: string[];
-  };
-  nutrition_impact: {
-    score: number;
-    factors: string[];
-    recommendations: string[];
-  };
-  sleep_pattern: {
-    quality: number;
-    duration: number;
-    disruptions: string[];
+  activity_impact?: {
+    score?: number;
+    factors?: string[];
+    recommendations?: string[];
+  } | string;
+  nutrition_impact?: {
+    score?: number;
+    factors?: string[];
+    recommendations?: string[];
+  } | string;
+  sleep_pattern?: {
+    quality?: number;
+    duration?: number;
+    disruptions?: string[];
+    summary?: string;
   };
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
 }
+
 export type MoodJournalEntry = {
   id: string
   user_id: string
-  mood: string
-  intensity: number
-  notes: string
+  mood?: string
+  mood_rating?: number
+  intensity?: number
+  notes?: string
+  journal_entry?: string
   created_at: string
+  entry_date?: string
+  activities?: string[]
+  challenges?: string[]
+  gratitude_points?: string[]
+  anxiety_level?: number
+  energy_level?: number
 }
+
 export type CopingStrategy = {
   id: string
-  name: string
-  description: string
+  strategy_name?: string // From database
+  name?: string // Interface expected property
+  description?: string
   category: string
   effectiveness_rating: number
+  notes?: string
+  used_count?: number
+  user_id?: string
+  created_at?: string
 }
+
 export type MoodTrigger = {
   id: string
-  trigger: string
+  trigger?: string
+  trigger_name?: string // From database
+  trigger_category?: string // From database
   impact_level: number
-  frequency: number
-  notes: string
+  frequency: number | string
+  notes?: string
+  user_id?: string
+  created_at?: string
 }
+
 export type PregnancyMilestone = {
   id: string;
   user_id: string;
@@ -357,8 +410,8 @@ export type PregnancyMilestone = {
   metadata?: Json;
   celebration_shared: boolean;
   created_at: string;
-  updated_at: string;
-}
+  updated_at?: string; // Make optional to match database
+};
 
 export type DemographicData = {
   id: string

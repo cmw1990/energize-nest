@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -11,9 +10,10 @@ import { ClipboardList, ShieldCheck, Bell } from "lucide-react";
 import { InsuranceClaim, InsuranceProvider } from "@/types/insurance";
 import { Link } from "react-router-dom";
 
-export function InsuranceDashboard() {
+export const InsuranceDashboard = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("claims");
+  const [showNewVerificationModal, setShowNewVerificationModal] = useState(false);
 
   const { data: claims } = useQuery({
     queryKey: ['insurance-claims'],
@@ -69,17 +69,22 @@ export function InsuranceDashboard() {
   });
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Insurance Dashboard</h1>
-        <div className="space-x-4">
-          <Button asChild>
-            <Link to="/insurance/submit-claim">Submit New Claim</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link to="/insurance/verify">Verify Coverage</Link>
-          </Button>
+    <div className="space-y-6">
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Insurance Dashboard</h1>
+          <p className="text-muted-foreground">
+            Manage your insurance claims and verifications
+          </p>
         </div>
+        <Button 
+          variant="outline"
+          onClick={() => setShowNewVerificationModal(true)}
+          className="flex items-center gap-2"
+        >
+          <Shield className="h-4 w-4" />
+          New Verification
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -171,15 +176,20 @@ export function InsuranceDashboard() {
 
         <TabsContent value="providers" className="space-y-4">
           {providers?.map((provider) => (
-            <Card key={provider.id}>
-              <CardHeader>
-                <CardTitle>{provider.name}</CardTitle>
-                <CardDescription>Payer ID: {provider.payer_id}</CardDescription>
+            <Card key={provider.id} className="overflow-hidden">
+              <CardHeader className="bg-primary/5 pb-2">
+                <CardTitle className="text-lg">{provider.name}</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <p><strong>Network:</strong> {provider.provider_network.join(', ')}</p>
-                  <p><strong>Verification Method:</strong> {provider.verification_method}</p>
+              <CardContent className="pt-4 space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline">{provider.payer_id}</Badge>
+                  {provider.is_active && <Badge variant="secondary">Active</Badge>}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Network: {provider.provider_network?.join(', ') || 'N/A'}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Verification: {provider.verification_method || 'Standard'}
                 </div>
               </CardContent>
             </Card>
@@ -188,4 +198,4 @@ export function InsuranceDashboard() {
       </Tabs>
     </div>
   );
-}
+};

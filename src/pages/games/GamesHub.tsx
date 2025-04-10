@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Grid3X3, Brain, Eye, Gamepad2, ChessBoard, FlaskConical, Cpu, ZapOff, Target } from "lucide-react";
+import { Grid3X3, Brain, Eye, Gamepad2, FlaskConical, Cpu, ZapOff, Target } from "lucide-react";
 
 const gamesList = [
   {

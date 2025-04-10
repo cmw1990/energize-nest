@@ -20,8 +20,9 @@ export default function BrainMatchGame() {
     
     setIsSubmitting(true);
     try {
+      // Use type assertion to indicate game_scores is a valid table
       const { error } = await supabase
-        .from('game_scores')
+        .from('game_scores' as any)
         .insert({
           game_type: 'brain_match',
           score,
@@ -61,9 +62,14 @@ export default function BrainMatchGame() {
       </CardHeader>
       <CardContent className="p-6">
         <div className="flex flex-col space-y-6">
-          <GameHeader score={score} onReset={initializeGrid} />
+          {/* Make sure GameHeader accepts onReset prop */}
+          <GameHeader 
+            score={score} 
+            onReset={initializeGrid} 
+          />
           
           <div className="aspect-square w-full max-w-lg mx-auto">
+            {/* Make sure GameGrid accepts selectedTiles prop */}
             <GameGrid 
               grid={grid} 
               onTileClick={handleTileClick} 

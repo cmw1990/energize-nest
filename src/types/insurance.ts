@@ -16,17 +16,28 @@ export interface InsuranceClaim {
   notes: string;
   created_at: string;
   updated_at: string;
+  tracking_number?: string; // Added to support Dashboard.tsx usage
 }
 
 export interface InsuranceProvider {
   id: string;
   name: string;
-  type: string;
-  contact_info: {
+  type?: string;
+  contact_info?: {
     phone: string;
     email: string;
     website: string;
   };
+  // Add fields that are used in the actual code
+  payer_id?: string;
+  provider_network?: string[];
+  verification_method?: string;
+  claims_api_endpoint?: string;
+  eligibility_api_endpoint?: string;
+  is_active?: boolean;
+  supported_claim_types?: string[];
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface InsuranceEligibilityCheck {
@@ -57,11 +68,14 @@ export interface InsuranceClaimSubmission {
 export interface LoyaltyProgram {
   id: string;
   program_name: string;
-  description: string;
-  active: boolean;
+  description?: string;
+  active?: boolean;
   points_ratio: number;
   tiers: LoyaltyTier[];
   rewards: LoyaltyReward[];
+  vendor_id?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface LoyaltyTier {
@@ -78,13 +92,17 @@ export interface LoyaltyReward {
   tier_id: string;
   name: string;
   description: string;
-  points_required: number;
+  points_required?: number;
+  points_cost?: number; // Added to match LoyaltyProgram.tsx
 }
 
 export interface MarketplaceMetrics {
   id: string;
   metrics_data: {
     total_sales: number;
+    total_revenue?: number; // Added to match MarketplaceIntegration.tsx
+    total_orders?: number;  // Added to match MarketplaceIntegration.tsx
+    conversion_rate?: number; // Added to match MarketplaceIntegration.tsx
     active_vendors: number;
     customer_satisfaction: number;
     active_users: number;
@@ -103,3 +121,4 @@ export interface MarketplaceMetrics {
     };
   };
 }
+

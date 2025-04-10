@@ -436,6 +436,70 @@ export type Database = {
         }
         Relationships: []
       }
+      achievement_shares: {
+        Row: {
+          achievement_id: string
+          id: string
+          platform: string
+          shared_at: string | null
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          id?: string
+          platform: string
+          shared_at?: string | null
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          id?: string
+          platform?: string
+          shared_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "achievement_shares_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      achievement_shares8: {
+        Row: {
+          achievement_id: string
+          id: string
+          platform: string
+          shared_at: string | null
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          id?: string
+          platform: string
+          shared_at?: string | null
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          id?: string
+          platform?: string
+          shared_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "achievement_shares8_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       achievements: {
         Row: {
           category: string | null
@@ -520,6 +584,84 @@ export type Database = {
           name?: string
           points?: number
           threshold?: number | null
+        }
+        Relationships: []
+      }
+      achievements_definitions: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string
+          icon: string | null
+          id: string
+          name: string
+          points: number
+          requirements: Json
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description: string
+          icon?: string | null
+          id?: string
+          name: string
+          points?: number
+          requirements: Json
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string
+          icon?: string | null
+          id?: string
+          name?: string
+          points?: number
+          requirements?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      achievements8: {
+        Row: {
+          badge_color: string
+          category: string
+          created_at: string | null
+          description: string
+          icon: string
+          id: string
+          is_hidden: boolean | null
+          requirement_value: number
+          reward_points: number
+          title: string
+          unlock_message: string | null
+        }
+        Insert: {
+          badge_color: string
+          category: string
+          created_at?: string | null
+          description: string
+          icon: string
+          id?: string
+          is_hidden?: boolean | null
+          requirement_value: number
+          reward_points: number
+          title: string
+          unlock_message?: string | null
+        }
+        Update: {
+          badge_color?: string
+          category?: string
+          created_at?: string | null
+          description?: string
+          icon?: string
+          id?: string
+          is_hidden?: boolean | null
+          requirement_value?: number
+          reward_points?: number
+          title?: string
+          unlock_message?: string | null
         }
         Relationships: []
       }
@@ -1000,6 +1142,39 @@ export type Database = {
           },
         ]
       }
+      adhd_assessments: {
+        Row: {
+          assessment_date: string
+          created_at: string
+          id: string
+          intensity_level: string | null
+          notes: string | null
+          score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assessment_date?: string
+          created_at?: string
+          id?: string
+          intensity_level?: string | null
+          notes?: string | null
+          score: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assessment_date?: string
+          created_at?: string
+          id?: string
+          intensity_level?: string | null
+          notes?: string | null
+          score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       adhd_task_organization: {
         Row: {
           created_at: string | null
@@ -1090,6 +1265,59 @@ export type Database = {
           },
         ]
       }
+      affiliate_clicks8: {
+        Row: {
+          campaign: string | null
+          conversion_type: string | null
+          country: string | null
+          device_type: string | null
+          discount_used: string | null
+          id: string
+          product_id: string
+          referral_code: string | null
+          source: string | null
+          timestamp: string
+          user_id: string | null
+          vendor_id: string | null
+        }
+        Insert: {
+          campaign?: string | null
+          conversion_type?: string | null
+          country?: string | null
+          device_type?: string | null
+          discount_used?: string | null
+          id?: string
+          product_id: string
+          referral_code?: string | null
+          source?: string | null
+          timestamp?: string
+          user_id?: string | null
+          vendor_id?: string | null
+        }
+        Update: {
+          campaign?: string | null
+          conversion_type?: string | null
+          country?: string | null
+          device_type?: string | null
+          discount_used?: string | null
+          id?: string
+          product_id?: string
+          referral_code?: string | null
+          source?: string | null
+          timestamp?: string
+          user_id?: string | null
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_clicks8_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "nrt_vendors8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       affiliate_commissions: {
         Row: {
           base_rate: number
@@ -1167,6 +1395,119 @@ export type Database = {
           earnings?: number | null
           id?: string
           persona_type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      affiliate_links8: {
+        Row: {
+          conversion_count: number | null
+          created_at: string
+          id: string
+          original_url: string
+          product_id: string
+          tracking_url: string
+          vendor_id: string
+        }
+        Insert: {
+          conversion_count?: number | null
+          created_at?: string
+          id?: string
+          original_url: string
+          product_id: string
+          tracking_url: string
+          vendor_id: string
+        }
+        Update: {
+          conversion_count?: number | null
+          created_at?: string
+          id?: string
+          original_url?: string
+          product_id?: string
+          tracking_url?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_links8_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliate_stats: {
+        Row: {
+          commission_earned: number | null
+          created_at: string | null
+          id: string
+          last_referral_date: string | null
+          product_id: string | null
+          purchase_count: number | null
+          referral_count: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          commission_earned?: number | null
+          created_at?: string | null
+          id?: string
+          last_referral_date?: string | null
+          product_id?: string | null
+          purchase_count?: number | null
+          referral_count?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          commission_earned?: number | null
+          created_at?: string | null
+          id?: string
+          last_referral_date?: string | null
+          product_id?: string | null
+          purchase_count?: number | null
+          referral_count?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      affiliate_stats8: {
+        Row: {
+          created_at: string
+          end_date: string
+          id: string
+          period: string
+          start_date: string
+          total_clicks: number | null
+          total_conversions: number | null
+          total_earnings: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          id?: string
+          period: string
+          start_date: string
+          total_clicks?: number | null
+          total_conversions?: number | null
+          total_earnings?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          id?: string
+          period?: string
+          start_date?: string
+          total_clicks?: number | null
+          total_conversions?: number | null
+          total_earnings?: number | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -1953,6 +2294,41 @@ export type Database = {
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "users4"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      availability_slots8: {
+        Row: {
+          created_at: string
+          end_time: string
+          id: number
+          is_booked: boolean
+          professional_id: string
+          start_time: string
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          id?: number
+          is_booked?: boolean
+          professional_id: string
+          start_time: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          id?: number
+          is_booked?: boolean
+          professional_id?: string
+          start_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_slots8_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals8"
             referencedColumns: ["id"]
           },
         ]
@@ -2748,6 +3124,42 @@ export type Database = {
         }
         Relationships: []
       }
+      block_rules: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          pattern: string
+          rule_name: string
+          rule_type: string
+          schedule: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          pattern: string
+          rule_name: string
+          rule_type: string
+          schedule?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          pattern?: string
+          rule_name?: string
+          rule_type?: string
+          schedule?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       blocking_rules: {
         Row: {
           blocking_type: Database["public"]["Enums"]["blocking_type"]
@@ -2852,30 +3264,21 @@ export type Database = {
       }
       body_doubling_participants: {
         Row: {
-          created_at: string | null
           id: string
-          join_time: string | null
-          leave_time: string | null
+          join_time: string
           session_id: string
-          status: string | null
           user_id: string
         }
         Insert: {
-          created_at?: string | null
           id?: string
-          join_time?: string | null
-          leave_time?: string | null
+          join_time?: string
           session_id: string
-          status?: string | null
           user_id: string
         }
         Update: {
-          created_at?: string | null
           id?: string
-          join_time?: string | null
-          leave_time?: string | null
+          join_time?: string
           session_id?: string
-          status?: string | null
           user_id?: string
         }
         Relationships: [
@@ -2890,64 +3293,55 @@ export type Database = {
       }
       body_doubling_sessions: {
         Row: {
-          accountability_type: string | null
-          achievement_metrics: Json | null
-          created_at: string | null
+          actual_end_time: string | null
+          actual_start_time: string | null
+          created_at: string
+          current_participants: number
           description: string | null
-          duration_minutes: number | null
-          environment_settings: Json | null
-          feedback_summary: string | null
-          host_id: string
+          estimated_duration_minutes: number
+          host_user_id: string
           id: string
-          is_private: boolean | null
-          max_participants: number | null
-          meeting_link: string | null
-          session_goals: Json | null
-          session_type: string
-          start_time: string
-          status: string | null
+          is_public: boolean
+          join_code: string | null
+          max_participants: number
+          scheduled_start_time: string | null
+          status: string
           title: string
-          updated_at: string | null
+          updated_at: string
         }
         Insert: {
-          accountability_type?: string | null
-          achievement_metrics?: Json | null
-          created_at?: string | null
+          actual_end_time?: string | null
+          actual_start_time?: string | null
+          created_at?: string
+          current_participants?: number
           description?: string | null
-          duration_minutes?: number | null
-          environment_settings?: Json | null
-          feedback_summary?: string | null
-          host_id: string
+          estimated_duration_minutes: number
+          host_user_id: string
           id?: string
-          is_private?: boolean | null
-          max_participants?: number | null
-          meeting_link?: string | null
-          session_goals?: Json | null
-          session_type: string
-          start_time: string
-          status?: string | null
+          is_public?: boolean
+          join_code?: string | null
+          max_participants?: number
+          scheduled_start_time?: string | null
+          status?: string
           title: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Update: {
-          accountability_type?: string | null
-          achievement_metrics?: Json | null
-          created_at?: string | null
+          actual_end_time?: string | null
+          actual_start_time?: string | null
+          created_at?: string
+          current_participants?: number
           description?: string | null
-          duration_minutes?: number | null
-          environment_settings?: Json | null
-          feedback_summary?: string | null
-          host_id?: string
+          estimated_duration_minutes?: number
+          host_user_id?: string
           id?: string
-          is_private?: boolean | null
-          max_participants?: number | null
-          meeting_link?: string | null
-          session_goals?: Json | null
-          session_type?: string
-          start_time?: string
-          status?: string | null
+          is_public?: boolean
+          join_code?: string | null
+          max_participants?: number
+          scheduled_start_time?: string | null
+          status?: string
           title?: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -3508,12 +3902,121 @@ export type Database = {
           post_id?: string
           updated_at?: string | null
         }
+        Relationships: []
+      }
+      care_group_events: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          description: string | null
+          end_time: string | null
+          group_id: string
+          id: string
+          location: string | null
+          start_time: string
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          end_time?: string | null
+          group_id: string
+          id?: string
+          location?: string | null
+          start_time: string
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          end_time?: string | null
+          group_id?: string
+          id?: string
+          location?: string | null
+          start_time?: string
+          title?: string
+        }
         Relationships: [
           {
-            foreignKeyName: "care_group_comments_post_id_fkey"
-            columns: ["post_id"]
+            foreignKeyName: "care_group_events_group_id_fkey"
+            columns: ["group_id"]
             isOneToOne: false
-            referencedRelation: "care_group_posts"
+            referencedRelation: "care_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_group_invitations: {
+        Row: {
+          created_at: string | null
+          expires_at: string | null
+          group_id: string
+          id: string
+          invited_by: string
+          invited_email: string
+          status: string
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at?: string | null
+          group_id: string
+          id?: string
+          invited_by: string
+          invited_email: string
+          status?: string
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string | null
+          group_id?: string
+          id?: string
+          invited_by?: string
+          invited_email?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_group_invitations_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_group_members: {
+        Row: {
+          group_id: string
+          id: string
+          invited_by: string | null
+          joined_at: string | null
+          role: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          invited_by?: string | null
+          joined_at?: string | null
+          role: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          invited_by?: string | null
+          joined_at?: string | null
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care_groups"
             referencedColumns: ["id"]
           },
         ]
@@ -3543,15 +4046,7 @@ export type Database = {
           post_id?: string
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "care_group_post_comments_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "care_group_posts"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       care_group_post_reactions: {
         Row: {
@@ -3575,42 +4070,69 @@ export type Database = {
           reaction_type?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "care_group_post_reactions_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "care_group_posts"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       care_group_posts: {
         Row: {
           content: string
           created_at: string | null
-          created_by: string
           group_id: string
           id: string
-          image_url: string | null
-          updated_at: string | null
+          user_id: string
         }
         Insert: {
           content: string
           created_at?: string | null
-          created_by: string
           group_id: string
           id?: string
-          image_url?: string | null
-          updated_at?: string | null
+          user_id: string
         }
         Update: {
           content?: string
           created_at?: string | null
-          created_by?: string
           group_id?: string
           id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "care_group_posts_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "care_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      care_groups: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_public: boolean | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          id?: string
           image_url?: string | null
+          is_public?: boolean | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_public?: boolean | null
+          name?: string
           updated_at?: string | null
         }
         Relationships: []
@@ -6656,6 +7178,33 @@ export type Database = {
           },
         ]
       }
+      cart_actions8: {
+        Row: {
+          action_time: string
+          action_type: string
+          id: string
+          product_id: string
+          quantity: number | null
+          user_id: string
+        }
+        Insert: {
+          action_time?: string
+          action_type: string
+          id?: string
+          product_id: string
+          quantity?: number | null
+          user_id: string
+        }
+        Update: {
+          action_time?: string
+          action_type?: string
+          id?: string
+          product_id?: string
+          quantity?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       cbt_exercises: {
         Row: {
           alternative_thoughts: string | null
@@ -6695,6 +7244,210 @@ export type Database = {
           thoughts?: string
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      challenge_progress: {
+        Row: {
+          challenge_id: string
+          completed_tasks: string[] | null
+          created_at: string | null
+          id: string
+          joined_at: string | null
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed_tasks?: string[] | null
+          created_at?: string | null
+          id?: string
+          joined_at?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed_tasks?: string[] | null
+          created_at?: string | null
+          id?: string
+          joined_at?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_progress_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenge_tasks: {
+        Row: {
+          challenge_id: string
+          created_at: string
+          description: string
+          id: string
+          points: number
+          updated_at: string
+        }
+        Insert: {
+          challenge_id: string
+          created_at?: string
+          description: string
+          id?: string
+          points?: number
+          updated_at?: string
+        }
+        Update: {
+          challenge_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          points?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_tasks_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenge_tasks8: {
+        Row: {
+          challenge_id: string
+          created_at: string
+          description: string
+          id: string
+          points: number
+          updated_at: string
+        }
+        Insert: {
+          challenge_id: string
+          created_at?: string
+          description: string
+          id?: string
+          points?: number
+          updated_at?: string
+        }
+        Update: {
+          challenge_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          points?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_tasks8_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenges: {
+        Row: {
+          created_at: string
+          description: string | null
+          difficulty: string
+          end_date: string
+          id: string
+          participants_count: number
+          reward_points: number
+          start_date: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          difficulty: string
+          end_date: string
+          id?: string
+          participants_count?: number
+          reward_points?: number
+          start_date: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          difficulty?: string
+          end_date?: string
+          id?: string
+          participants_count?: number
+          reward_points?: number
+          start_date?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      challenges8: {
+        Row: {
+          created_at: string
+          description: string
+          difficulty: string
+          duration_days: number | null
+          end_date: string
+          goal: number | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          participants_count: number
+          reward_points: number
+          start_date: string
+          title: string
+          type: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          difficulty: string
+          duration_days?: number | null
+          end_date: string
+          goal?: number | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          participants_count?: number
+          reward_points?: number
+          start_date: string
+          title: string
+          type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          difficulty?: string
+          duration_days?: number | null
+          end_date?: string
+          goal?: number | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          participants_count?: number
+          reward_points?: number
+          start_date?: string
+          title?: string
+          type?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -7547,6 +8300,42 @@ export type Database = {
         }
         Relationships: []
       }
+      claimed_rewards8: {
+        Row: {
+          claimed_at: string
+          created_at: string
+          discount_code: string
+          expires_at: string | null
+          id: string
+          reward_level: string
+          updated_at: string
+          user_id: string
+          week_start_date: string
+        }
+        Insert: {
+          claimed_at?: string
+          created_at?: string
+          discount_code: string
+          expires_at?: string | null
+          id?: string
+          reward_level: string
+          updated_at?: string
+          user_id: string
+          week_start_date: string
+        }
+        Update: {
+          claimed_at?: string
+          created_at?: string
+          discount_code?: string
+          expires_at?: string | null
+          id?: string
+          reward_level?: string
+          updated_at?: string
+          user_id?: string
+          week_start_date?: string
+        }
+        Relationships: []
+      }
       client_emergency_contacts: {
         Row: {
           client_id: string | null
@@ -7974,6 +8763,39 @@ export type Database = {
         }
         Relationships: []
       }
+      cognitive_assessments: {
+        Row: {
+          assessment_date: string
+          assessment_type: string
+          created_at: string
+          details: Json | null
+          id: string
+          score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assessment_date?: string
+          assessment_type: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          score: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assessment_date?: string
+          assessment_type?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       cognitive_distortions: {
         Row: {
           description: string
@@ -7994,6 +8816,83 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      cognitive_exercises: {
+        Row: {
+          created_at: string
+          description: string
+          difficulty: number
+          duration_minutes: number
+          exercise_name: string
+          id: string
+          instructions: Json
+          target_area: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          difficulty: number
+          duration_minutes: number
+          exercise_name: string
+          id?: string
+          instructions: Json
+          target_area: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          difficulty?: number
+          duration_minutes?: number
+          exercise_name?: string
+          id?: string
+          instructions?: Json
+          target_area?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      cognitive_progress: {
+        Row: {
+          completion_time: number | null
+          created_at: string
+          exercise_id: string | null
+          id: string
+          log_date: string
+          score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completion_time?: number | null
+          created_at?: string
+          exercise_id?: string | null
+          id?: string
+          log_date?: string
+          score: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completion_time?: number | null
+          created_at?: string
+          exercise_id?: string | null
+          id?: string
+          log_date?: string
+          score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cognitive_progress_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "cognitive_exercises"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       collection_products: {
         Row: {
@@ -8195,6 +9094,71 @@ export type Database = {
         }
         Relationships: []
       }
+      community_posts: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          likes: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          likes?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          likes?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      community_posts8: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          likes_count: number | null
+          parent_post_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          likes_count?: number | null
+          parent_post_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          likes_count?: number | null
+          parent_post_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_posts8_parent_post_id_fkey"
+            columns: ["parent_post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companion_bookings4: {
         Row: {
           activities: string[] | null
@@ -8373,6 +9337,117 @@ export type Database = {
         }
         Relationships: []
       }
+      connected_apps8: {
+        Row: {
+          access_token: string | null
+          app_name: string
+          created_at: string
+          id: string
+          last_sync: string | null
+          refresh_token: string | null
+          sync_enabled: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          app_name: string
+          created_at?: string
+          id?: string
+          last_sync?: string | null
+          refresh_token?: string | null
+          sync_enabled?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          app_name?: string
+          created_at?: string
+          id?: string
+          last_sync?: string | null
+          refresh_token?: string | null
+          sync_enabled?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      connected_devices: {
+        Row: {
+          battery_level: number | null
+          capabilities: string[] | null
+          connected: boolean | null
+          connected_at: string | null
+          connection_status: string
+          connection_type: string | null
+          created_at: string
+          device_name: string
+          device_type: string
+          disconnected_at: string | null
+          error_message: string | null
+          firmware_version: string | null
+          id: string
+          last_sync: string | null
+          manufacturer: string
+          model: string | null
+          permissions: Json | null
+          priority: string | null
+          retry_attempts: number | null
+          sync_interval: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          battery_level?: number | null
+          capabilities?: string[] | null
+          connected?: boolean | null
+          connected_at?: string | null
+          connection_status: string
+          connection_type?: string | null
+          created_at?: string
+          device_name: string
+          device_type: string
+          disconnected_at?: string | null
+          error_message?: string | null
+          firmware_version?: string | null
+          id?: string
+          last_sync?: string | null
+          manufacturer: string
+          model?: string | null
+          permissions?: Json | null
+          priority?: string | null
+          retry_attempts?: number | null
+          sync_interval?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          battery_level?: number | null
+          capabilities?: string[] | null
+          connected?: boolean | null
+          connected_at?: string | null
+          connection_status?: string
+          connection_type?: string | null
+          created_at?: string
+          device_name?: string
+          device_type?: string
+          disconnected_at?: string | null
+          error_message?: string | null
+          firmware_version?: string | null
+          id?: string
+          last_sync?: string | null
+          manufacturer?: string
+          model?: string | null
+          permissions?: Json | null
+          priority?: string | null
+          retry_attempts?: number | null
+          sync_interval?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       consultation_availability: {
         Row: {
           created_at: string
@@ -8402,6 +9477,63 @@ export type Database = {
           start_time?: string
         }
         Relationships: []
+      }
+      consultation_bookings8: {
+        Row: {
+          availability_slot_id: number | null
+          booking_time: string
+          created_at: string
+          end_time: string
+          id: number
+          meeting_details: Json | null
+          professional_id: string
+          start_time: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          availability_slot_id?: number | null
+          booking_time?: string
+          created_at?: string
+          end_time: string
+          id?: number
+          meeting_details?: Json | null
+          professional_id: string
+          start_time: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          availability_slot_id?: number | null
+          booking_time?: string
+          created_at?: string
+          end_time?: string
+          id?: number
+          meeting_details?: Json | null
+          professional_id?: string
+          start_time?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consultation_bookings8_availability_slot_id_fkey"
+            columns: ["availability_slot_id"]
+            isOneToOne: false
+            referencedRelation: "availability_slots8"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consultation_bookings8_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals8"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       consultation_feedback: {
         Row: {
@@ -9110,6 +10242,231 @@ export type Database = {
         }
         Relationships: []
       }
+      context_saved_contexts: {
+        Row: {
+          cognitive_load: string | null
+          complexity: number | null
+          context_snapshot: Json | null
+          created_at: string
+          id: string
+          last_used: string
+          name: string
+          notes: string | null
+          progress: number | null
+          resources: Json | null
+          task: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cognitive_load?: string | null
+          complexity?: number | null
+          context_snapshot?: Json | null
+          created_at?: string
+          id?: string
+          last_used?: string
+          name: string
+          notes?: string | null
+          progress?: number | null
+          resources?: Json | null
+          task: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cognitive_load?: string | null
+          complexity?: number | null
+          context_snapshot?: Json | null
+          created_at?: string
+          id?: string
+          last_used?: string
+          name?: string
+          notes?: string | null
+          progress?: number | null
+          resources?: Json | null
+          task?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      context_snapshots: {
+        Row: {
+          context_id: string | null
+          created_at: string
+          description: string
+          id: string
+          image_url: string | null
+          links: Json | null
+          user_id: string
+        }
+        Insert: {
+          context_id?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          image_url?: string | null
+          links?: Json | null
+          user_id: string
+        }
+        Update: {
+          context_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          links?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "context_snapshots_context_id_fkey"
+            columns: ["context_id"]
+            isOneToOne: false
+            referencedRelation: "context_saved_contexts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      context_switch_logs: {
+        Row: {
+          completed: boolean | null
+          created_at: string
+          duration_seconds: number | null
+          from_context_id: string | null
+          from_context_name: string | null
+          id: string
+          notes: string | null
+          template_id: string | null
+          to_context_id: string | null
+          to_context_name: string | null
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string
+          duration_seconds?: number | null
+          from_context_id?: string | null
+          from_context_name?: string | null
+          id?: string
+          notes?: string | null
+          template_id?: string | null
+          to_context_id?: string | null
+          to_context_name?: string | null
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string
+          duration_seconds?: number | null
+          from_context_id?: string | null
+          from_context_name?: string | null
+          id?: string
+          notes?: string | null
+          template_id?: string | null
+          to_context_id?: string | null
+          to_context_name?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "context_switch_logs_from_context_id_fkey"
+            columns: ["from_context_id"]
+            isOneToOne: false
+            referencedRelation: "context_saved_contexts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "context_switch_logs_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "context_switching_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "context_switch_logs_to_context_id_fkey"
+            columns: ["to_context_id"]
+            isOneToOne: false
+            referencedRelation: "context_saved_contexts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      context_switch_stats: {
+        Row: {
+          average_switch_time: number | null
+          cognitive_load_level: string | null
+          created_at: string
+          daily_switches: Json | null
+          id: string
+          most_frequent_contexts: Json | null
+          switch_count: number | null
+          total_switch_time: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          average_switch_time?: number | null
+          cognitive_load_level?: string | null
+          created_at?: string
+          daily_switches?: Json | null
+          id?: string
+          most_frequent_contexts?: Json | null
+          switch_count?: number | null
+          total_switch_time?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          average_switch_time?: number | null
+          cognitive_load_level?: string | null
+          created_at?: string
+          daily_switches?: Json | null
+          id?: string
+          most_frequent_contexts?: Json | null
+          switch_count?: number | null
+          total_switch_time?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      context_switching_templates: {
+        Row: {
+          cognitive_load: string | null
+          created_at: string
+          duration: number
+          id: string
+          is_default: boolean | null
+          name: string
+          steps: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cognitive_load?: string | null
+          created_at?: string
+          duration: number
+          id?: string
+          is_default?: boolean | null
+          name: string
+          steps: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cognitive_load?: string | null
+          created_at?: string
+          duration?: number
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          steps?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       conversation_history2: {
         Row: {
           id: number
@@ -9148,33 +10505,36 @@ export type Database = {
       coping_strategies: {
         Row: {
           category: string
-          created_at: string | null
+          created_at: string
           effectiveness_rating: number
           id: string
           notes: string | null
           strategy_name: string
-          used_count: number | null
-          user_id: string | null
+          updated_at: string
+          used_count: number
+          user_id: string
         }
         Insert: {
           category: string
-          created_at?: string | null
+          created_at?: string
           effectiveness_rating: number
           id?: string
           notes?: string | null
           strategy_name: string
-          used_count?: number | null
-          user_id?: string | null
+          updated_at?: string
+          used_count?: number
+          user_id: string
         }
         Update: {
           category?: string
-          created_at?: string | null
+          created_at?: string
           effectiveness_rating?: number
           id?: string
           notes?: string | null
           strategy_name?: string
-          used_count?: number | null
-          user_id?: string | null
+          updated_at?: string
+          used_count?: number
+          user_id?: string
         }
         Relationships: []
       }
@@ -9223,6 +10583,42 @@ export type Database = {
           instructions?: string | null
           name?: string
           suitable_for?: string[] | null
+        }
+        Relationships: []
+      }
+      country_regulations8: {
+        Row: {
+          advertising_restriction: boolean
+          age_restriction: number | null
+          country_code: string
+          general_notes: string | null
+          id: string
+          is_allowed: boolean
+          purchase_limits: string | null
+          reporting_requirements: boolean
+          updated_at: string
+        }
+        Insert: {
+          advertising_restriction?: boolean
+          age_restriction?: number | null
+          country_code: string
+          general_notes?: string | null
+          id?: string
+          is_allowed?: boolean
+          purchase_limits?: string | null
+          reporting_requirements?: boolean
+          updated_at?: string
+        }
+        Update: {
+          advertising_restriction?: boolean
+          age_restriction?: number | null
+          country_code?: string
+          general_notes?: string | null
+          id?: string
+          is_allowed?: boolean
+          purchase_limits?: string | null
+          reporting_requirements?: boolean
+          updated_at?: string
         }
         Relationships: []
       }
@@ -9292,12 +10688,14 @@ export type Database = {
           activity: string | null
           coping_strategy_used: string | null
           created_at: string | null
+          duration_minutes: number | null
           emotional_state: string | null
           id: string
           intensity: number | null
           location: string | null
           notes: string | null
           success_rating: number | null
+          timestamp: string
           trigger_type: string
           updated_at: string | null
           user_id: string
@@ -9306,12 +10704,14 @@ export type Database = {
           activity?: string | null
           coping_strategy_used?: string | null
           created_at?: string | null
+          duration_minutes?: number | null
           emotional_state?: string | null
           id?: string
           intensity?: number | null
           location?: string | null
           notes?: string | null
           success_rating?: number | null
+          timestamp?: string
           trigger_type: string
           updated_at?: string | null
           user_id: string
@@ -9320,12 +10720,14 @@ export type Database = {
           activity?: string | null
           coping_strategy_used?: string | null
           created_at?: string | null
+          duration_minutes?: number | null
           emotional_state?: string | null
           id?: string
           intensity?: number | null
           location?: string | null
           notes?: string | null
           success_rating?: number | null
+          timestamp?: string
           trigger_type?: string
           updated_at?: string | null
           user_id?: string
@@ -9334,45 +10736,51 @@ export type Database = {
       }
       craving_logs8: {
         Row: {
+          activity: string | null
           coping_strategy: string | null
           created_at: string
-          duration_minutes: number | null
           id: string
           intensity: number
           location: string | null
           notes: string | null
-          success: boolean | null
+          resisted: boolean
+          strategy_used: string | null
           timestamp: string
-          trigger: string | null
-          updated_at: string | null
+          trigger: string
+          triggers: Json | null
+          updated_at: string
           user_id: string
         }
         Insert: {
+          activity?: string | null
           coping_strategy?: string | null
           created_at?: string
-          duration_minutes?: number | null
           id?: string
           intensity: number
           location?: string | null
           notes?: string | null
-          success?: boolean | null
+          resisted: boolean
+          strategy_used?: string | null
           timestamp?: string
-          trigger?: string | null
-          updated_at?: string | null
+          trigger: string
+          triggers?: Json | null
+          updated_at?: string
           user_id: string
         }
         Update: {
+          activity?: string | null
           coping_strategy?: string | null
           created_at?: string
-          duration_minutes?: number | null
           id?: string
           intensity?: number
           location?: string | null
           notes?: string | null
-          success?: boolean | null
+          resisted?: boolean
+          strategy_used?: string | null
           timestamp?: string
-          trigger?: string | null
-          updated_at?: string | null
+          trigger?: string
+          triggers?: Json | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -10207,6 +11615,48 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_plan_tasks: {
+        Row: {
+          category: string
+          created_at: string
+          day_number: number
+          description: string | null
+          estimated_duration: string | null
+          id: string
+          is_completed: boolean
+          priority: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          day_number: number
+          description?: string | null
+          estimated_duration?: string | null
+          id?: string
+          is_completed?: boolean
+          priority: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          day_number?: number
+          description?: string | null
+          estimated_duration?: string | null
+          id?: string
+          is_completed?: boolean
+          priority?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_routines2: {
         Row: {
           activity: string
@@ -10443,6 +11893,42 @@ export type Database = {
           spiritual_gifts?: string[] | null
           updated_at?: string | null
           values_and_beliefs?: string[] | null
+        }
+        Relationships: []
+      }
+      default_health_improvements: {
+        Row: {
+          created_at: string | null
+          description: string
+          icon: string
+          id: string
+          milestone_type: string | null
+          organ_system: string | null
+          timeline_hours: number
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          icon: string
+          id?: string
+          milestone_type?: string | null
+          organ_system?: string | null
+          timeline_hours: number
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          icon?: string
+          id?: string
+          milestone_type?: string | null
+          organ_system?: string | null
+          timeline_hours?: number
+          title?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -10814,6 +12300,149 @@ export type Database = {
         }
         Relationships: []
       }
+      dietitian_meal_plans8: {
+        Row: {
+          created_at: string | null
+          custom_recipe: Json | null
+          date: string
+          id: string
+          meal_type: string
+          notes: string | null
+          recipe_id: string | null
+          recommendation_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          custom_recipe?: Json | null
+          date: string
+          id?: string
+          meal_type: string
+          notes?: string | null
+          recipe_id?: string | null
+          recommendation_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          custom_recipe?: Json | null
+          date?: string
+          id?: string
+          meal_type?: string
+          notes?: string | null
+          recipe_id?: string | null
+          recommendation_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dietitian_meal_plans8_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes8"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dietitian_meal_plans8_recommendation_id_fkey"
+            columns: ["recommendation_id"]
+            isOneToOne: false
+            referencedRelation: "dietitian_recommendations8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dietitian_profiles8: {
+        Row: {
+          about: string | null
+          certifications: string[] | null
+          consultation_fee: number | null
+          created_at: string | null
+          education: string[] | null
+          id: string
+          professional_title: string
+          specializations: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          about?: string | null
+          certifications?: string[] | null
+          consultation_fee?: number | null
+          created_at?: string | null
+          education?: string[] | null
+          id?: string
+          professional_title: string
+          specializations?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          about?: string | null
+          certifications?: string[] | null
+          consultation_fee?: number | null
+          created_at?: string | null
+          education?: string[] | null
+          id?: string
+          professional_title?: string
+          specializations?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      dietitian_recommendations8: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          priority: string | null
+          recommendations: Json
+          relationship_id: string
+          start_date: string | null
+          status: string
+          title: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          priority?: string | null
+          recommendations: Json
+          relationship_id: string
+          start_date?: string | null
+          status?: string
+          title: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          priority?: string | null
+          recommendations?: Json
+          relationship_id?: string
+          start_date?: string | null
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dietitian_recommendations8_relationship_id_fkey"
+            columns: ["relationship_id"]
+            isOneToOne: false
+            referencedRelation: "user_dietitian_relationships8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       discord_role_mappings: {
         Row: {
           created_at: string | null
@@ -11050,6 +12679,39 @@ export type Database = {
           schedule_type?: string | null
           target?: string
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      distraction_logs: {
+        Row: {
+          context: string | null
+          created_at: string
+          distraction_type: string
+          duration_seconds: number | null
+          id: string
+          source: string
+          timestamp: string
+          user_id: string
+        }
+        Insert: {
+          context?: string | null
+          created_at?: string
+          distraction_type: string
+          duration_seconds?: number | null
+          id?: string
+          source: string
+          timestamp?: string
+          user_id: string
+        }
+        Update: {
+          context?: string | null
+          created_at?: string
+          distraction_type?: string
+          duration_seconds?: number | null
+          id?: string
+          source?: string
+          timestamp?: string
           user_id?: string
         }
         Relationships: []
@@ -11296,33 +12958,138 @@ export type Database = {
         }
         Relationships: []
       }
-      energy_metrics: {
+      energy_logs: {
         Row: {
-          created_at: string | null
+          activities_completed: Json | null
+          created_at: string
+          energy_level: number
           id: string
+          log_date: string
+          mood: string
           notes: string | null
-          timestamp: string | null
-          type: string | null
-          user_id: string | null
-          value: number | null
+          updated_at: string
+          user_id: string
         }
         Insert: {
-          created_at?: string | null
+          activities_completed?: Json | null
+          created_at?: string
+          energy_level: number
           id?: string
+          log_date?: string
+          mood: string
           notes?: string | null
-          timestamp?: string | null
-          type?: string | null
-          user_id?: string | null
-          value?: number | null
+          updated_at?: string
+          user_id: string
         }
         Update: {
-          created_at?: string | null
+          activities_completed?: Json | null
+          created_at?: string
+          energy_level?: number
+          id?: string
+          log_date?: string
+          mood?: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      energy_logs8: {
+        Row: {
+          caffeine_amount_mg: number | null
+          caffeine_consumed: boolean | null
+          caffeineAmountMg: number | null
+          caffeineConsumed: boolean | null
+          created_at: string
+          energy_level: number
+          factors: string[] | null
+          id: string
+          notes: string | null
+          physical_activity: boolean | null
+          physicalActivity: boolean | null
+          sleep_hours: number | null
+          sleepHours: number | null
+          time_of_day: string | null
+          timeOfDay: string | null
+          timestamp: string
+          triggers: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          caffeine_amount_mg?: number | null
+          caffeine_consumed?: boolean | null
+          caffeineAmountMg?: number | null
+          caffeineConsumed?: boolean | null
+          created_at?: string
+          energy_level: number
+          factors?: string[] | null
           id?: string
           notes?: string | null
-          timestamp?: string | null
-          type?: string | null
-          user_id?: string | null
-          value?: number | null
+          physical_activity?: boolean | null
+          physicalActivity?: boolean | null
+          sleep_hours?: number | null
+          sleepHours?: number | null
+          time_of_day?: string | null
+          timeOfDay?: string | null
+          timestamp?: string
+          triggers?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          caffeine_amount_mg?: number | null
+          caffeine_consumed?: boolean | null
+          caffeineAmountMg?: number | null
+          caffeineConsumed?: boolean | null
+          created_at?: string
+          energy_level?: number
+          factors?: string[] | null
+          id?: string
+          notes?: string | null
+          physical_activity?: boolean | null
+          physicalActivity?: boolean | null
+          sleep_hours?: number | null
+          sleepHours?: number | null
+          time_of_day?: string | null
+          timeOfDay?: string | null
+          timestamp?: string
+          triggers?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      energy_metrics: {
+        Row: {
+          average_energy_level: number
+          created_at: string
+          energy_pattern: Json | null
+          highest_energy_time: string | null
+          id: string
+          lowest_energy_time: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          average_energy_level?: number
+          created_at?: string
+          energy_pattern?: Json | null
+          highest_energy_time?: string | null
+          id?: string
+          lowest_energy_time?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          average_energy_level?: number
+          created_at?: string
+          energy_pattern?: Json | null
+          highest_energy_time?: string | null
+          id?: string
+          lowest_energy_time?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -11408,15 +13175,7 @@ export type Database = {
           settings?: Json
           step_number?: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "energy_plan_components_plan_id_fkey"
-            columns: ["plan_id"]
-            isOneToOne: false
-            referencedRelation: "energy_plans"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       energy_plan_progress: {
         Row: {
@@ -11451,13 +13210,6 @@ export type Database = {
             referencedRelation: "energy_plan_components"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "fk_plan"
-            columns: ["plan_id"]
-            isOneToOne: false
-            referencedRelation: "energy_plans"
-            referencedColumns: ["id"]
-          },
         ]
       }
       energy_plan_reviews: {
@@ -11489,13 +13241,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "energy_plan_reviews_plan_id_fkey"
-            columns: ["plan_id"]
-            isOneToOne: false
-            referencedRelation: "energy_plans"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "energy_plan_reviews_user_id_fkey"
             columns: ["user_id"]
@@ -11530,123 +13275,43 @@ export type Database = {
           user_role?: string | null
           viewed_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "energy_plan_views_plan_id_fkey"
-            columns: ["plan_id"]
-            isOneToOne: false
-            referencedRelation: "energy_plans"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       energy_plans: {
         Row: {
-          category: string | null
-          contraindications: string[] | null
+          activities: Json
           created_at: string
-          created_by: string
-          description: string | null
-          energy_level_required: number | null
-          estimated_duration_minutes: number | null
-          expertise_level:
-            | Database["public"]["Enums"]["plan_expertise_level"]
-            | null
+          duration_minutes: number
+          effectiveness_rating: number | null
           id: string
-          is_expert_plan: boolean | null
-          likes_count: number | null
-          plan_type: Database["public"]["Enums"]["plan_type"]
-          professional_notes: string | null
-          recommended_roles: string[] | null
-          recommended_time_of_day: string[] | null
-          requires_certification: boolean | null
-          saves_count: number | null
-          suitable_contexts: string[] | null
-          suitable_life_situations:
-            | Database["public"]["Enums"]["life_situation"][]
-            | null
-          tags: string[] | null
-          title: string
+          plan_name: string
+          plan_type: string
           updated_at: string
-          vendor_id: string | null
-          visibility: Database["public"]["Enums"]["plan_visibility"] | null
+          user_id: string
         }
         Insert: {
-          category?: string | null
-          contraindications?: string[] | null
+          activities: Json
           created_at?: string
-          created_by: string
-          description?: string | null
-          energy_level_required?: number | null
-          estimated_duration_minutes?: number | null
-          expertise_level?:
-            | Database["public"]["Enums"]["plan_expertise_level"]
-            | null
+          duration_minutes: number
+          effectiveness_rating?: number | null
           id?: string
-          is_expert_plan?: boolean | null
-          likes_count?: number | null
-          plan_type: Database["public"]["Enums"]["plan_type"]
-          professional_notes?: string | null
-          recommended_roles?: string[] | null
-          recommended_time_of_day?: string[] | null
-          requires_certification?: boolean | null
-          saves_count?: number | null
-          suitable_contexts?: string[] | null
-          suitable_life_situations?:
-            | Database["public"]["Enums"]["life_situation"][]
-            | null
-          tags?: string[] | null
-          title: string
+          plan_name: string
+          plan_type: string
           updated_at?: string
-          vendor_id?: string | null
-          visibility?: Database["public"]["Enums"]["plan_visibility"] | null
+          user_id: string
         }
         Update: {
-          category?: string | null
-          contraindications?: string[] | null
+          activities?: Json
           created_at?: string
-          created_by?: string
-          description?: string | null
-          energy_level_required?: number | null
-          estimated_duration_minutes?: number | null
-          expertise_level?:
-            | Database["public"]["Enums"]["plan_expertise_level"]
-            | null
+          duration_minutes?: number
+          effectiveness_rating?: number | null
           id?: string
-          is_expert_plan?: boolean | null
-          likes_count?: number | null
-          plan_type?: Database["public"]["Enums"]["plan_type"]
-          professional_notes?: string | null
-          recommended_roles?: string[] | null
-          recommended_time_of_day?: string[] | null
-          requires_certification?: boolean | null
-          saves_count?: number | null
-          suitable_contexts?: string[] | null
-          suitable_life_situations?:
-            | Database["public"]["Enums"]["life_situation"][]
-            | null
-          tags?: string[] | null
-          title?: string
+          plan_name?: string
+          plan_type?: string
           updated_at?: string
-          vendor_id?: string | null
-          visibility?: Database["public"]["Enums"]["plan_visibility"] | null
+          user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "energy_plans_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "energy_plans_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendors"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       energy_plans8: {
         Row: {
@@ -11729,6 +13394,33 @@ export type Database = {
         }
         Relationships: []
       }
+      energy_tracking: {
+        Row: {
+          energy_level: number
+          factors: string[] | null
+          id: string
+          notes: string | null
+          timestamp: string
+          user_id: string
+        }
+        Insert: {
+          energy_level: number
+          factors?: string[] | null
+          id?: string
+          notes?: string | null
+          timestamp?: string
+          user_id: string
+        }
+        Update: {
+          energy_level?: number
+          factors?: string[] | null
+          id?: string
+          notes?: string | null
+          timestamp?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       engagement_analytics: {
         Row: {
           created_at: string | null
@@ -11760,6 +13452,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      error_logs: {
+        Row: {
+          category: string | null
+          component: string | null
+          created_at: string | null
+          id: string
+          message: string
+          route: string | null
+          severity: string | null
+          source: string | null
+          stack_trace: string | null
+          updated_at: string | null
+          url: string | null
+          user_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          component?: string | null
+          created_at?: string | null
+          id?: string
+          message: string
+          route?: string | null
+          severity?: string | null
+          source?: string | null
+          stack_trace?: string | null
+          updated_at?: string | null
+          url?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          component?: string | null
+          created_at?: string | null
+          id?: string
+          message?: string
+          route?: string | null
+          severity?: string | null
+          source?: string | null
+          stack_trace?: string | null
+          updated_at?: string | null
+          url?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       event_registrations: {
         Row: {
@@ -11883,6 +13620,254 @@ export type Database = {
           exercise_name?: string
           exercise_type?: string
           id?: string
+        }
+        Relationships: []
+      }
+      exercise_entries: {
+        Row: {
+          avg_heart_rate: number | null
+          calories_burned: number
+          created_at: string | null
+          distance_km: number | null
+          duration_minutes: number
+          energy_level: number | null
+          exercise_type: string
+          id: string
+          intensity_level: string
+          max_heart_rate: number | null
+          mood_after: number | null
+          mood_before: number | null
+          notes: string | null
+          perceived_exertion: number | null
+          start_time: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avg_heart_rate?: number | null
+          calories_burned: number
+          created_at?: string | null
+          distance_km?: number | null
+          duration_minutes: number
+          energy_level?: number | null
+          exercise_type: string
+          id?: string
+          intensity_level: string
+          max_heart_rate?: number | null
+          mood_after?: number | null
+          mood_before?: number | null
+          notes?: string | null
+          perceived_exertion?: number | null
+          start_time: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avg_heart_rate?: number | null
+          calories_burned?: number
+          created_at?: string | null
+          distance_km?: number | null
+          duration_minutes?: number
+          energy_level?: number | null
+          exercise_type?: string
+          id?: string
+          intensity_level?: string
+          max_heart_rate?: number | null
+          mood_after?: number | null
+          mood_before?: number | null
+          notes?: string | null
+          perceived_exertion?: number | null
+          start_time?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      exercise_goals: {
+        Row: {
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+          weekly_calories_goal: number
+          weekly_minutes_goal: number
+          weekly_workout_goal: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+          weekly_calories_goal: number
+          weekly_minutes_goal: number
+          weekly_workout_goal: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+          weekly_calories_goal?: number
+          weekly_minutes_goal?: number
+          weekly_workout_goal?: number
+        }
+        Relationships: []
+      }
+      exercise_goals8: {
+        Row: {
+          created_at: string | null
+          id: number
+          target_calories_per_week: number | null
+          target_days_per_week: number
+          target_minutes_per_week: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          target_calories_per_week?: number | null
+          target_days_per_week: number
+          target_minutes_per_week: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          target_calories_per_week?: number | null
+          target_days_per_week?: number
+          target_minutes_per_week?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      exercise_logs8: {
+        Row: {
+          calories_burned: number | null
+          created_at: string | null
+          date: string
+          duration_minutes: number
+          exercise_name: string
+          exercise_type: string
+          id: number
+          intensity: string | null
+          notes: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          calories_burned?: number | null
+          created_at?: string | null
+          date: string
+          duration_minutes: number
+          exercise_name: string
+          exercise_type: string
+          id?: number
+          intensity?: string | null
+          notes?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          calories_burned?: number | null
+          created_at?: string | null
+          date?: string
+          duration_minutes?: number
+          exercise_name?: string
+          exercise_type?: string
+          id?: number
+          intensity?: string | null
+          notes?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      exercise_metrics: {
+        Row: {
+          created_at: string | null
+          entry_id: string
+          id: string
+          metric_type: string
+          metric_unit: string
+          metric_value: number
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          entry_id: string
+          id?: string
+          metric_type: string
+          metric_unit: string
+          metric_value: number
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          entry_id?: string
+          id?: string
+          metric_type?: string
+          metric_unit?: string
+          metric_value?: number
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_metrics_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exercise_progress: {
+        Row: {
+          created_at: string | null
+          current_value: number
+          exercise_type: string
+          goal_value: number
+          id: string
+          metric_type: string
+          start_date: string
+          start_value: number
+          status: string
+          target_date: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_value: number
+          exercise_type: string
+          goal_value: number
+          id?: string
+          metric_type: string
+          start_date: string
+          start_value: number
+          status: string
+          target_date?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_value?: number
+          exercise_type?: string
+          goal_value?: number
+          id?: string
+          metric_type?: string
+          start_date?: string
+          start_value?: number
+          status?: string
+          target_date?: string | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -12444,6 +14429,35 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      favorite_recipes8: {
+        Row: {
+          created_at: string | null
+          id: string
+          recipe_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          recipe_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          recipe_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorite_recipes8_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes8"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       feature_votes: {
         Row: {
@@ -13250,6 +15264,41 @@ export type Database = {
         }
         Relationships: []
       }
+      focus_distractions: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          session_id: string | null
+          timestamp: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          session_id?: string | null
+          timestamp?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          session_id?: string | null
+          timestamp?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "focus_distractions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "focus_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       focus_energy_schedule: {
         Row: {
           created_at: string | null
@@ -13653,6 +15702,111 @@ export type Database = {
         }
         Relationships: []
       }
+      focus_logs: {
+        Row: {
+          activity_type: string | null
+          craving_interference: number | null
+          craving_management_technique: string | null
+          created_at: string
+          distractions: string[] | null
+          duration_minutes: number | null
+          environment: string[] | null
+          focus_level: number
+          id: string
+          notes: string | null
+          task_completed: boolean | null
+          timestamp: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_type?: string | null
+          craving_interference?: number | null
+          craving_management_technique?: string | null
+          created_at?: string
+          distractions?: string[] | null
+          duration_minutes?: number | null
+          environment?: string[] | null
+          focus_level: number
+          id?: string
+          notes?: string | null
+          task_completed?: boolean | null
+          timestamp?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string | null
+          craving_interference?: number | null
+          craving_management_technique?: string | null
+          created_at?: string
+          distractions?: string[] | null
+          duration_minutes?: number | null
+          environment?: string[] | null
+          focus_level?: number
+          id?: string
+          notes?: string | null
+          task_completed?: boolean | null
+          timestamp?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      focus_logs8: {
+        Row: {
+          activity_type: string | null
+          craving_interference: number | null
+          craving_management_technique: string | null
+          created_at: string
+          distractions: Json | null
+          duration_minutes: number | null
+          environment: Json | null
+          factors: string[] | null
+          focus_level: number
+          id: string
+          notes: string | null
+          task_completed: boolean | null
+          timestamp: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_type?: string | null
+          craving_interference?: number | null
+          craving_management_technique?: string | null
+          created_at?: string
+          distractions?: Json | null
+          duration_minutes?: number | null
+          environment?: Json | null
+          factors?: string[] | null
+          focus_level: number
+          id?: string
+          notes?: string | null
+          task_completed?: boolean | null
+          timestamp?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string | null
+          craving_interference?: number | null
+          craving_management_technique?: string | null
+          created_at?: string
+          distractions?: Json | null
+          duration_minutes?: number | null
+          environment?: Json | null
+          factors?: string[] | null
+          focus_level?: number
+          id?: string
+          notes?: string | null
+          task_completed?: boolean | null
+          timestamp?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       focus_music: {
         Row: {
           artist: string | null
@@ -13905,30 +16059,54 @@ export type Database = {
       focus_sessions: {
         Row: {
           completed: boolean | null
-          created_at: string | null
-          duration: number
+          created_at: string
+          duration: number | null
+          end_time: string | null
+          energy_level: number | null
+          focus_score: number | null
+          focus_type: string | null
           id: string
-          started_at: string | null
-          updated_at: string | null
-          user_id: string | null
+          location: string | null
+          notes: string | null
+          start_time: string
+          status: string
+          technique: string | null
+          updated_at: string
+          user_id: string
         }
         Insert: {
           completed?: boolean | null
-          created_at?: string | null
-          duration: number
+          created_at?: string
+          duration?: number | null
+          end_time?: string | null
+          energy_level?: number | null
+          focus_score?: number | null
+          focus_type?: string | null
           id?: string
-          started_at?: string | null
-          updated_at?: string | null
-          user_id?: string | null
+          location?: string | null
+          notes?: string | null
+          start_time?: string
+          status: string
+          technique?: string | null
+          updated_at?: string
+          user_id: string
         }
         Update: {
           completed?: boolean | null
-          created_at?: string | null
-          duration?: number
+          created_at?: string
+          duration?: number | null
+          end_time?: string | null
+          energy_level?: number | null
+          focus_score?: number | null
+          focus_type?: string | null
           id?: string
-          started_at?: string | null
-          updated_at?: string | null
-          user_id?: string | null
+          location?: string | null
+          notes?: string | null
+          start_time?: string
+          status?: string
+          technique?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -13971,6 +16149,48 @@ export type Database = {
         }
         Relationships: []
       }
+      focus_settings: {
+        Row: {
+          allowlist_websites: string[] | null
+          anti_fatigue_settings: Json | null
+          break_length: number
+          created_at: string
+          id: string
+          notification_enabled: boolean
+          session_length: number
+          sound_enabled: boolean
+          theme: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allowlist_websites?: string[] | null
+          anti_fatigue_settings?: Json | null
+          break_length?: number
+          created_at?: string
+          id?: string
+          notification_enabled?: boolean
+          session_length?: number
+          sound_enabled?: boolean
+          theme?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allowlist_websites?: string[] | null
+          anti_fatigue_settings?: Json | null
+          break_length?: number
+          created_at?: string
+          id?: string
+          notification_enabled?: boolean
+          session_length?: number
+          sound_enabled?: boolean
+          theme?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       focus_skill_training: {
         Row: {
           accuracy_score: number | null
@@ -14007,35 +16227,146 @@ export type Database = {
         }
         Relationships: []
       }
+      focus_statistics: {
+        Row: {
+          average_session_length: number
+          completed_tasks: number
+          created_at: string
+          current_streak: number
+          id: string
+          last_session_date: string | null
+          longest_streak: number
+          most_productive_time: string | null
+          total_minutes_focused: number
+          total_sessions: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          average_session_length?: number
+          completed_tasks?: number
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_session_date?: string | null
+          longest_streak?: number
+          most_productive_time?: string | null
+          total_minutes_focused?: number
+          total_sessions?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          average_session_length?: number
+          completed_tasks?: number
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_session_date?: string | null
+          longest_streak?: number
+          most_productive_time?: string | null
+          total_minutes_focused?: number
+          total_sessions?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       focus_stats: {
         Row: {
-          average_duration: number | null
-          created_at: string | null
+          average_cognitive_load: number | null
+          completed_tasks: number
+          created_at: string
+          current_streak: number
+          date: string
+          distraction_count: number | null
+          focus_score: number | null
           id: string
-          sessions_completed: number | null
-          streak_days: number | null
-          total_time: number | null
-          updated_at: string | null
+          longest_session: number | null
+          longest_streak: number
+          mood_energy_correlation: number | null
+          total_minutes: number
+          total_sessions: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          average_cognitive_load?: number | null
+          completed_tasks?: number
+          created_at?: string
+          current_streak?: number
+          date: string
+          distraction_count?: number | null
+          focus_score?: number | null
+          id?: string
+          longest_session?: number | null
+          longest_streak?: number
+          mood_energy_correlation?: number | null
+          total_minutes?: number
+          total_sessions?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          average_cognitive_load?: number | null
+          completed_tasks?: number
+          created_at?: string
+          current_streak?: number
+          date?: string
+          distraction_count?: number | null
+          focus_score?: number | null
+          id?: string
+          longest_session?: number | null
+          longest_streak?: number
+          mood_energy_correlation?: number | null
+          total_minutes?: number
+          total_sessions?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      focus_strategies: {
+        Row: {
+          best_for_task_types: string[] | null
+          category: string | null
+          created_at: string
+          description: string | null
+          effectiveness_rating: number | null
+          id: string
+          personalized_notes: string | null
+          scientific_backing: string | null
+          strategy_name: string
+          times_used: number | null
+          updated_at: string
           user_id: string | null
         }
         Insert: {
-          average_duration?: number | null
-          created_at?: string | null
+          best_for_task_types?: string[] | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          effectiveness_rating?: number | null
           id?: string
-          sessions_completed?: number | null
-          streak_days?: number | null
-          total_time?: number | null
-          updated_at?: string | null
+          personalized_notes?: string | null
+          scientific_backing?: string | null
+          strategy_name: string
+          times_used?: number | null
+          updated_at?: string
           user_id?: string | null
         }
         Update: {
-          average_duration?: number | null
-          created_at?: string | null
+          best_for_task_types?: string[] | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          effectiveness_rating?: number | null
           id?: string
-          sessions_completed?: number | null
-          streak_days?: number | null
-          total_time?: number | null
-          updated_at?: string | null
+          personalized_notes?: string | null
+          scientific_backing?: string | null
+          strategy_name?: string
+          times_used?: number | null
+          updated_at?: string
           user_id?: string | null
         }
         Relationships: []
@@ -14126,6 +16457,95 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      focus_tasks: {
+        Row: {
+          actual_minutes: number | null
+          category: string | null
+          cognitive_load_estimate: number | null
+          completed: boolean
+          created_at: string
+          difficulty_level: number | null
+          due_date: string | null
+          estimated_load: number | null
+          estimated_minutes: number | null
+          id: string
+          importance: string | null
+          notes: string | null
+          order: number | null
+          parent_task_id: string | null
+          priority: string
+          repeat_pattern: string | null
+          scheduled_end_time: string | null
+          scheduled_start_time: string | null
+          status: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          urgency: string | null
+          user_id: string
+        }
+        Insert: {
+          actual_minutes?: number | null
+          category?: string | null
+          cognitive_load_estimate?: number | null
+          completed?: boolean
+          created_at?: string
+          difficulty_level?: number | null
+          due_date?: string | null
+          estimated_load?: number | null
+          estimated_minutes?: number | null
+          id?: string
+          importance?: string | null
+          notes?: string | null
+          order?: number | null
+          parent_task_id?: string | null
+          priority?: string
+          repeat_pattern?: string | null
+          scheduled_end_time?: string | null
+          scheduled_start_time?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          urgency?: string | null
+          user_id: string
+        }
+        Update: {
+          actual_minutes?: number | null
+          category?: string | null
+          cognitive_load_estimate?: number | null
+          completed?: boolean
+          created_at?: string
+          difficulty_level?: number | null
+          due_date?: string | null
+          estimated_load?: number | null
+          estimated_minutes?: number | null
+          id?: string
+          importance?: string | null
+          notes?: string | null
+          order?: number | null
+          parent_task_id?: string | null
+          priority?: string
+          repeat_pattern?: string | null
+          scheduled_end_time?: string | null
+          scheduled_start_time?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          urgency?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "focus_tasks_parent_task_id_fkey"
+            columns: ["parent_task_id"]
+            isOneToOne: false
+            referencedRelation: "focus_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       focus_timer_sessions: {
         Row: {
@@ -14265,6 +16685,72 @@ export type Database = {
         }
         Relationships: []
       }
+      food_items8: {
+        Row: {
+          brand: string | null
+          calories: number
+          carbs: number
+          category: string | null
+          cholesterol: number | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          fat: number
+          fiber: number | null
+          id: string
+          is_verified: boolean | null
+          name: string
+          protein: number
+          serving_size: string | null
+          serving_unit: string | null
+          sodium: number | null
+          sugar: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          brand?: string | null
+          calories: number
+          carbs: number
+          category?: string | null
+          cholesterol?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          fat: number
+          fiber?: number | null
+          id?: string
+          is_verified?: boolean | null
+          name: string
+          protein: number
+          serving_size?: string | null
+          serving_unit?: string | null
+          sodium?: number | null
+          sugar?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          brand?: string | null
+          calories?: number
+          carbs?: number
+          category?: string | null
+          cholesterol?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          fat?: number
+          fiber?: number | null
+          id?: string
+          is_verified?: boolean | null
+          name?: string
+          protein?: number
+          serving_size?: string | null
+          serving_unit?: string | null
+          sodium?: number | null
+          sugar?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       food_logs: {
         Row: {
           ai_analysis: string | null
@@ -14370,6 +16856,147 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      game_sessions: {
+        Row: {
+          completed: boolean
+          created_at: string | null
+          difficulty: string
+          duration: number
+          game_type: string
+          id: string
+          score: number
+          timestamp: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string | null
+          difficulty: string
+          duration?: number
+          game_type: string
+          id?: string
+          score?: number
+          timestamp?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string | null
+          difficulty?: string
+          duration?: number
+          game_type?: string
+          id?: string
+          score?: number
+          timestamp?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      games: {
+        Row: {
+          completed: boolean | null
+          created_at: string | null
+          difficulty_level: number | null
+          duration_seconds: number | null
+          game_type: string
+          id: string
+          score: number | null
+          user_id: string | null
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string | null
+          difficulty_level?: number | null
+          duration_seconds?: number | null
+          game_type: string
+          id?: string
+          score?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string | null
+          difficulty_level?: number | null
+          duration_seconds?: number | null
+          game_type?: string
+          id?: string
+          score?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      games8: {
+        Row: {
+          category: string | null
+          component_path: string | null
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          component_path?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          component_path?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      goal_templates: {
+        Row: {
+          created_at: string
+          description: string | null
+          difficulty: string | null
+          duration_days: number | null
+          focus_type: string
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          difficulty?: string | null
+          duration_days?: number | null
+          focus_type: string
+          id?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          difficulty?: string | null
+          duration_days?: number | null
+          focus_type?: string
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       goal_tracking: {
         Row: {
@@ -15608,6 +18235,138 @@ export type Database = {
         }
         Relationships: []
       }
+      guide_bookmarks8: {
+        Row: {
+          created_at: string
+          guide_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          guide_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          guide_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      guide_views8: {
+        Row: {
+          guide_id: string
+          id: string
+          user_id: string
+          viewed_at: string
+        }
+        Insert: {
+          guide_id: string
+          id?: string
+          user_id: string
+          viewed_at?: string
+        }
+        Update: {
+          guide_id?: string
+          id?: string
+          user_id?: string
+          viewed_at?: string
+        }
+        Relationships: []
+      }
+      guided_mindfulness_sessions8: {
+        Row: {
+          audio_url: string | null
+          created_at: string
+          description: string | null
+          difficulty: string | null
+          duration_seconds: number
+          id: string
+          practice_type: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          audio_url?: string | null
+          created_at?: string
+          description?: string | null
+          difficulty?: string | null
+          duration_seconds: number
+          id?: string
+          practice_type: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          audio_url?: string | null
+          created_at?: string
+          description?: string | null
+          difficulty?: string | null
+          duration_seconds?: number
+          id?: string
+          practice_type?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      guides8: {
+        Row: {
+          author: string | null
+          category: string | null
+          created_at: string
+          description: string | null
+          difficulty: string | null
+          duration: number | null
+          featured: boolean | null
+          id: string
+          published_at: string | null
+          tags: string[] | null
+          thumbnail: string | null
+          title: string
+          type: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          author?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          difficulty?: string | null
+          duration?: number | null
+          featured?: boolean | null
+          id?: string
+          published_at?: string | null
+          tags?: string[] | null
+          thumbnail?: string | null
+          title: string
+          type: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          author?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          difficulty?: string | null
+          duration?: number | null
+          featured?: boolean | null
+          id?: string
+          published_at?: string | null
+          tags?: string[] | null
+          thumbnail?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       habit_replacements: {
         Row: {
           created_at: string
@@ -15784,6 +18543,203 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      health_improvements: {
+        Row: {
+          achieved: boolean
+          achievement_date: string | null
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          timeline_hours: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          achieved?: boolean
+          achievement_date?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          timeline_hours: number
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          achieved?: boolean
+          achievement_date?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          timeline_hours?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      health_improvements8: {
+        Row: {
+          achieved: boolean
+          achievement_date: string | null
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          milestone_type: string | null
+          organ_system: string | null
+          timeline_hours: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          achieved?: boolean
+          achievement_date?: string | null
+          created_at?: string
+          description: string
+          icon: string
+          id?: string
+          milestone_type?: string | null
+          organ_system?: string | null
+          timeline_hours: number
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          achieved?: boolean
+          achievement_date?: string | null
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          milestone_type?: string | null
+          organ_system?: string | null
+          timeline_hours?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      health_logs: {
+        Row: {
+          created_at: string
+          data_type: string
+          id: string
+          source: string | null
+          timestamp: string
+          unit: string | null
+          updated_at: string
+          user_id: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          data_type: string
+          id?: string
+          source?: string | null
+          timestamp?: string
+          unit?: string | null
+          updated_at?: string
+          user_id: string
+          value: number
+        }
+        Update: {
+          created_at?: string
+          data_type?: string
+          id?: string
+          source?: string | null
+          timestamp?: string
+          unit?: string | null
+          updated_at?: string
+          user_id?: string
+          value?: number
+        }
+        Relationships: []
+      }
+      health_logs8: {
+        Row: {
+          created_at: string
+          data_type: string
+          id: string
+          log_type: string
+          timestamp: string
+          unit: string | null
+          user_id: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          data_type: string
+          id?: string
+          log_type: string
+          timestamp?: string
+          unit?: string | null
+          user_id: string
+          value: number
+        }
+        Update: {
+          created_at?: string
+          data_type?: string
+          id?: string
+          log_type?: string
+          timestamp?: string
+          unit?: string | null
+          user_id?: string
+          value?: number
+        }
+        Relationships: []
+      }
+      health_metrics: {
+        Row: {
+          created_at: string | null
+          id: string
+          metric_type: string
+          notes: string | null
+          recorded_at: string | null
+          unit: string | null
+          updated_at: string | null
+          user_id: string
+          value: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          metric_type: string
+          notes?: string | null
+          recorded_at?: string | null
+          unit?: string | null
+          updated_at?: string | null
+          user_id: string
+          value: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          metric_type?: string
+          notes?: string | null
+          recorded_at?: string | null
+          unit?: string | null
+          updated_at?: string | null
+          user_id?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "health_metrics_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       herbal_tea_compounds: {
         Row: {
@@ -17045,6 +20001,7 @@ export type Database = {
           tags: string[] | null
           time: string | null
           title: string | null
+          type: string
           updated_at: string | null
           user_id: string
         }
@@ -17057,6 +20014,7 @@ export type Database = {
           tags?: string[] | null
           time?: string | null
           title?: string | null
+          type?: string
           updated_at?: string | null
           user_id: string
         }
@@ -17069,6 +20027,7 @@ export type Database = {
           tags?: string[] | null
           time?: string | null
           title?: string | null
+          type?: string
           updated_at?: string | null
           user_id?: string
         }
@@ -17653,6 +20612,138 @@ export type Database = {
           },
         ]
       }
+      meal_items8: {
+        Row: {
+          calories: number
+          carbs: number
+          created_at: string | null
+          fat: number
+          food_item_id: string
+          id: string
+          meal_log_id: string
+          protein: number
+          servings: number
+          updated_at: string | null
+        }
+        Insert: {
+          calories: number
+          carbs: number
+          created_at?: string | null
+          fat: number
+          food_item_id: string
+          id?: string
+          meal_log_id: string
+          protein: number
+          servings?: number
+          updated_at?: string | null
+        }
+        Update: {
+          calories?: number
+          carbs?: number
+          created_at?: string | null
+          fat?: number
+          food_item_id?: string
+          id?: string
+          meal_log_id?: string
+          protein?: number
+          servings?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_items8_food_item_id_fkey"
+            columns: ["food_item_id"]
+            isOneToOne: false
+            referencedRelation: "food_items8"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meal_items8_meal_log_id_fkey"
+            columns: ["meal_log_id"]
+            isOneToOne: false
+            referencedRelation: "meal_logs8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_logs8: {
+        Row: {
+          created_at: string | null
+          id: string
+          log_date: string
+          meal_time: string
+          meal_type: string
+          notes: string | null
+          total_calories: number | null
+          total_carbs: number | null
+          total_fat: number | null
+          total_protein: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          log_date: string
+          meal_time: string
+          meal_type: string
+          notes?: string | null
+          total_calories?: number | null
+          total_carbs?: number | null
+          total_fat?: number | null
+          total_protein?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          log_date?: string
+          meal_time?: string
+          meal_type?: string
+          notes?: string | null
+          total_calories?: number | null
+          total_carbs?: number | null
+          total_fat?: number | null
+          total_protein?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      meal_plans8: {
+        Row: {
+          created_at: string | null
+          date: string
+          id: string
+          meal_type: string
+          notes: string | null
+          recipe_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          id?: string
+          meal_type: string
+          notes?: string | null
+          recipe_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          id?: string
+          meal_type?: string
+          notes?: string | null
+          recipe_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       medication_logs: {
         Row: {
           created_at: string | null
@@ -18162,6 +21253,111 @@ export type Database = {
         }
         Relationships: []
       }
+      mental_health_entries: {
+        Row: {
+          anxiety_level: number
+          coping_strategies: string[]
+          created_at: string
+          energy_level: number
+          focus_level: number
+          gratitude_items: string[]
+          id: string
+          mood_level: number
+          notes: string | null
+          sleep_quality: number
+          social_connection: number
+          stress_level: number
+          triggers: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          anxiety_level: number
+          coping_strategies?: string[]
+          created_at?: string
+          energy_level: number
+          focus_level: number
+          gratitude_items?: string[]
+          id?: string
+          mood_level: number
+          notes?: string | null
+          sleep_quality: number
+          social_connection: number
+          stress_level: number
+          triggers?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          anxiety_level?: number
+          coping_strategies?: string[]
+          created_at?: string
+          energy_level?: number
+          focus_level?: number
+          gratitude_items?: string[]
+          id?: string
+          mood_level?: number
+          notes?: string | null
+          sleep_quality?: number
+          social_connection?: number
+          stress_level?: number
+          triggers?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mental_health_goals: {
+        Row: {
+          created_at: string
+          daily_gratitude_goal: number
+          id: string
+          notes: string | null
+          target_anxiety: number
+          target_energy: number
+          target_focus: number
+          target_mood: number
+          target_sleep: number
+          target_social: number
+          target_stress: number
+          updated_at: string
+          user_id: string
+          weekly_coping_strategies: string[]
+        }
+        Insert: {
+          created_at?: string
+          daily_gratitude_goal?: number
+          id?: string
+          notes?: string | null
+          target_anxiety: number
+          target_energy: number
+          target_focus: number
+          target_mood: number
+          target_sleep: number
+          target_social: number
+          target_stress: number
+          updated_at?: string
+          user_id: string
+          weekly_coping_strategies?: string[]
+        }
+        Update: {
+          created_at?: string
+          daily_gratitude_goal?: number
+          id?: string
+          notes?: string | null
+          target_anxiety?: number
+          target_energy?: number
+          target_focus?: number
+          target_mood?: number
+          target_sleep?: number
+          target_social?: number
+          target_stress?: number
+          updated_at?: string
+          user_id?: string
+          weekly_coping_strategies?: string[]
+        }
+        Relationships: []
+      }
       mental_health_homework: {
         Row: {
           assignment_type: string
@@ -18457,6 +21653,74 @@ export type Database = {
         }
         Relationships: []
       }
+      milestone_templates: {
+        Row: {
+          created_at: string
+          day: number
+          description: string | null
+          icon: string | null
+          id: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          day: number
+          description?: string | null
+          icon?: string | null
+          id?: string
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          day?: number
+          description?: string | null
+          icon?: string | null
+          id?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      milestones8: {
+        Row: {
+          achieved_at: string
+          created_at: string
+          id: string
+          milestone_key: string
+          quit_attempt_id: string
+          user_id: string
+        }
+        Insert: {
+          achieved_at?: string
+          created_at?: string
+          id?: string
+          milestone_key: string
+          quit_attempt_id: string
+          user_id: string
+        }
+        Update: {
+          achieved_at?: string
+          created_at?: string
+          id?: string
+          milestone_key?: string
+          quit_attempt_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "milestones8_quit_attempt_id_fkey"
+            columns: ["quit_attempt_id"]
+            isOneToOne: false
+            referencedRelation: "quit_attempts8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mindfulness_sessions8: {
         Row: {
           created_at: string | null
@@ -18490,6 +21754,557 @@ export type Database = {
           start_time?: string
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      mission4_consumption_logs: {
+        Row: {
+          brand: string | null
+          consumption_date: string
+          created_at: string | null
+          id: string
+          intensity: number | null
+          location: string | null
+          mood: string | null
+          nicotine_strength: number | null
+          notes: string | null
+          product_type: string
+          quantity: number
+          trigger: string | null
+          unit: string
+          updated_at: string | null
+          user_id: string
+          variant: string | null
+        }
+        Insert: {
+          brand?: string | null
+          consumption_date: string
+          created_at?: string | null
+          id?: string
+          intensity?: number | null
+          location?: string | null
+          mood?: string | null
+          nicotine_strength?: number | null
+          notes?: string | null
+          product_type: string
+          quantity: number
+          trigger?: string | null
+          unit: string
+          updated_at?: string | null
+          user_id: string
+          variant?: string | null
+        }
+        Update: {
+          brand?: string | null
+          consumption_date?: string
+          created_at?: string | null
+          id?: string
+          intensity?: number | null
+          location?: string | null
+          mood?: string | null
+          nicotine_strength?: number | null
+          notes?: string | null
+          product_type?: string
+          quantity?: number
+          trigger?: string | null
+          unit?: string
+          updated_at?: string | null
+          user_id?: string
+          variant?: string | null
+        }
+        Relationships: []
+      }
+      mission4_country_regulations: {
+        Row: {
+          allowed_product_types: string[] | null
+          country_code: string
+          id: string
+          regulation_summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          allowed_product_types?: string[] | null
+          country_code: string
+          id?: string
+          regulation_summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          allowed_product_types?: string[] | null
+          country_code?: string
+          id?: string
+          regulation_summary?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      mission4_guide_bookmarks: {
+        Row: {
+          created_at: string
+          guide_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          guide_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          guide_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mission4_guide_bookmarks_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "guides8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mission4_guide_views: {
+        Row: {
+          guide_id: string
+          id: string
+          user_id: string
+          viewed_at: string
+        }
+        Insert: {
+          guide_id: string
+          id?: string
+          user_id: string
+          viewed_at?: string
+        }
+        Update: {
+          guide_id?: string
+          id?: string
+          user_id?: string
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mission4_guide_views_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "guides8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mission4_health_metrics: {
+        Row: {
+          created_at: string | null
+          date: string
+          exercise_minutes: number | null
+          heart_rate: number[] | null
+          id: string
+          sleep_hours: number | null
+          step_count: number | null
+          stress_level: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          exercise_minutes?: number | null
+          heart_rate?: number[] | null
+          id?: string
+          sleep_hours?: number | null
+          step_count?: number | null
+          stress_level?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          exercise_minutes?: number | null
+          heart_rate?: number[] | null
+          id?: string
+          sleep_hours?: number | null
+          step_count?: number | null
+          stress_level?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mission4_product_favorites: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mission4_product_favorites_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "nicotine_products8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mission4_product_reviews: {
+        Row: {
+          cons: string[] | null
+          created_at: string | null
+          id: string
+          product_id: string
+          pros: string[] | null
+          rating: number
+          review_text: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cons?: string[] | null
+          created_at?: string | null
+          id?: string
+          product_id: string
+          pros?: string[] | null
+          rating: number
+          review_text?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cons?: string[] | null
+          created_at?: string | null
+          id?: string
+          product_id?: string
+          pros?: string[] | null
+          rating?: number
+          review_text?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mission4_product_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "mission4_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mission4_products: {
+        Row: {
+          average_rating: number | null
+          brand: string
+          category: string
+          chemicals_of_concern: string[] | null
+          country_availability: string[] | null
+          created_at: string | null
+          description: string | null
+          flavors: string[] | null
+          gum_health_rating: number | null
+          health_impact_rating: number | null
+          id: string
+          image_url: string | null
+          ingredients: string[] | null
+          name: string
+          nicotine_strength: number
+          nicotine_type: string | null
+          price_range: number[] | null
+          retail_links: Json | null
+          subcategory: string | null
+          total_reviews: number | null
+          updated_at: string | null
+          warnings: string[] | null
+        }
+        Insert: {
+          average_rating?: number | null
+          brand: string
+          category: string
+          chemicals_of_concern?: string[] | null
+          country_availability?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          flavors?: string[] | null
+          gum_health_rating?: number | null
+          health_impact_rating?: number | null
+          id?: string
+          image_url?: string | null
+          ingredients?: string[] | null
+          name: string
+          nicotine_strength: number
+          nicotine_type?: string | null
+          price_range?: number[] | null
+          retail_links?: Json | null
+          subcategory?: string | null
+          total_reviews?: number | null
+          updated_at?: string | null
+          warnings?: string[] | null
+        }
+        Update: {
+          average_rating?: number | null
+          brand?: string
+          category?: string
+          chemicals_of_concern?: string[] | null
+          country_availability?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          flavors?: string[] | null
+          gum_health_rating?: number | null
+          health_impact_rating?: number | null
+          id?: string
+          image_url?: string | null
+          ingredients?: string[] | null
+          name?: string
+          nicotine_strength?: number
+          nicotine_type?: string | null
+          price_range?: number[] | null
+          retail_links?: Json | null
+          subcategory?: string | null
+          total_reviews?: number | null
+          updated_at?: string | null
+          warnings?: string[] | null
+        }
+        Relationships: []
+      }
+      mission4_progress: {
+        Row: {
+          craving_intensity: number | null
+          cravings_count: number | null
+          created_at: string | null
+          date: string
+          energy_level: number | null
+          exercise_minutes: number | null
+          focus_level: number | null
+          id: string
+          meditation_minutes: number | null
+          mood: string | null
+          nicotine_free: boolean
+          notes: string | null
+          physical_symptoms: string[] | null
+          products_used: string[] | null
+          quantities: Json | null
+          reduced_intake: boolean | null
+          sleep_hours: number | null
+          step_count: number | null
+          stress_level: number | null
+          updated_at: string | null
+          user_id: string
+          water_intake: number | null
+        }
+        Insert: {
+          craving_intensity?: number | null
+          cravings_count?: number | null
+          created_at?: string | null
+          date: string
+          energy_level?: number | null
+          exercise_minutes?: number | null
+          focus_level?: number | null
+          id?: string
+          meditation_minutes?: number | null
+          mood?: string | null
+          nicotine_free?: boolean
+          notes?: string | null
+          physical_symptoms?: string[] | null
+          products_used?: string[] | null
+          quantities?: Json | null
+          reduced_intake?: boolean | null
+          sleep_hours?: number | null
+          step_count?: number | null
+          stress_level?: number | null
+          updated_at?: string | null
+          user_id: string
+          water_intake?: number | null
+        }
+        Update: {
+          craving_intensity?: number | null
+          cravings_count?: number | null
+          created_at?: string | null
+          date?: string
+          energy_level?: number | null
+          exercise_minutes?: number | null
+          focus_level?: number | null
+          id?: string
+          meditation_minutes?: number | null
+          mood?: string | null
+          nicotine_free?: boolean
+          notes?: string | null
+          physical_symptoms?: string[] | null
+          products_used?: string[] | null
+          quantities?: Json | null
+          reduced_intake?: boolean | null
+          sleep_hours?: number | null
+          step_count?: number | null
+          stress_level?: number | null
+          updated_at?: string | null
+          user_id?: string
+          water_intake?: number | null
+        }
+        Relationships: []
+      }
+      mission4_quit_plans: {
+        Row: {
+          coping_strategies: string[] | null
+          created_at: string | null
+          goal_type: string
+          id: string
+          nrt_plan: Json | null
+          reduction_schedule: Json | null
+          rewards_milestones: Json | null
+          start_date: string
+          support_network: string[] | null
+          target_quit_date: string | null
+          triggers_identified: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          coping_strategies?: string[] | null
+          created_at?: string | null
+          goal_type: string
+          id?: string
+          nrt_plan?: Json | null
+          reduction_schedule?: Json | null
+          rewards_milestones?: Json | null
+          start_date: string
+          support_network?: string[] | null
+          target_quit_date?: string | null
+          triggers_identified?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          coping_strategies?: string[] | null
+          created_at?: string | null
+          goal_type?: string
+          id?: string
+          nrt_plan?: Json | null
+          reduction_schedule?: Json | null
+          rewards_milestones?: Json | null
+          start_date?: string
+          support_network?: string[] | null
+          target_quit_date?: string | null
+          triggers_identified?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mood_energy_entries: {
+        Row: {
+          contributing_factors: string[] | null
+          created_at: string
+          energy_drains: string[] | null
+          energy_level: number
+          focus_enhancers: string[] | null
+          focus_level: number
+          id: string
+          is_quit_day_related: boolean | null
+          mood_score: number
+          notes: string | null
+          quit_day_correlation: number | null
+          timestamp: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contributing_factors?: string[] | null
+          created_at?: string
+          energy_drains?: string[] | null
+          energy_level: number
+          focus_enhancers?: string[] | null
+          focus_level: number
+          id?: string
+          is_quit_day_related?: boolean | null
+          mood_score: number
+          notes?: string | null
+          quit_day_correlation?: number | null
+          timestamp?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contributing_factors?: string[] | null
+          created_at?: string
+          energy_drains?: string[] | null
+          energy_level?: number
+          focus_enhancers?: string[] | null
+          focus_level?: number
+          id?: string
+          is_quit_day_related?: boolean | null
+          mood_score?: number
+          notes?: string | null
+          quit_day_correlation?: number | null
+          timestamp?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mood_entries: {
+        Row: {
+          anxiety: number
+          created_at: string
+          date: string
+          energy: number
+          focus: number
+          id: string
+          notes: string | null
+          overall_mood: number
+          sleep_quality: number
+          social_connection: number
+          stress: number
+          updated_at: string | null
+          user_id: string
+          weather_condition: string | null
+        }
+        Insert: {
+          anxiety: number
+          created_at?: string
+          date: string
+          energy: number
+          focus: number
+          id?: string
+          notes?: string | null
+          overall_mood: number
+          sleep_quality: number
+          social_connection: number
+          stress: number
+          updated_at?: string | null
+          user_id: string
+          weather_condition?: string | null
+        }
+        Update: {
+          anxiety?: number
+          created_at?: string
+          date?: string
+          energy?: number
+          focus?: number
+          id?: string
+          notes?: string | null
+          overall_mood?: number
+          sleep_quality?: number
+          social_connection?: number
+          stress?: number
+          updated_at?: string | null
+          user_id?: string
+          weather_condition?: string | null
         }
         Relationships: []
       }
@@ -18637,6 +22452,81 @@ export type Database = {
         }
         Relationships: []
       }
+      mood_logs8: {
+        Row: {
+          activities: string[] | null
+          created_at: string
+          id: string
+          intensity: number | null
+          mood: string
+          mood_score: number
+          notes: string | null
+          related_to_cravings: boolean | null
+          timestamp: string
+          triggers: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activities?: string[] | null
+          created_at?: string
+          id?: string
+          intensity?: number | null
+          mood: string
+          mood_score: number
+          notes?: string | null
+          related_to_cravings?: boolean | null
+          timestamp?: string
+          triggers?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activities?: string[] | null
+          created_at?: string
+          id?: string
+          intensity?: number | null
+          mood?: string
+          mood_score?: number
+          notes?: string | null
+          related_to_cravings?: boolean | null
+          timestamp?: string
+          triggers?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mood_tracking: {
+        Row: {
+          created_at: string | null
+          energy_level: number | null
+          id: string
+          mood_score: number
+          mood_type: string | null
+          notes: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          energy_level?: number | null
+          id?: string
+          mood_score: number
+          mood_type?: string | null
+          notes?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          energy_level?: number | null
+          id?: string
+          mood_score?: number
+          mood_type?: string | null
+          notes?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       mood_tracking8: {
         Row: {
           activities: string[] | null
@@ -18678,34 +22568,37 @@ export type Database = {
       }
       mood_triggers: {
         Row: {
-          created_at: string | null
+          created_at: string
           frequency: string
           id: string
           impact_level: number
           notes: string | null
           trigger_category: string
           trigger_name: string
-          user_id: string | null
+          updated_at: string
+          user_id: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           frequency: string
           id?: string
           impact_level: number
           notes?: string | null
           trigger_category: string
           trigger_name: string
-          user_id?: string | null
+          updated_at?: string
+          user_id: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           frequency?: string
           id?: string
           impact_level?: number
           notes?: string | null
           trigger_category?: string
           trigger_name?: string
-          user_id?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -18829,6 +22722,240 @@ export type Database = {
           previous_route?: string | null
           state_data?: Json | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      nicotine_consumption_log: {
+        Row: {
+          consumption_date: string | null
+          created_at: string | null
+          id: string
+          intensity: number | null
+          location: string | null
+          mood: string | null
+          notes: string | null
+          product_type: string
+          quantity: number
+          trigger: string | null
+          unit: string
+          user_id: string | null
+        }
+        Insert: {
+          consumption_date?: string | null
+          created_at?: string | null
+          id?: string
+          intensity?: number | null
+          location?: string | null
+          mood?: string | null
+          notes?: string | null
+          product_type: string
+          quantity: number
+          trigger?: string | null
+          unit: string
+          user_id?: string | null
+        }
+        Update: {
+          consumption_date?: string | null
+          created_at?: string | null
+          id?: string
+          intensity?: number | null
+          location?: string | null
+          mood?: string | null
+          notes?: string | null
+          product_type?: string
+          quantity?: number
+          trigger?: string | null
+          unit?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      nicotine_consumption_logs: {
+        Row: {
+          brand: string | null
+          consumption_date: string
+          created_at: string | null
+          id: string
+          intensity: number | null
+          location: string | null
+          mood: string | null
+          nicotine_strength: number | null
+          notes: string | null
+          product_type: string
+          quantity: number
+          trigger: string | null
+          unit: string
+          updated_at: string | null
+          user_id: string
+          variant: string | null
+        }
+        Insert: {
+          brand?: string | null
+          consumption_date: string
+          created_at?: string | null
+          id?: string
+          intensity?: number | null
+          location?: string | null
+          mood?: string | null
+          nicotine_strength?: number | null
+          notes?: string | null
+          product_type: string
+          quantity: number
+          trigger?: string | null
+          unit: string
+          updated_at?: string | null
+          user_id: string
+          variant?: string | null
+        }
+        Update: {
+          brand?: string | null
+          consumption_date?: string
+          created_at?: string | null
+          id?: string
+          intensity?: number | null
+          location?: string | null
+          mood?: string | null
+          nicotine_strength?: number | null
+          notes?: string | null
+          product_type?: string
+          quantity?: number
+          trigger?: string | null
+          unit?: string
+          updated_at?: string | null
+          user_id?: string
+          variant?: string | null
+        }
+        Relationships: []
+      }
+      nicotine_consumption_logs8: {
+        Row: {
+          brand: string | null
+          consumption_date: string
+          created_at: string | null
+          id: string
+          intensity: number | null
+          location: string | null
+          mood: string | null
+          nicotine_strength: number | null
+          notes: string | null
+          product_type: string
+          quantity: number
+          trigger: string | null
+          unit: string
+          updated_at: string | null
+          user_id: string
+          variant: string | null
+        }
+        Insert: {
+          brand?: string | null
+          consumption_date: string
+          created_at?: string | null
+          id?: string
+          intensity?: number | null
+          location?: string | null
+          mood?: string | null
+          nicotine_strength?: number | null
+          notes?: string | null
+          product_type: string
+          quantity: number
+          trigger?: string | null
+          unit: string
+          updated_at?: string | null
+          user_id: string
+          variant?: string | null
+        }
+        Update: {
+          brand?: string | null
+          consumption_date?: string
+          created_at?: string | null
+          id?: string
+          intensity?: number | null
+          location?: string | null
+          mood?: string | null
+          nicotine_strength?: number | null
+          notes?: string | null
+          product_type?: string
+          quantity?: number
+          trigger?: string | null
+          unit?: string
+          updated_at?: string | null
+          user_id?: string
+          variant?: string | null
+        }
+        Relationships: []
+      }
+      nicotine_products8: {
+        Row: {
+          average_rating: number | null
+          brand: string
+          category: string
+          chemicals_of_concern: string[] | null
+          country_availability: string[] | null
+          created_at: string
+          description: string | null
+          flavors: string[] | null
+          gum_health_rating: number | null
+          health_impact_rating: number | null
+          id: string
+          image_url: string | null
+          ingredients: string[] | null
+          name: string
+          nicotine_strength: number
+          nicotine_type: string | null
+          price_range: number[] | null
+          retail_links: Json | null
+          subcategory: string | null
+          total_reviews: number | null
+          updated_at: string
+          warnings: string[] | null
+        }
+        Insert: {
+          average_rating?: number | null
+          brand: string
+          category: string
+          chemicals_of_concern?: string[] | null
+          country_availability?: string[] | null
+          created_at?: string
+          description?: string | null
+          flavors?: string[] | null
+          gum_health_rating?: number | null
+          health_impact_rating?: number | null
+          id?: string
+          image_url?: string | null
+          ingredients?: string[] | null
+          name: string
+          nicotine_strength: number
+          nicotine_type?: string | null
+          price_range?: number[] | null
+          retail_links?: Json | null
+          subcategory?: string | null
+          total_reviews?: number | null
+          updated_at?: string
+          warnings?: string[] | null
+        }
+        Update: {
+          average_rating?: number | null
+          brand?: string
+          category?: string
+          chemicals_of_concern?: string[] | null
+          country_availability?: string[] | null
+          created_at?: string
+          description?: string | null
+          flavors?: string[] | null
+          gum_health_rating?: number | null
+          health_impact_rating?: number | null
+          id?: string
+          image_url?: string | null
+          ingredients?: string[] | null
+          name?: string
+          nicotine_strength?: number
+          nicotine_type?: string | null
+          price_range?: number[] | null
+          retail_links?: Json | null
+          subcategory?: string | null
+          total_reviews?: number | null
+          updated_at?: string
+          warnings?: string[] | null
         }
         Relationships: []
       }
@@ -19814,85 +23941,622 @@ export type Database = {
           user_id?: string
           user_name?: string | null
         }
+        Relationships: []
+      }
+      nrt_products: {
+        Row: {
+          availability: string | null
+          average_rating: number | null
+          brand: string
+          category: string
+          chemicals_of_concern: string[] | null
+          country_availability: string[] | null
+          created_at: string
+          delivery_system: string | null
+          description: string | null
+          flavors: string[] | null
+          gum_health_rating: number | null
+          id: string
+          image_url: string | null
+          ingredients: string[] | null
+          is_natural: boolean | null
+          name: string
+          nicotine_strength: number | null
+          nicotine_type: string | null
+          packaging: string | null
+          popularity_score: number | null
+          price_range_max: number | null
+          price_range_min: number | null
+          release_date: string | null
+          reviews_count: number | null
+          updated_at: string
+          warnings: string[] | null
+        }
+        Insert: {
+          availability?: string | null
+          average_rating?: number | null
+          brand: string
+          category: string
+          chemicals_of_concern?: string[] | null
+          country_availability?: string[] | null
+          created_at?: string
+          delivery_system?: string | null
+          description?: string | null
+          flavors?: string[] | null
+          gum_health_rating?: number | null
+          id?: string
+          image_url?: string | null
+          ingredients?: string[] | null
+          is_natural?: boolean | null
+          name: string
+          nicotine_strength?: number | null
+          nicotine_type?: string | null
+          packaging?: string | null
+          popularity_score?: number | null
+          price_range_max?: number | null
+          price_range_min?: number | null
+          release_date?: string | null
+          reviews_count?: number | null
+          updated_at?: string
+          warnings?: string[] | null
+        }
+        Update: {
+          availability?: string | null
+          average_rating?: number | null
+          brand?: string
+          category?: string
+          chemicals_of_concern?: string[] | null
+          country_availability?: string[] | null
+          created_at?: string
+          delivery_system?: string | null
+          description?: string | null
+          flavors?: string[] | null
+          gum_health_rating?: number | null
+          id?: string
+          image_url?: string | null
+          ingredients?: string[] | null
+          is_natural?: boolean | null
+          name?: string
+          nicotine_strength?: number | null
+          nicotine_type?: string | null
+          packaging?: string | null
+          popularity_score?: number | null
+          price_range_max?: number | null
+          price_range_min?: number | null
+          release_date?: string | null
+          reviews_count?: number | null
+          updated_at?: string
+          warnings?: string[] | null
+        }
+        Relationships: []
+      }
+      nrt_products8: {
+        Row: {
+          affiliate_link: string | null
+          availability: string | null
+          available_in_countries: string[] | null
+          average_rating: number | null
+          brand: string
+          category: string
+          chemicals_of_concern: string[] | null
+          country_availability: string[] | null
+          created_at: string
+          delivery_system: string | null
+          description: string | null
+          effectiveness_rating: number | null
+          flavors: string[] | null
+          gum_health_rating: number | null
+          id: string
+          image_url: string | null
+          ingredients: string[] | null
+          is_natural: boolean | null
+          name: string
+          nicotine_strength: number | null
+          nicotine_type: string | null
+          packaging: string | null
+          popularity_score: number | null
+          prescription_required: boolean | null
+          price_range: number[] | null
+          price_range_max: number | null
+          price_range_min: number | null
+          release_date: string | null
+          reviews_count: number | null
+          side_effects: string[] | null
+          updated_at: string
+          usage_instructions: string | null
+          warnings: string[] | null
+        }
+        Insert: {
+          affiliate_link?: string | null
+          availability?: string | null
+          available_in_countries?: string[] | null
+          average_rating?: number | null
+          brand: string
+          category: string
+          chemicals_of_concern?: string[] | null
+          country_availability?: string[] | null
+          created_at?: string
+          delivery_system?: string | null
+          description?: string | null
+          effectiveness_rating?: number | null
+          flavors?: string[] | null
+          gum_health_rating?: number | null
+          id?: string
+          image_url?: string | null
+          ingredients?: string[] | null
+          is_natural?: boolean | null
+          name: string
+          nicotine_strength?: number | null
+          nicotine_type?: string | null
+          packaging?: string | null
+          popularity_score?: number | null
+          prescription_required?: boolean | null
+          price_range?: number[] | null
+          price_range_max?: number | null
+          price_range_min?: number | null
+          release_date?: string | null
+          reviews_count?: number | null
+          side_effects?: string[] | null
+          updated_at?: string
+          usage_instructions?: string | null
+          warnings?: string[] | null
+        }
+        Update: {
+          affiliate_link?: string | null
+          availability?: string | null
+          available_in_countries?: string[] | null
+          average_rating?: number | null
+          brand?: string
+          category?: string
+          chemicals_of_concern?: string[] | null
+          country_availability?: string[] | null
+          created_at?: string
+          delivery_system?: string | null
+          description?: string | null
+          effectiveness_rating?: number | null
+          flavors?: string[] | null
+          gum_health_rating?: number | null
+          id?: string
+          image_url?: string | null
+          ingredients?: string[] | null
+          is_natural?: boolean | null
+          name?: string
+          nicotine_strength?: number | null
+          nicotine_type?: string | null
+          packaging?: string | null
+          popularity_score?: number | null
+          prescription_required?: boolean | null
+          price_range?: number[] | null
+          price_range_max?: number | null
+          price_range_min?: number | null
+          release_date?: string | null
+          reviews_count?: number | null
+          side_effects?: string[] | null
+          updated_at?: string
+          usage_instructions?: string | null
+          warnings?: string[] | null
+        }
+        Relationships: []
+      }
+      nrt_reviews8: {
+        Row: {
+          created_at: string
+          helpful_count: number
+          id: string
+          is_verified_purchase: boolean
+          product_id: string
+          rating: number
+          review_text: string
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          helpful_count?: number
+          id?: string
+          is_verified_purchase?: boolean
+          product_id: string
+          rating: number
+          review_text: string
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          helpful_count?: number
+          id?: string
+          is_verified_purchase?: boolean
+          product_id?: string
+          rating?: number
+          review_text?: string
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      nrt_vendors8: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          rating: number | null
+          shipping_info: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          rating?: number | null
+          shipping_info?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          rating?: number | null
+          shipping_info?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      nutrition_entries: {
+        Row: {
+          calories: number | null
+          carbs_g: number | null
+          created_at: string | null
+          fat_g: number | null
+          fiber_g: number | null
+          hunger_level: number | null
+          id: string
+          meal_time: string
+          meal_type: string
+          mood_after: number | null
+          mood_before: number | null
+          notes: string | null
+          photos: string[] | null
+          protein_g: number | null
+          satiety_level: number | null
+          sodium_mg: number | null
+          sugar_g: number | null
+          updated_at: string | null
+          user_id: string
+          water_ml: number | null
+        }
+        Insert: {
+          calories?: number | null
+          carbs_g?: number | null
+          created_at?: string | null
+          fat_g?: number | null
+          fiber_g?: number | null
+          hunger_level?: number | null
+          id?: string
+          meal_time: string
+          meal_type: string
+          mood_after?: number | null
+          mood_before?: number | null
+          notes?: string | null
+          photos?: string[] | null
+          protein_g?: number | null
+          satiety_level?: number | null
+          sodium_mg?: number | null
+          sugar_g?: number | null
+          updated_at?: string | null
+          user_id: string
+          water_ml?: number | null
+        }
+        Update: {
+          calories?: number | null
+          carbs_g?: number | null
+          created_at?: string | null
+          fat_g?: number | null
+          fiber_g?: number | null
+          hunger_level?: number | null
+          id?: string
+          meal_time?: string
+          meal_type?: string
+          mood_after?: number | null
+          mood_before?: number | null
+          notes?: string | null
+          photos?: string[] | null
+          protein_g?: number | null
+          satiety_level?: number | null
+          sodium_mg?: number | null
+          sugar_g?: number | null
+          updated_at?: string | null
+          user_id?: string
+          water_ml?: number | null
+        }
+        Relationships: []
+      }
+      nutrition_foods: {
+        Row: {
+          calories: number | null
+          carbs_g: number | null
+          created_at: string | null
+          entry_id: string
+          fat_g: number | null
+          fiber_g: number | null
+          food_name: string
+          id: string
+          protein_g: number | null
+          serving_size: number
+          serving_unit: string
+          sodium_mg: number | null
+          sugar_g: number | null
+        }
+        Insert: {
+          calories?: number | null
+          carbs_g?: number | null
+          created_at?: string | null
+          entry_id: string
+          fat_g?: number | null
+          fiber_g?: number | null
+          food_name: string
+          id?: string
+          protein_g?: number | null
+          serving_size: number
+          serving_unit: string
+          sodium_mg?: number | null
+          sugar_g?: number | null
+        }
+        Update: {
+          calories?: number | null
+          carbs_g?: number | null
+          created_at?: string | null
+          entry_id?: string
+          fat_g?: number | null
+          fiber_g?: number | null
+          food_name?: string
+          id?: string
+          protein_g?: number | null
+          serving_size?: number
+          serving_unit?: string
+          sodium_mg?: number | null
+          sugar_g?: number | null
+        }
         Relationships: [
           {
-            foreignKeyName: "nrt_product_reviews8_product_id_fkey"
-            columns: ["product_id"]
+            foreignKeyName: "nutrition_foods_entry_id_fkey"
+            columns: ["entry_id"]
             isOneToOne: false
-            referencedRelation: "nrt_products8"
+            referencedRelation: "nutrition_entries"
             referencedColumns: ["id"]
           },
         ]
       }
-      nrt_products8: {
+      nutrition_goals: {
         Row: {
-          available: boolean
-          best_for: string[]
-          brand: string
-          cons: string[]
-          created_at: string
-          description: string
-          effectiveness_rating: number
+          created_at: string | null
+          daily_calories: number | null
+          daily_carbs_g: number | null
+          daily_fat_g: number | null
+          daily_fiber_g: number | null
+          daily_protein_g: number | null
+          daily_sodium_mg: number | null
+          daily_sugar_g: number | null
+          daily_water_ml: number | null
           id: string
-          image_url: string | null
-          name: string
-          prescription_required: boolean
-          price: string
-          pros: string[]
-          rating: number
-          reviews: number
-          side_effects: string[]
-          strength_options: string[]
-          type: string
-          updated_at: string
-          usage_instructions: string[]
-          user_id: string | null
+          updated_at: string | null
+          user_id: string
         }
         Insert: {
-          available?: boolean
-          best_for?: string[]
-          brand: string
-          cons?: string[]
-          created_at?: string
-          description: string
-          effectiveness_rating?: number
+          created_at?: string | null
+          daily_calories?: number | null
+          daily_carbs_g?: number | null
+          daily_fat_g?: number | null
+          daily_fiber_g?: number | null
+          daily_protein_g?: number | null
+          daily_sodium_mg?: number | null
+          daily_sugar_g?: number | null
+          daily_water_ml?: number | null
           id?: string
-          image_url?: string | null
-          name: string
-          prescription_required?: boolean
-          price: string
-          pros?: string[]
-          rating?: number
-          reviews?: number
-          side_effects?: string[]
-          strength_options?: string[]
-          type: string
-          updated_at?: string
-          usage_instructions?: string[]
-          user_id?: string | null
+          updated_at?: string | null
+          user_id: string
         }
         Update: {
-          available?: boolean
-          best_for?: string[]
-          brand?: string
-          cons?: string[]
-          created_at?: string
-          description?: string
-          effectiveness_rating?: number
+          created_at?: string | null
+          daily_calories?: number | null
+          daily_carbs_g?: number | null
+          daily_fat_g?: number | null
+          daily_fiber_g?: number | null
+          daily_protein_g?: number | null
+          daily_sodium_mg?: number | null
+          daily_sugar_g?: number | null
+          daily_water_ml?: number | null
           id?: string
-          image_url?: string | null
-          name?: string
-          prescription_required?: boolean
-          price?: string
-          pros?: string[]
-          rating?: number
-          reviews?: number
-          side_effects?: string[]
-          strength_options?: string[]
-          type?: string
-          updated_at?: string
-          usage_instructions?: string[]
-          user_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      nutrition_goals8: {
+        Row: {
+          calories: number
+          carbs: number
+          cholesterol: number | null
+          created_at: string | null
+          end_date: string | null
+          fat: number
+          fiber: number | null
+          id: string
+          is_active: boolean | null
+          protein: number
+          sodium: number | null
+          start_date: string
+          sugar: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          calories: number
+          carbs: number
+          cholesterol?: number | null
+          created_at?: string | null
+          end_date?: string | null
+          fat: number
+          fiber?: number | null
+          id?: string
+          is_active?: boolean | null
+          protein: number
+          sodium?: number | null
+          start_date: string
+          sugar?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          calories?: number
+          carbs?: number
+          cholesterol?: number | null
+          created_at?: string | null
+          end_date?: string | null
+          fat?: number
+          fiber?: number | null
+          id?: string
+          is_active?: boolean | null
+          protein?: number
+          sodium?: number | null
+          start_date?: string
+          sugar?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      nutrition_preferences: {
+        Row: {
+          allergies: string[] | null
+          cooking_skill_level: string | null
+          created_at: string | null
+          dietary_restrictions: string[] | null
+          disliked_foods: string[] | null
+          favorite_foods: string[] | null
+          id: string
+          meal_prep_frequency: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          allergies?: string[] | null
+          cooking_skill_level?: string | null
+          created_at?: string | null
+          dietary_restrictions?: string[] | null
+          disliked_foods?: string[] | null
+          favorite_foods?: string[] | null
+          id?: string
+          meal_prep_frequency?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          allergies?: string[] | null
+          cooking_skill_level?: string | null
+          created_at?: string | null
+          dietary_restrictions?: string[] | null
+          disliked_foods?: string[] | null
+          favorite_foods?: string[] | null
+          id?: string
+          meal_prep_frequency?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      nutrition_profiles8: {
+        Row: {
+          activity_calories_goal: number | null
+          activity_level: string | null
+          created_at: string | null
+          current_weight: number | null
+          daily_calorie_target: number | null
+          daily_carb_target: number | null
+          daily_fat_target: number | null
+          daily_protein_target: number | null
+          dietary_preferences: string[] | null
+          height: number | null
+          id: string
+          target_weight: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          activity_calories_goal?: number | null
+          activity_level?: string | null
+          created_at?: string | null
+          current_weight?: number | null
+          daily_calorie_target?: number | null
+          daily_carb_target?: number | null
+          daily_fat_target?: number | null
+          daily_protein_target?: number | null
+          dietary_preferences?: string[] | null
+          height?: number | null
+          id?: string
+          target_weight?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          activity_calories_goal?: number | null
+          activity_level?: string | null
+          created_at?: string | null
+          current_weight?: number | null
+          daily_calorie_target?: number | null
+          daily_carb_target?: number | null
+          daily_fat_target?: number | null
+          daily_protein_target?: number | null
+          dietary_preferences?: string[] | null
+          height?: number | null
+          id?: string
+          target_weight?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      nutrition_recommendations: {
+        Row: {
+          action_items: string[] | null
+          created_at: string | null
+          description: string
+          id: string
+          priority: number | null
+          recommendation_type: string
+          status: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          action_items?: string[] | null
+          created_at?: string | null
+          description: string
+          id?: string
+          priority?: number | null
+          recommendation_type: string
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          action_items?: string[] | null
+          created_at?: string | null
+          description?: string
+          id?: string
+          priority?: number | null
+          recommendation_type?: string
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -20756,6 +25420,42 @@ export type Database = {
           id?: string
           multiplier?: number
           subscription_tier?: string
+        }
+        Relationships: []
+      }
+      pomodoro_sessions: {
+        Row: {
+          break_duration: number
+          completed: boolean
+          created_at: string | null
+          duration: number
+          end_time: string | null
+          id: string
+          start_time: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          break_duration?: number
+          completed?: boolean
+          created_at?: string | null
+          duration?: number
+          end_time?: string | null
+          id?: string
+          start_time?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          break_duration?: number
+          completed?: boolean
+          created_at?: string | null
+          duration?: number
+          end_time?: string | null
+          id?: string
+          start_time?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -22266,6 +26966,27 @@ export type Database = {
           },
         ]
       }
+      product_favorites8: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       product_feedback: {
         Row: {
           actual_behavior: string | null
@@ -22737,6 +27458,36 @@ export type Database = {
           },
         ]
       }
+      product_health_details8: {
+        Row: {
+          created_at: string
+          health_impact_score: number | null
+          id: string
+          key_chemicals: string[] | null
+          product_id: string
+          summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          health_impact_score?: number | null
+          id?: string
+          key_chemicals?: string[] | null
+          product_id: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          health_impact_score?: number | null
+          id?: string
+          key_chemicals?: string[] | null
+          product_id?: string
+          summary?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       product_measurements: {
         Row: {
           created_at: string | null
@@ -23159,6 +27910,54 @@ export type Database = {
           },
         ]
       }
+      product_vendors: {
+        Row: {
+          created_at: string | null
+          id: string
+          in_stock: boolean | null
+          price: number | null
+          product_id: string | null
+          product_url: string | null
+          updated_at: string | null
+          vendor_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          in_stock?: boolean | null
+          price?: number | null
+          product_id?: string | null
+          product_url?: string | null
+          updated_at?: string | null
+          vendor_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          in_stock?: boolean | null
+          price?: number | null
+          product_id?: string | null
+          product_url?: string | null
+          updated_at?: string | null
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_vendors_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "nrt_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_vendors_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_verifications: {
         Row: {
           created_at: string | null
@@ -23203,6 +28002,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      product_views8: {
+        Row: {
+          id: string
+          product_id: string
+          user_id: string | null
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          user_id?: string | null
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          user_id?: string | null
+          viewed_at?: string
+        }
+        Relationships: []
       }
       productivity_metrics: {
         Row: {
@@ -23695,6 +28515,45 @@ export type Database = {
         }
         Relationships: []
       }
+      professionals8: {
+        Row: {
+          bio: string | null
+          created_at: string
+          full_name: string
+          hourly_rate: number | null
+          id: string
+          professional_type: string
+          profile_picture_url: string | null
+          specialties: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          full_name: string
+          hourly_rate?: number | null
+          id?: string
+          professional_type: string
+          profile_picture_url?: string | null
+          specialties?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          full_name?: string
+          hourly_rate?: number | null
+          id?: string
+          professional_type?: string
+          profile_picture_url?: string | null
+          specialties?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -23707,6 +28566,7 @@ export type Database = {
           id: string
           is_verified: boolean | null
           notification_settings: Json | null
+          points: number
           push_token: string | null
           role: string | null
           specialties: string[] | null
@@ -23727,6 +28587,7 @@ export type Database = {
           id: string
           is_verified?: boolean | null
           notification_settings?: Json | null
+          points?: number
           push_token?: string | null
           role?: string | null
           specialties?: string[] | null
@@ -23747,6 +28608,7 @@ export type Database = {
           id?: string
           is_verified?: boolean | null
           notification_settings?: Json | null
+          points?: number
           push_token?: string | null
           role?: string | null
           specialties?: string[] | null
@@ -23755,6 +28617,78 @@ export type Database = {
           username?: string | null
           verified?: boolean | null
           years_experience?: number | null
+        }
+        Relationships: []
+      }
+      progress: {
+        Row: {
+          category: string
+          created_at: string | null
+          date: string
+          metric: string
+          notes: string | null
+          progress_id: number
+          unit: string
+          updated_at: string | null
+          user_id: string
+          value: number
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          date: string
+          metric: string
+          notes?: string | null
+          progress_id?: number
+          unit: string
+          updated_at?: string | null
+          user_id: string
+          value: number
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          date?: string
+          metric?: string
+          notes?: string | null
+          progress_id?: number
+          unit?: string
+          updated_at?: string | null
+          user_id?: string
+          value?: number
+        }
+        Relationships: []
+      }
+      progress_analytics: {
+        Row: {
+          category: string
+          created_at: string | null
+          id: string
+          metric: string
+          timestamp: string
+          updated_at: string | null
+          user_id: string
+          value: number
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          id?: string
+          metric: string
+          timestamp?: string
+          updated_at?: string | null
+          user_id: string
+          value: number
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          id?: string
+          metric?: string
+          timestamp?: string
+          updated_at?: string | null
+          user_id?: string
+          value?: number
         }
         Relationships: []
       }
@@ -23794,6 +28728,84 @@ export type Database = {
           mood?: string
           notes?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      progress_entries8: {
+        Row: {
+          craving_intensity: number | null
+          cravings_count: number | null
+          created_at: string | null
+          date: string
+          energy_level: number | null
+          entry_date: string | null
+          exercise_minutes: number | null
+          focus_level: number | null
+          id: string
+          meditation_minutes: number | null
+          mood: string | null
+          nicotine_free: boolean
+          notes: string | null
+          physical_symptoms: string[] | null
+          products_used: string[] | null
+          quantities: Json | null
+          reduced_intake: boolean | null
+          sleep_hours: number | null
+          step_count: number | null
+          stress_level: number | null
+          updated_at: string | null
+          user_id: string
+          water_intake: number | null
+        }
+        Insert: {
+          craving_intensity?: number | null
+          cravings_count?: number | null
+          created_at?: string | null
+          date: string
+          energy_level?: number | null
+          entry_date?: string | null
+          exercise_minutes?: number | null
+          focus_level?: number | null
+          id?: string
+          meditation_minutes?: number | null
+          mood?: string | null
+          nicotine_free?: boolean
+          notes?: string | null
+          physical_symptoms?: string[] | null
+          products_used?: string[] | null
+          quantities?: Json | null
+          reduced_intake?: boolean | null
+          sleep_hours?: number | null
+          step_count?: number | null
+          stress_level?: number | null
+          updated_at?: string | null
+          user_id: string
+          water_intake?: number | null
+        }
+        Update: {
+          craving_intensity?: number | null
+          cravings_count?: number | null
+          created_at?: string | null
+          date?: string
+          energy_level?: number | null
+          entry_date?: string | null
+          exercise_minutes?: number | null
+          focus_level?: number | null
+          id?: string
+          meditation_minutes?: number | null
+          mood?: string | null
+          nicotine_free?: boolean
+          notes?: string | null
+          physical_symptoms?: string[] | null
+          products_used?: string[] | null
+          quantities?: Json | null
+          reduced_intake?: boolean | null
+          sleep_hours?: number | null
+          step_count?: number | null
+          stress_level?: number | null
+          updated_at?: string | null
+          user_id?: string
+          water_intake?: number | null
         }
         Relationships: []
       }
@@ -23912,6 +28924,8 @@ export type Database = {
           end_date: string | null
           id: string
           notes: string | null
+          products_used: string[] | null
+          quit_method: string | null
           start_date: string | null
           substance_type: string
           success: boolean | null
@@ -23923,6 +28937,8 @@ export type Database = {
           end_date?: string | null
           id?: string
           notes?: string | null
+          products_used?: string[] | null
+          quit_method?: string | null
           start_date?: string | null
           substance_type: string
           success?: boolean | null
@@ -23934,6 +28950,8 @@ export type Database = {
           end_date?: string | null
           id?: string
           notes?: string | null
+          products_used?: string[] | null
+          quit_method?: string | null
           start_date?: string | null
           substance_type?: string
           success?: boolean | null
@@ -24033,6 +29051,45 @@ export type Database = {
           target_daily_usage?: number | null
           target_type?: string
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      quit_plan_settings: {
+        Row: {
+          created_at: string
+          id: string
+          notification_preferences: Json
+          quit_approach_id: string | null
+          quit_date: string | null
+          quit_method_id: string | null
+          support_network: Json
+          tracking_method: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notification_preferences?: Json
+          quit_approach_id?: string | null
+          quit_date?: string | null
+          quit_method_id?: string | null
+          support_network?: Json
+          tracking_method?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notification_preferences?: Json
+          quit_approach_id?: string | null
+          quit_date?: string | null
+          quit_method_id?: string | null
+          support_network?: Json
+          tracking_method?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -24193,6 +29250,290 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      quit_progress_log8: {
+        Row: {
+          amount: number | null
+          amount_unit: string | null
+          craving_intensity: number | null
+          created_at: string
+          id: string
+          log_type: string
+          notes: string | null
+          product_type: string | null
+          quit_attempt_id: string
+          timestamp: string
+          trigger: string | null
+          user_id: string
+        }
+        Insert: {
+          amount?: number | null
+          amount_unit?: string | null
+          craving_intensity?: number | null
+          created_at?: string
+          id?: string
+          log_type: string
+          notes?: string | null
+          product_type?: string | null
+          quit_attempt_id: string
+          timestamp?: string
+          trigger?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number | null
+          amount_unit?: string | null
+          craving_intensity?: number | null
+          created_at?: string
+          id?: string
+          log_type?: string
+          notes?: string | null
+          product_type?: string | null
+          quit_attempt_id?: string
+          timestamp?: string
+          trigger?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quit_progress_log8_quit_attempt_id_fkey"
+            columns: ["quit_attempt_id"]
+            isOneToOne: false
+            referencedRelation: "quit_attempts8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quit_smoking_progress: {
+        Row: {
+          cigarettes_avoided: number | null
+          cravings: number | null
+          created_at: string | null
+          date: string
+          energy_level: number | null
+          id: string
+          mood: string | null
+          mood_score: number | null
+          notes: string | null
+          user_id: string | null
+        }
+        Insert: {
+          cigarettes_avoided?: number | null
+          cravings?: number | null
+          created_at?: string | null
+          date: string
+          energy_level?: number | null
+          id?: string
+          mood?: string | null
+          mood_score?: number | null
+          notes?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          cigarettes_avoided?: number | null
+          cravings?: number | null
+          created_at?: string | null
+          date?: string
+          energy_level?: number | null
+          id?: string
+          mood?: string | null
+          mood_score?: number | null
+          notes?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      quit_smoking_settings: {
+        Row: {
+          cost_per_pack: number | null
+          created_at: string | null
+          daily_cigarettes: number | null
+          id: string
+          notification_enabled: boolean | null
+          reminder_time: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          cost_per_pack?: number | null
+          created_at?: string | null
+          daily_cigarettes?: number | null
+          id?: string
+          notification_enabled?: boolean | null
+          reminder_time?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          cost_per_pack?: number | null
+          created_at?: string | null
+          daily_cigarettes?: number | null
+          id?: string
+          notification_enabled?: boolean | null
+          reminder_time?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      quit_smoking_settings8: {
+        Row: {
+          chewing_cans_per_week: number | null
+          chewing_cost_per_can: number | null
+          cigarettes_per_pack: number | null
+          cigars_cost_per_cigar: number | null
+          cigars_per_day: number | null
+          cost_per_pack: number | null
+          daily_cigarettes: number | null
+          hookah_cost_per_session: number | null
+          hookah_sessions_per_week: number | null
+          initial_delay_minutes: number | null
+          nicotine_product: string
+          notification_enabled: boolean
+          nrt_details: string | null
+          other_consumption_per_day: number | null
+          other_cost_per_week: number | null
+          pipe_bowls_per_day: number | null
+          pipe_tobacco_cost_per_oz: number | null
+          pouches_cost_per_tin: number | null
+          pouches_per_day: number | null
+          pouches_per_tin: number | null
+          quit_date: string
+          quitting_method: string
+          reduction_goal_percent: number | null
+          reduction_timeline_days: number | null
+          reminder_time: string | null
+          replacement_product: string | null
+          secondary_products: string[] | null
+          toothpicks_cost_per_pack: number | null
+          toothpicks_per_day: number | null
+          toothpicks_per_pack: number | null
+          track_energy: boolean
+          track_mood: boolean
+          track_triggers: boolean
+          trigger_list: string | null
+          updated_at: string
+          user_id: string
+          vaping_cost_per_ml: number | null
+          vaping_ml_per_day: number | null
+          vaping_nicotine_strength: number | null
+        }
+        Insert: {
+          chewing_cans_per_week?: number | null
+          chewing_cost_per_can?: number | null
+          cigarettes_per_pack?: number | null
+          cigars_cost_per_cigar?: number | null
+          cigars_per_day?: number | null
+          cost_per_pack?: number | null
+          daily_cigarettes?: number | null
+          hookah_cost_per_session?: number | null
+          hookah_sessions_per_week?: number | null
+          initial_delay_minutes?: number | null
+          nicotine_product: string
+          notification_enabled?: boolean
+          nrt_details?: string | null
+          other_consumption_per_day?: number | null
+          other_cost_per_week?: number | null
+          pipe_bowls_per_day?: number | null
+          pipe_tobacco_cost_per_oz?: number | null
+          pouches_cost_per_tin?: number | null
+          pouches_per_day?: number | null
+          pouches_per_tin?: number | null
+          quit_date: string
+          quitting_method: string
+          reduction_goal_percent?: number | null
+          reduction_timeline_days?: number | null
+          reminder_time?: string | null
+          replacement_product?: string | null
+          secondary_products?: string[] | null
+          toothpicks_cost_per_pack?: number | null
+          toothpicks_per_day?: number | null
+          toothpicks_per_pack?: number | null
+          track_energy?: boolean
+          track_mood?: boolean
+          track_triggers?: boolean
+          trigger_list?: string | null
+          updated_at?: string
+          user_id: string
+          vaping_cost_per_ml?: number | null
+          vaping_ml_per_day?: number | null
+          vaping_nicotine_strength?: number | null
+        }
+        Update: {
+          chewing_cans_per_week?: number | null
+          chewing_cost_per_can?: number | null
+          cigarettes_per_pack?: number | null
+          cigars_cost_per_cigar?: number | null
+          cigars_per_day?: number | null
+          cost_per_pack?: number | null
+          daily_cigarettes?: number | null
+          hookah_cost_per_session?: number | null
+          hookah_sessions_per_week?: number | null
+          initial_delay_minutes?: number | null
+          nicotine_product?: string
+          notification_enabled?: boolean
+          nrt_details?: string | null
+          other_consumption_per_day?: number | null
+          other_cost_per_week?: number | null
+          pipe_bowls_per_day?: number | null
+          pipe_tobacco_cost_per_oz?: number | null
+          pouches_cost_per_tin?: number | null
+          pouches_per_day?: number | null
+          pouches_per_tin?: number | null
+          quit_date?: string
+          quitting_method?: string
+          reduction_goal_percent?: number | null
+          reduction_timeline_days?: number | null
+          reminder_time?: string | null
+          replacement_product?: string | null
+          secondary_products?: string[] | null
+          toothpicks_cost_per_pack?: number | null
+          toothpicks_per_day?: number | null
+          toothpicks_per_pack?: number | null
+          track_energy?: boolean
+          track_mood?: boolean
+          track_triggers?: boolean
+          trigger_list?: string | null
+          updated_at?: string
+          user_id?: string
+          vaping_cost_per_ml?: number | null
+          vaping_ml_per_day?: number | null
+          vaping_nicotine_strength?: number | null
+        }
+        Relationships: []
+      }
+      quit_smoking_stats: {
+        Row: {
+          cigarettes_avoided: number | null
+          created_at: string | null
+          days_smoke_free: number | null
+          id: string
+          money_saved: number | null
+          streak_days: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          cigarettes_avoided?: number | null
+          created_at?: string | null
+          days_smoke_free?: number | null
+          id?: string
+          money_saved?: number | null
+          streak_days?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          cigarettes_avoided?: number | null
+          created_at?: string | null
+          days_smoke_free?: number | null
+          id?: string
+          money_saved?: number | null
+          streak_days?: number | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -24449,6 +29790,51 @@ export type Database = {
         }
         Relationships: []
       }
+      recipe_ingredients8: {
+        Row: {
+          amount: number
+          created_at: string | null
+          food_item_id: string
+          id: string
+          recipe_id: string
+          unit: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          food_item_id: string
+          id?: string
+          recipe_id: string
+          unit?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          food_item_id?: string
+          id?: string
+          recipe_id?: string
+          unit?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipe_ingredients8_food_item_id_fkey"
+            columns: ["food_item_id"]
+            isOneToOne: false
+            referencedRelation: "food_items8"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recipe_ingredients8_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       recipes: {
         Row: {
           created_at: string | null
@@ -24524,6 +29910,134 @@ export type Database = {
         }
         Relationships: []
       }
+      recovery_entries: {
+        Row: {
+          created_at: string | null
+          duration_minutes: number
+          energy_after: number | null
+          energy_before: number | null
+          id: string
+          intensity_level: string
+          notes: string | null
+          recovery_quality: number | null
+          recovery_type: string
+          start_time: string
+          stress_level: number | null
+          symptoms: string[]
+          techniques_used: string[]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          duration_minutes: number
+          energy_after?: number | null
+          energy_before?: number | null
+          id?: string
+          intensity_level: string
+          notes?: string | null
+          recovery_quality?: number | null
+          recovery_type: string
+          start_time: string
+          stress_level?: number | null
+          symptoms?: string[]
+          techniques_used?: string[]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          duration_minutes?: number
+          energy_after?: number | null
+          energy_before?: number | null
+          id?: string
+          intensity_level?: string
+          notes?: string | null
+          recovery_quality?: number | null
+          recovery_type?: string
+          start_time?: string
+          stress_level?: number | null
+          symptoms?: string[]
+          techniques_used?: string[]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      recovery_goals: {
+        Row: {
+          created_at: string | null
+          daily_recovery_minutes_goal: number
+          id: string
+          target_energy_level: number | null
+          target_stress_level: number | null
+          updated_at: string | null
+          user_id: string
+          weekly_recovery_sessions_goal: number
+        }
+        Insert: {
+          created_at?: string | null
+          daily_recovery_minutes_goal: number
+          id?: string
+          target_energy_level?: number | null
+          target_stress_level?: number | null
+          updated_at?: string | null
+          user_id: string
+          weekly_recovery_sessions_goal: number
+        }
+        Update: {
+          created_at?: string | null
+          daily_recovery_minutes_goal?: number
+          id?: string
+          target_energy_level?: number | null
+          target_stress_level?: number | null
+          updated_at?: string | null
+          user_id?: string
+          weekly_recovery_sessions_goal?: number
+        }
+        Relationships: []
+      }
+      recovery_metrics: {
+        Row: {
+          created_at: string | null
+          entry_id: string
+          id: string
+          metric_type: string
+          metric_unit: string
+          metric_value: number
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          entry_id: string
+          id?: string
+          metric_type: string
+          metric_unit: string
+          metric_value: number
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          entry_id?: string
+          id?: string
+          metric_type?: string
+          metric_unit?: string
+          metric_value?: number
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recovery_metrics_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "recovery_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       recovery_milestones: {
         Row: {
           achieved_at: string
@@ -24571,6 +30085,92 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      recovery_progress: {
+        Row: {
+          created_at: string | null
+          current_value: number
+          goal_value: number
+          id: string
+          metric_type: string
+          recovery_type: string
+          start_date: string
+          start_value: number
+          status: string
+          target_date: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_value: number
+          goal_value: number
+          id?: string
+          metric_type: string
+          recovery_type: string
+          start_date: string
+          start_value: number
+          status: string
+          target_date?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_value?: number
+          goal_value?: number
+          id?: string
+          metric_type?: string
+          recovery_type?: string
+          start_date?: string
+          start_value?: number
+          status?: string
+          target_date?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      recovery_recommendations: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          estimated_duration_minutes: number | null
+          id: string
+          name: string
+          related_strategy_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          estimated_duration_minutes?: number | null
+          id?: string
+          name: string
+          related_strategy_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          estimated_duration_minutes?: number | null
+          id?: string
+          name?: string
+          related_strategy_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recovery_recommendations_related_strategy_id_fkey"
+            columns: ["related_strategy_id"]
+            isOneToOne: false
+            referencedRelation: "focus_strategies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       recovery8: {
         Row: {
@@ -25435,6 +31035,45 @@ export type Database = {
           },
         ]
       }
+      rewards8: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          reward_type: string
+          reward_value: string | null
+          steps_required: number | null
+          title: string
+          trigger_condition: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          reward_type: string
+          reward_value?: string | null
+          steps_required?: number | null
+          title: string
+          trigger_condition?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          reward_type?: string
+          reward_value?: string | null
+          steps_required?: number | null
+          title?: string
+          trigger_condition?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ruins: {
         Row: {
           archaeological_features: string[] | null
@@ -25892,6 +31531,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      schema_version: {
+        Row: {
+          applied_at: string | null
+          name: string
+          version: number
+        }
+        Insert: {
+          applied_at?: string | null
+          name: string
+          version: number
+        }
+        Update: {
+          applied_at?: string | null
+          name?: string
+          version?: number
+        }
+        Relationships: []
       }
       scripture_meditations: {
         Row: {
@@ -26362,6 +32019,89 @@ export type Database = {
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "consultation_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      share_analytics_summary8: {
+        Row: {
+          id: string
+          last_updated: string
+          platform: string
+          total_clicks: number | null
+          total_conversions: number | null
+          total_shares: number | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          last_updated?: string
+          platform: string
+          total_clicks?: number | null
+          total_conversions?: number | null
+          total_shares?: number | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          last_updated?: string
+          platform?: string
+          total_clicks?: number | null
+          total_conversions?: number | null
+          total_shares?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      share_analytics8: {
+        Row: {
+          click_count: number | null
+          conversion_count: number | null
+          created_at: string | null
+          id: string
+          is_public: boolean | null
+          item_id: string
+          item_type: string
+          platform: string
+          share_id: string | null
+          success: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          click_count?: number | null
+          conversion_count?: number | null
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          item_id: string
+          item_type: string
+          platform: string
+          share_id?: string | null
+          success?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          click_count?: number | null
+          conversion_count?: number | null
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          item_id?: string
+          item_type?: string
+          platform?: string
+          share_id?: string | null
+          success?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "share_analytics8_share_id_fkey"
+            columns: ["share_id"]
+            isOneToOne: false
+            referencedRelation: "social_shares8"
             referencedColumns: ["id"]
           },
         ]
@@ -26853,6 +32593,54 @@ export type Database = {
         }
         Relationships: []
       }
+      sleep_entries8: {
+        Row: {
+          created_at: string | null
+          date: string
+          deep_sleep_minutes: number | null
+          duration_minutes: number | null
+          id: string
+          light_sleep_minutes: number | null
+          notes: string | null
+          quality_rating: number | null
+          rem_sleep_minutes: number | null
+          sleep_end: string | null
+          sleep_start: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          deep_sleep_minutes?: number | null
+          duration_minutes?: number | null
+          id?: string
+          light_sleep_minutes?: number | null
+          notes?: string | null
+          quality_rating?: number | null
+          rem_sleep_minutes?: number | null
+          sleep_end?: string | null
+          sleep_start?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          deep_sleep_minutes?: number | null
+          duration_minutes?: number | null
+          id?: string
+          light_sleep_minutes?: number | null
+          notes?: string | null
+          quality_rating?: number | null
+          rem_sleep_minutes?: number | null
+          sleep_end?: string | null
+          sleep_start?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       sleep_environment_logs: {
         Row: {
           comfort_rating: number | null
@@ -27048,6 +32836,132 @@ export type Database = {
         }
         Relationships: []
       }
+      sleep_logs: {
+        Row: {
+          correlations: Json | null
+          created_at: string
+          disruptors: string[] | null
+          duration_minutes: number | null
+          id: string
+          notes: string | null
+          sleep_quality: number
+          time_to_sleep_minutes: number | null
+          timestamp: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          correlations?: Json | null
+          created_at?: string
+          disruptors?: string[] | null
+          duration_minutes?: number | null
+          id?: string
+          notes?: string | null
+          sleep_quality: number
+          time_to_sleep_minutes?: number | null
+          timestamp?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          correlations?: Json | null
+          created_at?: string
+          disruptors?: string[] | null
+          duration_minutes?: number | null
+          id?: string
+          notes?: string | null
+          sleep_quality?: number
+          time_to_sleep_minutes?: number | null
+          timestamp?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sleep_logs8: {
+        Row: {
+          correlations: Json | null
+          created_at: string
+          date: string
+          disruptors: Json | null
+          duration_minutes: number | null
+          id: string
+          notes: string | null
+          sleep_quality: number
+          time_to_sleep_minutes: number | null
+          timestamp: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          correlations?: Json | null
+          created_at?: string
+          date: string
+          disruptors?: Json | null
+          duration_minutes?: number | null
+          id?: string
+          notes?: string | null
+          sleep_quality: number
+          time_to_sleep_minutes?: number | null
+          timestamp?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          correlations?: Json | null
+          created_at?: string
+          date?: string
+          disruptors?: Json | null
+          duration_minutes?: number | null
+          id?: string
+          notes?: string | null
+          sleep_quality?: number
+          time_to_sleep_minutes?: number | null
+          timestamp?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sleep_mental_tracking8: {
+        Row: {
+          bedtime_routine: string[] | null
+          created_at: string
+          dream_journal: string | null
+          id: string
+          night_thoughts: string | null
+          sleep_anxiety_level: number | null
+          sleep_quality: number | null
+          tracking_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bedtime_routine?: string[] | null
+          created_at?: string
+          dream_journal?: string | null
+          id?: string
+          night_thoughts?: string | null
+          sleep_anxiety_level?: number | null
+          sleep_quality?: number | null
+          tracking_date: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bedtime_routine?: string[] | null
+          created_at?: string
+          dream_journal?: string | null
+          id?: string
+          night_thoughts?: string | null
+          sleep_anxiety_level?: number | null
+          sleep_quality?: number | null
+          tracking_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       sleep_noise_profiles: {
         Row: {
           binaural_beats_enabled: boolean | null
@@ -27220,6 +33134,47 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      sleep_records: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          quality: number | null
+          sleep_time: string
+          updated_at: string
+          user_id: string | null
+          wake_time: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          quality?: number | null
+          sleep_time: string
+          updated_at?: string
+          user_id?: string | null
+          wake_time?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          quality?: number | null
+          sleep_time?: string
+          updated_at?: string
+          user_id?: string | null
+          wake_time?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sleep_records_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sleep_records8: {
         Row: {
@@ -27486,6 +33441,51 @@ export type Database = {
           },
         ]
       }
+      social_connections8: {
+        Row: {
+          boundary_notes: string | null
+          connection_quality: number | null
+          created_at: string
+          energy_impact: number | null
+          id: string
+          interaction_date: string
+          interaction_type: string
+          notes: string | null
+          support_provided: boolean | null
+          support_received: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          boundary_notes?: string | null
+          connection_quality?: number | null
+          created_at?: string
+          energy_impact?: number | null
+          id?: string
+          interaction_date: string
+          interaction_type: string
+          notes?: string | null
+          support_provided?: boolean | null
+          support_received?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          boundary_notes?: string | null
+          connection_quality?: number | null
+          created_at?: string
+          energy_impact?: number | null
+          id?: string
+          interaction_date?: string
+          interaction_type?: string
+          notes?: string | null
+          support_provided?: boolean | null
+          support_received?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       social_follows: {
         Row: {
           created_at: string
@@ -27693,6 +33693,103 @@ export type Database = {
           },
         ]
       }
+      social_share_analytics8: {
+        Row: {
+          click_count: number | null
+          conversion_count: number | null
+          created_at: string | null
+          id: string
+          is_public: boolean | null
+          item_id: string
+          item_type: string
+          platform: string
+          share_id: string | null
+          success: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          click_count?: number | null
+          conversion_count?: number | null
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          item_id: string
+          item_type: string
+          platform: string
+          share_id?: string | null
+          success?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          click_count?: number | null
+          conversion_count?: number | null
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          item_id?: string
+          item_type?: string
+          platform?: string
+          share_id?: string | null
+          success?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_share_analytics8_share_id_fkey"
+            columns: ["share_id"]
+            isOneToOne: false
+            referencedRelation: "social_shares8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_shares8: {
+        Row: {
+          achievement_id: string | null
+          created_at: string | null
+          id: string
+          is_public: boolean | null
+          message: string | null
+          platform: string
+          shared_at: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          achievement_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          message?: string | null
+          platform: string
+          shared_at: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          message?: string | null
+          platform?: string
+          shared_at?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_shares8_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       social_users: {
         Row: {
           avatar_url: string | null
@@ -27875,6 +33972,72 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      step_data8: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          source: string | null
+          steps: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          source?: string | null
+          steps?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          source?: string | null
+          steps?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      step_rewards8: {
+        Row: {
+          claimed_at: string | null
+          created_at: string
+          discount_code: string | null
+          expires_at: string | null
+          id: string
+          reward_percentage: number
+          steps_achieved: number
+          user_id: string
+          week_start_date: string
+        }
+        Insert: {
+          claimed_at?: string | null
+          created_at?: string
+          discount_code?: string | null
+          expires_at?: string | null
+          id?: string
+          reward_percentage: number
+          steps_achieved: number
+          user_id: string
+          week_start_date: string
+        }
+        Update: {
+          claimed_at?: string | null
+          created_at?: string
+          discount_code?: string | null
+          expires_at?: string | null
+          id?: string
+          reward_percentage?: number
+          steps_achieved?: number
+          user_id?: string
+          week_start_date?: string
+        }
+        Relationships: []
       }
       strongs_concordance: {
         Row: {
@@ -28241,6 +34404,42 @@ export type Database = {
           created_at?: string | null
           id?: string
           supplement_name?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      supplement_entries8: {
+        Row: {
+          created_at: string | null
+          date: string
+          dosage: string | null
+          id: string
+          notes: string | null
+          supplement_name: string
+          time_taken: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          dosage?: string | null
+          id?: string
+          notes?: string | null
+          supplement_name: string
+          time_taken?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          dosage?: string | null
+          id?: string
+          notes?: string | null
+          supplement_name?: string
+          time_taken?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
@@ -28954,6 +35153,45 @@ export type Database = {
         }
         Relationships: []
       }
+      task_templates: {
+        Row: {
+          approach_type: string | null
+          category: string
+          created_at: string
+          day_number: number
+          description: string | null
+          estimated_duration: string | null
+          id: string
+          priority: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          approach_type?: string | null
+          category: string
+          created_at?: string
+          day_number: number
+          description?: string | null
+          estimated_duration?: string | null
+          id?: string
+          priority: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          approach_type?: string | null
+          category?: string
+          created_at?: string
+          day_number?: number
+          description?: string | null
+          estimated_duration?: string | null
+          id?: string
+          priority?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       task_time_estimates: {
         Row: {
           accuracy_score: number | null
@@ -29025,6 +35263,83 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      tasks: {
+        Row: {
+          actual_minutes: number | null
+          category: string | null
+          cognitive_load_estimate: number | null
+          created_at: string | null
+          description: string | null
+          difficulty_level: number | null
+          due_date: string | null
+          estimated_minutes: number | null
+          id: string
+          order: number | null
+          parent_task_id: string | null
+          priority: number | null
+          repeat_pattern: string | null
+          scheduled_end_time: string | null
+          scheduled_start_time: string | null
+          status: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          actual_minutes?: number | null
+          category?: string | null
+          cognitive_load_estimate?: number | null
+          created_at?: string | null
+          description?: string | null
+          difficulty_level?: number | null
+          due_date?: string | null
+          estimated_minutes?: number | null
+          id?: string
+          order?: number | null
+          parent_task_id?: string | null
+          priority?: number | null
+          repeat_pattern?: string | null
+          scheduled_end_time?: string | null
+          scheduled_start_time?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          actual_minutes?: number | null
+          category?: string | null
+          cognitive_load_estimate?: number | null
+          created_at?: string | null
+          description?: string | null
+          difficulty_level?: number | null
+          due_date?: string | null
+          estimated_minutes?: number | null
+          id?: string
+          order?: number | null
+          parent_task_id?: string | null
+          priority?: number | null
+          repeat_pattern?: string | null
+          scheduled_end_time?: string | null
+          scheduled_start_time?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_parent_task_id_fkey"
+            columns: ["parent_task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tasks4: {
         Row: {
@@ -29782,6 +36097,51 @@ export type Database = {
         }
         Relationships: []
       }
+      thought_records8: {
+        Row: {
+          alternative_thought: string | null
+          created_at: string
+          date: string
+          evidence_against: string | null
+          evidence_for: string | null
+          feelings: string
+          id: string
+          outcome: string | null
+          situation: string
+          thoughts: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alternative_thought?: string | null
+          created_at?: string
+          date?: string
+          evidence_against?: string | null
+          evidence_for?: string | null
+          feelings: string
+          id?: string
+          outcome?: string | null
+          situation: string
+          thoughts: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alternative_thought?: string | null
+          created_at?: string
+          date?: string
+          evidence_against?: string | null
+          evidence_for?: string | null
+          feelings?: string
+          id?: string
+          outcome?: string | null
+          situation?: string
+          thoughts?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       timeline_events: {
         Row: {
           created_at: string
@@ -30360,32 +36720,84 @@ export type Database = {
       user_achievements8: {
         Row: {
           achievement_id: string
-          created_at: string
-          description: string | null
-          earned_at: string
+          celebration_shown: boolean | null
+          created_at: string | null
           id: string
-          title: string
+          is_complete: boolean | null
+          progress: number
+          unlocked_at: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
           achievement_id: string
-          created_at?: string
-          description?: string | null
-          earned_at: string
+          celebration_shown?: boolean | null
+          created_at?: string | null
           id?: string
-          title: string
+          is_complete?: boolean | null
+          progress?: number
+          unlocked_at?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
           achievement_id?: string
-          created_at?: string
-          description?: string | null
-          earned_at?: string
+          celebration_shown?: boolean | null
+          created_at?: string | null
           id?: string
-          title?: string
+          is_complete?: boolean | null
+          progress?: number
+          unlocked_at?: string | null
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_achievement_type"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements8"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_user_achievements"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_achievements8_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_advanced_analytics8: {
+        Row: {
+          created_at: string
+          id: string
+          last_generated: string | null
+          report_data: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_generated?: string | null
+          report_data?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_generated?: string | null
+          report_data?: Json | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -30559,6 +36971,70 @@ export type Database = {
           },
         ]
       }
+      user_challenges8: {
+        Row: {
+          challenge_id: string
+          completed_at: string | null
+          completed_tasks: string[] | null
+          created_at: string
+          id: string
+          joined_at: string
+          progress: number | null
+          progress_percentage: number | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed_at?: string | null
+          completed_tasks?: string[] | null
+          created_at?: string
+          id?: string
+          joined_at?: string
+          progress?: number | null
+          progress_percentage?: number | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed_at?: string | null
+          completed_tasks?: string[] | null
+          created_at?: string
+          id?: string
+          joined_at?: string
+          progress?: number | null
+          progress_percentage?: number | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_challenge_type"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges8"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_user_challenges"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_challenges8_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_content_preferences: {
         Row: {
           age_verified: boolean | null
@@ -30688,6 +37164,47 @@ export type Database = {
         }
         Relationships: []
       }
+      user_dietitian_relationships8: {
+        Row: {
+          created_at: string | null
+          dietitian_id: string
+          end_date: string | null
+          id: string
+          start_date: string
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          dietitian_id: string
+          end_date?: string | null
+          id?: string
+          start_date: string
+          status: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          dietitian_id?: string
+          end_date?: string | null
+          id?: string
+          start_date?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_dietitian_relationships8_dietitian_id_fkey"
+            columns: ["dietitian_id"]
+            isOneToOne: false
+            referencedRelation: "dietitian_profiles8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_favorite_routines: {
         Row: {
           created_at: string
@@ -30716,6 +37233,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_favorites8: {
+        Row: {
+          created_at: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_filter_subscriptions: {
         Row: {
@@ -30806,6 +37341,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_goals: {
+        Row: {
+          created_at: string
+          description: string | null
+          focus_type: string
+          id: string
+          is_completed: boolean
+          progress: number
+          reminder_frequency: string | null
+          target_date: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          focus_type: string
+          id?: string
+          is_completed?: boolean
+          progress?: number
+          reminder_frequency?: string | null
+          target_date?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          focus_type?: string
+          id?: string
+          is_completed?: boolean
+          progress?: number
+          reminder_frequency?: string | null
+          target_date?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_goals8: {
         Row: {
           created_at: string
@@ -30883,6 +37460,68 @@ export type Database = {
           weather_triggers?: Json | null
         }
         Relationships: []
+      }
+      user_health_improvements8: {
+        Row: {
+          achieved: boolean | null
+          achievement_date: string | null
+          created_at: string | null
+          id: string
+          improvement_id: string
+          notes: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          achieved?: boolean | null
+          achievement_date?: string | null
+          created_at?: string | null
+          id?: string
+          improvement_id: string
+          notes?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          achieved?: boolean | null
+          achievement_date?: string | null
+          created_at?: string | null
+          id?: string
+          improvement_id?: string
+          notes?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_default_health_improvements"
+            columns: ["improvement_id"]
+            isOneToOne: false
+            referencedRelation: "default_health_improvements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_user_health_improvements"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_health_improvements8_improvement_id_fkey"
+            columns: ["improvement_id"]
+            isOneToOne: false
+            referencedRelation: "default_health_improvements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_health_improvements8_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_highlights: {
         Row: {
@@ -30984,6 +37623,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_milestones: {
+        Row: {
+          achieved_date: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_achieved: boolean
+          is_custom: boolean
+          target_date: string
+          template_id: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          achieved_date?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_achieved?: boolean
+          is_custom?: boolean
+          target_date: string
+          template_id?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          achieved_date?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_achieved?: boolean
+          is_custom?: boolean
+          target_date?: string
+          template_id?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_milestones8: {
         Row: {
@@ -31134,6 +37815,24 @@ export type Database = {
         }
         Relationships: []
       }
+      user_points8: {
+        Row: {
+          points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           created_at: string | null
@@ -31224,6 +37923,50 @@ export type Database = {
         }
         Relationships: []
       }
+      user_product_tracking: {
+        Row: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          product_id: string
+          status: string | null
+          tracking_end_date: string | null
+          tracking_start_date: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          product_id: string
+          status?: string | null
+          tracking_end_date?: string | null
+          tracking_start_date?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          product_id?: string
+          status?: string | null
+          tracking_end_date?: string | null
+          tracking_start_date?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_product_tracking_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_profiles: {
         Row: {
           created_at: string
@@ -31248,6 +37991,57 @@ export type Database = {
           theme_preference?: string | null
           updated_at?: string
           username?: string | null
+        }
+        Relationships: []
+      }
+      user_profiles8: {
+        Row: {
+          avatar_url: string | null
+          full_name: string | null
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          full_name?: string | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          full_name?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      user_progress8: {
+        Row: {
+          created_at: string
+          id: string
+          points: number | null
+          streak: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          points?: number | null
+          streak?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          points?: number | null
+          streak?: number | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -31356,6 +38150,66 @@ export type Database = {
           },
         ]
       }
+      user_rewards8: {
+        Row: {
+          claimed_at: string | null
+          created_at: string
+          description: string | null
+          expires_at: string | null
+          id: string
+          reward_type: string
+          reward_value: string | null
+          source_achievement_id: string | null
+          source_challenge_id: string | null
+          source_step_milestone: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string | null
+          created_at?: string
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          reward_type: string
+          reward_value?: string | null
+          source_achievement_id?: string | null
+          source_challenge_id?: string | null
+          source_step_milestone?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string | null
+          created_at?: string
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          reward_type?: string
+          reward_value?: string | null
+          source_achievement_id?: string | null
+          source_challenge_id?: string | null
+          source_step_milestone?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_rewards8_source_achievement_id_fkey"
+            columns: ["source_achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements8"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_rewards8_source_challenge_id_fkey"
+            columns: ["source_challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -31403,13 +38257,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "user_saved_plans_plan_id_fkey"
-            columns: ["plan_id"]
-            isOneToOne: false
-            referencedRelation: "energy_plans"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "user_saved_plans_user_id_fkey"
             columns: ["user_id"]
@@ -31463,88 +38310,31 @@ export type Database = {
           cigarettes_per_pack: number | null
           cost_per_pack: number | null
           created_at: string
-          daily_cigarettes: number | null
           id: string
-          nicotine_product: string
-          notification_enabled: boolean | null
-          other_consumption_per_day: number | null
-          other_cost_per_week: number | null
-          pouches_cost_per_tin: number | null
-          pouches_per_day: number | null
-          pouches_per_tin: number | null
+          primary_nicotine_product: string | null
           quit_date: string | null
-          quitting_method: string
-          reduction_goal_percent: number | null
-          reduction_timeline_days: number | null
-          reminder_time: string | null
-          replacement_product: string | null
-          secondary_products: string[] | null
-          track_energy: boolean | null
-          track_mood: boolean | null
-          track_triggers: boolean | null
           updated_at: string
           user_id: string
-          vaping_cost_per_ml: number | null
-          vaping_ml_per_day: number | null
-          vaping_nicotine_strength: number | null
         }
         Insert: {
           cigarettes_per_pack?: number | null
           cost_per_pack?: number | null
           created_at?: string
-          daily_cigarettes?: number | null
           id?: string
-          nicotine_product?: string
-          notification_enabled?: boolean | null
-          other_consumption_per_day?: number | null
-          other_cost_per_week?: number | null
-          pouches_cost_per_tin?: number | null
-          pouches_per_day?: number | null
-          pouches_per_tin?: number | null
+          primary_nicotine_product?: string | null
           quit_date?: string | null
-          quitting_method?: string
-          reduction_goal_percent?: number | null
-          reduction_timeline_days?: number | null
-          reminder_time?: string | null
-          replacement_product?: string | null
-          secondary_products?: string[] | null
-          track_energy?: boolean | null
-          track_mood?: boolean | null
-          track_triggers?: boolean | null
           updated_at?: string
           user_id: string
-          vaping_cost_per_ml?: number | null
-          vaping_ml_per_day?: number | null
-          vaping_nicotine_strength?: number | null
         }
         Update: {
           cigarettes_per_pack?: number | null
           cost_per_pack?: number | null
           created_at?: string
-          daily_cigarettes?: number | null
           id?: string
-          nicotine_product?: string
-          notification_enabled?: boolean | null
-          other_consumption_per_day?: number | null
-          other_cost_per_week?: number | null
-          pouches_cost_per_tin?: number | null
-          pouches_per_day?: number | null
-          pouches_per_tin?: number | null
+          primary_nicotine_product?: string | null
           quit_date?: string | null
-          quitting_method?: string
-          reduction_goal_percent?: number | null
-          reduction_timeline_days?: number | null
-          reminder_time?: string | null
-          replacement_product?: string | null
-          secondary_products?: string[] | null
-          track_energy?: boolean | null
-          track_mood?: boolean | null
-          track_triggers?: boolean | null
           updated_at?: string
           user_id?: string
-          vaping_cost_per_ml?: number | null
-          vaping_ml_per_day?: number | null
-          vaping_nicotine_strength?: number | null
         }
         Relationships: []
       }
@@ -31800,6 +38590,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      users: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          preferences: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          preferences?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          preferences?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       users4: {
         Row: {
@@ -33731,6 +40551,63 @@ export type Database = {
           },
         ]
       }
+      weight_goals8: {
+        Row: {
+          created_at: string | null
+          id: number
+          target_date: string | null
+          target_weight_kg: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          target_date?: string | null
+          target_weight_kg: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          target_date?: string | null
+          target_weight_kg?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      weight_logs8: {
+        Row: {
+          created_at: string | null
+          date: string
+          id: number
+          notes: string | null
+          updated_at: string | null
+          user_id: string
+          weight_kg: number
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          id?: number
+          notes?: string | null
+          updated_at?: string | null
+          user_id: string
+          weight_kg: number
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          id?: number
+          notes?: string | null
+          updated_at?: string | null
+          user_id?: string
+          weight_kg?: number
+        }
+        Relationships: []
+      }
       wellness_achievements: {
         Row: {
           achieved_at: string | null
@@ -33764,6 +40641,51 @@ export type Database = {
           title?: string
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      wellness_entries8: {
+        Row: {
+          created_at: string | null
+          date: string
+          energy_level: number | null
+          exercise_minutes: number | null
+          id: string
+          meditation_minutes: number | null
+          mood_rating: number | null
+          notes: string | null
+          stress_level: number | null
+          updated_at: string | null
+          user_id: string | null
+          water_intake_ml: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          energy_level?: number | null
+          exercise_minutes?: number | null
+          id?: string
+          meditation_minutes?: number | null
+          mood_rating?: number | null
+          notes?: string | null
+          stress_level?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          water_intake_ml?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          energy_level?: number | null
+          exercise_minutes?: number | null
+          id?: string
+          meditation_minutes?: number | null
+          mood_rating?: number | null
+          notes?: string | null
+          stress_level?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          water_intake_ml?: number | null
         }
         Relationships: []
       }
@@ -33872,6 +40794,33 @@ export type Database = {
           id?: string
           points_required?: number
           title?: string
+        }
+        Relationships: []
+      }
+      wellness_scores8: {
+        Row: {
+          created_at: string
+          dimensions: Json
+          id: string
+          notes: string | null
+          overall_score: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dimensions: Json
+          id?: string
+          notes?: string | null
+          overall_score: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dimensions?: Json
+          id?: string
+          notes?: string | null
+          overall_score?: number
+          user_id?: string
         }
         Relationships: []
       }
@@ -34052,6 +41001,7 @@ export type Database = {
           intensity: number
           notes: string | null
           symptom_type: string
+          timestamp: string
           updated_at: string | null
           user_id: string
         }
@@ -34063,6 +41013,7 @@ export type Database = {
           intensity: number
           notes?: string | null
           symptom_type: string
+          timestamp?: string
           updated_at?: string | null
           user_id: string
         }
@@ -34074,8 +41025,158 @@ export type Database = {
           intensity?: number
           notes?: string | null
           symptom_type?: string
+          timestamp?: string
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      workout_plan_exercises8: {
+        Row: {
+          created_at: string
+          day_of_week: number | null
+          duration_minutes: number | null
+          exercise_name: string
+          id: string
+          notes: string | null
+          order: number | null
+          plan_id: string
+          reps: string | null
+          rest_seconds: number | null
+          sets: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week?: number | null
+          duration_minutes?: number | null
+          exercise_name: string
+          id?: string
+          notes?: string | null
+          order?: number | null
+          plan_id: string
+          reps?: string | null
+          rest_seconds?: number | null
+          sets?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number | null
+          duration_minutes?: number | null
+          exercise_name?: string
+          id?: string
+          notes?: string | null
+          order?: number | null
+          plan_id?: string
+          reps?: string | null
+          rest_seconds?: number | null
+          sets?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_plan_exercises8_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "workout_plans8"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workout_plans8: {
+        Row: {
+          created_at: string
+          description: string | null
+          frequency: string | null
+          goal: string | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          frequency?: string | null
+          goal?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          frequency?: string | null
+          goal?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      workout_sessions: {
+        Row: {
+          average_heart_rate: number | null
+          calories_burned: number | null
+          created_at: string | null
+          duration_minutes: number | null
+          end_time: string | null
+          exercise_logs: Json
+          exercises_completed: number
+          exercises_total: number
+          id: string
+          notes: string | null
+          peak_heart_rate: number | null
+          rating: number | null
+          start_time: string
+          updated_at: string | null
+          user_id: string | null
+          workout_id: string
+          workout_name: string
+        }
+        Insert: {
+          average_heart_rate?: number | null
+          calories_burned?: number | null
+          created_at?: string | null
+          duration_minutes?: number | null
+          end_time?: string | null
+          exercise_logs: Json
+          exercises_completed: number
+          exercises_total: number
+          id?: string
+          notes?: string | null
+          peak_heart_rate?: number | null
+          rating?: number | null
+          start_time: string
+          updated_at?: string | null
+          user_id?: string | null
+          workout_id: string
+          workout_name: string
+        }
+        Update: {
+          average_heart_rate?: number | null
+          calories_burned?: number | null
+          created_at?: string | null
+          duration_minutes?: number | null
+          end_time?: string | null
+          exercise_logs?: Json
+          exercises_completed?: number
+          exercises_total?: number
+          id?: string
+          notes?: string | null
+          peak_heart_rate?: number | null
+          rating?: number | null
+          start_time?: string
+          updated_at?: string | null
+          user_id?: string | null
+          workout_id?: string
+          workout_name?: string
         }
         Relationships: []
       }
@@ -34090,6 +41191,32 @@ export type Database = {
           total_clicks: number | null
           total_commission: number | null
           unique_clicks: number | null
+        }
+        Relationships: []
+      }
+      craving_analytics: {
+        Row: {
+          avg_duration: number | null
+          avg_intensity: number | null
+          craving_count: number | null
+          date: string | null
+          max_intensity: number | null
+          min_intensity: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
+      exercise_analytics: {
+        Row: {
+          avg_energy: number | null
+          avg_exertion: number | null
+          date: string | null
+          exercise_types: string[] | null
+          mood_improvement: number | null
+          total_calories: number | null
+          total_minutes: number | null
+          user_id: string | null
+          workout_count: number | null
         }
         Relationships: []
       }
@@ -34135,6 +41262,53 @@ export type Database = {
         }
         Relationships: []
       }
+      mental_health_insights: {
+        Row: {
+          overall_anxiety: number | null
+          overall_energy: number | null
+          overall_focus: number | null
+          overall_mood: number | null
+          overall_sleep: number | null
+          overall_social: number | null
+          overall_stress: number | null
+          total_entries: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
+      nutrition_analytics: {
+        Row: {
+          avg_hunger: number | null
+          avg_satiety: number | null
+          date: string | null
+          meal_count: number | null
+          meal_types: string[] | null
+          total_calories: number | null
+          total_carbs: number | null
+          total_fat: number | null
+          total_fiber: number | null
+          total_protein: number | null
+          total_sodium: number | null
+          total_sugar: number | null
+          total_water: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
+      recovery_analytics: {
+        Row: {
+          avg_energy_after: number | null
+          avg_energy_before: number | null
+          avg_quality: number | null
+          avg_stress: number | null
+          date: string | null
+          recovery_types: string[] | null
+          session_count: number | null
+          total_minutes: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
       tool_analytics_summary: {
         Row: {
           avg_session_duration: number | null
@@ -34157,18 +41331,11 @@ export type Database = {
     }
     Functions: {
       _postgis_deprecate: {
-        Args: {
-          oldname: string
-          newname: string
-          version: string
-        }
+        Args: { oldname: string; newname: string; version: string }
         Returns: undefined
       }
       _postgis_index_extent: {
-        Args: {
-          tbl: unknown
-          col: string
-        }
+        Args: { tbl: unknown; col: string }
         Returns: unknown
       }
       _postgis_pgsql_version: {
@@ -34180,76 +41347,39 @@ export type Database = {
         Returns: string
       }
       _postgis_selectivity: {
-        Args: {
-          tbl: unknown
-          att_name: string
-          geom: unknown
-          mode?: string
-        }
+        Args: { tbl: unknown; att_name: string; geom: unknown; mode?: string }
         Returns: number
       }
       _st_3dintersects: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       _st_bestsrid: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       _st_contains: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       _st_containsproperly: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
-      _st_coveredby:
-        | {
-            Args: {
-              geog1: unknown
-              geog2: unknown
-            }
-            Returns: boolean
-          }
-        | {
-            Args: {
-              geom1: unknown
-              geom2: unknown
-            }
-            Returns: boolean
-          }
-      _st_covers:
-        | {
-            Args: {
-              geog1: unknown
-              geog2: unknown
-            }
-            Returns: boolean
-          }
-        | {
-            Args: {
-              geom1: unknown
-              geom2: unknown
-            }
-            Returns: boolean
-          }
+      _st_coveredby: {
+        Args:
+          | { geom1: unknown; geom2: unknown }
+          | { geog1: unknown; geog2: unknown }
+        Returns: boolean
+      }
+      _st_covers: {
+        Args:
+          | { geom1: unknown; geom2: unknown }
+          | { geog1: unknown; geog2: unknown }
+        Returns: boolean
+      }
       _st_crosses: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       _st_dwithin: {
@@ -34262,71 +41392,43 @@ export type Database = {
         Returns: boolean
       }
       _st_equals: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       _st_intersects: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       _st_linecrossingdirection: {
-        Args: {
-          line1: unknown
-          line2: unknown
-        }
+        Args: { line1: unknown; line2: unknown }
         Returns: number
       }
       _st_longestline: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: unknown
       }
       _st_maxdistance: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: number
       }
       _st_orderingequals: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       _st_overlaps: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       _st_pointoutside: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       _st_sortablehash: {
-        Args: {
-          geom: unknown
-        }
+        Args: { geom: unknown }
         Returns: number
       }
       _st_touches: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       _st_voronoi: {
@@ -34339,21 +41441,29 @@ export type Database = {
         Returns: unknown
       }
       _st_within: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
+      }
+      add_table_policies: {
+        Args: { table_name: string; policies: string }
+        Returns: undefined
       }
       addauth: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: boolean
       }
-      addgeometrycolumn:
-        | {
-            Args: {
+      addgeometrycolumn: {
+        Args:
+          | {
+              schema_name: string
+              table_name: string
+              column_name: string
+              new_srid: number
+              new_type: string
+              new_dim: number
+              use_typmod?: boolean
+            }
+          | {
               catalog_name: string
               schema_name: string
               table_name: string
@@ -34363,11 +41473,7 @@ export type Database = {
               new_dim: number
               use_typmod?: boolean
             }
-            Returns: string
-          }
-        | {
-            Args: {
-              schema_name: string
+          | {
               table_name: string
               column_name: string
               new_srid: number
@@ -34375,23 +41481,10 @@ export type Database = {
               new_dim: number
               use_typmod?: boolean
             }
-            Returns: string
-          }
-        | {
-            Args: {
-              table_name: string
-              column_name: string
-              new_srid: number
-              new_type: string
-              new_dim: number
-              use_typmod?: boolean
-            }
-            Returns: string
-          }
+        Returns: string
+      }
       admin_query: {
-        Args: {
-          query: string
-        }
+        Args: { query: string }
         Returns: undefined
       }
       award_achievement: {
@@ -34404,105 +41497,68 @@ export type Database = {
         }
         Returns: string
       }
-      box:
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: unknown
-          }
-      box2d:
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: unknown
-          }
-      box2d_in: {
-        Args: {
-          "": unknown
+      book_consultation_slot8: {
+        Args: { p_availability_slot_id: number }
+        Returns: {
+          availability_slot_id: number | null
+          booking_time: string
+          created_at: string
+          end_time: string
+          id: number
+          meeting_details: Json | null
+          professional_id: string
+          start_time: string
+          status: string
+          updated_at: string
+          user_id: string
         }
+      }
+      box: {
+        Args: { "": unknown } | { "": unknown }
+        Returns: unknown
+      }
+      box2d: {
+        Args: { "": unknown } | { "": unknown }
+        Returns: unknown
+      }
+      box2d_in: {
+        Args: { "": unknown }
         Returns: unknown
       }
       box2d_out: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       box2df_in: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       box2df_out: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
-      box3d:
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: unknown
-          }
+      box3d: {
+        Args: { "": unknown } | { "": unknown }
+        Returns: unknown
+      }
       box3d_in: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       box3d_out: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       box3dtobox: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
-      bytea:
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: string
-          }
+      bytea: {
+        Args: { "": unknown } | { "": unknown }
+        Returns: string
+      }
       calculate_available_discount: {
-        Args: {
-          _user_id: string
-          _vendor_id: string
-        }
+        Args: { _user_id: string; _vendor_id: string }
         Returns: {
           available_points: number
           max_discount_percentage: number
@@ -34510,16 +41566,68 @@ export type Database = {
         }[]
       }
       calculate_commission: {
-        Args: {
-          product_id: string
-          click_time: string
-        }
+        Args: { product_id: string; click_time: string }
         Returns: number
       }
       calculate_daily_caffeine_intake: {
+        Args: { user_uuid: string; date_to_check: string }
+        Returns: number
+      }
+      calculate_exercise_score: {
         Args: {
-          user_uuid: string
-          date_to_check: string
+          workout_frequency: number
+          avg_duration: number
+          avg_intensity: number
+          goal_progress: number
+          consistency_score: number
+        }
+        Returns: number
+      }
+      calculate_health_metrics: {
+        Args: { p_user_id: string }
+        Returns: Json
+      }
+      calculate_mental_health_score: {
+        Args: {
+          p_mood: number
+          p_stress: number
+          p_anxiety: number
+          p_sleep: number
+          p_energy: number
+          p_focus: number
+          p_social: number
+        }
+        Returns: number
+      }
+      calculate_nutrition_score: {
+        Args: {
+          calories_consumed: number
+          protein_consumed: number
+          carbs_consumed: number
+          fat_consumed: number
+          fiber_consumed: number
+          sugar_consumed: number
+          sodium_consumed: number
+          water_consumed: number
+          target_calories: number
+          target_protein: number
+          target_carbs: number
+          target_fat: number
+          target_fiber: number
+          target_sugar: number
+          target_sodium: number
+          target_water: number
+        }
+        Returns: number
+      }
+      calculate_recovery_score: {
+        Args: {
+          quality: number
+          stress: number
+          energy_before: number
+          energy_after: number
+          duration_minutes: number
+          target_minutes?: number
         }
         Returns: number
       }
@@ -34536,6 +41644,18 @@ export type Database = {
           money_saved: number
         }[]
       }
+      calculate_step_rewards8: {
+        Args: { p_user_id: string; p_start_date: string; p_end_date: string }
+        Returns: {
+          total_steps: number
+          rewards_earned: number
+          subscription_discount: number
+        }[]
+      }
+      check_and_unlock_achievement: {
+        Args: { p_user_id: string; p_achievement_id: string }
+        Returns: boolean
+      }
       check_insurance_eligibility: {
         Args: {
           _insurance_id: string
@@ -34545,18 +41665,46 @@ export type Database = {
         Returns: Json
       }
       check_table_exists: {
-        Args: {
-          p_table_name: string
-        }
+        Args: { p_table_name: string }
         Returns: boolean
       }
       create_care_group: {
         Args: {
           p_name: string
-          p_description?: string
+          p_description: string
           p_is_public?: boolean
+          p_creator_id?: string
         }
         Returns: string
+      }
+      create_care_group_direct: {
+        Args: {
+          p_name: string
+          p_description?: string
+          p_is_public?: boolean
+          p_user_id?: string
+        }
+        Returns: string
+      }
+      create_focus_achievements: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      create_focus_distractions: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      create_focus_sessions: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      create_focus_tasks: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      create_function: {
+        Args: { function_name: string; function_sql: string }
+        Returns: undefined
       }
       create_group_simple: {
         Args: {
@@ -34568,123 +41716,100 @@ export type Database = {
         Returns: string
       }
       create_group_with_owner: {
-        Args: {
-          name_param: string
-          description_param: string
-          is_public_param?: boolean
-        }
+        Args:
+          | {
+              name_param: string
+              description_param: string
+              is_public_param?: boolean
+            }
+          | {
+              name_param: string
+              description_param: string
+              is_public_param: boolean
+              user_id_param: string
+            }
         Returns: string
+      }
+      create_rls_policy: {
+        Args: {
+          table_name: string
+          policy_name: string
+          policy_action: string
+          policy_definition: string
+        }
+        Returns: undefined
+      }
+      create_stored_procedures: {
+        Args: { sql: string }
+        Returns: undefined
+      }
+      create_table: {
+        Args: { table_name: string; table_sql: string }
+        Returns: undefined
       }
       create_types_bible_file: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
-      cube:
-        | {
-            Args: {
-              "": number[]
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              "": number
-            }
-            Returns: unknown
-          }
+      create_updated_at_triggers: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      cube: {
+        Args: { "": number } | { "": number[] }
+        Returns: unknown
+      }
       cube_dim: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       cube_in: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       cube_is_point: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: boolean
       }
       cube_out: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       cube_recv: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       cube_send: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: string
       }
       cube_size: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       disablelongtransactions: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
-      dropgeometrycolumn:
-        | {
-            Args: {
+      dropgeometrycolumn: {
+        Args:
+          | { table_name: string; column_name: string }
+          | { schema_name: string; table_name: string; column_name: string }
+          | {
               catalog_name: string
               schema_name: string
               table_name: string
               column_name: string
             }
-            Returns: string
-          }
-        | {
-            Args: {
-              schema_name: string
-              table_name: string
-              column_name: string
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              table_name: string
-              column_name: string
-            }
-            Returns: string
-          }
-      dropgeometrytable:
-        | {
-            Args: {
-              catalog_name: string
-              schema_name: string
-              table_name: string
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              schema_name: string
-              table_name: string
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              table_name: string
-            }
-            Returns: string
-          }
+        Returns: string
+      }
+      dropgeometrytable: {
+        Args:
+          | { table_name: string }
+          | { schema_name: string; table_name: string }
+          | { catalog_name: string; schema_name: string; table_name: string }
+        Returns: string
+      }
       earth: {
         Args: Record<PropertyKey, never>
         Returns: number
@@ -34693,496 +41818,437 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      end_focus_session: {
+        Args: { p_session_id: string; p_completed?: boolean }
+        Returns: undefined
+      }
       ensure_script_tag: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
       equals: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       exec_sql: {
-        Args: {
-          sql: string
-        }
+        Args: { sql: string }
         Returns: Json
       }
+      export_progress_data: {
+        Args: { p_user_id: string; p_format?: string }
+        Returns: string
+      }
       format_date_for_api: {
-        Args: {
-          input_date: string
-        }
+        Args: { input_date: string }
         Returns: string
       }
       gc_to_sec: {
-        Args: {
-          "": number
-        }
+        Args: { "": number }
         Returns: number
       }
-      geography:
-        | {
-            Args: {
-              "": string
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: unknown
-          }
-      geography_analyze: {
+      generate_daily_tasks: {
         Args: {
-          "": unknown
+          p_user_id: string
+          p_day_number: number
+          p_approach_type?: string
         }
+        Returns: undefined
+      }
+      generate_default_user_goals: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
+      generate_energy_recommendations: {
+        Args: { p_user_id: string }
+        Returns: string[]
+      }
+      generate_game_recommendations: {
+        Args: { p_user_id: string }
+        Returns: {
+          recommended_game: string
+          reason: string
+        }[]
+      }
+      generate_health_recommendations: {
+        Args: { p_user_id: string }
+        Returns: Json
+      }
+      generate_personalized_plan: {
+        Args: {
+          p_user_id: string
+          p_quit_date: string
+          p_quit_approach_id: string
+          p_quit_method_id: string
+        }
+        Returns: string
+      }
+      generate_progress_report: {
+        Args: { p_user_id: string }
+        Returns: {
+          monthly_progress: Json
+          top_performing_areas: Json
+          recommended_improvements: string[]
+        }[]
+      }
+      generate_user_milestones: {
+        Args: { p_user_id: string; p_quit_date: string }
+        Returns: undefined
+      }
+      geography: {
+        Args: { "": string } | { "": unknown }
+        Returns: unknown
+      }
+      geography_analyze: {
+        Args: { "": unknown }
         Returns: boolean
       }
       geography_gist_compress: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       geography_gist_decompress: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       geography_out: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       geography_send: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: string
       }
       geography_spgist_compress_nd: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       geography_typmod_in: {
-        Args: {
-          "": unknown[]
-        }
+        Args: { "": unknown[] }
         Returns: number
       }
       geography_typmod_out: {
-        Args: {
-          "": number
-        }
+        Args: { "": number }
         Returns: unknown
       }
-      geometry:
-        | {
-            Args: {
-              "": string
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              "": string
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: unknown
-          }
+      geometry: {
+        Args:
+          | { "": unknown }
+          | { "": unknown }
+          | { "": unknown }
+          | { "": string }
+          | { "": string }
+          | { "": unknown }
+          | { "": unknown }
+          | { "": unknown }
+        Returns: unknown
+      }
       geometry_above: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       geometry_analyze: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: boolean
       }
       geometry_below: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       geometry_cmp: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: number
       }
       geometry_contained_3d: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       geometry_contains: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       geometry_contains_3d: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       geometry_distance_box: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: number
       }
       geometry_distance_centroid: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: number
       }
       geometry_eq: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       geometry_ge: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       geometry_gist_compress_2d: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       geometry_gist_compress_nd: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       geometry_gist_decompress_2d: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       geometry_gist_decompress_nd: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       geometry_gist_sortsupport_2d: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: undefined
       }
       geometry_gt: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       geometry_hash: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       geometry_in: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       geometry_le: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       geometry_left: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       geometry_lt: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       geometry_out: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       geometry_overabove: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       geometry_overbelow: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       geometry_overlaps: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       geometry_overlaps_3d: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       geometry_overleft: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       geometry_overright: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       geometry_recv: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       geometry_right: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       geometry_same: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       geometry_same_3d: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       geometry_send: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: string
       }
       geometry_sortsupport: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: undefined
       }
       geometry_spgist_compress_2d: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       geometry_spgist_compress_3d: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       geometry_spgist_compress_nd: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       geometry_typmod_in: {
-        Args: {
-          "": unknown[]
-        }
+        Args: { "": unknown[] }
         Returns: number
       }
       geometry_typmod_out: {
-        Args: {
-          "": number
-        }
+        Args: { "": number }
         Returns: unknown
       }
       geometry_within: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
-      geometrytype:
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: string
-          }
+      geometrytype: {
+        Args: { "": unknown } | { "": unknown }
+        Returns: string
+      }
       geomfromewkb: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       geomfromewkt: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
+      }
+      get_active_wellness_challenges_rpc: {
+        Args: { user_id_param: string }
+        Returns: Json
       }
       get_auth_user: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
-      get_group_details: {
-        Args: {
-          group_id_param: string
-        }
+      get_available_coaches_rpc: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      get_average_energy_level: {
+        Args: { user_id: string; days: number }
+        Returns: number
+      }
+      get_average_energy_level_rpc: {
+        Args: { p_user_id: string }
+        Returns: Json
+      }
+      get_care_groups_for_user: {
+        Args: { user_id?: string }
         Returns: {
           id: string
           name: string
           description: string
+          is_public: boolean
+          created_at: string
           created_by: string
+          updated_at: string
+          image_url: string
+          role: string
+        }[]
+      }
+      get_consumption_analytics8: {
+        Args: { p_user_id: string; p_start_date: string; p_end_date: string }
+        Returns: {
+          date: string
+          total_consumption: number
+          reduced_percentage: number
+          most_common_trigger: string
+          average_intensity: number
+        }[]
+      }
+      get_craving_stats: {
+        Args: { p_user_id: string; p_start_date: string; p_end_date: string }
+        Returns: {
+          date: string
+          craving_count: number
+          avg_intensity: number
+          max_intensity: number
+          min_intensity: number
+          avg_duration: number
+        }[]
+      }
+      get_daily_nutrition_summary: {
+        Args: { p_user_id: string; p_start_date: string; p_end_date: string }
+        Returns: {
+          total_calories: number
+          total_protein: number
+          total_carbs: number
+          total_fat: number
+        }[]
+      }
+      get_energy_trends: {
+        Args: { p_user_id: string }
+        Returns: {
+          average_energy_level: number
+          daily_trends: Json
+          factor_impact: Json
+        }[]
+      }
+      get_focus_insights_rpc: {
+        Args: { user_id_param: string }
+        Returns: Json
+      }
+      get_focus_time_today: {
+        Args: { user_id: string }
+        Returns: number
+      }
+      get_game_leaderboard: {
+        Args: { p_game_type: string; p_limit?: number }
+        Returns: {
+          user_id: string
+          username: string
+          highest_score: number
+        }[]
+      }
+      get_group_details: {
+        Args: { group_id_param: string }
+        Returns: {
+          id: string
+          name: string
+          description: string
+          is_public: boolean
           created_at: string
           updated_at: string
-          is_public: boolean
-          owner_name: string
-          owner_avatar: string
+          created_by: string
+          image_url: string
           member_count: number
+          user_role: string
         }[]
       }
       get_group_events: {
-        Args: {
-          group_id_param: string
-        }
+        Args: { group_id_param: string }
         Returns: {
           id: string
+          group_id: string
           title: string
           description: string
-          location: string
           start_time: string
           end_time: string
+          location: string
           created_by: string
           created_at: string
-          creator_name: string
-          creator_avatar: string
         }[]
       }
       get_group_members: {
-        Args: {
-          group_id_param: string
-        }
+        Args: { group_id_param: string }
         Returns: {
           id: string
+          group_id: string
           user_id: string
           role: string
           joined_at: string
           display_name: string
-          email: string
           avatar_url: string
         }[]
       }
       get_group_posts: {
-        Args: {
-          group_id_param: string
-        }
+        Args: { group_id_param: string }
         Returns: {
           id: string
           title: string
@@ -35195,29 +42261,51 @@ export type Database = {
         }[]
       }
       get_group_tasks: {
-        Args: {
-          group_id_param: string
-        }
+        Args: { group_id_param: string }
         Returns: {
           id: string
+          group_id: string
           title: string
           description: string
           status: string
           priority: string
           due_date: string
-          created_at: string
           assigned_to: string
           created_by: string
-          assignee_name: string
-          assignee_avatar: string
-          creator_name: string
-          creator_avatar: string
+          created_at: string
+        }[]
+      }
+      get_mental_health_insights: {
+        Args: { p_user_id: string; p_start_date?: string; p_end_date?: string }
+        Returns: Json
+      }
+      get_metric_correlations_rpc: {
+        Args: {
+          user_id_param: string
+          start_date_param: string
+          end_date_param: string
+        }
+        Returns: Json
+      }
+      get_mood_insights_rpc: {
+        Args: {
+          user_id_param: string
+          start_date_param: string
+          end_date_param: string
+        }
+        Returns: Json
+      }
+      get_overall_progress: {
+        Args: { p_user_id: string }
+        Returns: {
+          total_focus_sessions: number
+          total_tasks_completed: number
+          total_energy_tracked: number
+          progress_percentage: number
         }[]
       }
       get_post_with_comments: {
-        Args: {
-          post_id_param: string
-        }
+        Args: { post_id_param: string }
         Returns: {
           post_id: string
           post_title: string
@@ -35234,16 +42322,73 @@ export type Database = {
           commenter_avatar_url: string
         }[]
       }
-      get_proj4_from_srid: {
+      get_professional_available_slots8: {
         Args: {
-          "": number
+          p_professional_id: string
+          p_start_date: string
+          p_end_date: string
         }
+        Returns: {
+          created_at: string
+          end_time: string
+          id: number
+          is_booked: boolean
+          professional_id: string
+          start_time: string
+        }[]
+      }
+      get_professional_bookings8: {
+        Args: { p_professional_user_id: string; p_booking_status?: string }
+        Returns: {
+          availability_slot_id: number | null
+          booking_time: string
+          created_at: string
+          end_time: string
+          id: number
+          meeting_details: Json | null
+          professional_id: string
+          start_time: string
+          status: string
+          updated_at: string
+          user_id: string
+        }[]
+      }
+      get_proj4_from_srid: {
+        Args: { "": number }
         Returns: string
       }
+      get_public_care_groups: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          name: string
+          description: string
+          is_public: boolean
+          created_at: string
+          created_by: string
+          updated_at: string
+          image_url: string
+        }[]
+      }
+      get_public_groups: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string | null
+          created_by: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_public: boolean | null
+          name: string
+          updated_at: string | null
+        }[]
+      }
+      get_recovery_insights: {
+        Args: { p_user_id: string; p_start_date?: string; p_end_date?: string }
+        Returns: Json
+      }
       get_savings_breakdown: {
-        Args: {
-          user_id_param: string
-        }
+        Args: { user_id_param: string }
         Returns: {
           category: Database["public"]["Enums"]["goal_category"]
           goal_count: number
@@ -35253,13 +42398,22 @@ export type Database = {
         }[]
       }
       get_similar_products: {
-        Args: {
-          product_id: string
-        }
+        Args: { product_id: string }
         Returns: {
           similar_product_id: string
           similarity_score: number
         }[]
+      }
+      get_sleep_insights_rpc: {
+        Args:
+          | {
+              user_id_param: string
+              start_date_param?: string
+              end_date_param?: string
+              limit_param?: number
+            }
+          | { p_user_id: string; p_start_date?: string; p_end_date?: string }
+        Returns: Json
       }
       get_tables: {
         Args: Record<PropertyKey, never>
@@ -35267,10 +42421,68 @@ export type Database = {
           table_name: string
         }[]
       }
-      get_user_group_data: {
+      get_task_stats: {
+        Args: { p_user_id: string }
+        Returns: {
+          total_tasks: number
+          completed_tasks: number
+          pending_tasks: number
+        }[]
+      }
+      get_todays_wellness_snapshot_rpc: {
+        Args: { user_id_param: string }
+        Returns: Json
+      }
+      get_unified_wellness_score_rpc: {
         Args: {
           user_id_param: string
+          start_date_param: string
+          end_date_param: string
         }
+        Returns: Json
+      }
+      get_user_bookings8: {
+        Args: { p_booking_status?: string }
+        Returns: {
+          availability_slot_id: number | null
+          booking_time: string
+          created_at: string
+          end_time: string
+          id: number
+          meeting_details: Json | null
+          professional_id: string
+          start_time: string
+          status: string
+          updated_at: string
+          user_id: string
+        }[]
+      }
+      get_user_care_group_memberships: {
+        Args: Record<PropertyKey, never> | { p_user_id?: string }
+        Returns: {
+          group_id: string
+          id: string
+          invited_by: string | null
+          joined_at: string | null
+          role: string
+          user_id: string
+        }[]
+      }
+      get_user_care_groups: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string | null
+          created_by: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_public: boolean | null
+          name: string
+          updated_at: string | null
+        }[]
+      }
+      get_user_group_data: {
+        Args: { user_id_param: string }
         Returns: {
           membership_id: string
           group_id: string
@@ -35281,92 +42493,85 @@ export type Database = {
           is_public: boolean
         }[]
       }
+      get_user_group_memberships: {
+        Args: { p_user_id?: string }
+        Returns: {
+          id: string
+          group_id: string
+          user_id: string
+          role: string
+        }[]
+      }
       get_user_groups: {
-        Args: {
-          user_id_param?: string
-        }
+        Args: { user_id_param: string }
         Returns: {
           id: string
           name: string
           description: string
-          created_by: string
+          is_public: boolean
           created_at: string
           updated_at: string
-          is_public: boolean
-          owner_name: string
-          owner_avatar: string
-          member_count: number
+          created_by: string
+          image_url: string
           role: string
+          member_count: number
+          recent_activity: string
         }[]
       }
       get_user_role: {
-        Args: {
-          user_id: string
-        }
+        Args: { user_id: string }
         Returns: Json
       }
       get_user_settings: {
-        Args: {
-          user_id: string
-        }
+        Args: { user_id: string }
         Returns: Json
       }
       get_user_total_savings: {
+        Args: { user_id_param: string }
+        Returns: number
+      }
+      get_wellness_score_trends_rpc: {
         Args: {
           user_id_param: string
+          start_date_param: string
+          end_date_param: string
         }
-        Returns: number
+        Returns: Json
       }
       gettransactionid: {
         Args: Record<PropertyKey, never>
         Returns: unknown
       }
       gidx_in: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       gidx_out: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       gtrgm_compress: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       gtrgm_decompress: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       gtrgm_in: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       gtrgm_options: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: undefined
       }
       gtrgm_out: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       has_premium_ad_blocking: {
-        Args: {
-          user_id: string
-        }
+        Args: { user_id: string }
         Returns: boolean
       }
       has_role: {
@@ -35375,6 +42580,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
         }
         Returns: boolean
+      }
+      increment: {
+        Args: { x: number }
+        Returns: number
       }
       increment_ad_block_stats: {
         Args: {
@@ -35387,200 +42596,169 @@ export type Database = {
         Returns: undefined
       }
       increment_comment_downvotes: {
-        Args: {
-          comment_id: string
-        }
+        Args: { comment_id: string }
         Returns: undefined
       }
       increment_comment_upvotes: {
-        Args: {
-          comment_id: string
-        }
+        Args: { comment_id: string }
         Returns: undefined
       }
-      initialize_user_settings:
-        | {
-            Args: {
-              user_id: string
-              settings?: Json
-            }
-            Returns: Json
-          }
-        | {
-            Args: {
-              user_id: string
-              theme?: string
-              notifications_enabled?: boolean
-            }
-            Returns: Json
-          }
+      increment_participants8: {
+        Args: { p_challenge_id: string }
+        Returns: undefined
+      }
+      initialize_user_settings: {
+        Args:
+          | { user_id: string; theme?: string; notifications_enabled?: boolean }
+          | { user_id: string; settings?: Json }
+        Returns: Json
+      }
       json: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: Json
       }
       jsonb: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: Json
       }
       latitude: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
-      longitude: {
+      leave_group: {
+        Args: { group_id_param: string; user_id_param: string }
+        Returns: boolean
+      }
+      log_distraction: {
         Args: {
-          "": unknown
+          p_user_id: string
+          p_session_id: string
+          p_type: string
+          p_description?: string
         }
+        Returns: string
+      }
+      log_user_activity: {
+        Args: {
+          p_user_id: string
+          p_activity_type: string
+          p_activity_details: Json
+        }
+        Returns: string
+      }
+      longitude: {
+        Args: { "": unknown }
         Returns: number
       }
       longtransactionsenabled: {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
-      path: {
+      mood_energy_analytics: {
+        Args: { p_user_id: string; start_date: string; end_date: string }
+        Returns: {
+          date: string
+          avg_mood: number
+          avg_energy: number
+          avg_focus: number
+          factor_data: Json
+          drain_data: Json
+          enhancer_data: Json
+        }[]
+      }
+      normalize_score: {
         Args: {
-          "": unknown
+          value: number
+          min_value: number
+          max_value: number
+          inverse?: boolean
         }
+        Returns: number
+      }
+      path: {
+        Args: { "": unknown }
         Returns: unknown
       }
       pgis_asflatgeobuf_finalfn: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: string
       }
       pgis_asgeobuf_finalfn: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: string
       }
       pgis_asmvt_finalfn: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: string
       }
       pgis_asmvt_serialfn: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: string
       }
       pgis_geometry_clusterintersecting_finalfn: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown[]
       }
       pgis_geometry_clusterwithin_finalfn: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown[]
       }
       pgis_geometry_collect_finalfn: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       pgis_geometry_makeline_finalfn: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       pgis_geometry_polygonize_finalfn: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       pgis_geometry_union_parallel_finalfn: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       pgis_geometry_union_parallel_serialfn: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: string
       }
       point: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       policy_exists: {
-        Args: {
-          p_policy_name: string
-          p_table_name: string
-        }
+        Args: { p_policy_name: string; p_table_name: string }
         Returns: boolean
       }
       polygon: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
-      populate_geometry_columns:
-        | {
-            Args: {
-              tbl_oid: unknown
-              use_typmod?: boolean
-            }
-            Returns: number
-          }
-        | {
-            Args: {
-              use_typmod?: boolean
-            }
-            Returns: string
-          }
+      populate_geometry_columns: {
+        Args:
+          | { use_typmod?: boolean }
+          | { tbl_oid: unknown; use_typmod?: boolean }
+        Returns: string
+      }
       postgis_addbbox: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       postgis_constraint_dims: {
-        Args: {
-          geomschema: string
-          geomtable: string
-          geomcolumn: string
-        }
+        Args: { geomschema: string; geomtable: string; geomcolumn: string }
         Returns: number
       }
       postgis_constraint_srid: {
-        Args: {
-          geomschema: string
-          geomtable: string
-          geomcolumn: string
-        }
+        Args: { geomschema: string; geomtable: string; geomcolumn: string }
         Returns: number
       }
       postgis_constraint_type: {
-        Args: {
-          geomschema: string
-          geomtable: string
-          geomcolumn: string
-        }
+        Args: { geomschema: string; geomtable: string; geomcolumn: string }
         Returns: string
       }
       postgis_dropbbox: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       postgis_extensions_upgrade: {
@@ -35592,9 +42770,7 @@ export type Database = {
         Returns: string
       }
       postgis_geos_noop: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       postgis_geos_version: {
@@ -35602,21 +42778,15 @@ export type Database = {
         Returns: string
       }
       postgis_getbbox: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       postgis_hasbbox: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: boolean
       }
       postgis_index_supportfn: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       postgis_lib_build_date: {
@@ -35648,9 +42818,7 @@ export type Database = {
         Returns: string
       }
       postgis_noop: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       postgis_proj_version: {
@@ -35682,21 +42850,15 @@ export type Database = {
         Returns: string
       }
       postgis_typmod_dims: {
-        Args: {
-          "": number
-        }
+        Args: { "": number }
         Returns: number
       }
       postgis_typmod_srid: {
-        Args: {
-          "": number
-        }
+        Args: { "": number }
         Returns: number
       }
       postgis_typmod_type: {
-        Args: {
-          "": number
-        }
+        Args: { "": number }
         Returns: string
       }
       postgis_version: {
@@ -35708,11 +42870,7 @@ export type Database = {
         Returns: string
       }
       process_step_points: {
-        Args: {
-          p_user_id: string
-          p_steps: number
-          p_source?: string
-        }
+        Args: { p_user_id: string; p_steps: number; p_source?: string }
         Returns: Json
       }
       products_to_tsvector: {
@@ -35728,16 +42886,35 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      run_migration: {
+        Args: { migration_sql: string; migration_name: string }
+        Returns: undefined
+      }
+      search_professionals8: {
+        Args: { p_professional_type?: string; p_specialty?: string }
+        Returns: {
+          bio: string | null
+          created_at: string
+          full_name: string
+          hourly_rate: number | null
+          id: string
+          professional_type: string
+          profile_picture_url: string | null
+          specialties: string[] | null
+          updated_at: string
+          user_id: string
+        }[]
+      }
       sec_to_gc: {
-        Args: {
-          "": number
-        }
+        Args: { "": number }
         Returns: number
       }
       set_limit: {
-        Args: {
-          "": number
-        }
+        Args: { "": number }
         Returns: number
       }
       show_limit: {
@@ -35745,299 +42922,149 @@ export type Database = {
         Returns: number
       }
       show_trgm: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: string[]
       }
       spheroid_in: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       spheroid_out: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_3dclosestpoint: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: unknown
       }
       st_3ddistance: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: number
       }
       st_3dintersects: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       st_3dlength: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_3dlongestline: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: unknown
       }
       st_3dmakebox: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: unknown
       }
       st_3dmaxdistance: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: number
       }
       st_3dperimeter: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_3dshortestline: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: unknown
       }
       st_addpoint: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: unknown
       }
-      st_angle:
-        | {
-            Args: {
-              line1: unknown
-              line2: unknown
-            }
-            Returns: number
-          }
-        | {
-            Args: {
-              pt1: unknown
-              pt2: unknown
-              pt3: unknown
-              pt4?: unknown
-            }
-            Returns: number
-          }
-      st_area:
-        | {
-            Args: {
-              "": string
-            }
-            Returns: number
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: number
-          }
-        | {
-            Args: {
-              geog: unknown
-              use_spheroid?: boolean
-            }
-            Returns: number
-          }
-      st_area2d: {
-        Args: {
-          "": unknown
-        }
+      st_angle: {
+        Args:
+          | { line1: unknown; line2: unknown }
+          | { pt1: unknown; pt2: unknown; pt3: unknown; pt4?: unknown }
         Returns: number
       }
-      st_asbinary:
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: string
-          }
+      st_area: {
+        Args:
+          | { "": unknown }
+          | { "": string }
+          | { geog: unknown; use_spheroid?: boolean }
+        Returns: number
+      }
+      st_area2d: {
+        Args: { "": unknown }
+        Returns: number
+      }
+      st_asbinary: {
+        Args: { "": unknown } | { "": unknown }
+        Returns: string
+      }
       st_asencodedpolyline: {
-        Args: {
-          geom: unknown
-          nprecision?: number
-        }
+        Args: { geom: unknown; nprecision?: number }
         Returns: string
       }
       st_asewkb: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: string
       }
-      st_asewkt:
-        | {
-            Args: {
-              "": string
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: string
-          }
-      st_asgeojson:
-        | {
-            Args: {
-              "": string
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              geog: unknown
-              maxdecimaldigits?: number
-              options?: number
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              geom: unknown
-              maxdecimaldigits?: number
-              options?: number
-            }
-            Returns: string
-          }
-        | {
-            Args: {
+      st_asewkt: {
+        Args: { "": unknown } | { "": string } | { "": unknown }
+        Returns: string
+      }
+      st_asgeojson: {
+        Args:
+          | { "": string }
+          | {
               r: Record<string, unknown>
               geom_column?: string
               maxdecimaldigits?: number
               pretty_bool?: boolean
             }
-            Returns: string
-          }
-      st_asgml:
-        | {
-            Args: {
-              "": string
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              geog: unknown
-              maxdecimaldigits?: number
-              options?: number
-              nprefix?: string
-              id?: string
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              geom: unknown
-              maxdecimaldigits?: number
-              options?: number
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              version: number
-              geog: unknown
-              maxdecimaldigits?: number
-              options?: number
-              nprefix?: string
-              id?: string
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              version: number
-              geom: unknown
-              maxdecimaldigits?: number
-              options?: number
-              nprefix?: string
-              id?: string
-            }
-            Returns: string
-          }
-      st_ashexewkb: {
-        Args: {
-          "": unknown
-        }
+          | { geom: unknown; maxdecimaldigits?: number; options?: number }
+          | { geog: unknown; maxdecimaldigits?: number; options?: number }
         Returns: string
       }
-      st_askml:
-        | {
-            Args: {
-              "": string
-            }
-            Returns: string
-          }
-        | {
-            Args: {
+      st_asgml: {
+        Args:
+          | {
+              version: number
               geog: unknown
               maxdecimaldigits?: number
+              options?: number
               nprefix?: string
+              id?: string
             }
-            Returns: string
-          }
-        | {
-            Args: {
+          | { geom: unknown; maxdecimaldigits?: number; options?: number }
+          | {
+              geog: unknown
+              maxdecimaldigits?: number
+              options?: number
+              nprefix?: string
+              id?: string
+            }
+          | { "": string }
+          | {
+              version: number
               geom: unknown
               maxdecimaldigits?: number
+              options?: number
               nprefix?: string
+              id?: string
             }
-            Returns: string
-          }
+        Returns: string
+      }
+      st_ashexewkb: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      st_askml: {
+        Args:
+          | { geog: unknown; maxdecimaldigits?: number; nprefix?: string }
+          | { geom: unknown; maxdecimaldigits?: number; nprefix?: string }
+          | { "": string }
+        Returns: string
+      }
       st_aslatlontext: {
-        Args: {
-          geom: unknown
-          tmpl?: string
-        }
+        Args: { geom: unknown; tmpl?: string }
         Returns: string
       }
       st_asmarc21: {
-        Args: {
-          geom: unknown
-          format?: string
-        }
+        Args: { geom: unknown; format?: string }
         Returns: string
       }
       st_asmvtgeom: {
@@ -36050,51 +43077,28 @@ export type Database = {
         }
         Returns: unknown
       }
-      st_assvg:
-        | {
-            Args: {
-              "": string
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              geog: unknown
-              rel?: number
-              maxdecimaldigits?: number
-            }
-            Returns: string
-          }
-        | {
-            Args: {
+      st_assvg: {
+        Args:
+          | { geog: unknown; rel?: number; maxdecimaldigits?: number }
+          | { "": string }
+          | { geom: unknown; rel?: number; maxdecimaldigits?: number }
+        Returns: string
+      }
+      st_astext: {
+        Args: { "": unknown } | { "": string } | { "": unknown }
+        Returns: string
+      }
+      st_astwkb: {
+        Args:
+          | {
               geom: unknown
-              rel?: number
-              maxdecimaldigits?: number
+              prec?: number
+              prec_z?: number
+              prec_m?: number
+              with_sizes?: boolean
+              with_boxes?: boolean
             }
-            Returns: string
-          }
-      st_astext:
-        | {
-            Args: {
-              "": string
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: string
-          }
-      st_astwkb:
-        | {
-            Args: {
+          | {
               geom: unknown[]
               ids: number[]
               prec?: number
@@ -36103,141 +43107,66 @@ export type Database = {
               with_sizes?: boolean
               with_boxes?: boolean
             }
-            Returns: string
-          }
-        | {
-            Args: {
-              geom: unknown
-              prec?: number
-              prec_z?: number
-              prec_m?: number
-              with_sizes?: boolean
-              with_boxes?: boolean
-            }
-            Returns: string
-          }
-      st_asx3d: {
-        Args: {
-          geom: unknown
-          maxdecimaldigits?: number
-          options?: number
-        }
         Returns: string
       }
-      st_azimuth:
-        | {
-            Args: {
-              geog1: unknown
-              geog2: unknown
-            }
-            Returns: number
-          }
-        | {
-            Args: {
-              geom1: unknown
-              geom2: unknown
-            }
-            Returns: number
-          }
+      st_asx3d: {
+        Args: { geom: unknown; maxdecimaldigits?: number; options?: number }
+        Returns: string
+      }
+      st_azimuth: {
+        Args:
+          | { geog1: unknown; geog2: unknown }
+          | { geom1: unknown; geom2: unknown }
+        Returns: number
+      }
       st_boundary: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_boundingdiagonal: {
-        Args: {
-          geom: unknown
-          fits?: boolean
-        }
+        Args: { geom: unknown; fits?: boolean }
         Returns: unknown
       }
-      st_buffer:
-        | {
-            Args: {
-              geom: unknown
-              radius: number
-              options?: string
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              geom: unknown
-              radius: number
-              quadsegs: number
-            }
-            Returns: unknown
-          }
+      st_buffer: {
+        Args:
+          | { geom: unknown; radius: number; options?: string }
+          | { geom: unknown; radius: number; quadsegs: number }
+        Returns: unknown
+      }
       st_buildarea: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
-      st_centroid:
-        | {
-            Args: {
-              "": string
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: unknown
-          }
+      st_centroid: {
+        Args: { "": string } | { "": unknown }
+        Returns: unknown
+      }
       st_cleangeometry: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_clipbybox2d: {
-        Args: {
-          geom: unknown
-          box: unknown
-        }
+        Args: { geom: unknown; box: unknown }
         Returns: unknown
       }
       st_closestpoint: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: unknown
       }
       st_clusterintersecting: {
-        Args: {
-          "": unknown[]
-        }
+        Args: { "": unknown[] }
         Returns: unknown[]
       }
-      st_collect:
-        | {
-            Args: {
-              "": unknown[]
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              geom1: unknown
-              geom2: unknown
-            }
-            Returns: unknown
-          }
+      st_collect: {
+        Args: { "": unknown[] } | { geom1: unknown; geom2: unknown }
+        Returns: unknown
+      }
       st_collectionextract: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_collectionhomogenize: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_concavehull: {
@@ -36249,167 +43178,87 @@ export type Database = {
         Returns: unknown
       }
       st_contains: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       st_containsproperly: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       st_convexhull: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_coorddim: {
-        Args: {
-          geometry: unknown
-        }
+        Args: { geometry: unknown }
         Returns: number
       }
-      st_coveredby:
-        | {
-            Args: {
-              geog1: unknown
-              geog2: unknown
-            }
-            Returns: boolean
-          }
-        | {
-            Args: {
-              geom1: unknown
-              geom2: unknown
-            }
-            Returns: boolean
-          }
-      st_covers:
-        | {
-            Args: {
-              geog1: unknown
-              geog2: unknown
-            }
-            Returns: boolean
-          }
-        | {
-            Args: {
-              geom1: unknown
-              geom2: unknown
-            }
-            Returns: boolean
-          }
+      st_coveredby: {
+        Args:
+          | { geog1: unknown; geog2: unknown }
+          | { geom1: unknown; geom2: unknown }
+        Returns: boolean
+      }
+      st_covers: {
+        Args:
+          | { geom1: unknown; geom2: unknown }
+          | { geog1: unknown; geog2: unknown }
+        Returns: boolean
+      }
       st_crosses: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       st_curvetoline: {
-        Args: {
-          geom: unknown
-          tol?: number
-          toltype?: number
-          flags?: number
-        }
+        Args: { geom: unknown; tol?: number; toltype?: number; flags?: number }
         Returns: unknown
       }
       st_delaunaytriangles: {
-        Args: {
-          g1: unknown
-          tolerance?: number
-          flags?: number
-        }
+        Args: { g1: unknown; tolerance?: number; flags?: number }
         Returns: unknown
       }
       st_difference: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-          gridsize?: number
-        }
+        Args: { geom1: unknown; geom2: unknown; gridsize?: number }
         Returns: unknown
       }
       st_dimension: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_disjoint: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
-      st_distance:
-        | {
-            Args: {
-              geog1: unknown
-              geog2: unknown
-              use_spheroid?: boolean
-            }
-            Returns: number
-          }
-        | {
-            Args: {
-              geom1: unknown
-              geom2: unknown
-            }
-            Returns: number
-          }
-      st_distancesphere:
-        | {
-            Args: {
-              geom1: unknown
-              geom2: unknown
-            }
-            Returns: number
-          }
-        | {
-            Args: {
-              geom1: unknown
-              geom2: unknown
-              radius: number
-            }
-            Returns: number
-          }
+      st_distance: {
+        Args:
+          | { geog1: unknown; geog2: unknown; use_spheroid?: boolean }
+          | { geom1: unknown; geom2: unknown }
+        Returns: number
+      }
+      st_distancesphere: {
+        Args:
+          | { geom1: unknown; geom2: unknown }
+          | { geom1: unknown; geom2: unknown; radius: number }
+        Returns: number
+      }
       st_distancespheroid: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: number
       }
       st_dump: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: Database["public"]["CompositeTypes"]["geometry_dump"][]
       }
       st_dumppoints: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: Database["public"]["CompositeTypes"]["geometry_dump"][]
       }
       st_dumprings: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: Database["public"]["CompositeTypes"]["geometry_dump"][]
       }
       st_dumpsegments: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: Database["public"]["CompositeTypes"]["geometry_dump"][]
       }
       st_dwithin: {
@@ -36422,194 +43271,106 @@ export type Database = {
         Returns: boolean
       }
       st_endpoint: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_envelope: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_equals: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
-      st_expand:
-        | {
-            Args: {
-              box: unknown
-              dx: number
-              dy: number
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              box: unknown
-              dx: number
-              dy: number
-              dz?: number
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              geom: unknown
-              dx: number
-              dy: number
-              dz?: number
-              dm?: number
-            }
-            Returns: unknown
-          }
+      st_expand: {
+        Args:
+          | { box: unknown; dx: number; dy: number; dz?: number }
+          | { box: unknown; dx: number; dy: number }
+          | { geom: unknown; dx: number; dy: number; dz?: number; dm?: number }
+        Returns: unknown
+      }
       st_exteriorring: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_flipcoordinates: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_force2d: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_force3d: {
-        Args: {
-          geom: unknown
-          zvalue?: number
-        }
+        Args: { geom: unknown; zvalue?: number }
         Returns: unknown
       }
       st_force3dm: {
-        Args: {
-          geom: unknown
-          mvalue?: number
-        }
+        Args: { geom: unknown; mvalue?: number }
         Returns: unknown
       }
       st_force3dz: {
-        Args: {
-          geom: unknown
-          zvalue?: number
-        }
+        Args: { geom: unknown; zvalue?: number }
         Returns: unknown
       }
       st_force4d: {
-        Args: {
-          geom: unknown
-          zvalue?: number
-          mvalue?: number
-        }
+        Args: { geom: unknown; zvalue?: number; mvalue?: number }
         Returns: unknown
       }
       st_forcecollection: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_forcecurve: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_forcepolygonccw: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_forcepolygoncw: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_forcerhr: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_forcesfs: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
-      st_generatepoints:
-        | {
-            Args: {
-              area: unknown
-              npoints: number
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              area: unknown
-              npoints: number
-              seed: number
-            }
-            Returns: unknown
-          }
+      st_generatepoints: {
+        Args:
+          | { area: unknown; npoints: number }
+          | { area: unknown; npoints: number; seed: number }
+        Returns: unknown
+      }
       st_geogfromtext: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_geogfromwkb: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_geographyfromtext: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
-      st_geohash:
-        | {
-            Args: {
-              geog: unknown
-              maxchars?: number
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              geom: unknown
-              maxchars?: number
-            }
-            Returns: string
-          }
+      st_geohash: {
+        Args:
+          | { geog: unknown; maxchars?: number }
+          | { geom: unknown; maxchars?: number }
+        Returns: string
+      }
       st_geomcollfromtext: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_geomcollfromwkb: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_geometricmedian: {
@@ -36622,312 +43383,180 @@ export type Database = {
         Returns: unknown
       }
       st_geometryfromtext: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_geometrytype: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: string
       }
       st_geomfromewkb: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_geomfromewkt: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
-      st_geomfromgeojson:
-        | {
-            Args: {
-              "": Json
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              "": Json
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              "": string
-            }
-            Returns: unknown
-          }
+      st_geomfromgeojson: {
+        Args: { "": Json } | { "": Json } | { "": string }
+        Returns: unknown
+      }
       st_geomfromgml: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_geomfromkml: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_geomfrommarc21: {
-        Args: {
-          marc21xml: string
-        }
+        Args: { marc21xml: string }
         Returns: unknown
       }
       st_geomfromtext: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_geomfromtwkb: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_geomfromwkb: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_gmltosql: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_hasarc: {
-        Args: {
-          geometry: unknown
-        }
+        Args: { geometry: unknown }
         Returns: boolean
       }
       st_hausdorffdistance: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: number
       }
       st_hexagon: {
-        Args: {
-          size: number
-          cell_i: number
-          cell_j: number
-          origin?: unknown
-        }
+        Args: { size: number; cell_i: number; cell_j: number; origin?: unknown }
         Returns: unknown
       }
       st_hexagongrid: {
-        Args: {
-          size: number
-          bounds: unknown
-        }
+        Args: { size: number; bounds: unknown }
         Returns: Record<string, unknown>[]
       }
       st_interpolatepoint: {
-        Args: {
-          line: unknown
-          point: unknown
-        }
+        Args: { line: unknown; point: unknown }
         Returns: number
       }
       st_intersection: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-          gridsize?: number
-        }
+        Args: { geom1: unknown; geom2: unknown; gridsize?: number }
         Returns: unknown
       }
-      st_intersects:
-        | {
-            Args: {
-              geog1: unknown
-              geog2: unknown
-            }
-            Returns: boolean
-          }
-        | {
-            Args: {
-              geom1: unknown
-              geom2: unknown
-            }
-            Returns: boolean
-          }
+      st_intersects: {
+        Args:
+          | { geom1: unknown; geom2: unknown }
+          | { geog1: unknown; geog2: unknown }
+        Returns: boolean
+      }
       st_isclosed: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: boolean
       }
       st_iscollection: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: boolean
       }
       st_isempty: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: boolean
       }
       st_ispolygonccw: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: boolean
       }
       st_ispolygoncw: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: boolean
       }
       st_isring: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: boolean
       }
       st_issimple: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: boolean
       }
       st_isvalid: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: boolean
       }
       st_isvaliddetail: {
-        Args: {
-          geom: unknown
-          flags?: number
-        }
+        Args: { geom: unknown; flags?: number }
         Returns: Database["public"]["CompositeTypes"]["valid_detail"]
       }
       st_isvalidreason: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: string
       }
       st_isvalidtrajectory: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: boolean
       }
-      st_length:
-        | {
-            Args: {
-              "": string
-            }
-            Returns: number
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: number
-          }
-        | {
-            Args: {
-              geog: unknown
-              use_spheroid?: boolean
-            }
-            Returns: number
-          }
+      st_length: {
+        Args:
+          | { geog: unknown; use_spheroid?: boolean }
+          | { "": string }
+          | { "": unknown }
+        Returns: number
+      }
       st_length2d: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_letters: {
-        Args: {
-          letters: string
-          font?: Json
-        }
+        Args: { letters: string; font?: Json }
         Returns: unknown
       }
       st_linecrossingdirection: {
-        Args: {
-          line1: unknown
-          line2: unknown
-        }
+        Args: { line1: unknown; line2: unknown }
         Returns: number
       }
       st_linefromencodedpolyline: {
-        Args: {
-          txtin: string
-          nprecision?: number
-        }
+        Args: { txtin: string; nprecision?: number }
         Returns: unknown
       }
       st_linefrommultipoint: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_linefromtext: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_linefromwkb: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_linelocatepoint: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: number
       }
       st_linemerge: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_linestringfromwkb: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_linetocurve: {
-        Args: {
-          geometry: unknown
-        }
+        Args: { geometry: unknown }
         Returns: unknown
       }
       st_locatealong: {
-        Args: {
-          geometry: unknown
-          measure: number
-          leftrightoffset?: number
-        }
+        Args: { geometry: unknown; measure: number; leftrightoffset?: number }
         Returns: unknown
       }
       st_locatebetween: {
@@ -36940,307 +43569,183 @@ export type Database = {
         Returns: unknown
       }
       st_locatebetweenelevations: {
-        Args: {
-          geometry: unknown
-          fromelevation: number
-          toelevation: number
-        }
+        Args: { geometry: unknown; fromelevation: number; toelevation: number }
         Returns: unknown
       }
       st_longestline: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: unknown
       }
       st_m: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_makebox2d: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: unknown
       }
-      st_makeline:
-        | {
-            Args: {
-              "": unknown[]
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              geom1: unknown
-              geom2: unknown
-            }
-            Returns: unknown
-          }
+      st_makeline: {
+        Args: { "": unknown[] } | { geom1: unknown; geom2: unknown }
+        Returns: unknown
+      }
       st_makepolygon: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
-      st_makevalid:
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              geom: unknown
-              params: string
-            }
-            Returns: unknown
-          }
+      st_makevalid: {
+        Args: { geom: unknown; params: string } | { "": unknown }
+        Returns: unknown
+      }
       st_maxdistance: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: number
       }
       st_maximuminscribedcircle: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: Record<string, unknown>
       }
       st_memsize: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_minimumboundingcircle: {
-        Args: {
-          inputgeom: unknown
-          segs_per_quarter?: number
-        }
+        Args: { inputgeom: unknown; segs_per_quarter?: number }
         Returns: unknown
       }
       st_minimumboundingradius: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: Record<string, unknown>
       }
       st_minimumclearance: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_minimumclearanceline: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_mlinefromtext: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_mlinefromwkb: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_mpointfromtext: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_mpointfromwkb: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_mpolyfromtext: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_mpolyfromwkb: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_multi: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_multilinefromwkb: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_multilinestringfromtext: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_multipointfromtext: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_multipointfromwkb: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_multipolyfromwkb: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_multipolygonfromtext: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_ndims: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_node: {
-        Args: {
-          g: unknown
-        }
+        Args: { g: unknown }
         Returns: unknown
       }
       st_normalize: {
-        Args: {
-          geom: unknown
-        }
+        Args: { geom: unknown }
         Returns: unknown
       }
       st_npoints: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_nrings: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_numgeometries: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_numinteriorring: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_numinteriorrings: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_numpatches: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_numpoints: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_offsetcurve: {
-        Args: {
-          line: unknown
-          distance: number
-          params?: string
-        }
+        Args: { line: unknown; distance: number; params?: string }
         Returns: unknown
       }
       st_orderingequals: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       st_orientedenvelope: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_overlaps: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
-      st_perimeter:
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: number
-          }
-        | {
-            Args: {
-              geog: unknown
-              use_spheroid?: boolean
-            }
-            Returns: number
-          }
+      st_perimeter: {
+        Args: { geog: unknown; use_spheroid?: boolean } | { "": unknown }
+        Returns: number
+      }
       st_perimeter2d: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_pointfromtext: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_pointfromwkb: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_pointm: {
@@ -37253,15 +43758,11 @@ export type Database = {
         Returns: unknown
       }
       st_pointonsurface: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_points: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_pointz: {
@@ -37284,41 +43785,27 @@ export type Database = {
         Returns: unknown
       }
       st_polyfromtext: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_polyfromwkb: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_polygonfromtext: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_polygonfromwkb: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_polygonize: {
-        Args: {
-          "": unknown[]
-        }
+        Args: { "": unknown[] }
         Returns: unknown
       }
       st_project: {
-        Args: {
-          geog: unknown
-          distance: number
-          azimuth: number
-        }
+        Args: { geog: unknown; distance: number; azimuth: number }
         Returns: unknown
       }
       st_quantizecoordinates: {
@@ -37332,165 +43819,83 @@ export type Database = {
         Returns: unknown
       }
       st_reduceprecision: {
-        Args: {
-          geom: unknown
-          gridsize: number
-        }
+        Args: { geom: unknown; gridsize: number }
         Returns: unknown
       }
       st_relate: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: string
       }
       st_removerepeatedpoints: {
-        Args: {
-          geom: unknown
-          tolerance?: number
-        }
+        Args: { geom: unknown; tolerance?: number }
         Returns: unknown
       }
       st_reverse: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_segmentize: {
-        Args: {
-          geog: unknown
-          max_segment_length: number
-        }
+        Args: { geog: unknown; max_segment_length: number }
         Returns: unknown
       }
-      st_setsrid:
-        | {
-            Args: {
-              geog: unknown
-              srid: number
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              geom: unknown
-              srid: number
-            }
-            Returns: unknown
-          }
+      st_setsrid: {
+        Args: { geom: unknown; srid: number } | { geog: unknown; srid: number }
+        Returns: unknown
+      }
       st_sharedpaths: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: unknown
       }
       st_shiftlongitude: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_shortestline: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: unknown
       }
       st_simplifypolygonhull: {
-        Args: {
-          geom: unknown
-          vertex_fraction: number
-          is_outer?: boolean
-        }
+        Args: { geom: unknown; vertex_fraction: number; is_outer?: boolean }
         Returns: unknown
       }
       st_split: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: unknown
       }
       st_square: {
-        Args: {
-          size: number
-          cell_i: number
-          cell_j: number
-          origin?: unknown
-        }
+        Args: { size: number; cell_i: number; cell_j: number; origin?: unknown }
         Returns: unknown
       }
       st_squaregrid: {
-        Args: {
-          size: number
-          bounds: unknown
-        }
+        Args: { size: number; bounds: unknown }
         Returns: Record<string, unknown>[]
       }
-      st_srid:
-        | {
-            Args: {
-              geog: unknown
-            }
-            Returns: number
-          }
-        | {
-            Args: {
-              geom: unknown
-            }
-            Returns: number
-          }
+      st_srid: {
+        Args: { geom: unknown } | { geog: unknown }
+        Returns: number
+      }
       st_startpoint: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: unknown
       }
       st_subdivide: {
-        Args: {
-          geom: unknown
-          maxvertices?: number
-          gridsize?: number
-        }
+        Args: { geom: unknown; maxvertices?: number; gridsize?: number }
         Returns: unknown[]
       }
-      st_summary:
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              "": unknown
-            }
-            Returns: string
-          }
+      st_summary: {
+        Args: { "": unknown } | { "": unknown }
+        Returns: string
+      }
       st_swapordinates: {
-        Args: {
-          geom: unknown
-          ords: unknown
-        }
+        Args: { geom: unknown; ords: unknown }
         Returns: unknown
       }
       st_symdifference: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-          gridsize?: number
-        }
+        Args: { geom1: unknown; geom2: unknown; gridsize?: number }
         Returns: unknown
       }
       st_symmetricdifference: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: unknown
       }
       st_tileenvelope: {
@@ -37504,165 +43909,89 @@ export type Database = {
         Returns: unknown
       }
       st_touches: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
-      st_transform:
-        | {
-            Args: {
-              geom: unknown
-              from_proj: string
-              to_proj: string
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              geom: unknown
-              from_proj: string
-              to_srid: number
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              geom: unknown
-              to_proj: string
-            }
-            Returns: unknown
-          }
-      st_triangulatepolygon: {
-        Args: {
-          g1: unknown
-        }
+      st_transform: {
+        Args:
+          | { geom: unknown; from_proj: string; to_proj: string }
+          | { geom: unknown; from_proj: string; to_srid: number }
+          | { geom: unknown; to_proj: string }
         Returns: unknown
       }
-      st_union:
-        | {
-            Args: {
-              "": unknown[]
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              geom1: unknown
-              geom2: unknown
-            }
-            Returns: unknown
-          }
-        | {
-            Args: {
-              geom1: unknown
-              geom2: unknown
-              gridsize: number
-            }
-            Returns: unknown
-          }
+      st_triangulatepolygon: {
+        Args: { g1: unknown }
+        Returns: unknown
+      }
+      st_union: {
+        Args:
+          | { geom1: unknown; geom2: unknown; gridsize: number }
+          | { "": unknown[] }
+          | { geom1: unknown; geom2: unknown }
+        Returns: unknown
+      }
       st_voronoilines: {
-        Args: {
-          g1: unknown
-          tolerance?: number
-          extend_to?: unknown
-        }
+        Args: { g1: unknown; tolerance?: number; extend_to?: unknown }
         Returns: unknown
       }
       st_voronoipolygons: {
-        Args: {
-          g1: unknown
-          tolerance?: number
-          extend_to?: unknown
-        }
+        Args: { g1: unknown; tolerance?: number; extend_to?: unknown }
         Returns: unknown
       }
       st_within: {
-        Args: {
-          geom1: unknown
-          geom2: unknown
-        }
+        Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
       st_wkbtosql: {
-        Args: {
-          wkb: string
-        }
+        Args: { wkb: string }
         Returns: unknown
       }
       st_wkttosql: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: unknown
       }
       st_wrapx: {
-        Args: {
-          geom: unknown
-          wrap: number
-          move: number
-        }
+        Args: { geom: unknown; wrap: number; move: number }
         Returns: unknown
       }
       st_x: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_xmax: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_xmin: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_y: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_ymax: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_ymin: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_z: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_zmax: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_zmflag: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       st_zmin: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: number
       }
       start_device_pairing: {
@@ -37674,35 +44003,41 @@ export type Database = {
         }
         Returns: Json
       }
+      start_focus_session: {
+        Args: { p_user_id: string; p_focus_type?: string; p_task_id?: string }
+        Returns: string
+      }
       submit_insurance_claim: {
-        Args: {
-          _claim_id: string
-        }
+        Args: { _claim_id: string }
         Returns: Json
       }
       sync_health_data: {
-        Args: {
-          p_user_id: string
-        }
+        Args: { p_user_id: string }
         Returns: Json
       }
       table_exists: {
-        Args: {
-          p_table_name: string
-        }
+        Args: { p_table_name: string }
         Returns: boolean
       }
       text: {
-        Args: {
-          "": unknown
-        }
+        Args: { "": unknown }
         Returns: string
       }
       unlockrows: {
-        Args: {
-          "": string
-        }
+        Args: { "": string }
         Returns: number
+      }
+      update_health_improvement_achievements8: {
+        Args: { p_user_id: string; p_quit_date: string }
+        Returns: undefined
+      }
+      update_health_improvement_progress: {
+        Args: {
+          p_user_id: string
+          p_improvement_id: string
+          p_progress_percentage: number
+        }
+        Returns: undefined
       }
       updategeometrysrid: {
         Args: {
@@ -38080,27 +44415,29 @@ export type Database = {
   }
 }
 
-type PublicSchema = Database[Extract<keyof Database, "public">]
+type DefaultSchema = Database[Extract<keyof Database, "public">]
 
 export type Tables<
-  PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-    ? (PublicSchema["Tables"] &
-        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -38108,20 +44445,22 @@ export type Tables<
     : never
 
 export type TablesInsert<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -38129,20 +44468,22 @@ export type TablesInsert<
     : never
 
 export type TablesUpdate<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -38150,21 +44491,23 @@ export type TablesUpdate<
     : never
 
 export type Enums<
-  PublicEnumNameOrOptions extends
-    | keyof PublicSchema["Enums"]
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
     | { schema: keyof Database },
-  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof PublicSchema["CompositeTypes"]
+    | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof Database },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof Database
@@ -38173,6 +44516,359 @@ export type CompositeTypes<
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
   ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
-    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      access_level: ["no_access", "basic", "standard", "full", "admin"],
+      achievement_category: [
+        "quit_milestone",
+        "health_improvement",
+        "money_saved",
+        "lifestyle_change",
+        "coping_skill",
+        "support_network",
+      ],
+      activity_impact: ["positive", "negative", "neutral"],
+      activity_type: ["steps", "app_usage", "subscription_boost", "purchase"],
+      app_role: ["admin", "user", "product_manager"],
+      bathing_tag: [
+        "energizing",
+        "relaxing",
+        "sleep_improvement",
+        "muscle_recovery",
+        "stress_relief",
+        "focus_enhancement",
+      ],
+      bible_testament: ["old", "new"],
+      bible_tradition: ["catholic", "protestant", "orthodox"],
+      biohacking_activity_type: [
+        "red_light_therapy",
+        "cold_therapy",
+        "grounding",
+        "emf_protection",
+        "blue_light_blocking",
+        "mouth_taping",
+        "breath_work",
+        "nootropics",
+        "infrared_sauna",
+        "pemf_therapy",
+        "hyperbaric_oxygen",
+        "neurofeedback",
+        "light_therapy",
+        "sleep_optimization",
+        "hrv_training",
+        "mindfulness_tech",
+        "sound_therapy",
+        "air_quality",
+        "frequency_therapy",
+        "peptide_therapy",
+        "sleep_tracking",
+        "glucose_monitoring",
+        "hydration_tracking",
+        "meditation_tech",
+        "sensory_deprivation",
+        "microcurrent_therapy",
+        "vagus_nerve_stim",
+        "red_light_panels",
+        "compression_therapy",
+        "sleep_environment",
+        "muscle_stim",
+        "bone_conducting",
+        "biocharging",
+        "dna_optimization",
+        "stem_cell_therapy",
+        "xenon_therapy",
+        "ozone_therapy",
+        "quantum_biofeedback",
+        "bioelectric_therapy",
+        "magnetic_therapy",
+        "light_sound_mind",
+        "float_tanks",
+        "blood_optimization",
+        "brain_entrainment",
+        "electromagnetic_therapy",
+        "mitochondrial_optimization",
+        "telomere_hacking",
+        "vibroacoustic_therapy",
+        "photobiomodulation",
+        "electroporation",
+        "microbiome_optimization",
+        "chronobiology_tracking",
+        "biofilm_disruption",
+        "cellular_regeneration",
+        "brain_spect_imaging",
+        "metabolic_analysis",
+        "genetic_expression",
+        "bioavailability_tech",
+        "ketone_monitoring",
+        "cgm_analysis",
+        "brain_wave_tracking",
+        "hormone_optimization",
+        "circadian_tracking",
+        "toxin_analysis",
+        "nutrient_absorption",
+        "cellular_voltage",
+        "quantum_health",
+        "longevity_markers",
+      ],
+      blocking_type: ["ad", "distraction", "combined"],
+      brewing_method: ["hot_steep", "cold_brew", "gongfu", "western"],
+      cbt_exercise_type: [
+        "thought_record",
+        "behavioral_activation",
+        "cognitive_restructuring",
+        "problem_solving",
+        "relaxation",
+      ],
+      consultation_status: [
+        "scheduled",
+        "in_progress",
+        "completed",
+        "cancelled",
+      ],
+      content_connection_type: ["film", "book", "music", "game", "art"],
+      delivery_status: ["pending", "in_transit", "delivered", "failed"],
+      digital_product_category: [
+        "discord_servers",
+        "tools_software",
+        "courses_education",
+        "content_media",
+        "trading_investing",
+        "memberships",
+        "ai_machine_learning",
+        "alpha_groups",
+        "developer_resources",
+      ],
+      discussion_status: ["open", "closed", "archived"],
+      distraction_type: ["app", "website", "notification", "social_media"],
+      ease_rating_type: ["agree", "disagree", "not_sure"],
+      energy_plan_type: [
+        "recharge",
+        "energize",
+        "recovery",
+        "sleep",
+        "focus",
+        "destress",
+      ],
+      exercise_type: [
+        "walking",
+        "running",
+        "cycling",
+        "hiking",
+        "yoga",
+        "stretching",
+        "desk_exercise",
+        "eye_exercise",
+      ],
+      expert_specialty: [
+        "mental_health",
+        "nutrition",
+        "supplements",
+        "fatigue",
+        "adhd",
+        "memory",
+        "brain_exercise",
+        "dementia",
+        "sleep",
+        "anxiety",
+        "depression",
+        "stress",
+        "cognitive_health",
+        "mindfulness",
+        "holistic_health",
+        "behavioral_therapy",
+        "energy_management",
+        "focus_training",
+        "cognitive_rehabilitation",
+        "neuroplasticity",
+      ],
+      faith_level: ["new_believer", "growing", "mature", "mentor"],
+      feedback_priority: ["low", "medium", "high", "critical"],
+      feedback_status: ["open", "in_progress", "completed", "declined"],
+      feedback_type: [
+        "feature_request",
+        "bug_report",
+        "improvement",
+        "general",
+      ],
+      feeding_method: ["breastfeeding", "formula", "mixed", "solid_transition"],
+      game_type: [
+        "chess",
+        "go",
+        "checkers",
+        "reversi",
+        "xiangqi",
+        "shogi",
+        "gomoku",
+        "connect_four",
+        "tic_tac_toe",
+        "pattern_recognition",
+        "brain_match",
+        "n_back",
+        "stroop_test",
+        "digit_span",
+        "mental_rotation",
+        "word_pairs",
+        "reaction_time",
+        "dual_n_back",
+      ],
+      goal_category: [
+        "travel",
+        "purchase",
+        "education",
+        "experience",
+        "savings",
+        "debt",
+        "donation",
+        "other",
+      ],
+      goal_status: ["active", "achieved", "cancelled", "paused"],
+      gratitude_category: [
+        "people",
+        "experiences",
+        "things",
+        "personal_growth",
+        "nature",
+        "other",
+      ],
+      health_condition: [
+        "adhd",
+        "chronic_fatigue",
+        "multiple_sclerosis",
+        "other_fatigue",
+        "other_focus_issue",
+        "short_term_memory",
+        "long_term_memory",
+        "migraine",
+      ],
+      integration_status: ["pending", "active", "failed", "revoked"],
+      life_situation: ["regular", "pregnancy", "postpartum", "breastfeeding"],
+      loyalty_tier_level: ["bronze", "silver", "gold", "platinum"],
+      mood_category: ["positive", "negative", "neutral"],
+      notification_priority: ["low", "medium", "high"],
+      notification_type: [
+        "session_reminder",
+        "achievement",
+        "streak",
+        "custom",
+      ],
+      order_status: [
+        "pending",
+        "processing",
+        "shipped",
+        "delivered",
+        "cancelled",
+        "refunded",
+      ],
+      plan_expertise_level: [
+        "beginner",
+        "intermediate",
+        "advanced",
+        "professional",
+      ],
+      plan_type: [
+        "energizing_boost",
+        "sustained_focus",
+        "mental_clarity",
+        "physical_vitality",
+        "deep_relaxation",
+        "stress_relief",
+        "evening_winddown",
+        "sleep_preparation",
+        "meditation",
+      ],
+      plan_visibility: ["private", "public", "shared"],
+      pregnancy_metric_category: [
+        "weight",
+        "blood_pressure",
+        "nutrition",
+        "exercise",
+        "sleep",
+        "mood",
+        "general",
+      ],
+      pregnancy_stage: [
+        "preconception",
+        "first_trimester",
+        "second_trimester",
+        "third_trimester",
+        "postpartum",
+        "preconception_planning",
+      ],
+      quit_strategy_type: [
+        "cold_turkey",
+        "taper_down",
+        "nrt_assisted",
+        "harm_reduction",
+      ],
+      relationship_intent: ["marriage", "friendship", "mentorship"],
+      reproductive_exercise_type: [
+        "kegel_basic",
+        "kegel_advanced",
+        "pelvic_floor",
+        "core_strength",
+        "hip_mobility",
+        "breathing",
+        "relaxation",
+      ],
+      research_type: [
+        "survey",
+        "clinical_trial",
+        "remote_trial",
+        "experience_sampling",
+        "longitudinal",
+        "ema",
+        "mhealth",
+        "remote_monitoring",
+        "digital_therapeutics",
+        "market_research",
+        "behavioral",
+        "biomedical",
+      ],
+      review_type: ["product", "alternative", "experience"],
+      risk_level: ["low", "medium", "high"],
+      rule_pattern: ["domain", "element", "keyword", "ai_suggested"],
+      session_feedback_type: [
+        "client_to_professional",
+        "professional_to_client",
+      ],
+      sleep_content_type: [
+        "guide",
+        "article",
+        "research",
+        "product_review",
+        "sleep_disorder",
+        "lifestyle",
+        "tips",
+      ],
+      sleep_gear_category: [
+        "mattresses",
+        "pillows",
+        "bedding",
+        "sleep_tech",
+        "sleep_accessories",
+        "white_noise",
+        "blackout_solutions",
+        "temperature_control",
+      ],
+      smoking_log_type: ["cigarette", "cigar", "vape", "pouch", "gum"],
+      strength_level: ["light", "medium", "strong", "extra_strong"],
+      subscription_tier: ["free", "premium"],
+      substance_type: ["alcohol", "tobacco", "other"],
+      supplement_form: [
+        "powder",
+        "capsule",
+        "liquid",
+        "tablet",
+        "tea_bag",
+        "loose_leaf",
+      ],
+      tool_category: ["health", "focus", "relaxation", "games", "meditation"],
+      verification_status: ["pending", "approved", "rejected"],
+    },
+  },
+} as const

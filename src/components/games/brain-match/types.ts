@@ -1,13 +1,22 @@
-export type TileType = {
-  id: number;
-  value: string;
-  matched: boolean;
-  selected: boolean;
-};
 
-export type GameState = {
+export interface GameHeaderProps {
   score: number;
-  tiles: TileType[];
+  onReset: () => void;
+}
+
+export interface GameGridProps {
+  grid: any[];
+  onTileClick: (index: number) => void;
   selectedTiles: number[];
-  matchedTiles: number[];
+}
+
+export interface GameFooterProps {
+  score: number;
+  isSubmitting: boolean;
+  onSaveScore: () => void;
+}
+
+export type TileType = {
+  value: number;
+  matched: boolean;
 };
