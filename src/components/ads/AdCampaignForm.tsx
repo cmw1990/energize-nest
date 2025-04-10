@@ -88,7 +88,7 @@ export function AdCampaignForm() {
       
       // Get price multiplier based on tier and placement
       const zone = displayZones?.find(z => z.zone_type === values.placementType)
-      const tierMultiplier = values.tier === 'premium' ? 2 : values.tier === 'pro' ? 1.5 : if (zone?.price_multiplier !== undefined) ? zone.price_multiplier : 1
+      const tierMultiplier = values.tier === 'premium' ? 2 : values.tier === 'pro' ? 1.5 : zone?.price_multiplier !== undefined ? zone.price_multiplier : 1
       const adjustedCpc = values.cpc * tierMultiplier
 
       const { error } = await supabase.from('sponsored_products').insert({
