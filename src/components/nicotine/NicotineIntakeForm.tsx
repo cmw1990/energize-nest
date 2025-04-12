@@ -1,180 +1,238 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Info } from "lucide-react";
+
 import { useState } from "react";
-
-const NICOTINE_REFERENCE = [
-  // Cigarettes and traditional products
-  { name: "Cigarette (Regular)", amount: 12, type: "cigarette" },
-  { name: "Cigarette (Light)", amount: 8, type: "cigarette" },
-  { name: "Cigar (Regular)", amount: 13.3, type: "cigar" },
-  { name: "Pipe (per bowl)", amount: 30.08, type: "pipe" },
-  
-  // Smokeless tobacco
-  { name: "Nicotine Pouch (Regular)", amount: 4, type: "pouch" },
-  { name: "Nicotine Pouch (Strong)", amount: 8, type: "pouch" },
-  { name: "Nicotine Pouch (Extra Strong)", amount: 11.2, type: "pouch" },
-  
-  // NRT Products
-  { name: "Nicotine Gum (2mg)", amount: 2, type: "nrt" },
-  { name: "Nicotine Gum (4mg)", amount: 4, type: "nrt" },
-  { name: "Nicotine Lozenge (2mg)", amount: 2, type: "nrt" },
-  { name: "Nicotine Patch (21mg/24hr)", amount: 21, type: "nrt" },
-  
-  // Vaping products
-  { name: "Vape (Low strength)", amount: 3, type: "vape" },
-  { name: "Vape (Medium strength)", amount: 6, type: "vape" },
-  { name: "Vape (High strength)", amount: 12, type: "vape" },
-];
-
-const PRODUCT_TYPES = [
-  { value: "cigarette", label: "Cigarette" },
-  { value: "cigar", label: "Cigar" },
-  { value: "pipe", label: "Pipe Tobacco" },
-  { value: "pouch", label: "Nicotine Pouch" },
-  { value: "nrt", label: "NRT (Nicotine Replacement)" },
-  { value: "vape", label: "Vape/E-cigarette" },
-  { value: "gum", label: "Nicotine Gum" },
-  { value: "lozenge", label: "Nicotine Lozenge" },
-  { value: "patch", label: "Nicotine Patch" },
-];
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 
 interface NicotineIntakeFormProps {
-  onSubmit: (values: { amount: string; energyRating: string; consumedAt: string; type: string }) => void;
+  onSubmit: (values: {
+    nicotineType: string;
+    productName?: string;
+    amount: string;
+    unit: string;
+    energyImpact: number;
+    moodImpact: number;
+    cravingsBefore: number;
+    urgeTriggers?: string;
+    location?: string;
+    notes?: string;
+  }) => void;
+  isSubmitting?: boolean;
 }
 
-export const NicotineIntakeForm = ({ onSubmit }: NicotineIntakeFormProps) => {
-  const [amount, setAmount] = useState("");
-  const [energyRating, setEnergyRating] = useState("");
-  const [type, setType] = useState("pouch");
-  const [consumedAt, setConsumedAt] = useState(new Date().toISOString().slice(0, 16));
+export function NicotineIntakeForm({ onSubmit, isSubmitting = false }: NicotineIntakeFormProps) {
+  const [values, setValues] = useState({
+    nicotineType: "cigarette",
+    productName: "",
+    amount: "",
+    unit: "cigarettes",
+    energyImpact: 5,
+    moodImpact: 5,
+    cravingsBefore: 5,
+    urgeTriggers: "",
+    location: "",
+    notes: "",
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ amount, energyRating, consumedAt, type });
-    setAmount("");
-    setEnergyRating("");
-    setConsumedAt(new Date().toISOString().slice(0, 16));
+    onSubmit(values);
   };
 
-  const getEnergyColor = (rating: string) => {
-    const numRating = parseInt(rating);
-    if (!numRating) return "bg-gray-100";
-    if (numRating <= 3) return "bg-energy-low";
-    if (numRating <= 7) return "bg-energy-medium";
-    return "bg-energy-high";
-  };
+  const handleNicotineTypeChange = (type: string) => {
+    let unit = "cigarettes";
+    switch (type) {
+      case "cigarette":
+        unit = "cigarettes";
+        break;
+      case "vape":
+        unit = "puffs";
+        break;
+      case "snus":
+      case "nicotine_pouch":
+        unit = "pouches";
+        break;
+      case "gum":
+        unit = "pieces";
+        break;
+      case "patch":
+        unit = "patches";
+        break;
+      case "lozenge":
+        unit = "lozenges";
+        break;
+      case "cigar":
+        unit = "cigars";
+        break;
+      default:
+        unit = "units";
+    }
 
-  const filteredReference = type ? NICOTINE_REFERENCE.filter(item => item.type === type) : NICOTINE_REFERENCE;
+    setValues({
+      ...values,
+      nicotineType: type,
+      unit,
+    });
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="type">Product Type</Label>
-        <Select value={type} onValueChange={setType}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select product type" />
-          </SelectTrigger>
-          <SelectContent>
-            {PRODUCT_TYPES.map((productType) => (
-              <SelectItem key={productType.value} value={productType.value}>
-                {productType.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="amount">Nicotine Amount (mg)</Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-6 w-6">
-                <Info className="h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80">
-              <div className="space-y-2">
-                <h4 className="font-medium">Common Amounts for {PRODUCT_TYPES.find(p => p.value === type)?.label}</h4>
-                <div className="grid gap-2">
-                  {filteredReference.map((item) => (
-                    <div 
-                      key={item.name} 
-                      className="flex justify-between text-sm cursor-pointer hover:bg-accent/50 p-1 rounded"
-                      onClick={() => setAmount(item.amount.toString())}
-                    >
-                      <span>{item.name}</span>
-                      <span className="font-medium">{item.amount} mg</span>
-                    </div>
-                  ))}
-                </div>
-                {type === "cigarette" && (
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Consider switching to nicotine pouches or NRT products for a safer alternative.
-                  </p>
-                )}
-              </div>
-            </PopoverContent>
-          </Popover>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Nicotine Type</Label>
+          <Select
+            value={values.nicotineType}
+            onValueChange={handleNicotineTypeChange}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select nicotine type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="cigarette">Cigarettes</SelectItem>
+              <SelectItem value="vape">Vape/E-cigarette</SelectItem>
+              <SelectItem value="snus">Snus</SelectItem>
+              <SelectItem value="nicotine_pouch">Nicotine Pouch</SelectItem>
+              <SelectItem value="gum">Nicotine Gum</SelectItem>
+              <SelectItem value="patch">Nicotine Patch</SelectItem>
+              <SelectItem value="lozenge">Nicotine Lozenge</SelectItem>
+              <SelectItem value="cigar">Cigar</SelectItem>
+              <SelectItem value="pipe">Pipe</SelectItem>
+              <SelectItem value="chew">Chewing Tobacco</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <Input
-          id="amount"
-          type="number"
-          step="0.1"
-          placeholder="Enter nicotine amount in mg"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          className="text-lg"
-        />
-      </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="energyRating">Energy Impact (1-10)</Label>
-        <div className="relative">
+        <div className="space-y-2">
+          <Label>Product Name (Optional)</Label>
           <Input
-            id="energyRating"
-            type="number"
-            min="1"
-            max="10"
-            placeholder="Rate energy impact"
-            value={energyRating}
-            onChange={(e) => setEnergyRating(e.target.value)}
-            className={`text-lg transition-colors ${getEnergyColor(energyRating)}`}
+            placeholder="e.g., Marlboro Light, Zyn, JUUL"
+            value={values.productName}
+            onChange={(e) => setValues({ ...values, productName: e.target.value })}
           />
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1">
-            {[1, 5, 10].map((level) => (
-              <div
-                key={level}
-                className={`w-2 h-2 rounded-full ${getEnergyColor(level.toString())}`}
-                title={level === 1 ? "Low" : level === 5 ? "Medium" : "High"}
-              />
-            ))}
-          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Amount</Label>
+          <Input
+            type="number"
+            placeholder="Quantity"
+            min="0"
+            step="0.5"
+            value={values.amount}
+            onChange={(e) => setValues({ ...values, amount: e.target.value })}
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label>Unit</Label>
+          <Input
+            value={values.unit}
+            onChange={(e) => setValues({ ...values, unit: e.target.value })}
+            placeholder="e.g., cigarettes, puffs, etc."
+          />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="consumedAt">Time Consumed</Label>
+        <div className="flex justify-between">
+          <Label>Energy Impact</Label>
+          <span className="text-sm text-muted-foreground">{values.energyImpact}/10</span>
+        </div>
+        <Slider
+          min={1}
+          max={10}
+          step={1}
+          value={[values.energyImpact]}
+          onValueChange={(val) => setValues({ ...values, energyImpact: val[0] })}
+        />
+        <div className="flex justify-between text-xs text-muted-foreground">
+          <span>Energy decrease</span>
+          <span>No change</span>
+          <span>Energy boost</span>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex justify-between">
+          <Label>Mood Impact</Label>
+          <span className="text-sm text-muted-foreground">{values.moodImpact}/10</span>
+        </div>
+        <Slider
+          min={1}
+          max={10}
+          step={1}
+          value={[values.moodImpact]}
+          onValueChange={(val) => setValues({ ...values, moodImpact: val[0] })}
+        />
+        <div className="flex justify-between text-xs text-muted-foreground">
+          <span>Mood worsened</span>
+          <span>No change</span>
+          <span>Mood improved</span>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex justify-between">
+          <Label>Craving Intensity Before Use</Label>
+          <span className="text-sm text-muted-foreground">{values.cravingsBefore}/10</span>
+        </div>
+        <Slider
+          min={1}
+          max={10}
+          step={1}
+          value={[values.cravingsBefore]}
+          onValueChange={(val) => setValues({ ...values, cravingsBefore: val[0] })}
+        />
+        <div className="flex justify-between text-xs text-muted-foreground">
+          <span>Mild</span>
+          <span>Moderate</span>
+          <span>Intense</span>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>What Triggered Your Urge? (Optional, comma separated)</Label>
         <Input
-          id="consumedAt"
-          type="datetime-local"
-          value={consumedAt}
-          onChange={(e) => setConsumedAt(e.target.value)}
-          className="text-lg"
+          placeholder="e.g., Stress, After meal, Social situation"
+          value={values.urgeTriggers}
+          onChange={(e) => setValues({ ...values, urgeTriggers: e.target.value })}
         />
       </div>
 
-      <Button type="submit" className="w-full">
-        Log Intake
+      <div className="space-y-2">
+        <Label>Location (Optional)</Label>
+        <Input
+          placeholder="e.g., Home, Work, Car"
+          value={values.location}
+          onChange={(e) => setValues({ ...values, location: e.target.value })}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Notes (Optional)</Label>
+        <Textarea
+          placeholder="Any additional notes about this usage"
+          value={values.notes}
+          onChange={(e) => setValues({ ...values, notes: e.target.value })}
+        />
+      </div>
+
+      <Button type="submit" className="w-full" disabled={isSubmitting}>
+        {isSubmitting ? "Logging..." : "Log Nicotine Use"}
       </Button>
     </form>
   );
-};
+}
