@@ -39,7 +39,6 @@ export const MotivationJournal = () => {
         id: item.id,
         title: item.title || "Untitled",
         content: item.content,
-        entry_type: item.entry_type,
         mood_rating: item.mood_rating,
         energy_level: item.energy_level || 5,
         tags: item.tags || [],
@@ -55,7 +54,6 @@ export const MotivationJournal = () => {
     mutationFn: async (newEntry: { 
       title: string; 
       content: string; 
-      entry_type: string; 
       mood_rating: number;
       energy_level: number;
       tags: string[]; 
@@ -70,7 +68,6 @@ export const MotivationJournal = () => {
           user_id: session.user.id,
           title: newEntry.title,
           content: newEntry.content,
-          entry_type: newEntry.entry_type,
           mood_rating: newEntry.mood_rating,
           energy_level: newEntry.energy_level,
           tags: newEntry.tags,
@@ -107,7 +104,6 @@ export const MotivationJournal = () => {
         .update({
           title: updatedEntry.title,
           content: updatedEntry.content,
-          entry_type: updatedEntry.entry_type,
           mood_rating: updatedEntry.mood_rating,
           energy_level: updatedEntry.energy_level,
           tags: updatedEntry.tags,
@@ -163,7 +159,6 @@ export const MotivationJournal = () => {
     createEntryMutation.mutate({
       title,
       content,
-      entry_type: "motivation",
       mood_rating: 5,
       energy_level: 5,
       tags: ["motivation"],
@@ -180,6 +175,13 @@ export const MotivationJournal = () => {
     if (!selectedEntry) return;
     
     deleteEntryMutation.mutate(selectedEntry.id);
+  };
+
+  const switchTab = (value: string) => {
+    const tabTrigger = document.querySelector(`[data-value="${value}"]`) as HTMLElement;
+    if (tabTrigger) {
+      tabTrigger.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    }
   };
 
   return (
@@ -308,9 +310,7 @@ export const MotivationJournal = () => {
                       <Button
                         variant="outline"
                         className="mt-2"
-                        onClick={() => {
-                          document.querySelector('[data-value="create"]')?.click();
-                        }}
+                        onClick={() => switchTab("create")}
                       >
                         <Plus className="h-4 w-4 mr-1" />
                         Create New Entry
@@ -323,9 +323,7 @@ export const MotivationJournal = () => {
               <div className="text-center py-10 border rounded-md">
                 <p className="text-muted-foreground mb-4">No journal entries yet</p>
                 <Button
-                  onClick={() => {
-                    document.querySelector('[data-value="create"]')?.click();
-                  }}
+                  onClick={() => switchTab("create")}
                 >
                   <Plus className="h-4 w-4 mr-1" />
                   Create Your First Entry

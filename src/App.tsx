@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Desktop from './pages/Desktop';
 import Tasks from './pages/Tasks';
 import EnergyPlans from './pages/EnergyPlans';
+import CreateEnergyPlanPage from './pages/CreateEnergyPlanPage';
 import { EditEnergyPlanPage } from './pages/EditEnergyPlanPage';
 import { EnergyPlanDetailsPage } from './pages/EnergyPlanDetailsPage';
 import HealthDashboard from './pages/HealthDashboard';

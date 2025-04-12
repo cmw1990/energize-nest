@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
@@ -62,9 +63,9 @@ const EisenhowerMatrix = () => {
         {
           user_id: session.user.id,
           title: "Important & Urgent Task",
-          priority: "high",
-          urgency: "urgent",
-          status: "todo",
+          priority: "high" as const,
+          urgency: "urgent" as const,
+          status: "todo" as const,
           estimated_minutes: 30,
           description: "This task is important and urgent",
           due_date: null,
@@ -72,9 +73,9 @@ const EisenhowerMatrix = () => {
         {
           user_id: session.user.id,
           title: "Important & Not Urgent Task",
-          priority: "high",
-          urgency: "normal",
-          status: "todo",
+          priority: "high" as const,
+          urgency: "normal" as const,
+          status: "todo" as const,
           estimated_minutes: 60,
           description: "This task is important but not urgent",
           due_date: null,
@@ -82,9 +83,9 @@ const EisenhowerMatrix = () => {
         {
           user_id: session.user.id,
           title: "Not Important & Urgent Task",
-          priority: "low",
-          urgency: "urgent",
-          status: "todo",
+          priority: "low" as const,
+          urgency: "urgent" as const,
+          status: "todo" as const,
           estimated_minutes: 15,
           description: "This task is not important but urgent",
           due_date: null,
@@ -92,9 +93,9 @@ const EisenhowerMatrix = () => {
         {
           user_id: session.user.id,
           title: "Not Important & Not Urgent Task",
-          priority: "low",
-          urgency: "normal",
-          status: "todo",
+          priority: "low" as const,
+          urgency: "normal" as const,
+          status: "todo" as const,
           estimated_minutes: 45,
           description: "This task is neither important nor urgent",
           due_date: null,
@@ -135,7 +136,7 @@ const EisenhowerMatrix = () => {
     if (!destination) return;
 
     if (destination.droppableId !== source.droppableId) {
-      const [newPriority, newUrgency] = destination.droppableId.split("-");
+      const [newPriority, newUrgency] = destination.droppableId.split("-") as ["high" | "low", "urgent" | "normal"];
       
       const updatedTasks = [...tasks];
       const taskIndex = updatedTasks.findIndex(task => task.id === draggableId);
@@ -143,8 +144,8 @@ const EisenhowerMatrix = () => {
       if (taskIndex !== -1) {
         updatedTasks[taskIndex] = {
           ...updatedTasks[taskIndex],
-          priority: newPriority as 'high' | 'medium' | 'low',
-          urgency: newUrgency as 'urgent' | 'normal' | 'low',
+          priority: newPriority,
+          urgency: newUrgency
         };
         setTasks(updatedTasks);
         

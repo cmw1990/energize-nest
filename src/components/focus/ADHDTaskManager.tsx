@@ -20,14 +20,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "@radix-ui/react-icons";
+import { CalendarIcon } from "lucide-react";
 import { Task } from "@/types/database";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -43,7 +42,7 @@ const URGENCY_LEVELS = [
   { value: "low", label: "Low" },
 ];
 
-const INITIAL_TASK_STATE = {
+const INITIAL_TASK_STATE: Partial<Task> = {
   title: "",
   description: "",
   priority: "medium",
@@ -78,7 +77,27 @@ export const ADHDTaskManager = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setTasks(data || []);
+      
+      const typedTasks: Task[] = (data || []).map(item => ({
+        id: item.id,
+        user_id: item.user_id,
+        title: item.title,
+        description: item.description || "",
+        priority: item.priority as "high" | "medium" | "low",
+        urgency: item.urgency as "urgent" | "normal" | "low",
+        status: item.status as "todo" | "in_progress" | "done",
+        estimated_minutes: item.estimated_minutes,
+        actual_minutes: item.actual_minutes,
+        due_date: item.due_date,
+        created_at: item.created_at,
+        updated_at: item.updated_at,
+        tags: item.tags,
+        category: item.category,
+        cognitive_load_estimate: item.cognitive_load_estimate,
+        difficulty_level: item.difficulty_level
+      }));
+      
+      setTasks(typedTasks);
     } catch (error: any) {
       toast({
         title: "Error fetching tasks",
@@ -101,12 +120,14 @@ export const ADHDTaskManager = () => {
     }
 
     try {
-      const { error } = await supabase.from("tasks").insert({
+      const taskToAdd = {
         ...newTask,
         user_id: session.user.id,
         status: "todo",
         due_date: selectedDate ? selectedDate.toISOString() : null,
-      });
+      };
+
+      const { error } = await supabase.from("tasks").insert(taskToAdd);
 
       if (error) throw error;
       toast({
@@ -199,12 +220,12 @@ export const ADHDTaskManager = () => {
 
     if (source.droppableId !== destination.droppableId) {
       const newStatus = destination.droppableId;
-      await updateTask(draggableId, { status: newStatus });
+      await updateTask(draggableId, { status: newStatus as "todo" | "in_progress" | "done" });
     }
   };
 
-  const formatDate = (date: Date | undefined) => {
-    return date ? format(date, "PPP") : "No Due Date";
+  const formatDate = (date: string | null | undefined) => {
+    return date ? format(parseISO(date), "PPP") : "No Due Date";
   };
 
   const handleEditTask = (task: Task) => {

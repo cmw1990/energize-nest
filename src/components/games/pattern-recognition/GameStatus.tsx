@@ -1,95 +1,108 @@
 
-import { Slider } from "@/components/ui/slider";
+import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Play, Settings, Award, Brain } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Brain, Play, Settings } from "lucide-react";
 
 interface GameStatusProps {
   isPlaying: boolean;
   isShowingPattern: boolean;
   difficulty: number;
-  setDifficulty: (difficulty: number) => void;
+  setDifficulty: (value: number) => void;
   startGame: () => void;
 }
 
-export const GameStatus = ({ 
-  isPlaying, 
-  isShowingPattern, 
-  difficulty, 
+export const GameStatus: React.FC<GameStatusProps> = ({
+  isPlaying,
+  isShowingPattern,
+  difficulty,
   setDifficulty,
-  startGame 
-}: GameStatusProps) => {
-  const difficultyLabels = [
-    "Beginner",
-    "Easy",
-    "Medium",
-    "Hard",
-    "Expert"
-  ];
-
+  startGame
+}) => {
   return (
-    <div className="space-y-4">
-      {!isPlaying ? (
-        <div className="space-y-4">
-          <div className="p-4 border rounded-lg bg-card">
-            <div className="flex items-center gap-2 mb-2">
-              <Settings className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Difficulty: {difficultyLabels[difficulty-1]}</span>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Brain className="h-5 w-5 text-primary" />
+          Game Controls
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {!isPlaying ? (
+          <>
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="difficulty">Difficulty</Label>
+                  <span className="text-sm font-medium">
+                    {difficulty === 1 && "Easy"}
+                    {difficulty === 2 && "Casual"}
+                    {difficulty === 3 && "Medium"}
+                    {difficulty === 4 && "Hard"}
+                    {difficulty === 5 && "Expert"}
+                  </span>
+                </div>
+                <Slider
+                  id="difficulty"
+                  min={1}
+                  max={5}
+                  step={1}
+                  value={[difficulty]}
+                  onValueChange={(value) => setDifficulty(value[0])}
+                  className="mt-2"
+                />
+              </div>
+              
+              <div className="bg-muted p-3 rounded-md text-sm space-y-2">
+                <div className="font-medium">Game Rules:</div>
+                <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+                  <li>Watch the pattern of highlighted cells</li>
+                  <li>Remember the sequence</li>
+                  <li>Repeat the pattern by clicking cells in order</li>
+                  <li>Each correct sequence advances you to the next level</li>
+                  <li>Higher difficulty means longer patterns</li>
+                </ol>
+              </div>
             </div>
-            <Slider
-              value={[difficulty]}
-              min={1}
-              max={5}
-              step={1}
-              onValueChange={(value) => setDifficulty(value[0])}
-              className="my-4"
-            />
-            <div className="grid grid-cols-5 gap-1 text-xs text-center text-muted-foreground">
-              {difficultyLabels.map((label, i) => (
-                <div key={i} className="text-center">{label}</div>
-              ))}
-            </div>
-          </div>
-          
-          <Button 
-            className="w-full group relative overflow-hidden"
-            onClick={startGame}
-          >
-            <span className="relative z-10 flex items-center">
-              <Play className="h-4 w-4 mr-2" />
+            
+            <Button 
+              onClick={startGame} 
+              className="w-full"
+              size="lg"
+            >
+              <Play className="mr-2 h-4 w-4" />
               Start Game
-            </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-primary opacity-75 group-hover:animate-shimmer" />
-          </Button>
-          
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-1">
-              <Brain className="h-4 w-4 text-primary" />
-              <span>Memory Training</span>
+            </Button>
+          </>
+        ) : (
+          <div className="space-y-4">
+            <div className="bg-primary/10 p-4 rounded-md">
+              <div className="text-sm font-medium mb-2">Game in Progress</div>
+              {isShowingPattern ? (
+                <div className="text-sm text-muted-foreground">
+                  Watch and remember the pattern...
+                </div>
+              ) : (
+                <div className="text-sm text-muted-foreground">
+                  Your turn! Repeat the pattern.
+                </div>
+              )}
             </div>
-            <div className="flex items-center gap-1">
-              <Award className="h-4 w-4 text-amber-500" />
-              <span>Focus: High</span>
+            
+            <div className="bg-muted p-3 rounded-md text-sm space-y-1">
+              <div className="font-medium">Benefits:</div>
+              <ul className="space-y-1 text-muted-foreground">
+                <li>• Improves working memory</li>
+                <li>• Enhances concentration</li>
+                <li>• Strengthens neural connections</li>
+                <li>• Helps with learning and recall</li>
+              </ul>
             </div>
           </div>
-        </div>
-      ) : (
-        <div className="text-center p-4 border rounded-lg bg-card">
-          {isShowingPattern ? (
-            <div className="text-lg font-medium text-primary animate-pulse">
-              Memorize the pattern!
-            </div>
-          ) : (
-            <div className="text-lg font-medium">
-              Repeat the pattern
-            </div>
-          )}
-          <div className="text-sm text-muted-foreground mt-2">
-            {isShowingPattern 
-              ? "Watch carefully..." 
-              : "Click the cells in the order they appeared"}
-          </div>
-        </div>
-      )}
-    </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
