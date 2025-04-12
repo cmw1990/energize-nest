@@ -1,106 +1,107 @@
 
+import { Json } from "./supabase";
+
+export type PlanCategory = 'charged' | 'recharged';
+
 export interface Plan {
   id: string;
-  name: string;
-  description: string;
-  category: PlanCategory;
-  duration_minutes: number;
-  energy_level_required: number;
-  user_id: string;
-  components: PlanComponent[];
-  suitable_life_situations?: LifeSituation[];
   created_at: string;
   updated_at: string;
+  created_by: string;
+  title: string;
+  description: string | null;
+  plan_type: string;
+  category: PlanCategory;
   visibility: 'public' | 'private' | 'shared';
+  is_expert_plan: boolean;
+  energy_level_required: number;
+  estimated_duration_minutes: number;
   likes_count: number;
-  views_count: number;
-  saves_count?: number;
-  plan_type?: string;
-  title?: string;
-  is_expert_plan?: boolean;
-  celebrity_name?: string;
-  estimated_duration_minutes?: number;
-  recommended_time_of_day?: string[];
-  suitable_contexts?: string[];
-  tags?: string[];
-  energy_plan_components?: any[];
+  saves_count: number;
+  recommended_time_of_day: string[];
+  suitable_contexts: string[];
+  tags: string[];
+  energy_plan_components?: PlanComponent[];
 }
-
-export type PlanType = 
-  | 'standard'
-  | 'expert'
-  | 'celebrity'
-  | 'community'
-  | 'custom';
-
-export type PlanCategory = 
-  | 'morning'
-  | 'midday'
-  | 'evening'
-  | 'work'
-  | 'study'
-  | 'exercise'
-  | 'social'
-  | 'recovery'
-  | 'creative'
-  | 'charged'
-  | 'recharged';
 
 export interface PlanComponent {
   id: string;
   plan_id: string;
-  activity_type: string;
-  activity_name: string;
+  title: string;
+  description: string | null;
   duration_minutes: number;
-  description: string;
   order: number;
+  type: string;
+  details: Json;
+  media_url: string | null;
   created_at: string;
+  updated_at: string;
 }
 
 export interface ProgressRecord {
   id: string;
-  plan_id: string;
   user_id: string;
+  plan_id: string;
   date: string;
-  completed: boolean;
-  completion_rate: number;
   energy_before: number;
   energy_after: number;
-  notes: string;
+  mood_before: number;
+  mood_after: number;
+  completed: boolean;
+  notes: string | null;
   created_at: string;
-  completed_at?: string;
+  updated_at: string;
 }
 
 export type LifeSituation = 
-  | 'work_from_home'
+  | 'working_from_home'
   | 'office_work'
-  | 'student'
-  | 'parent'
-  | 'high_stress'
-  | 'low_energy'
-  | 'recovering'
+  | 'parenting'
   | 'traveling'
-  | 'busy_schedule'
-  | 'regular';
+  | 'studying'
+  | 'recovery'
+  | 'illness'
+  | 'burnout'
+  | 'vacation';
 
-export interface PersonalPlansProps {
-  onPlanCreated: () => void;
-  plans?: Plan[];
+// Adapter function to transform database model to application model
+export function adaptDbPlanToAppPlan(dbPlan: any): Plan {
+  return {
+    id: dbPlan.id,
+    created_at: dbPlan.created_at,
+    updated_at: dbPlan.updated_at,
+    created_by: dbPlan.user_id || dbPlan.created_by,
+    title: dbPlan.plan_name || dbPlan.title,
+    description: dbPlan.description,
+    plan_type: dbPlan.plan_type,
+    category: (dbPlan.category || 'charged') as PlanCategory,
+    visibility: dbPlan.visibility || 'private',
+    is_expert_plan: !!dbPlan.is_expert_plan,
+    energy_level_required: dbPlan.energy_level_required || 5,
+    estimated_duration_minutes: dbPlan.duration_minutes || dbPlan.estimated_duration_minutes || 30,
+    likes_count: dbPlan.likes_count || 0,
+    saves_count: dbPlan.saves_count || 0,
+    recommended_time_of_day: dbPlan.recommended_time_of_day || [],
+    suitable_contexts: dbPlan.suitable_contexts || [],
+    tags: dbPlan.tags || [],
+    energy_plan_components: dbPlan.energy_plan_components || []
+  };
 }
 
-export interface PlanFiltersProps {
-  selectedCategory: PlanCategory | null;
-  onCategoryChange: (category: PlanCategory | null) => void;
-}
-
-export interface PlanDiscoveryProps {
-  selectedCategory: PlanCategory | null; 
-  onSavePlan: (id: string) => void;
-}
-
-export interface LifeSituationDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSelect: (situation: LifeSituation) => void;
-  lifeSituation?: LifeSituation;
+// Adapter function to transform application model to database model
+export function adaptAppPlanToDbPlan(appPlan: Partial<Plan>): any {
+  return {
+    user_id: appPlan.created_by,
+    plan_name: appPlan.title,
+    description: appPlan.description,
+    plan_type: appPlan.plan_type,
+    category: appPlan.category,
+    visibility: appPlan.visibility,
+    is_expert_plan: appPlan.is_expert_plan,
+    energy_level_required: appPlan.energy_level_required,
+    duration_minutes: appPlan.estimated_duration_minutes,
+    recommended_time_of_day: appPlan.recommended_time_of_day,
+    suitable_contexts: appPlan.suitable_contexts,
+    tags: appPlan.tags,
+  };
 }

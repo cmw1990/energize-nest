@@ -12,6 +12,8 @@ import {
   DragDropContext, Droppable, Draggable, DropResult 
 } from "react-beautiful-dnd";
 import { Brain, Clipboard, Clock, Flame, Plus, Sparkles } from "lucide-react";
+import { adaptTasks, prepareTaskForDb } from "./tasks/TaskTypeUtils";
+import { DbTask } from "@/integrations/supabase/schema";
 
 const EisenhowerMatrix = () => {
   const { session } = useAuth();
@@ -36,14 +38,8 @@ const EisenhowerMatrix = () => {
 
       if (error) throw error;
       
-      const typedTasks = data?.map(task => ({
-        ...task,
-        priority: task.priority as 'high' | 'medium' | 'low',
-        urgency: task.urgency as 'urgent' | 'normal' | 'low',
-        status: task.status as 'todo' | 'in_progress' | 'done'
-      })) || [];
-      
-      setTasks(typedTasks);
+      const adaptedTasks = adaptTasks(data as DbTask[]);
+      setTasks(adaptedTasks);
     } catch (error: any) {
       toast({
         title: "Error fetching tasks",
@@ -102,20 +98,16 @@ const EisenhowerMatrix = () => {
         },
       ];
 
-      const { data, error } = await supabase.from("tasks").insert(newTasks).select();
+      // Convert tasks to database format before inserting
+      const tasksForDb = newTasks.map(task => prepareTaskForDb(task));
+      const { data, error } = await supabase.from("tasks").insert(tasksForDb).select();
 
       if (error) throw error;
 
-      setTasks(prevTasks => {
-        const newTasksWithTypes = data?.map(task => ({
-          ...task,
-          priority: task.priority as 'high' | 'medium' | 'low',
-          urgency: task.urgency as 'urgent' | 'normal' | 'low',
-          status: task.status as 'todo' | 'in_progress' | 'done'
-        })) || [];
-        
-        return [...prevTasks, ...newTasksWithTypes];
-      });
+      if (data && data.length) {
+        const adaptedTasks = adaptTasks(data as DbTask[]);
+        setTasks(prevTasks => [...prevTasks, ...adaptedTasks]);
+      }
 
       toast({
         title: "Demo tasks added",
@@ -150,12 +142,14 @@ const EisenhowerMatrix = () => {
         setTasks(updatedTasks);
         
         try {
+          const updatesForDb = prepareTaskForDb({ 
+            priority: newPriority,
+            urgency: newUrgency,
+          });
+          
           const { error } = await supabase
             .from("tasks")
-            .update({ 
-              priority: newPriority,
-              urgency: newUrgency,
-            })
+            .update(updatesForDb)
             .eq("id", draggableId);
             
           if (error) throw error;

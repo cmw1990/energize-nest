@@ -1,4 +1,3 @@
-
 export interface Task {
   id: string;
   user_id: string;
@@ -148,5 +147,43 @@ export interface TreatmentPlan {
   client_id?: string;
   professional_id?: string;
   created_at?: string;
+  updated_at?: string;
+}
+
+export interface ConsultationSession {
+  id: string;
+  client_id: string;
+  professional_id: string;
+  session_date: string;
+  session_type: string;
+  duration_minutes: number;
+  status: string;
+  notes?: string;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface FoodItem {
+  id: string;
+  name: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  serving_size: string;
+  user_id?: string;
+  is_favorite: boolean;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface NutritionGoals {
+  id: string;
+  user_id: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  created_at: string;
   updated_at?: string;
 }

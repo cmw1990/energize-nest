@@ -29,6 +29,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon } from "lucide-react";
 import { Task } from "@/types/database";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { adaptTasks, prepareTaskForDb } from "./tasks/TaskTypeUtils";
+import { DbTask } from "@/integrations/supabase/schema";
 
 const PRIORITIES = [
   { value: "high", label: "High" },
@@ -78,26 +80,8 @@ export const ADHDTaskManager = () => {
 
       if (error) throw error;
       
-      const typedTasks: Task[] = (data || []).map(item => ({
-        id: item.id,
-        user_id: item.user_id,
-        title: item.title,
-        description: item.description || "",
-        priority: item.priority as "high" | "medium" | "low",
-        urgency: item.urgency as "urgent" | "normal" | "low",
-        status: item.status as "todo" | "in_progress" | "done",
-        estimated_minutes: item.estimated_minutes,
-        actual_minutes: item.actual_minutes,
-        due_date: item.due_date,
-        created_at: item.created_at,
-        updated_at: item.updated_at,
-        tags: item.tags,
-        category: item.category,
-        cognitive_load_estimate: item.cognitive_load_estimate,
-        difficulty_level: item.difficulty_level
-      }));
-      
-      setTasks(typedTasks);
+      const transformedTasks = adaptTasks(data as DbTask[]);
+      setTasks(transformedTasks);
     } catch (error: any) {
       toast({
         title: "Error fetching tasks",
@@ -120,14 +104,14 @@ export const ADHDTaskManager = () => {
     }
 
     try {
-      const taskToAdd = {
+      const taskToInsert = prepareTaskForDb({
         ...newTask,
         user_id: session.user.id,
         status: "todo",
         due_date: selectedDate ? selectedDate.toISOString() : null,
-      };
+      });
 
-      const { error } = await supabase.from("tasks").insert(taskToAdd);
+      const { error } = await supabase.from("tasks").insert(taskToInsert);
 
       if (error) throw error;
       toast({
@@ -147,9 +131,11 @@ export const ADHDTaskManager = () => {
 
   const updateTask = async (id: string, updates: Partial<Task>) => {
     try {
+      const updatesToInsert = prepareTaskForDb(updates);
+      
       const { error } = await supabase
         .from("tasks")
-        .update(updates)
+        .update(updatesToInsert)
         .eq("id", id);
 
       if (error) throw error;
@@ -246,12 +232,14 @@ export const ADHDTaskManager = () => {
     if (!editingTask) return;
 
     try {
+      const updatesToInsert = prepareTaskForDb({
+        ...newTask,
+        due_date: selectedDate ? selectedDate.toISOString() : null,
+      });
+      
       const { error } = await supabase
         .from("tasks")
-        .update({
-          ...newTask,
-          due_date: selectedDate ? selectedDate.toISOString() : null,
-        })
+        .update(updatesToInsert)
         .eq("id", editingTask.id);
 
       if (error) throw error;
