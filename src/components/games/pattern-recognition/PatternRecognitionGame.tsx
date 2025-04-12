@@ -1,104 +1,148 @@
-import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Brain, RefreshCw } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { motion } from "framer-motion";
-import { usePatternGame } from "./usePatternGame";
-import { PatternGrid } from "./PatternGrid";
-import { GameStatus } from "./GameStatus";
-import { supabase } from "@/integrations/supabase/client";
+
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent } from "@/components/ui/card";
+import { GameStatus } from './GameStatus';
+import { GameBoard } from './GameBoard';
+import { GameResults } from './GameResults';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/components/AuthProvider';
 
 export const PatternRecognitionGame = () => {
+  const { session } = useAuth();
   const { toast } = useToast();
-  const {
-    pattern,
-    userPattern,
-    score,
-    isPlaying,
-    isShowingPattern,
-    difficulty,
-    handleCellClick,
-    startNewGame,
-    setDifficulty,
-  } = usePatternGame();
-
-  const saveScore = async () => {
-    try {
-      const { error } = await supabase.from("board_games").insert({
-        game_type: "pattern_recognition",
-        score,
-        difficulty_level: difficulty,
-        status: "completed",
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Score saved!",
-        description: `You scored ${score} points`,
-      });
-    } catch (error) {
-      console.error("Error saving score:", error);
-      toast({
-        title: "Error saving score",
-        description: "Please try again",
-        variant: "destructive",
-      });
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isShowingPattern, setIsShowingPattern] = useState(false);
+  const [pattern, setPattern] = useState<number[]>([]);
+  const [userPattern, setUserPattern] = useState<number[]>([]);
+  const [level, setLevel] = useState(1);
+  const [score, setScore] = useState(0);
+  const [gameOver, setGameOver] = useState(false);
+  const [difficulty, setDifficulty] = useState(3); // 1-5 scale
+  
+  // Generate a random pattern based on level and difficulty
+  const generatePattern = () => {
+    const patternLength = level + difficulty;
+    const newPattern = [];
+    
+    for (let i = 0; i < patternLength; i++) {
+      newPattern.push(Math.floor(Math.random() * 9));
+    }
+    
+    return newPattern;
+  };
+  
+  // Start a new game
+  const startGame = () => {
+    setIsPlaying(true);
+    setIsShowingPattern(true);
+    setGameOver(false);
+    setLevel(1);
+    setScore(0);
+    setUserPattern([]);
+    setPattern(generatePattern());
+    
+    // Show pattern for a few seconds
+    setTimeout(() => {
+      setIsShowingPattern(false);
+    }, 2000 + (difficulty * 500));
+  };
+  
+  // Handle cell click during user input
+  const handleCellClick = (index: number) => {
+    if (isShowingPattern || gameOver) return;
+    
+    const newUserPattern = [...userPattern, index];
+    setUserPattern(newUserPattern);
+    
+    // Check if user input matches pattern so far
+    const isCorrect = newUserPattern.every((val, idx) => val === pattern[idx]);
+    
+    if (!isCorrect) {
+      handleGameOver();
+      return;
+    }
+    
+    // Check if user completed the pattern
+    if (newUserPattern.length === pattern.length) {
+      const newScore = score + (level * difficulty * 10);
+      setScore(newScore);
+      
+      // Level up
+      const newLevel = level + 1;
+      setLevel(newLevel);
+      
+      // Reset for next level
+      setUserPattern([]);
+      setIsShowingPattern(true);
+      
+      // Generate new pattern for next level
+      const newPattern = generatePattern();
+      setPattern(newPattern);
+      
+      setTimeout(() => {
+        setIsShowingPattern(false);
+      }, 2000 + (difficulty * 500));
     }
   };
-
+  
+  const handleGameOver = async () => {
+    setGameOver(true);
+    
+    // Save score to database if user is logged in
+    if (session?.user?.id) {
+      try {
+        await supabase.from('brain_game_scores').insert({
+          user_id: session.user.id,
+          game_type: 'pattern_recognition',
+          score: score,
+          difficulty: difficulty,
+          metadata: { level_reached: level }
+        });
+      } catch (error) {
+        console.error('Error saving score:', error);
+      }
+    }
+    
+    toast({
+      title: 'Game Over!',
+      description: `You reached level ${level} with a score of ${score}`,
+    });
+  };
+  
   return (
-    <div className="container max-w-4xl mx-auto p-4 space-y-6">
-      <Card className="p-6">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-full">
-              <Brain className="h-5 w-5 text-primary" />
-            </div>
-            <h2 className="text-2xl font-bold">Pattern Recognition</h2>
+    <Card className="w-full">
+      <CardContent className="p-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-2">
+            {gameOver ? (
+              <GameResults 
+                score={score} 
+                level={level} 
+                difficulty={difficulty}
+                onPlayAgain={startGame}
+              />
+            ) : (
+              <GameBoard
+                isShowingPattern={isShowingPattern}
+                pattern={pattern}
+                userPattern={userPattern}
+                onCellClick={handleCellClick}
+              />
+            )}
           </div>
-          <div className="flex items-center gap-4">
-            <div className="text-lg font-semibold">Score: {score}</div>
-            <Button 
-              onClick={startNewGame}
-              variant="outline"
-              size="icon"
-              disabled={isShowingPattern}
-            >
-              <RefreshCw className="h-4 w-4" />
-            </Button>
+          
+          <div>
+            <GameStatus
+              isPlaying={isPlaying}
+              isShowingPattern={isShowingPattern}
+              difficulty={difficulty}
+              setDifficulty={setDifficulty}
+              startGame={startGame}
+            />
           </div>
         </div>
-
-        <div className="space-y-6">
-          <GameStatus 
-            isPlaying={isPlaying}
-            isShowingPattern={isShowingPattern}
-            difficulty={difficulty}
-            setDifficulty={setDifficulty}
-          />
-
-          <PatternGrid
-            pattern={pattern}
-            userPattern={userPattern}
-            isShowingPattern={isShowingPattern}
-            onCellClick={handleCellClick}
-          />
-
-          {!isPlaying && score > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex justify-center"
-            >
-              <Button onClick={saveScore}>Save Score</Button>
-            </motion.div>
-          )}
-        </div>
-      </Card>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
-
-export default PatternRecognitionGame;

@@ -37,8 +37,11 @@ export interface CycleSleepCorrelation {
   phase_type: string;
   sleep_duration: number;
   sleep_quality: number;
-  notes: string;
+  notes?: string; // Make it optional
   created_at: string;
+  heart_rate_variability?: number;
+  resting_heart_rate?: number;
+  temperature_celsius?: number;
 }
 
 export interface CycleWeatherImpact {
@@ -69,10 +72,14 @@ export interface UserWearableDevice {
   id: string;
   user_id: string;
   device_type: string;
-  device_name: string;
-  is_connected: boolean;
-  last_synced: string;
-  settings: any;
+  device_name?: string;
+  is_connected?: boolean;
+  last_synced?: string;
+  settings?: any;
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
+  auth_token?: string;
+  device_id?: string;
+  is_active?: boolean;
+  last_synced_at?: string;
 }

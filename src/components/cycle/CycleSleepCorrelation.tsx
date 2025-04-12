@@ -30,7 +30,12 @@ export const CycleSleepCorrelation = () => {
         .limit(30);
 
       if (error) throw error;
-      return data as CycleSleepCorrelationType[];
+      
+      // Convert to the expected type
+      return (data as any[]).map(record => ({
+        ...record,
+        notes: record.notes || '',
+      })) as CycleSleepCorrelationType[];
     },
     enabled: !!session?.user?.id,
   });

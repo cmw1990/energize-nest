@@ -22,7 +22,12 @@ export const WearableDeviceIntegration = () => {
         .eq('is_active', true);
 
       if (error) throw error;
-      return data as UserWearableDevice[];
+      
+      // Convert to the expected type
+      return (data as any[]).map(device => ({
+        ...device,
+        last_synced: device.last_synced_at,
+      })) as UserWearableDevice[];
     },
     enabled: !!session?.user?.id,
   });

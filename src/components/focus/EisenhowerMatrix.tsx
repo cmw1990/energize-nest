@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
@@ -11,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { 
   DragDropContext, Droppable, Draggable, DropResult 
 } from "react-beautiful-dnd";
-import { Brain, Clipboard, Clock, Fire, Plus, Sparkles } from "lucide-react";
+import { Brain, Clipboard, Clock, Flame, Plus, Sparkles } from "lucide-react";
 
 const EisenhowerMatrix = () => {
   const { session } = useAuth();
@@ -36,7 +35,6 @@ const EisenhowerMatrix = () => {
 
       if (error) throw error;
       
-      // Cast data to Task[] with proper type checking
       const typedTasks = data?.map(task => ({
         ...task,
         priority: task.priority as 'high' | 'medium' | 'low',
@@ -136,12 +134,9 @@ const EisenhowerMatrix = () => {
 
     if (!destination) return;
 
-    // If the task is dropped in a different quadrant
     if (destination.droppableId !== source.droppableId) {
-      // Parse the quadrant info (priority-urgency)
       const [newPriority, newUrgency] = destination.droppableId.split("-");
       
-      // Update the task in the UI optimistically
       const updatedTasks = [...tasks];
       const taskIndex = updatedTasks.findIndex(task => task.id === draggableId);
       
@@ -153,7 +148,6 @@ const EisenhowerMatrix = () => {
         };
         setTasks(updatedTasks);
         
-        // Update the task in the database
         try {
           const { error } = await supabase
             .from("tasks")
@@ -165,7 +159,6 @@ const EisenhowerMatrix = () => {
             
           if (error) throw error;
         } catch (error: any) {
-          // Revert the UI if the update fails
           fetchTasks();
           toast({
             title: "Error updating task",
@@ -205,17 +198,15 @@ const EisenhowerMatrix = () => {
       <CardContent>
         <DragDropContext onDragEnd={onDragEnd}>
           <div className="grid grid-cols-2 gap-4 h-[450px]">
-            {/* Important & Urgent */}
             <MatrixQuadrant
               title="Do"
               description="Important & Urgent"
-              icon={<Fire className="h-4 w-4 text-red-500" />}
+              icon={<Flame className="h-4 w-4 text-red-500" />}
               tasks={getTasksForQuadrant("high", "urgent")}
               droppableId="high-urgent"
               isLoading={isLoading}
             />
 
-            {/* Important & Not Urgent */}
             <MatrixQuadrant
               title="Schedule"
               description="Important & Not Urgent"
@@ -225,7 +216,6 @@ const EisenhowerMatrix = () => {
               isLoading={isLoading}
             />
 
-            {/* Not Important & Urgent */}
             <MatrixQuadrant
               title="Delegate"
               description="Not Important & Urgent"
@@ -235,7 +225,6 @@ const EisenhowerMatrix = () => {
               isLoading={isLoading}
             />
 
-            {/* Not Important & Not Urgent */}
             <MatrixQuadrant
               title="Eliminate"
               description="Not Important & Not Urgent"

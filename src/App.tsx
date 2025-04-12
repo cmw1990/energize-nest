@@ -3,18 +3,12 @@ import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './components/AuthProvider';
 import { ThemeProvider } from './components/ThemeProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import Landing from './pages/Landing';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import ResetPassword from './pages/ResetPassword';
-import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
 import Desktop from './pages/Desktop';
 import Tasks from './pages/Tasks';
 import EnergyPlans from './pages/EnergyPlans';
-import CreateEnergyPlanPage from './pages/CreateEnergyPlanPage';
-import EditEnergyPlanPage from './pages/EditEnergyPlanPage';
-import EnergyPlanDetailsPage from './pages/EnergyPlanDetailsPage';
+import { EditEnergyPlanPage } from './pages/EditEnergyPlanPage';
+import { EnergyPlanDetailsPage } from './pages/EnergyPlanDetailsPage';
 import HealthDashboard from './pages/HealthDashboard';
 import Motivation from './pages/Motivation';
 import Supplements from './pages/Supplements';
@@ -31,7 +25,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
-      cacheTime: 1000 * 60 * 30, // 30 minutes
+      gcTime: 1000 * 60 * 30, // 30 minutes (replaced cacheTime which is deprecated)
       retry: 1,
       refetchOnWindowFocus: false,
     },
@@ -44,13 +38,9 @@ function App() {
       <ThemeProvider defaultTheme="light" storageKey="wellness-ui-theme">
         <AuthProvider>
           <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/" element={<Dashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/desktop" element={<Desktop />} />
-            <Route path="/profile" element={<Profile />} />
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/energy-plans" element={<EnergyPlans />} />
             <Route path="/energy-plans/create" element={<CreateEnergyPlanPage />} />
