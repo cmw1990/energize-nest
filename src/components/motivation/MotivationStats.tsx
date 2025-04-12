@@ -33,26 +33,31 @@ export const MotivationStats = () => {
   });
   
   const calculateAverageMood = () => {
-    if (!moodData || moodData.length === 0) return 0;
+    if (!moodData || moodData.length === 0) return "0";
     
     const sum = moodData.reduce((acc, entry) => {
-      return acc + (safeGet(entry, 'overall_mood', 0) || 0);
+      const moodValue = safeGet(entry, 'overall_mood', 0);
+      return acc + (typeof moodValue === 'number' ? moodValue : 0);
     }, 0);
     
     return (sum / moodData.length).toFixed(1);
   };
   
   const calculateMoodChange = () => {
-    if (!moodData || moodData.length < 2) return 0;
+    if (!moodData || moodData.length < 2) return "0";
     
     const oldestEntries = moodData.slice(-5);
     const newestEntries = moodData.slice(0, 5);
     
-    const oldestAvg = oldestEntries.reduce((acc, entry) => 
-      acc + (safeGet(entry, 'overall_mood', 0) || 0), 0) / oldestEntries.length;
+    const oldestAvg = oldestEntries.reduce((acc, entry) => {
+      const moodValue = safeGet(entry, 'overall_mood', 0);
+      return acc + (typeof moodValue === 'number' ? moodValue : 0);
+    }, 0) / oldestEntries.length;
       
-    const newestAvg = newestEntries.reduce((acc, entry) => 
-      acc + (safeGet(entry, 'overall_mood', 0) || 0), 0) / newestEntries.length;
+    const newestAvg = newestEntries.reduce((acc, entry) => {
+      const moodValue = safeGet(entry, 'overall_mood', 0);
+      return acc + (typeof moodValue === 'number' ? moodValue : 0);
+    }, 0) / newestEntries.length;
       
     return (newestAvg - oldestAvg).toFixed(1);
   };
@@ -84,9 +89,13 @@ export const MotivationStats = () => {
     if (!moodData || moodData.length === 0) return [];
     
     return [...moodData]
-      .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+      .sort((a, b) => {
+        const aDate = a && typeof a === 'object' && 'created_at' in a ? new Date(a.created_at as string).getTime() : 0;
+        const bDate = b && typeof b === 'object' && 'created_at' in b ? new Date(b.created_at as string).getTime() : 0;
+        return aDate - bDate;
+      })
       .map(entry => ({
-        date: format(new Date(entry.created_at), 'MMM dd'),
+        date: format(new Date(entry && typeof entry === 'object' && 'created_at' in entry ? entry.created_at as string : new Date()), 'MMM dd'),
         mood: safeGet(entry, 'overall_mood', 0),
         energy: safeGet(entry, 'energy_level', 0),
         focus: safeGet(entry, 'focus_level', 0),
@@ -96,7 +105,11 @@ export const MotivationStats = () => {
   const getStreakInfo = () => {
     if (!moodData || moodData.length === 0) return { currentStreak: 0, longestStreak: 0 };
     
-    const dates = moodData.map(entry => new Date(entry.created_at).toDateString());
+    const dates = moodData.map(entry => {
+      return entry && typeof entry === 'object' && 'created_at' in entry 
+        ? new Date(entry.created_at as string).toDateString() 
+        : '';
+    }).filter(date => date !== '');
     const uniqueDates = [...new Set(dates)];
     
     let currentStreak = 1;
@@ -175,7 +188,7 @@ export const MotivationStats = () => {
               <div className="text-3xl font-bold mt-2">{avgMood}</div>
               <div className="flex items-center mt-1 text-sm">
                 {getMoodChangeIcon()}
-                <span className="ml-1">{moodChange > 0 ? '+' : ''}{moodChange}</span>
+                <span className="ml-1">{parseFloat(moodChange) > 0 ? '+' : ''}{moodChange}</span>
               </div>
             </div>
 
@@ -196,13 +209,13 @@ export const MotivationStats = () => {
                 <Clock className="h-4 w-4 text-primary" />
               </div>
               <div className="text-3xl font-bold mt-2">
-                {moodData && moodData.length > 0 
-                  ? format(new Date(moodData[0].created_at), 'MMM dd') 
+                {moodData && moodData.length > 0 && moodData[0] && typeof moodData[0] === 'object' && 'created_at' in moodData[0]
+                  ? format(new Date(moodData[0].created_at as string), 'MMM dd') 
                   : 'No data'}
               </div>
               <div className="text-sm text-muted-foreground mt-1">
-                {moodData && moodData.length > 0 
-                  ? format(new Date(moodData[0].created_at), 'h:mm a') 
+                {moodData && moodData.length > 0 && moodData[0] && typeof moodData[0] === 'object' && 'created_at' in moodData[0]
+                  ? format(new Date(moodData[0].created_at as string), 'h:mm a') 
                   : ''}
               </div>
             </div>

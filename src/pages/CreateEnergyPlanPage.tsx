@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
-import { Sparkles, Clock, Battery, Plus, Timer, ChevronRight, Zap } from "lucide-react";
+import { Sparkles, Clock, Battery, Plus, Timer, ChevronRight, Zap, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 
 type PlanType = 'standard' | 'focus' | 'recovery' | 'custom';

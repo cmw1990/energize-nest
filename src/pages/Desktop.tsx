@@ -1,16 +1,23 @@
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/components/AuthProvider";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Battery, Brain, Gamepad2 } from "lucide-react";
-import { GameAssetsGenerator } from "@/components/GameAssetsGenerator";
-import { MoodOverview } from "@/components/MoodOverview";
-import { ADHDTaskManager } from "@/components/focus/ADHDTaskManager";
-import { FocusAnalyticsDashboard } from "@/components/focus/FocusAnalyticsDashboard";
-import { FocusAchievements } from "@/components/focus/FocusAchievements";
-import { EisenhowerMatrix } from "@/components/focus/EisenhowerMatrix";
-import { FocusTimerTools } from "@/components/focus/FocusTimerTools";
-import { FocusEnvironment } from "@/components/focus/FocusEnvironment";
+import React from 'react';
+import { useAuth } from '@/components/AuthProvider';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import EisenhowerMatrix from '@/components/focus/EisenhowerMatrix';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { LifestyleInsights } from '@/components/desktop/LifestyleInsights';
+import { Clock, CircleUser, Workflow, FolderKanban, GanttChart, Grid3X3, Map, Pencil } from 'lucide-react';
+import { TaskList } from '@/components/desktop/TaskList';
+import { DigitalClock } from '@/components/desktop/DigitalClock';
+import { CalendarView } from '@/components/desktop/CalendarView';
+import { NotePad } from '@/components/desktop/NotePad';
+import { GameAssetsGenerator } from '@/components/GameAssetsGenerator';
+import { MoodOverview } from '@/components/MoodOverview';
+import { ADHDTaskManager } from '@/components/focus/ADHDTaskManager';
+import { FocusAnalyticsDashboard } from '@/components/focus/FocusAnalyticsDashboard';
+import { FocusAchievements } from '@/components/focus/FocusAchievements';
+import { FocusTimerTools } from '@/components/focus/FocusTimerTools';
+import { FocusEnvironment } from '@/components/focus/FocusEnvironment';
+import { motion } from 'framer-motion';
 
 export default function Desktop() {
   const navigate = useNavigate();

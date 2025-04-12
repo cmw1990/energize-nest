@@ -1,3 +1,4 @@
+
 export interface UserProfile {
   id: string;
   user_id: string;
@@ -109,11 +110,167 @@ export interface JournalEntry {
   updated_at: string;
 }
 
+// HealthMetric interface
+export interface HealthMetric {
+  id: string;
+  user_id: string;
+  date: string;
+  mood_rating: number;
+  energy_level: number;
+  stress_level: number;
+  sleep_hours: number;
+  sleep_quality: number;
+  exercise_minutes: number;
+  water_intake: number;
+  focus_level: number;
+  productivity_score: number;
+  symptoms: string[];
+  notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// TeaEquipment interface
+export interface TeaEquipment {
+  id: string;
+  user_id: string;
+  name: string;
+  type: string;
+  description: string;
+  material: string;
+  capacity: string;
+  price_range: string;
+  pros: string[];
+  cons: string[];
+  best_for: string[];
+  care_instructions: string[];
+  image_url: string;
+  category: string;
+  specifications: any;
+  created_at: string;
+  updated_at: string;
+}
+
+// TeaVendor interface
+export interface TeaVendor {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string;
+  website: string;
+  rating: number;
+  review_count: number;
+  shipping_regions: string[];
+  verification_status: string;
+  favorite: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// QuitAttempt interface
+export interface QuitAttempt {
+  id: string;
+  user_id: string;
+  substance: string;
+  substance_type: 'alcohol' | 'tobacco' | 'other';
+  method: string;
+  start_date: string;
+  end_date: string;
+  is_active: boolean;
+  success_rating: number;
+  challenges_faced: string[];
+  coping_strategies: string[];
+  support_received: string[];
+  notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// Milestone interface
+export interface Milestone {
+  id: string;
+  user_id: string;
+  title: string;
+  days_sober: number;
+  achieved_at: string;
+  health_improvements: string[];
+  mental_improvements: string[];
+  lifestyle_changes: string[];
+  celebration_notes: string;
+  physical_benefits: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+// Supplement interface
+export interface Supplement {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string;
+  category: string;
+  frequency: string;
+  dosage: string;
+  brand: string;
+  effects: string[];
+  side_effects: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+// TreatmentPlan interface
+export interface TreatmentPlan {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string;
+  start_date: string;
+  end_date: string;
+  status: string;
+  tasks: any[];
+  goals: any;
+  interventions: any;
+  created_at: string;
+  updated_at: string;
+}
+
 // Visibility enum for sharing settings
 export enum Visibility {
   PRIVATE = 'private',
   PUBLIC = 'public',
   SHARED = 'shared'
+}
+
+// Define cycle related types
+export interface CyclePhaseRecommendation {
+  id: string;
+  phase_type: string;
+  title: string;
+  description: string;
+  tags: string[];
+  priority: number;
+  created_at: string;
+}
+
+export interface CycleExerciseRecommendation {
+  id: string;
+  phase_type: string;
+  exercise_type: string;
+  intensity_level: string;
+  description: string;
+  benefits: string[];
+  precautions: string[];
+  created_at: string;
+}
+
+export interface CycleNutritionRecommendation {
+  id: string;
+  phase_type: string;
+  food_category: string;
+  food_items: string[];
+  nutrients: string[];
+  benefits: string;
+  created_at: string;
 }
 
 // Define other missing types that were referenced in the error message

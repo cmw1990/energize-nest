@@ -1,11 +1,7 @@
+
+import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Play, Settings } from "lucide-react";
 
 interface GameStatusProps {
   isPlaying: boolean;
@@ -14,38 +10,45 @@ interface GameStatusProps {
   setDifficulty: (difficulty: number) => void;
 }
 
-export const GameStatus = ({
-  isPlaying,
-  isShowingPattern,
-  difficulty,
-  setDifficulty,
+export const GameStatus = ({ 
+  isPlaying, 
+  isShowingPattern, 
+  difficulty, 
+  setDifficulty 
 }: GameStatusProps) => {
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-center gap-4 p-4 bg-muted/50 rounded-lg">
-      <div className="text-lg">
-        {!isPlaying
-          ? "Start a new game!"
-          : isShowingPattern
-          ? "Watch the pattern..."
-          : "Reproduce the pattern!"}
-      </div>
-      <div className="flex items-center gap-4">
-        <span className="text-sm text-muted-foreground">Difficulty:</span>
-        <Select
-          value={difficulty.toString()}
-          onValueChange={(value) => setDifficulty(parseInt(value))}
-          disabled={isPlaying}
-        >
-          <SelectTrigger className="w-32">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="1">Easy</SelectItem>
-            <SelectItem value="2">Medium</SelectItem>
-            <SelectItem value="3">Hard</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+    <div className="space-y-4">
+      {!isPlaying ? (
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Settings className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">Difficulty Level: {difficulty}</span>
+          </div>
+          <Slider
+            value={[difficulty]}
+            min={1}
+            max={5}
+            step={1}
+            onValueChange={(value) => setDifficulty(value[0])}
+          />
+          <Button className="w-full" onClick={() => {}}>
+            <Play className="h-4 w-4 mr-2" />
+            Start Game
+          </Button>
+        </div>
+      ) : (
+        <div className="text-center">
+          {isShowingPattern ? (
+            <div className="text-lg font-medium text-primary">
+              Memorize the pattern!
+            </div>
+          ) : (
+            <div className="text-lg font-medium">
+              Repeat the pattern
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

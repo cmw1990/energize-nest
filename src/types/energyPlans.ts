@@ -1,84 +1,83 @@
 
-export type PlanType = 
-  | 'mental_clarity'
-  | 'deep_relaxation'
-  | 'stress_relief'
-  | 'meditation'
-  | 'energizing_boost'
-  | 'sustained_focus'
-  | 'physical_vitality'
-  | 'evening_winddown'
-  | 'sleep_preparation'
-
-export type PlanVisibility = 'private' | 'public' | 'shared'
-export type PlanCategory = 'charged' | 'recharged'
-export type LifeSituation = 'regular' | 'pregnancy' | 'postpartum' | 'breastfeeding'
-
 export interface Plan {
   id: string;
+  name: string;
+  description: string;
+  category: PlanCategory;
+  duration_minutes: number;
+  energy_level_required: number;
+  user_id: string;
+  components: PlanComponent[];
+  suitable_life_situations?: LifeSituation[];
   created_at: string;
   updated_at: string;
-  
-  // Original fields
-  created_by?: string;
-  title?: string;
-  description?: string;
-  plan_type?: string;
-  category?: PlanCategory;
-  visibility?: PlanVisibility;
-  is_expert_plan?: boolean;
-  tags?: string[];
-  likes_count?: number;
-  saves_count?: number;
-  
-  // Database fields
-  user_id?: string;
-  plan_name?: string;
-  activities?: any;
-  duration_minutes?: number;
-  effectiveness_rating?: number;
-  
-  // Compatibility fields
-  energy_level_required?: number;
-  recommended_time_of_day?: string[];
-  suitable_contexts?: string[];
-  estimated_duration_minutes?: number;
-  celebrity_name?: string;
-  energy_plan_components?: PlanComponent[];
+  visibility: 'public' | 'private' | 'shared';
+  likes_count: number;
+  views_count: number;
 }
 
+export type PlanCategory = 
+  | 'morning'
+  | 'midday'
+  | 'evening'
+  | 'work'
+  | 'study'
+  | 'exercise'
+  | 'social'
+  | 'recovery'
+  | 'creative';
+
 export interface PlanComponent {
-  id: string
-  component_type: string
-  order_number: number 
-  duration_minutes: number | null
-  settings: any
-  notes: string | null
+  id: string;
+  plan_id: string;
+  activity_type: string;
+  activity_name: string;
+  duration_minutes: number;
+  description: string;
+  order: number;
+  created_at: string;
 }
 
 export interface ProgressRecord {
-  id: string
-  user_id: string
-  plan_id: string
-  component_id: string
-  completed_at: string | null
-  created_at: string
+  id: string;
+  plan_id: string;
+  user_id: string;
+  date: string;
+  completed: boolean;
+  completion_rate: number;
+  energy_before: number;
+  energy_after: number;
+  notes: string;
+  created_at: string;
 }
 
-export interface UserLifeSituation {
-  id: string;
-  user_id: string;
-  
-  // Original fields
-  situation_type?: string;
-  start_date?: string;
-  end_date?: string;
-  is_active?: boolean;
-  created_at?: string;
-  
-  // Database fields
-  situation?: string;
-  started_at?: string;
-  updated_at?: string;
-  notes?: string;
+export type LifeSituation = 
+  | 'work_from_home'
+  | 'office_work'
+  | 'student'
+  | 'parent'
+  | 'high_stress'
+  | 'low_energy'
+  | 'recovering'
+  | 'traveling'
+  | 'busy_schedule';
+
+export interface PersonalPlansProps {
+  onPlanCreated: () => void;
+}
+
+export interface PlanFiltersProps {
+  selectedCategory: PlanCategory | null;
+  onCategoryChange: (category: PlanCategory | null) => void;
+}
+
+export interface PlanDiscoveryProps {
+  selectedCategory: PlanCategory | null; 
+  onSavePlan: (id: string) => void;
+}
+
+export interface LifeSituationDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSelect: (situation: LifeSituation) => void;
 }

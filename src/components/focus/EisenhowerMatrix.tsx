@@ -1,85 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/components/AuthProvider";
+import { useToast } from "@/hooks/use-toast";
 import { Task } from "@/types/database";
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
-import { Clock, GripVertical, ListChecks, Plus, GripHorizontal } from "lucide-react";
-
-interface TaskItemProps {
-  task: Task;
-  index: number;
-  onUpdateTask: (taskId: string, updates: Partial<Task>) => void;
-  onDeleteTask: (taskId: string) => void;
-}
-
-const TaskItem: React.FC<TaskItemProps> = ({ task, index, onUpdateTask, onDeleteTask }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [title, setTitle] = useState(task.title);
-
-  const handleSave = () => {
-    onUpdateTask(task.id, { title: title });
-    setIsEditing(false);
-  };
-
-  return (
-    <Draggable draggableId={task.id} index={index}>
-      {(provided) => (
-        <div
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          ref={provided.innerRef}
-          className="flex items-center justify-between p-3 border rounded-md bg-secondary/50"
-        >
-          {isEditing ? (
-            <div className="flex-1">
-              <Input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                onBlur={handleSave}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleSave();
-                  }
-                }}
-              />
-            </div>
-          ) : (
-            <div className="flex-1">
-              {title}
-            </div>
-          )}
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => setIsEditing(!isEditing)}>
-              <Clock className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => onDeleteTask(task.id)}>
-              <ListChecks className="h-4 w-4 text-destructive" />
-            </Button>
-            <div {...provided.dragHandleProps}>
-              <GripVertical className="h-4 w-4 cursor-move" />
-            </div>
-          </div>
-        </div>
-      )}
-    </Draggable>
-  );
-};
+import { supabase } from "@/integrations/supabase/client";
+import { 
+  Card, CardContent, CardHeader, CardTitle, CardDescription 
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { 
+  DragDropContext, Droppable, Draggable, DropResult 
+} from "react-beautiful-dnd";
+import { Brain, Clipboard, Clock, Fire, Plus, Sparkles } from "lucide-react";
 
 const EisenhowerMatrix = () => {
   const { session } = useAuth();
   const { toast } = useToast();
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [newTask, setNewTask] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (session?.user?.id) {
@@ -89,324 +27,300 @@ const EisenhowerMatrix = () => {
 
   const fetchTasks = async () => {
     setIsLoading(true);
-    setError(null);
     try {
       const { data, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('user_id', session?.user?.id)
-        .order('created_at', { ascending: false });
+        .from("tasks")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error('Supabase error:', error);
-        setError(error.message);
-      } else {
-        setTasks(data || []);
-      }
-    } catch (err: any) {
-      console.error('Unexpected error:', err);
-      setError(err.message);
+      if (error) throw error;
+      
+      // Cast data to Task[] with proper type checking
+      const typedTasks = data?.map(task => ({
+        ...task,
+        priority: task.priority as 'high' | 'medium' | 'low',
+        urgency: task.urgency as 'urgent' | 'normal' | 'low',
+        status: task.status as 'todo' | 'in_progress' | 'done'
+      })) || [];
+      
+      setTasks(typedTasks);
+    } catch (error: any) {
+      toast({
+        title: "Error fetching tasks",
+        description: error.message,
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const addTask = async () => {
-    if (!newTask.trim()) return;
+  const handleAddTask = async () => {
+    if (!session?.user?.id) return;
 
-    setIsLoading(true);
-    setError(null);
     try {
-      const { data, error } = await supabase
-        .from('tasks')
-        .insert([{
-          user_id: session?.user?.id,
-          title: newTask,
-          priority: 'medium',
-          urgency: 'normal',
-          status: 'todo',
+      const newTasks = [
+        {
+          user_id: session.user.id,
+          title: "Important & Urgent Task",
+          priority: "high",
+          urgency: "urgent",
+          status: "todo",
           estimated_minutes: 30,
-          description: '',
-          due_date: null
-        }])
-        .select();
+          description: "This task is important and urgent",
+          due_date: null,
+        },
+        {
+          user_id: session.user.id,
+          title: "Important & Not Urgent Task",
+          priority: "high",
+          urgency: "normal",
+          status: "todo",
+          estimated_minutes: 60,
+          description: "This task is important but not urgent",
+          due_date: null,
+        },
+        {
+          user_id: session.user.id,
+          title: "Not Important & Urgent Task",
+          priority: "low",
+          urgency: "urgent",
+          status: "todo",
+          estimated_minutes: 15,
+          description: "This task is not important but urgent",
+          due_date: null,
+        },
+        {
+          user_id: session.user.id,
+          title: "Not Important & Not Urgent Task",
+          priority: "low",
+          urgency: "normal",
+          status: "todo",
+          estimated_minutes: 45,
+          description: "This task is neither important nor urgent",
+          due_date: null,
+        },
+      ];
 
-      if (error) {
-        console.error('Supabase error:', error);
-        setError(error.message);
-        toast({
-          title: "Error",
-          description: "Failed to create task",
-          variant: "destructive"
-        });
-      } else {
-        setTasks(prevTasks => [...(prevTasks || []), ...(data || [])]);
-        setNewTask('');
-        toast({
-          title: "Success",
-          description: "Task created successfully",
-        });
-      }
-    } catch (err: any) {
-      console.error('Unexpected error:', err);
-      setError(err.message);
-      toast({
-        title: "Error",
-        description: "Failed to create task",
-        variant: "destructive"
+      const { data, error } = await supabase.from("tasks").insert(newTasks).select();
+
+      if (error) throw error;
+
+      setTasks(prevTasks => {
+        const newTasksWithTypes = data?.map(task => ({
+          ...task,
+          priority: task.priority as 'high' | 'medium' | 'low',
+          urgency: task.urgency as 'urgent' | 'normal' | 'low',
+          status: task.status as 'todo' | 'in_progress' | 'done'
+        })) || [];
+        
+        return [...prevTasks, ...newTasksWithTypes];
       });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  const updateTask = async (taskId: string, updates: Partial<Task>) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const { error } = await supabase
-        .from('tasks')
-        .update(updates)
-        .eq('id', taskId);
-
-      if (error) {
-        console.error('Supabase error:', error);
-        setError(error.message);
-        toast({
-          title: "Error",
-          description: "Failed to update task",
-          variant: "destructive"
-        });
-      } else {
-        setTasks(prevTasks =>
-          prevTasks.map(task => (task.id === taskId ? { ...task, ...updates } : task))
-        );
-        toast({
-          title: "Success",
-          description: "Task updated successfully",
-        });
-      }
-    } catch (err: any) {
-      console.error('Unexpected error:', err);
-      setError(err.message);
       toast({
-        title: "Error",
-        description: "Failed to update task",
-        variant: "destructive"
+        title: "Demo tasks added",
+        description: "Example tasks have been added to your matrix",
       });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const deleteTask = async (taskId: string) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const { error } = await supabase
-        .from('tasks')
-        .delete()
-        .eq('id', taskId);
-
-      if (error) {
-        console.error('Supabase error:', error);
-        setError(error.message);
-        toast({
-          title: "Error",
-          description: "Failed to delete task",
-          variant: "destructive"
-        });
-      } else {
-        setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
-        toast({
-          title: "Success",
-          description: "Task deleted successfully",
-        });
-      }
-    } catch (err: any) {
-      console.error('Unexpected error:', err);
-      setError(err.message);
+    } catch (error: any) {
       toast({
-        title: "Error",
-        description: "Failed to delete task",
-        variant: "destructive"
+        title: "Error adding tasks",
+        description: error.message,
+        variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  const handleOnDragEnd = (result: DropResult) => {
-    if (!result.destination) return;
+  const onDragEnd = async (result: DropResult) => {
+    const { destination, source, draggableId } = result;
 
-    const { source, destination, draggableId } = result;
+    if (!destination) return;
 
-    if (source.droppableId === destination.droppableId &&
-      source.index === destination.index) {
-      return; // No change
+    // If the task is dropped in a different quadrant
+    if (destination.droppableId !== source.droppableId) {
+      // Parse the quadrant info (priority-urgency)
+      const [newPriority, newUrgency] = destination.droppableId.split("-");
+      
+      // Update the task in the UI optimistically
+      const updatedTasks = [...tasks];
+      const taskIndex = updatedTasks.findIndex(task => task.id === draggableId);
+      
+      if (taskIndex !== -1) {
+        updatedTasks[taskIndex] = {
+          ...updatedTasks[taskIndex],
+          priority: newPriority as 'high' | 'medium' | 'low',
+          urgency: newUrgency as 'urgent' | 'normal' | 'low',
+        };
+        setTasks(updatedTasks);
+        
+        // Update the task in the database
+        try {
+          const { error } = await supabase
+            .from("tasks")
+            .update({ 
+              priority: newPriority,
+              urgency: newUrgency,
+            })
+            .eq("id", draggableId);
+            
+          if (error) throw error;
+        } catch (error: any) {
+          // Revert the UI if the update fails
+          fetchTasks();
+          toast({
+            title: "Error updating task",
+            description: error.message,
+            variant: "destructive",
+          });
+        }
+      }
     }
-
-    const newStatus = destination.droppableId;
-    updateTask(draggableId, { status: newStatus });
   };
 
-  const getTasksForStatus = (status: string) => {
-    return tasks.filter(task => task.status === status);
+  const getTasksForQuadrant = (priority: string, urgency: string) => {
+    return tasks.filter(
+      (task) => 
+        task.priority === priority && 
+        task.urgency === urgency &&
+        task.status !== "done"
+    );
   };
 
   return (
-    <Card className="p-6 space-y-4">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold flex items-center gap-2">
-          <Brain className="h-5 w-5 text-primary" />
-          Eisenhower Matrix
-        </CardTitle>
-        <CardDescription>Organize tasks based on urgency and importance</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="mb-4 flex gap-2">
-          <Input
-            type="text"
-            placeholder="Add a new task..."
-            value={newTask}
-            onChange={(e) => setNewTask(e.target.value)}
-          />
-          <Button onClick={addTask} disabled={isLoading}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Task
+    <Card className="w-full max-w-full">
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-center">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Brain className="h-5 w-5 text-primary" />
+            Eisenhower Matrix
+          </CardTitle>
+          <Button onClick={handleAddTask} size="sm" variant="outline">
+            <Plus className="h-4 w-4 mr-1" /> Add Demo Tasks
           </Button>
         </div>
+        <CardDescription>
+          Prioritize tasks based on importance and urgency
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <DragDropContext onDragEnd={onDragEnd}>
+          <div className="grid grid-cols-2 gap-4 h-[450px]">
+            {/* Important & Urgent */}
+            <MatrixQuadrant
+              title="Do"
+              description="Important & Urgent"
+              icon={<Fire className="h-4 w-4 text-red-500" />}
+              tasks={getTasksForQuadrant("high", "urgent")}
+              droppableId="high-urgent"
+              isLoading={isLoading}
+            />
 
-        {error && (
-          <div className="text-red-500">Error: {error}</div>
-        )}
+            {/* Important & Not Urgent */}
+            <MatrixQuadrant
+              title="Schedule"
+              description="Important & Not Urgent"
+              icon={<Clock className="h-4 w-4 text-amber-500" />}
+              tasks={getTasksForQuadrant("high", "normal")}
+              droppableId="high-normal"
+              isLoading={isLoading}
+            />
 
-        <DragDropContext onDragEnd={handleOnDragEnd}>
-          <div className="grid grid-cols-2 gap-4">
-            {/* Urgent and Important */}
-            <Card className="bg-red-50 dark:bg-red-900/20">
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold">Do First</CardTitle>
-                <CardDescription>Urgent & Important</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Droppable droppableId="todo">
-                  {(provided) => (
-                    <div
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                      className="space-y-2 min-h-[50px]"
-                    >
-                      {getTasksForStatus("todo").map((task, index) => (
-                        <TaskItem
-                          key={task.id}
-                          task={task}
-                          index={index}
-                          onUpdateTask={updateTask}
-                          onDeleteTask={deleteTask}
-                        />
-                      ))}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </CardContent>
-            </Card>
+            {/* Not Important & Urgent */}
+            <MatrixQuadrant
+              title="Delegate"
+              description="Not Important & Urgent"
+              icon={<Clipboard className="h-4 w-4 text-blue-500" />}
+              tasks={getTasksForQuadrant("low", "urgent")}
+              droppableId="low-urgent"
+              isLoading={isLoading}
+            />
 
-            {/* Not Urgent but Important */}
-            <Card className="bg-green-50 dark:bg-green-900/20">
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold">Schedule</CardTitle>
-                <CardDescription>Not Urgent & Important</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Droppable droppableId="in_progress">
-                  {(provided) => (
-                    <div
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                      className="space-y-2 min-h-[50px]"
-                    >
-                      {getTasksForStatus("in_progress").map((task, index) => (
-                        <TaskItem
-                          key={task.id}
-                          task={task}
-                          index={index}
-                          onUpdateTask={updateTask}
-                          onDeleteTask={deleteTask}
-                        />
-                      ))}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </CardContent>
-            </Card>
-
-            {/* Urgent but Not Important */}
-            <Card className="bg-yellow-50 dark:bg-yellow-900/20">
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold">Delegate</CardTitle>
-                <CardDescription>Urgent & Not Important</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Droppable droppableId="done">
-                  {(provided) => (
-                    <div
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                      className="space-y-2 min-h-[50px]"
-                    >
-                      {getTasksForStatus("done").map((task, index) => (
-                        <TaskItem
-                          key={task.id}
-                          task={task}
-                          index={index}
-                          onUpdateTask={updateTask}
-                          onDeleteTask={deleteTask}
-                        />
-                      ))}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </CardContent>
-            </Card>
-
-            {/* Not Urgent and Not Important */}
-            <Card className="bg-blue-50 dark:bg-blue-900/20">
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold">Eliminate</CardTitle>
-                <CardDescription>Not Urgent & Not Important</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Droppable droppableId="eliminate">
-                  {(provided) => (
-                    <div
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                      className="space-y-2 min-h-[50px]"
-                    >
-                      {getTasksForStatus("eliminate").map((task, index) => (
-                        <TaskItem
-                          key={task.id}
-                          task={task}
-                          index={index}
-                          onUpdateTask={updateTask}
-                          onDeleteTask={deleteTask}
-                        />
-                      ))}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </CardContent>
-            </Card>
+            {/* Not Important & Not Urgent */}
+            <MatrixQuadrant
+              title="Eliminate"
+              description="Not Important & Not Urgent"
+              icon={<Sparkles className="h-4 w-4 text-purple-500" />}
+              tasks={getTasksForQuadrant("low", "normal")}
+              droppableId="low-normal"
+              isLoading={isLoading}
+            />
           </div>
         </DragDropContext>
       </CardContent>
     </Card>
   );
 };
+
+interface MatrixQuadrantProps {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  tasks: Task[];
+  droppableId: string;
+  isLoading: boolean;
+}
+
+const MatrixQuadrant: React.FC<MatrixQuadrantProps> = ({
+  title,
+  description,
+  icon,
+  tasks,
+  droppableId,
+  isLoading,
+}) => (
+  <Card className="flex flex-col h-full">
+    <CardHeader className="py-3 border-b">
+      <div className="flex items-center gap-2">
+        {icon}
+        <div>
+          <CardTitle className="text-sm font-medium">{title}</CardTitle>
+          <CardDescription className="text-xs">{description}</CardDescription>
+        </div>
+      </div>
+    </CardHeader>
+    <CardContent className="flex-1 p-2 overflow-y-auto">
+      <Droppable droppableId={droppableId}>
+        {(provided) => (
+          <div
+            {...provided.droppableProps}
+            ref={provided.innerRef}
+            className="h-full space-y-2"
+          >
+            {isLoading ? (
+              <div className="text-center mt-4 text-sm text-muted-foreground">
+                Loading...
+              </div>
+            ) : tasks.length === 0 ? (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-center text-sm text-muted-foreground">
+                  Drag tasks here
+                </p>
+              </div>
+            ) : (
+              tasks.map((task, index) => (
+                <Draggable key={task.id} draggableId={task.id} index={index}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      className="p-2 rounded-md bg-background border shadow-sm"
+                    >
+                      <div className="font-medium text-sm mb-1">{task.title}</div>
+                      <div className="text-xs text-muted-foreground line-clamp-2">
+                        {task.description}
+                      </div>
+                    </div>
+                  )}
+                </Draggable>
+              ))
+            )}
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
+    </CardContent>
+  </Card>
+);
 
 export default EisenhowerMatrix;

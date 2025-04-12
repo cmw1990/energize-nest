@@ -12,7 +12,7 @@ import {
   Draggable,
   DropResult,
 } from "react-beautiful-dnd";
-import { CheckCircle, GripVertical, Loader2, Plus, XCircle } from "lucide-react";
+import { CheckCircle, GripVertical, Loader2, Plus, XCircle, Pencil } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -541,7 +541,7 @@ const TaskItem = ({ task, index, updateTask, deleteTask, onEdit }: TaskItemProps
                 size="icon"
                 onClick={() => onEdit(task)}
               >
-                <Edit className="h-4 w-4" />
+                <Pencil className="h-4 w-4" />
               </Button>
               <Button
                 variant="ghost"

@@ -1,5 +1,5 @@
+
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
 
 interface PatternGridProps {
   pattern: number[];
@@ -8,33 +8,38 @@ interface PatternGridProps {
   onCellClick: (index: number) => void;
 }
 
-export const PatternGrid = ({
-  pattern,
-  userPattern,
-  isShowingPattern,
-  onCellClick,
-}: PatternGridProps) => {
+export const PatternGrid = ({ pattern, userPattern, isShowingPattern, onCellClick }: PatternGridProps) => {
+  const cells = Array.from({ length: 9 }, (_, i) => i);
+
   return (
-    <div className="grid grid-cols-3 gap-2 max-w-sm mx-auto">
-      {Array(9)
-        .fill(0)
-        .map((_, index) => (
-          <motion.button
+    <div className="grid grid-cols-3 gap-2 max-w-md mx-auto">
+      {cells.map((index) => {
+        const isActive = isShowingPattern && pattern.includes(index);
+        const isSelected = userPattern.includes(index);
+        const isCorrect = pattern[userPattern.indexOf(index)] === index;
+
+        return (
+          <motion.div
             key={index}
-            onClick={() => onCellClick(index)}
-            disabled={isShowingPattern}
-            className={cn(
-              "w-full aspect-square rounded-lg transition-colors",
-              "disabled:cursor-not-allowed",
-              pattern.includes(index) && isShowingPattern
-                ? "bg-primary"
-                : userPattern.includes(index)
-                ? "bg-secondary"
-                : "bg-muted hover:bg-muted/80"
-            )}
-            whileTap={{ scale: 0.95 }}
-          />
-        ))}
+            className={`aspect-square rounded-lg cursor-pointer flex items-center justify-center text-2xl font-bold transition-colors ${
+              isActive
+                ? "bg-primary text-primary-foreground"
+                : isSelected
+                ? isCorrect
+                  ? "bg-green-500 text-white"
+                  : "bg-red-500 text-white"
+                : "bg-secondary hover:bg-secondary/80"
+            }`}
+            animate={{
+              scale: isActive ? [1, 1.1, 1] : 1,
+            }}
+            transition={{ duration: 0.3 }}
+            onClick={() => !isShowingPattern && onCellClick(index)}
+          >
+            {index + 1}
+          </motion.div>
+        );
+      })}
     </div>
   );
 };
