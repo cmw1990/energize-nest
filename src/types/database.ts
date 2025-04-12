@@ -1,3 +1,4 @@
+
 export interface Task {
   id: string;
   user_id: string;
@@ -161,29 +162,42 @@ export interface ConsultationSession {
   notes?: string;
   created_at: string;
   updated_at?: string;
+  meeting_link?: string;
+  scheduled_start?: string; // Added this missing field
 }
 
 export interface FoodItem {
   id: string;
   name: string;
+  food_name?: string; // Added alias
   calories: number;
   protein: number;
+  protein_grams?: number; // Added alias
   carbs: number;
+  carbs_grams?: number; // Added alias
   fat: number;
+  fat_grams?: number; // Added alias
   serving_size: string;
   user_id?: string;
   is_favorite: boolean;
   created_at: string;
   updated_at?: string;
+  meal_type?: string; // Added
+  meal_time?: string; // Added
+  notes?: string; // Added
 }
 
 export interface NutritionGoals {
   id: string;
   user_id: string;
   calories: number;
+  daily_calories?: number; // Added alias
   protein: number;
+  daily_protein?: number; // Added alias
   carbs: number;
+  daily_carbs?: number; // Added alias
   fat: number;
+  daily_fat?: number; // Added alias
   created_at: string;
   updated_at?: string;
 }

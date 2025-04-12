@@ -50,7 +50,7 @@ export const PlanCard = ({
 
   const calculateProgress = () => {
     if (!progress || !plan.energy_plan_components?.length) return 0
-    const completedSteps = progress.filter(p => p.plan_id === plan.id && p.completed_at).length
+    const completedSteps = progress.filter(p => p.plan_id === plan.id && p.completed).length
     return (completedSteps / plan.energy_plan_components.length) * 100
   }
 
@@ -124,7 +124,7 @@ export const PlanCard = ({
             </div>
           )}
           
-          {plan.tags.length > 0 && (
+          {plan.tags?.length > 0 && (
             <div className="space-y-1">
               <div className="text-sm text-muted-foreground">Tags</div>
               <div className="flex flex-wrap gap-2">

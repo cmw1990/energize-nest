@@ -5,6 +5,7 @@
  */
 
 import { Json } from "@/types/supabase";
+import { assertType } from "@/utils/typeUtils";
 
 // Define the actual database schema types
 export interface DbTask {
@@ -66,6 +67,16 @@ export interface DbEnergyPlan {
   effectiveness_rating: number;
   created_at: string;
   updated_at: string;
+  category?: string;
+  visibility?: string;
+  is_expert_plan?: boolean;
+  energy_level_required?: number;
+  likes_count?: number;
+  saves_count?: number;
+  recommended_time_of_day?: string[];
+  suitable_contexts?: string[];
+  tags?: string[];
+  celebrity_name?: string;
 }
 
 export interface DbConsultationSession {
@@ -79,39 +90,58 @@ export interface DbConsultationSession {
   notes?: string;
   created_at: string;
   updated_at?: string;
+  meeting_link?: string;
+  scheduled_start?: string; // Added this field
 }
 
 export interface DbFoodItem {
   id: string;
-  name: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  serving_size: string;
   user_id?: string;
+  name: string;            // Using name as in the interface
+  food_name?: string;      // Some components use food_name
+  calories: number;
+  protein: number;         // Using protein as in the interface
+  protein_grams?: number;  // Some components use protein_grams
+  carbs: number;           // Using carbs as in the interface
+  carbs_grams?: number;    // Some components use carbs_grams
+  fat: number;             // Using fat as in the interface
+  fat_grams?: number;      // Some components use fat_grams
+  serving_size: string;
   is_favorite: boolean;
   created_at: string;
   updated_at?: string;
+  meal_type?: string;
+  meal_time?: string;
+  notes?: string;
 }
 
 export interface DbNutritionGoals {
   id: string;
   user_id: string;
-  calories: number;
+  calories: number;        // Using base names as in the interface
+  daily_calories?: number; // Some components use daily_* names
   protein: number;
+  daily_protein?: number;
   carbs: number;
+  daily_carbs?: number;
   fat: number;
+  daily_fat?: number;
   created_at: string;
   updated_at?: string;
 }
 
 // Helper function to safely cast database types to application types
-export function safeCast<T, U>(dbObject: T): U {
+export function safeCastDbModel<T, U>(dbObject: T): U {
   return dbObject as unknown as U;
 }
 
-// Helper function for safe array casting
-export function safeArrayCast<T, U>(dbArray: T[]): U[] {
-  return dbArray as unknown as U[];
+// Typed method for handling database query results
+export function handleDbResult<T, U>(result: T, adapter: (item: T) => U): U {
+  return assertType<U>(adapter(result));
+}
+
+// Helper function for safe array casting with type adapter
+export function safeCastDbArray<T, U>(dbArray: T[], adapter: (item: T) => U): U[] {
+  if (!Array.isArray(dbArray)) return [] as U[];
+  return dbArray.map(item => assertType<U>(adapter(item)));
 }

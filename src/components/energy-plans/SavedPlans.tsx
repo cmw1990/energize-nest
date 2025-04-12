@@ -1,9 +1,12 @@
+
 import { Plan, ProgressRecord } from "@/types/energyPlans"
 import { PlanList } from "./PlanList"
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/components/AuthProvider"
 import { Card, CardContent } from "@/components/ui/card"
+import { assertType, wrapQueryResult } from "@/utils/typeUtils"
+import { adaptDbPlanToAppPlan } from "@/types/energyPlans"
 
 interface SavedPlansProps {
   progress?: ProgressRecord[]
@@ -17,26 +20,31 @@ export const SavedPlans = ({ progress }: SavedPlansProps) => {
     queryFn: async () => {
       if (!session?.user?.id) return []
       
-      const { data, error } = await supabase
-        .from('user_saved_plans')
-        .select(`
-          plan_id,
-          energy_plans (
-            *,
-            energy_plan_components (*)
-          )
-        `)
-        .eq('user_id', session.user.id)
+      // Use wrapQueryResult to prevent "excessively deep" type errors
+      const result = await wrapQueryResult(async () => {
+        return supabase
+          .from('user_saved_plans')
+          .select(`
+            plan_id,
+            energy_plans (
+              *,
+              energy_plan_components (*)
+            )
+          `)
+          .eq('user_id', session.user.id);
+      });
       
-      if (error) throw error
+      const { data, error } = result;
+      if (error) throw error;
       
-      if (!data || data.length === 0) return []
+      if (!data || data.length === 0) return [];
       
+      // Transform database models to application models
       const plans = data
         .filter(item => item.energy_plans)
-        .map(item => item.energy_plans) as unknown as Plan[]
+        .map(item => assertType<Plan>(adaptDbPlanToAppPlan(item.energy_plans)));
       
-      return plans
+      return plans;
     },
     enabled: !!session?.user?.id
   })

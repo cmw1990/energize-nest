@@ -22,6 +22,7 @@ export interface Plan {
   suitable_contexts: string[];
   tags: string[];
   energy_plan_components?: PlanComponent[];
+  celebrity_name?: string; // Added celebrity_name field
 }
 
 export interface PlanComponent {
@@ -47,7 +48,7 @@ export interface ProgressRecord {
   energy_after: number;
   mood_before: number;
   mood_after: number;
-  completed: boolean;
+  completed: boolean; // Changed from completed_at to match database schema
   notes: string | null;
   created_at: string;
   updated_at: string;
@@ -62,7 +63,14 @@ export type LifeSituation =
   | 'recovery'
   | 'illness'
   | 'burnout'
-  | 'vacation';
+  | 'vacation'
+  | 'regular'; // Added 'regular' to match usage in code
+
+export type PlanType = 
+  | 'standard' 
+  | 'custom' 
+  | 'expert' 
+  | 'public';
 
 // Adapter function to transform database model to application model
 export function adaptDbPlanToAppPlan(dbPlan: any): Plan {
@@ -84,7 +92,8 @@ export function adaptDbPlanToAppPlan(dbPlan: any): Plan {
     recommended_time_of_day: dbPlan.recommended_time_of_day || [],
     suitable_contexts: dbPlan.suitable_contexts || [],
     tags: dbPlan.tags || [],
-    energy_plan_components: dbPlan.energy_plan_components || []
+    energy_plan_components: dbPlan.energy_plan_components || [],
+    celebrity_name: dbPlan.celebrity_name || null,
   };
 }
 
@@ -103,5 +112,6 @@ export function adaptAppPlanToDbPlan(appPlan: Partial<Plan>): any {
     recommended_time_of_day: appPlan.recommended_time_of_day,
     suitable_contexts: appPlan.suitable_contexts,
     tags: appPlan.tags,
+    celebrity_name: appPlan.celebrity_name,
   };
 }
