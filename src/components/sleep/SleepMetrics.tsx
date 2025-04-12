@@ -1,310 +1,394 @@
 
-import React from 'react';
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  BarChart, 
+  Bar, 
+  LineChart, 
+  Line, 
+  PieChart, 
+  Pie, 
+  Cell,
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer 
+} from "recharts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Moon, Clock, Calendar, TrendingUp, Activity } from "lucide-react";
-import { SleepChart } from "./SleepChart";
+import { Calendar, Clock, Moon, Sun, Bed, Activity } from "lucide-react";
 import { format, subDays } from "date-fns";
-import { useNavigate } from "react-router-dom";
 
-export function SleepMetrics() {
+const SleepMetrics = () => {
   const { session } = useAuth();
-  const navigate = useNavigate();
-  const [timeRange, setTimeRange] = React.useState<"week" | "month">("week");
-
-  const startDate = React.useMemo(() => {
-    return format(
-      subDays(new Date(), timeRange === "week" ? 7 : 30),
-      "yyyy-MM-dd"
-    );
-  }, [timeRange]);
-
-  const { data: sleepLogs, isLoading } = useQuery({
-    queryKey: ['sleep-stats', timeRange],
+  
+  const { data: sleepData, isLoading } = useQuery({
+    queryKey: ["sleep_metrics", session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return [];
-
+      
       const { data, error } = await supabase
-        .from('sleep_tracking')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .gte('date', startDate)
-        .order('date', { ascending: false });
-
-      if (error) throw error;
+        .from("sleep_logs")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .order("created_at", { ascending: false })
+        .limit(30);
+      
+      if (error) {
+        console.error("Error fetching sleep data:", error);
+        return [];
+      }
+      
       return data || [];
     },
-    enabled: !!session?.user?.id,
+    enabled: !!session?.user?.id
   });
-
-  const calculateAverageSleepDuration = () => {
-    if (!sleepLogs || sleepLogs.length === 0) return 0;
-    const totalMinutes = sleepLogs.reduce((sum, log) => sum + (log.duration_minutes || 0), 0);
-    return Math.round(totalMinutes / sleepLogs.length);
+  
+  // Sleep duration data for charts
+  const getDurationData = () => {
+    if (!sleepData?.length) return [];
+    
+    return sleepData.slice(0, 14).map(entry => ({
+      date: format(new Date(entry.created_at), "MMM dd"),
+      hours: entry.sleep_duration || 0,
+      target: entry.target_duration || 8 // Default target of 8 hours
+    })).reverse();
   };
-
-  const calculateAverageSleepQuality = () => {
-    if (!sleepLogs || sleepLogs.length === 0) return 0;
-    const totalQuality = sleepLogs.reduce((sum, log) => sum + (log.sleep_quality || 0), 0);
-    return (totalQuality / sleepLogs.length).toFixed(1);
+  
+  // Sleep quality data for charts
+  const getQualityData = () => {
+    if (!sleepData?.length) return [];
+    
+    return sleepData.slice(0, 14).map(entry => ({
+      date: format(new Date(entry.created_at), "MMM dd"),
+      quality: entry.sleep_quality || 0,
+      target: 8 // Assuming 8/10 is the target quality
+    })).reverse();
   };
-
-  const calculateConsistencyScore = () => {
-    if (!sleepLogs || sleepLogs.length < 3) return 0;
+  
+  // Sleep composition data for pie chart
+  const getCompositionData = () => {
+    if (!sleepData?.length) return [];
     
-    // Calculate standard deviation of bedtimes and wake times
-    const bedtimes = sleepLogs.map(log => {
-      const [hours, minutes] = log.bedtime.split(':').map(Number);
-      return hours * 60 + minutes;
-    });
+    // Average the most recent 7 entries
+    const recentData = sleepData.slice(0, 7);
     
-    const waketimes = sleepLogs.map(log => {
-      const [hours, minutes] = log.wake_time.split(':').map(Number);
-      return hours * 60 + minutes;
-    });
+    const avgDeep = recentData.reduce((sum, entry) => sum + (entry.deep_percentage || 0), 0) / recentData.length;
+    const avgRem = recentData.reduce((sum, entry) => sum + (entry.rem_percentage || 0), 0) / recentData.length;
+    const avgLight = recentData.reduce((sum, entry) => sum + (entry.light_percentage || 0), 0) / recentData.length;
+    const avgAwake = recentData.reduce((sum, entry) => sum + (entry.awake_percentage || 0), 0) / recentData.length;
     
-    const bedtimeStdDev = calculateStandardDeviation(bedtimes);
-    const waketimeStdDev = calculateStandardDeviation(waketimes);
-    
-    // Lower standard deviation means more consistency
-    // Max inconsistency we'll consider is 120 minutes (2 hours)
-    const bedtimeConsistency = Math.max(0, 100 - (bedtimeStdDev / 120) * 100);
-    const waketimeConsistency = Math.max(0, 100 - (waketimeStdDev / 120) * 100);
-    
-    return Math.round((bedtimeConsistency + waketimeConsistency) / 2);
+    return [
+      { name: "Deep Sleep", value: avgDeep, color: "#4C51BF" },
+      { name: "REM Sleep", value: avgRem, color: "#ED64A6" },
+      { name: "Light Sleep", value: avgLight, color: "#48BB78" },
+      { name: "Awake", value: avgAwake, color: "#ECC94B" }
+    ];
   };
-
-  const calculateStandardDeviation = (values: number[]): number => {
-    const avg = values.reduce((sum, val) => sum + val, 0) / values.length;
-    const squareDiffs = values.map(value => {
-      const diff = value - avg;
-      return diff * diff;
-    });
-    const avgSquareDiff = squareDiffs.reduce((sum, val) => sum + val, 0) / squareDiffs.length;
-    return Math.sqrt(avgSquareDiff);
+  
+  // Sleep timing data (bedtime and wake time)
+  const getTimingData = () => {
+    if (!sleepData?.length) return [];
+    
+    return sleepData.slice(0, 14).map(entry => {
+      // Convert HH:MM time strings to decimal hours for visualization
+      const bedtimeHours = entry.bedtime ? 
+        parseTimeStringToDecimal(entry.bedtime) : null;
+      
+      const wakeTimeHours = entry.wake_time ? 
+        parseTimeStringToDecimal(entry.wake_time) : null;
+      
+      return {
+        date: format(new Date(entry.created_at), "MMM dd"),
+        bedtime: bedtimeHours,
+        wakeTime: wakeTimeHours
+      };
+    }).reverse();
   };
-
-  const formatDuration = (minutes: number) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}h ${mins}m`;
+  
+  // Helper to parse time string (HH:MM) to decimal hours
+  const parseTimeStringToDecimal = (timeString: string) => {
+    const [hours, minutes] = timeString.split(':').map(Number);
+    return hours + (minutes / 60);
   };
-
-  const getMostCommonFactor = () => {
-    if (!sleepLogs || sleepLogs.length === 0) return 'No data';
+  
+  // Function to calculate sleep metrics
+  const calculateMetrics = () => {
+    if (!sleepData || sleepData.length === 0) {
+      return { avgDuration: 0, avgQuality: 0, consistency: 0, avgDeep: 0 };
+    }
     
-    const factors: Record<string, number> = {};
-    sleepLogs.forEach(log => {
-      if (log.factors && Array.isArray(log.factors)) {
-        log.factors.forEach(factor => {
-          factors[factor] = (factors[factor] || 0) + 1;
-        });
-      }
-    });
+    const durationValues = sleepData.map(entry => entry.sleep_duration || 0);
+    const qualityValues = sleepData.map(entry => entry.sleep_quality || 0);
+    const deepSleepValues = sleepData.map(entry => entry.deep_percentage || 0);
     
-    // Find the factor with the highest count
-    let maxCount = 0;
-    let mostCommonFactor = 'None';
+    // Average sleep duration
+    const avgDuration = durationValues.reduce((sum, val) => sum + val, 0) / durationValues.length;
     
-    Object.entries(factors).forEach(([factor, count]) => {
-      if (count > maxCount) {
-        maxCount = count;
-        mostCommonFactor = factor;
-      }
-    });
+    // Average sleep quality
+    const avgQuality = qualityValues.reduce((sum, val) => sum + val, 0) / qualityValues.length;
     
-    return mostCommonFactor === 'None' ? 'None reported' : mostCommonFactor;
+    // Average deep sleep percentage
+    const avgDeep = deepSleepValues.reduce((sum, val) => sum + val, 0) / deepSleepValues.length;
+    
+    // Sleep consistency (standard deviation of sleep duration - lower is better)
+    const durationVariance = durationValues.reduce((sum, val) => {
+      const diff = val - avgDuration;
+      return sum + (diff * diff);
+    }, 0) / durationValues.length;
+    
+    const durationStdDev = Math.sqrt(durationVariance);
+    // Convert to a 0-100 consistency score (0 = highly inconsistent, 100 = very consistent)
+    const consistency = Math.max(0, 100 - (durationStdDev * 20));
+    
+    return { avgDuration, avgQuality, consistency, avgDeep };
   };
-
-  const getReadableFactor = (factorId: string) => {
-    const factorMap: Record<string, string> = {
-      'exercise': 'Exercise',
-      'caffeine': 'Caffeine',
-      'screen': 'Screen Time',
-      'stress': 'Stress',
-      'alcohol': 'Alcohol',
-      'food': 'Late Meal',
-      'noise': 'Noise',
-      'temperature': 'Temperature'
-    };
-    
-    return factorMap[factorId] || factorId;
-  };
-
+  
+  const metrics = calculateMetrics();
+  
   if (isLoading) {
+    return <div className="p-6 text-center text-muted-foreground">Loading sleep metrics...</div>;
+  }
+  
+  if (!sleepData || sleepData.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <Moon className="h-10 w-10 text-primary/40 animate-pulse mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading sleep data...</p>
-        </div>
+      <div className="p-6 text-center">
+        <p className="text-muted-foreground">No sleep data available yet. Start tracking your sleep to see metrics.</p>
       </div>
     );
   }
-
-  if (!sleepLogs || sleepLogs.length === 0) {
-    return (
-      <div className="text-center py-8">
-        <Moon className="h-12 w-12 text-primary/40 mx-auto mb-4" />
-        <h3 className="text-lg font-medium mb-2">No sleep data yet</h3>
-        <p className="text-muted-foreground mb-4">
-          Start tracking your sleep to see metrics and insights
-        </p>
-        <Button onClick={() => navigate("/app/sleep-tracking")}>
-          Track Your Sleep
-        </Button>
-      </div>
-    );
-  }
-
-  const avgDuration = calculateAverageSleepDuration();
-  const avgQuality = calculateAverageSleepQuality();
-  const consistencyScore = calculateConsistencyScore();
-  const mostCommonFactor = getMostCommonFactor();
-
+  
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="analytics" className="w-full">
-        <TabsList className="grid grid-cols-2">
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="chart">Trends</TabsTrigger>
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Sleep Duration</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.avgDuration.toFixed(1)}h</div>
+            <p className="text-xs text-muted-foreground">Average over last {sleepData.length} days</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Sleep Quality</CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{(metrics.avgQuality * 10).toFixed(0)}%</div>
+            <p className="text-xs text-muted-foreground">Average quality rating</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Sleep Consistency</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.consistency.toFixed(0)}%</div>
+            <p className="text-xs text-muted-foreground">Based on duration consistency</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Deep Sleep</CardTitle>
+            <Moon className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics.avgDeep.toFixed(0)}%</div>
+            <p className="text-xs text-muted-foreground">Average deep sleep percentage</p>
+          </CardContent>
+        </Card>
+      </div>
+      
+      {/* Charts */}
+      <Tabs defaultValue="duration" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="duration" className="flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            <span className="hidden sm:inline">Duration</span>
+          </TabsTrigger>
+          <TabsTrigger value="quality" className="flex items-center gap-2">
+            <Activity className="h-4 w-4" />
+            <span className="hidden sm:inline">Quality</span>
+          </TabsTrigger>
+          <TabsTrigger value="composition" className="flex items-center gap-2">
+            <Moon className="h-4 w-4" />
+            <span className="hidden sm:inline">Composition</span>
+          </TabsTrigger>
+          <TabsTrigger value="timing" className="flex items-center gap-2">
+            <Bed className="h-4 w-4" />
+            <span className="hidden sm:inline">Timing</span>
+          </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="analytics" className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <Clock className="h-5 w-5 text-primary" />
-                  <div>
-                    <div className="font-medium">Average Duration</div>
-                    <div className="text-2xl font-bold">
-                      {formatDuration(avgDuration)}
-                    </div>
-                  </div>
-                </div>
-                <Progress 
-                  value={Math.min((avgDuration / 480) * 100, 100)} 
-                  className="h-2" 
-                />
-                <div className="flex justify-between mt-1 text-xs text-muted-foreground">
-                  <span>6h</span>
-                  <span>8h</span>
-                  <span>10h</span>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <Moon className="h-5 w-5 text-indigo-500" />
-                  <div>
-                    <div className="font-medium">Average Quality</div>
-                    <div className="text-2xl font-bold">
-                      {avgQuality}/5
-                    </div>
-                  </div>
-                </div>
-                <Progress 
-                  value={(Number(avgQuality) / 5) * 100} 
-                  className="h-2" 
-                />
-                <div className="flex justify-between mt-1 text-xs text-muted-foreground">
-                  <span>Poor</span>
-                  <span>Good</span>
-                  <span>Excellent</span>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <Calendar className="h-5 w-5 text-green-500" />
-                  <div>
-                    <div className="font-medium">Sleep Consistency</div>
-                    <div className="text-2xl font-bold">
-                      {consistencyScore}%
-                    </div>
-                  </div>
-                </div>
-                <Progress 
-                  value={consistencyScore} 
-                  className="h-2" 
-                />
-                <div className="flex justify-between mt-1 text-xs text-muted-foreground">
-                  <span>Irregular</span>
-                  <span>Moderate</span>
-                  <span>Consistent</span>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3">
-                  <Activity className="h-5 w-5 text-orange-500" />
-                  <div>
-                    <div className="font-medium">Most Common Factor</div>
-                    <div className="text-lg font-semibold mt-1">
-                      {getReadableFactor(mostCommonFactor)}
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      That affected your sleep quality
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+        <TabsContent value="duration">
+          <Card>
+            <CardHeader>
+              <CardTitle>Sleep Duration Trends</CardTitle>
+              <CardDescription>Your sleep duration over the last 14 days</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[350px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={getDurationData()}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.4} />
+                    <XAxis dataKey="date" />
+                    <YAxis label={{ value: 'Hours', angle: -90, position: 'insideLeft' }} />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="hours" name="Sleep Duration" fill="#8884d8" />
+                    <Line dataKey="target" name="Target" stroke="#ff7300" strokeWidth={2} dot={false} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
         
-        <TabsContent value="chart">
-          <div className="bg-card p-4 rounded-lg border">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-medium">Sleep Patterns</h3>
-              <div className="flex gap-2">
-                <Button
-                  variant={timeRange === "week" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setTimeRange("week")}
-                >
-                  Week
-                </Button>
-                <Button
-                  variant={timeRange === "month" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setTimeRange("month")}
-                >
-                  Month
-                </Button>
+        <TabsContent value="quality">
+          <Card>
+            <CardHeader>
+              <CardTitle>Sleep Quality Trends</CardTitle>
+              <CardDescription>Your sleep quality over the last 14 days</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[350px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={getQualityData()}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.4} />
+                    <XAxis dataKey="date" />
+                    <YAxis domain={[0, 10]} label={{ value: 'Quality (1-10)', angle: -90, position: 'insideLeft' }} />
+                    <Tooltip />
+                    <Legend />
+                    <Line 
+                      type="monotone" 
+                      dataKey="quality" 
+                      name="Sleep Quality" 
+                      stroke="#82ca9d" 
+                      strokeWidth={2}
+                      dot={{ r: 4 }}
+                      activeDot={{ r: 6 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="target" 
+                      name="Target Quality" 
+                      stroke="#ff7300" 
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      dot={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
-            </div>
-            <div className="h-64">
-              <SleepChart data={sleepLogs} />
-            </div>
-          </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="composition">
+          <Card>
+            <CardHeader>
+              <CardTitle>Sleep Composition</CardTitle>
+              <CardDescription>Average sleep stages breakdown (last 7 days)</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[350px] flex justify-center items-center">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={getCompositionData()}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={70}
+                      outerRadius={120}
+                      paddingAngle={2}
+                      dataKey="value"
+                      label={({name, value}) => `${name}: ${value.toFixed(1)}%`}
+                    >
+                      {getCompositionData().map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => [`${value.toFixed(1)}%`, 'Percentage']} />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="timing">
+          <Card>
+            <CardHeader>
+              <CardTitle>Sleep Timing</CardTitle>
+              <CardDescription>Your bedtime and wake time patterns</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[350px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={getTimingData()}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.4} />
+                    <XAxis dataKey="date" />
+                    <YAxis 
+                      domain={[0, 24]} 
+                      ticks={[0, 6, 12, 18, 24]} 
+                      tickFormatter={(hour) => {
+                        if (hour === 0 || hour === 24) return "12am";
+                        if (hour < 12) return `${hour}am`;
+                        if (hour === 12) return "12pm";
+                        return `${hour - 12}pm`;
+                      }}
+                      label={{ value: 'Time of Day', angle: -90, position: 'insideLeft' }} 
+                    />
+                    <Tooltip 
+                      formatter={(value) => {
+                        const hour = Math.floor(value as number);
+                        const minute = Math.round(((value as number) - hour) * 60);
+                        const period = hour < 12 || hour === 24 ? 'AM' : 'PM';
+                        const hour12 = hour === 0 || hour === 24 ? 12 : hour > 12 ? hour - 12 : hour;
+                        return [`${hour12}:${minute.toString().padStart(2, '0')} ${period}`, ''];
+                      }}
+                    />
+                    <Legend />
+                    <Line 
+                      type="monotone" 
+                      dataKey="bedtime" 
+                      name="Bedtime" 
+                      stroke="#4C51BF" 
+                      strokeWidth={2}
+                      dot={{ r: 4 }}
+                      activeDot={{ r: 6 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="wakeTime" 
+                      name="Wake Time" 
+                      stroke="#F56565" 
+                      strokeWidth={2}
+                      dot={{ r: 4 }}
+                      activeDot={{ r: 6 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
-      
-      <div className="flex justify-center">
-        <Button
-          variant="outline"
-          className="flex items-center gap-2"
-          onClick={() => navigate("/app/sleep-tracking")}
-        >
-          <TrendingUp className="h-4 w-4" />
-          Track Your Sleep
-        </Button>
-      </div>
     </div>
   );
-}
+};
+
+export default SleepMetrics;
