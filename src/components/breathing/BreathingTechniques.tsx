@@ -4,10 +4,10 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Lungs, Wind, Brain, Heart, Zap } from 'lucide-react';
+import { Wind, Brain, Heart, Zap, Droplets } from 'lucide-react';
 import { BreathingExercise } from './BreathingExercise';
 
-interface BreathingTechniqueType {
+export interface BreathingTechnique {
   id: string;
   name: string;
   description: string;
@@ -23,7 +23,7 @@ interface BreathingTechniqueType {
   color: string;
 }
 
-const techniques: BreathingTechniqueType[] = [
+const techniques: BreathingTechnique[] = [
   {
     id: 'box',
     name: 'Box Breathing',
@@ -60,7 +60,7 @@ const techniques: BreathingTechniqueType[] = [
       exhale: 8,
       repetitions: 4
     },
-    icon: Lungs,
+    icon: Droplets,
     color: 'text-indigo-500'
   },
   {
@@ -121,18 +121,22 @@ const techniques: BreathingTechniqueType[] = [
   }
 ];
 
-export default function BreathingTechniques() {
-  const [selectedTechnique, setSelectedTechnique] = useState<BreathingTechniqueType | null>(null);
+export default function BreathingTechniques({ onSelectTechnique, className = '' }: { onSelectTechnique?: (technique: BreathingTechnique) => void, className?: string }) {
+  const [selectedTechnique, setSelectedTechnique] = useState<BreathingTechnique | null>(null);
   
-  const handleSelectTechnique = (technique: BreathingTechniqueType) => {
-    setSelectedTechnique(technique);
+  const handleSelectTechnique = (technique: BreathingTechnique) => {
+    if (onSelectTechnique) {
+      onSelectTechnique(technique);
+    } else {
+      setSelectedTechnique(technique);
+    }
   };
   
   const handleBackToList = () => {
     setSelectedTechnique(null);
   };
   
-  if (selectedTechnique) {
+  if (selectedTechnique && !onSelectTechnique) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -153,7 +157,7 @@ export default function BreathingTechniques() {
   }
   
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${className}`}>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {techniques.map((technique) => (
           <motion.div
@@ -207,7 +211,7 @@ export default function BreathingTechniques() {
                 </div>
               </div>
               <div className="flex items-start gap-2">
-                <Lungs className="h-5 w-5 text-blue-500 mt-0.5" />
+                <Droplets className="h-5 w-5 text-blue-500 mt-0.5" />
                 <div>
                   <h4 className="font-medium">Improved Respiration</h4>
                   <p className="text-sm text-muted-foreground">Enhances lung capacity and breathing efficiency</p>

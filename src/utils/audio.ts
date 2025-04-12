@@ -5,7 +5,10 @@
  * @param volume Volume from 0 to 1
  * @returns The audio controller object
  */
-export const generateNatureSound = (type: string, volume: number = 0.5) => {
+export type NatureSound = 'wind' | 'rain' | 'ocean' | 'stream' | 'birds' | 'forest' | 
+  'shower-energy' | 'shower-creative' | 'shower-calm' | 'shower-relax';
+
+export const generateNatureSound = (type: NatureSound | string, volume: number = 0.5) => {
   // In a real app, you would have actual sound files to play
   // For this example, we'll simulate by just returning an object with controls
   
@@ -37,6 +40,54 @@ export const generateNatureSound = (type: string, volume: number = 0.5) => {
   };
   
   return sound;
+};
+
+/**
+ * Generates a binaural beat audio
+ * @param baseFreq The base frequency in Hz
+ * @param beatFreq The beat frequency in Hz
+ * @param volume Initial volume from 0 to 1
+ * @returns Audio controller for the binaural beat
+ */
+export const generateBinauralBeat = (baseFreq: number, beatFreq: number, volume: number = 0.5) => {
+  // In a real app, you would use Web Audio API to generate the binaural beat
+  // For this example, we'll simulate with an object similar to generateNatureSound
+  
+  const beat = {
+    baseFrequency: baseFreq,
+    beatFrequency: beatFreq,
+    volume,
+    isPlaying: false,
+    
+    play: function() {
+      this.isPlaying = true;
+      console.log(`Playing binaural beat: ${baseFreq}Hz + ${beatFreq}Hz at volume ${volume}`);
+      return Promise.resolve();
+    },
+    
+    pause: function() {
+      this.isPlaying = false;
+      console.log(`Paused binaural beat`);
+    },
+    
+    stop: function() {
+      this.isPlaying = false;
+      console.log(`Stopped binaural beat`);
+    },
+    
+    setVolume: function(newVolume: number) {
+      this.volume = newVolume;
+      console.log(`Set binaural beat volume to ${newVolume}`);
+    },
+    
+    setFrequencies: function(newBaseFreq: number, newBeatFreq: number) {
+      this.baseFrequency = newBaseFreq;
+      this.beatFrequency = newBeatFreq;
+      console.log(`Changed frequencies to: ${newBaseFreq}Hz + ${newBeatFreq}Hz`);
+    }
+  };
+  
+  return beat;
 };
 
 /**
