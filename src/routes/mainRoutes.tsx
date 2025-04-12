@@ -17,6 +17,21 @@ import Focus from "@/pages/Focus";
 import Auth from "@/pages/Auth";
 import ErrorPage from "@/pages/ErrorPage";
 import PregnancyLog from "@/pages/PregnancyLog";
+import HealthDashboard from "@/pages/HealthDashboard";
+import Recovery from "@/pages/Recovery";
+import Sobriety from "@/pages/Sobriety";
+import Nutrition from "@/pages/Nutrition";
+import BMICalculator from "@/pages/tools/BMICalculator";
+import WordScramble from "@/pages/tools/WordScramble";
+import WithdrawalTracker from "@/pages/tools/WithdrawalTracker";
+import SleepGuideArticle from "@/pages/tools/SleepGuideArticle";
+import SleepTracking from "@/pages/tools/SleepTracking";
+import StressCheck from "@/pages/tools/StressCheck";
+import WhiteNoise from "@/pages/tools/WhiteNoise";
+import StroopTest from "@/pages/tools/StroopTest";
+import FocusTimer from "@/pages/tools/FocusTimer";
+import SpeedMath from "@/pages/tools/SpeedMath";
+import WaterIntakeCalculator from "@/pages/tools/WaterIntakeCalculator";
 
 export const mainRoutes: RouteObject[] = [
   {
@@ -67,6 +82,50 @@ export const mainRoutes: RouteObject[] = [
         element: <Tools />,
       },
       {
+        path: "tools/bmi-calculator",
+        element: <BMICalculator />,
+      },
+      {
+        path: "tools/word-scramble",
+        element: <WordScramble />,
+      },
+      {
+        path: "tools/withdrawal-tracker",
+        element: <WithdrawalTracker />,
+      },
+      {
+        path: "tools/sleep-guide",
+        element: <SleepGuideArticle />,
+      },
+      {
+        path: "tools/sleep-tracking",
+        element: <SleepTracking />,
+      },
+      {
+        path: "tools/stress-check",
+        element: <StressCheck />,
+      },
+      {
+        path: "tools/white-noise",
+        element: <WhiteNoise />,
+      },
+      {
+        path: "tools/stroop-test",
+        element: <StroopTest />,
+      },
+      {
+        path: "tools/focus-timer",
+        element: <FocusTimer />,
+      },
+      {
+        path: "tools/speed-math",
+        element: <SpeedMath />,
+      },
+      {
+        path: "tools/water-intake-calculator",
+        element: <WaterIntakeCalculator />,
+      },
+      {
         path: "games",
         element: <GamesHub />,
       },
@@ -83,6 +142,14 @@ export const mainRoutes: RouteObject[] = [
         element: <Tracking />,
       },
       {
+        path: "health",
+        element: <HealthDashboard />,
+      },
+      {
+        path: "nutrition",
+        element: <Nutrition />,
+      },
+      {
         path: "focus",
         element: <Focus />,
       },
@@ -93,6 +160,14 @@ export const mainRoutes: RouteObject[] = [
       {
         path: "error",
         element: <ErrorPage />,
+      },
+      {
+        path: "sobriety",
+        element: <Sobriety />,
+      },
+      {
+        path: "sobriety/recovery",
+        element: <Recovery />,
       },
     ],
   }

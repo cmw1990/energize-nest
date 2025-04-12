@@ -23,6 +23,13 @@ import {
   Grid3X3,
   Target,
   Battery,
+  CalendarDays,
+  ListTodo,
+  LineChart,
+  Apple,
+  Scale,
+  Cigarette,
+  Droplet,
 } from "lucide-react";
 
 const navigationGroups = [
@@ -35,6 +42,11 @@ const navigationGroups = [
         label: "Overview",
       },
       {
+        to: "/health",
+        icon: Heart,
+        label: "Health Hub",
+      },
+      {
         to: "/app/sleep",
         icon: Moon,
         label: "Sleep",
@@ -45,7 +57,7 @@ const navigationGroups = [
         label: "Relax",
       },
       {
-        to: "/app/focus",
+        to: "/focus",
         icon: Focus,
         label: "Focus",
       },
@@ -64,10 +76,60 @@ const navigationGroups = [
         icon: Eye,
         label: "Eye Care",
       },
+    ]
+  },
+  {
+    label: "Productivity",
+    links: [
       {
-        to: "/app/bathing",
-        icon: Bath,
-        label: "Bathing",
+        to: "/tasks",
+        icon: ListTodo,
+        label: "Tasks",
+      },
+      {
+        to: "/calendar",
+        icon: CalendarDays,
+        label: "Calendar",
+      },
+      {
+        to: "/tracking",
+        icon: LineChart,
+        label: "Tracking",
+      },
+    ]
+  },
+  {
+    label: "Nutrition & Wellness",
+    links: [
+      {
+        to: "/nutrition",
+        icon: Apple,
+        label: "Nutrition",
+      },
+      {
+        to: "/water",
+        icon: Droplet,
+        label: "Hydration",
+      },
+      {
+        to: "/weight",
+        icon: Scale,
+        label: "Weight",
+      },
+      {
+        to: "/sobriety",
+        icon: Cigarette,
+        label: "Quit Smoking",
+      },
+      {
+        to: "/caffeine",
+        icon: Coffee,
+        label: "Caffeine",
+      },
+      {
+        to: "/supplements",
+        icon: Pill,
+        label: "Supplements",
       },
     ]
   },
@@ -83,27 +145,6 @@ const navigationGroups = [
         to: "/breathing",
         icon: Wind,
         label: "Breathing",
-      },
-      {
-        to: "/caffeine",
-        icon: Coffee,
-        label: "Caffeine",
-      },
-      {
-        to: "/nicotine",
-        icon: Package,
-        label: "Nicotine",
-        iconClassName: "rounded-full p-0.5", // Add rounded styling to make it look like a pouch case
-      },
-      {
-        to: "/supplements",
-        icon: Pill,
-        label: "Supplements",
-      },
-      {
-        to: "/food",
-        icon: Utensils,
-        label: "Nutrition",
       },
       {
         to: "/sobriety",
