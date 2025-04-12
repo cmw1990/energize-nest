@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/AuthProvider';
@@ -25,7 +24,7 @@ import {
   Calendar, 
   Heart, 
   LineChart, 
-  Lungs, 
+  Stethoscope,
   Moon, 
   Plus, 
   Sun, 
@@ -92,7 +91,6 @@ const HealthDashboard = () => {
     notes: '',
   });
   
-  // Fetch latest health metrics
   const { data: healthMetrics, isLoading } = useQuery({
     queryKey: ['health_metrics', session?.user?.id],
     queryFn: async () => {
@@ -112,7 +110,6 @@ const HealthDashboard = () => {
     enabled: !!session?.user?.id,
   });
   
-  // Fetch historical data for charts
   const { data: chartData, isLoading: chartLoading } = useQuery({
     queryKey: ['health_metrics_history', session?.user?.id, chartPeriod],
     queryFn: async () => {
@@ -130,7 +127,6 @@ const HealthDashboard = () => {
         
       if (error) throw error;
       
-      // Format data for Recharts
       return data.map((metric: HealthMetric) => ({
         date: format(new Date(metric.date), 'MMM dd'),
         mood: metric.mood_rating,
@@ -143,14 +139,12 @@ const HealthDashboard = () => {
     enabled: !!session?.user?.id,
   });
   
-  // Create log mutation
   const createLogMutation = useMutation({
     mutationFn: async () => {
       if (!session?.user?.id) throw new Error('Not authenticated');
       
       const today = new Date().toISOString().split('T')[0];
       
-      // Check if entry already exists for today
       const { data: existingEntry, error: checkError } = await supabase
         .from('health_metrics')
         .select('id')
@@ -160,7 +154,6 @@ const HealthDashboard = () => {
       
       if (checkError) throw checkError;
       
-      // Process symptoms from comma-separated string to array
       const symptomsArray = newLog.symptoms
         ? newLog.symptoms.split(',').map(s => s.trim()).filter(Boolean)
         : [];
@@ -186,7 +179,6 @@ const HealthDashboard = () => {
       };
       
       if (existingEntry) {
-        // Update existing entry
         const { error: updateError } = await supabase
           .from('health_metrics')
           .update(metricData)
@@ -195,7 +187,6 @@ const HealthDashboard = () => {
         if (updateError) throw updateError;
         return 'updated';
       } else {
-        // Create new entry
         const { error: insertError } = await supabase
           .from('health_metrics')
           .insert([metricData]);
@@ -247,7 +238,6 @@ const HealthDashboard = () => {
     const lastLogDate = new Date(healthMetrics.date);
     const today = new Date();
     
-    // Reset hours to compare just dates
     lastLogDate.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
     
@@ -570,7 +560,7 @@ const HealthDashboard = () => {
                 {healthMetrics.symptoms && healthMetrics.symptoms.length > 0 && (
                   <div>
                     <div className="flex items-center mb-2">
-                      <Lungs className="h-4 w-4 mr-2 text-muted-foreground" />
+                      <Stethoscope className="h-4 w-4 mr-2 text-muted-foreground" />
                       <span className="text-sm font-medium">Symptoms</span>
                     </div>
                     <div className="flex flex-wrap gap-1">
@@ -616,7 +606,6 @@ const HealthDashboard = () => {
         </Card>
       )}
 
-      {/* Health Metrics Dialog */}
       <Dialog open={logDialogOpen} onOpenChange={setLogDialogOpen}>
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
