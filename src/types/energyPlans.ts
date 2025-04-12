@@ -14,7 +14,24 @@ export interface Plan {
   visibility: 'public' | 'private' | 'shared';
   likes_count: number;
   views_count: number;
+  saves_count?: number;
+  plan_type?: string;
+  title?: string;
+  is_expert_plan?: boolean;
+  celebrity_name?: string;
+  estimated_duration_minutes?: number;
+  recommended_time_of_day?: string[];
+  suitable_contexts?: string[];
+  tags?: string[];
+  energy_plan_components?: any[];
 }
+
+export type PlanType = 
+  | 'standard'
+  | 'expert'
+  | 'celebrity'
+  | 'community'
+  | 'custom';
 
 export type PlanCategory = 
   | 'morning'
@@ -25,7 +42,9 @@ export type PlanCategory =
   | 'exercise'
   | 'social'
   | 'recovery'
-  | 'creative';
+  | 'creative'
+  | 'charged'
+  | 'recharged';
 
 export interface PlanComponent {
   id: string;
@@ -49,6 +68,7 @@ export interface ProgressRecord {
   energy_after: number;
   notes: string;
   created_at: string;
+  completed_at?: string;
 }
 
 export type LifeSituation = 
@@ -60,10 +80,12 @@ export type LifeSituation =
   | 'low_energy'
   | 'recovering'
   | 'traveling'
-  | 'busy_schedule';
+  | 'busy_schedule'
+  | 'regular';
 
 export interface PersonalPlansProps {
   onPlanCreated: () => void;
+  plans?: Plan[];
 }
 
 export interface PlanFiltersProps {
@@ -80,4 +102,5 @@ export interface LifeSituationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelect: (situation: LifeSituation) => void;
+  lifeSituation?: LifeSituation;
 }

@@ -1,11 +1,13 @@
+
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/AuthProvider';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import EisenhowerMatrix from '@/components/focus/EisenhowerMatrix';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { LifestyleInsights } from '@/components/desktop/LifestyleInsights';
-import { Clock, CircleUser, Workflow, FolderKanban, GanttChart, Grid3X3, Map, Pencil } from 'lucide-react';
+import { Clock, CircleUser, Workflow, FolderKanban, GanttChart, Grid3X3, Map, Pencil, Gamepad, Battery } from 'lucide-react';
 import { TaskList } from '@/components/desktop/TaskList';
 import { DigitalClock } from '@/components/desktop/DigitalClock';
 import { CalendarView } from '@/components/desktop/CalendarView';
@@ -51,7 +53,7 @@ export default function Desktop() {
 
       <Card className="p-4 bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 hover:shadow-lg transition-all duration-300">
         <div className="flex items-center gap-3 mb-4">
-          <Gamepad2 className="h-6 w-6 text-pink-500" />
+          <Gamepad className="h-6 w-6 text-pink-500" />
           <h2 className="text-2xl font-bold">Balloon Adventure</h2>
         </div>
         <p className="text-muted-foreground mb-4">
@@ -62,7 +64,7 @@ export default function Desktop() {
             onClick={() => navigate("/breathing-balloon")}
             className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-300"
           >
-            <Gamepad2 className="mr-2 h-4 w-4" />
+            <Gamepad className="mr-2 h-4 w-4" />
             Start Adventure
           </Button>
           <GameAssetsGenerator />

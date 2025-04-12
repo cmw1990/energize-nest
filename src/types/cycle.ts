@@ -29,3 +29,50 @@ export interface CycleNutritionRecommendation {
   benefits: string;
   created_at: string;
 }
+
+export interface CycleSleepCorrelation {
+  id: string;
+  user_id: string;
+  date: string;
+  phase_type: string;
+  sleep_duration: number;
+  sleep_quality: number;
+  notes: string;
+  created_at: string;
+}
+
+export interface CycleWeatherImpact {
+  id: string;
+  user_id: string;
+  date: string;
+  phase_type: string;
+  symptom_type: string;
+  symptom_intensity: number;
+  weather_data: any;
+  notes: string;
+  created_at: string;
+}
+
+export interface CycleWeatherImpactType {
+  id?: string;
+  user_id: string;
+  date: string;
+  phase_type: string;
+  symptom_type: string;
+  symptom_intensity: number;
+  weather_data?: any;
+  notes?: string;
+  created_at?: string;
+}
+
+export interface UserWearableDevice {
+  id: string;
+  user_id: string;
+  device_type: string;
+  device_name: string;
+  is_connected: boolean;
+  last_synced: string;
+  settings: any;
+  created_at: string;
+  updated_at: string;
+}
