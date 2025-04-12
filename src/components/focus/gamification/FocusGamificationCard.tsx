@@ -139,61 +139,62 @@ export const FocusGamificationCard = () => {
       </CardHeader>
       <CardContent className="space-y-6">
         {isLoading ? (
-          <div className="flex items-center justify-center h-40">
-            <span className="text-muted-foreground">Loading...</span>
+          <div className="space-y-2">
+            <div className="h-4 bg-muted rounded animate-pulse"></div>
+            <div className="h-12 bg-muted rounded animate-pulse"></div>
           </div>
         ) : gamificationData ? (
           <>
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-2xl font-bold">Level {gamificationData.level}</p>
-                <p className="text-sm text-muted-foreground">
-                  {gamificationData.points_earned} total points
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Star className="h-5 w-5 text-yellow-500" />
-                <span className="font-semibold">{gamificationData.streak_count} day streak!</span>
-              </div>
-            </div>
-
             <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Progress to Level {gamificationData.level + 1}</span>
-                <span>{Math.round(getProgressToNextLevel())}%</span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Star className="h-5 w-5 text-amber-500" />
+                  <span className="font-medium">Level {gamificationData.level}</span>
+                </div>
+                <span className="text-sm text-muted-foreground">
+                  {gamificationData.points_earned} points
+                </span>
               </div>
+              
               <Progress value={getProgressToNextLevel()} className="h-2" />
+              
+              <p className="text-xs text-muted-foreground text-right">
+                {Math.round(getNextLevelPoints(gamificationData.level) - (gamificationData.points_earned % getNextLevelPoints(gamificationData.level)))} points to next level
+              </p>
             </div>
 
-            <div className="space-y-4">
-              <h3 className="font-semibold">Daily Challenges</h3>
-              <div className="space-y-3">
-                {gamificationData.daily_challenges.map((challenge) => (
-                  <ChallengeItem
-                    key={challenge.id}
-                    challenge={challenge}
-                    onComplete={handleChallengeComplete}
-                  />
-                ))}
-              </div>
+            <div className="space-y-3">
+              <h3 className="font-medium">Daily Challenges</h3>
+              {gamificationData.daily_challenges.length > 0 ? (
+                <div className="space-y-2">
+                  {gamificationData.daily_challenges.map(challenge => (
+                    <ChallengeItem 
+                      key={challenge.id} 
+                      challenge={challenge} 
+                      onComplete={handleChallengeComplete} 
+                    />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No challenges available today.</p>
+              )}
             </div>
 
-            <div className="space-y-4">
-              <h3 className="font-semibold">Recent Achievements</h3>
-              <div className="grid grid-cols-2 gap-4">
-                {gamificationData.achievements.slice(0, 4).map((achievement) => (
-                  <AchievementItem
-                    key={achievement.id}
-                    achievement={achievement}
-                  />
-                ))}
-              </div>
+            <div className="space-y-3">
+              <h3 className="font-medium">Achievements</h3>
+              {gamificationData.achievements.length > 0 ? (
+                <div className="grid gap-2 md:grid-cols-2">
+                  {gamificationData.achievements.map(achievement => (
+                    <AchievementItem key={achievement.id} achievement={achievement} />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No achievements unlocked yet.</p>
+              )}
             </div>
           </>
         ) : (
-          <div className="text-center space-y-4">
-            <p className="text-muted-foreground">No gamification data available</p>
-          </div>
+          <p className="text-muted-foreground">No gamification data available.</p>
         )}
       </CardContent>
     </Card>
