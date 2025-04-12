@@ -5,8 +5,8 @@ import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/components/AuthProvider"
 import { Card, CardContent } from "@/components/ui/card"
-import { assertType, wrapQueryResult } from "@/utils/typeUtils"
 import { adaptDbPlanToAppPlan } from "@/types/energyPlans"
+import { typeSafeQueryFn, safeCast } from "@/utils/supabaseTypeUtils"
 
 interface PersonalPlansProps {
   onSharePlan: (plan: Plan) => void
@@ -21,8 +21,7 @@ export const PersonalPlans = ({ onSharePlan, progress }: PersonalPlansProps) => 
     queryFn: async () => {
       if (!session?.user?.id) return []
       
-      // Use wrapQueryResult to prevent "excessively deep" type errors
-      const result = await wrapQueryResult(async () => {
+      return typeSafeQueryFn<Plan>(async () => {
         return supabase
           .from('energy_plans')
           .select(`
@@ -31,15 +30,10 @@ export const PersonalPlans = ({ onSharePlan, progress }: PersonalPlansProps) => 
           `)
           .eq('created_by', session.user.id)
           .order('created_at', { ascending: false });
-      });
-      
-      const { data, error } = result;
-      if (error) throw error;
-      
-      // Transform database models to application models
-      return Array.isArray(data) 
-        ? data.map(plan => assertType<Plan>(adaptDbPlanToAppPlan(plan)))
-        : [];
+      }).then(data => 
+        // Transform database models to application models
+        data.map(plan => adaptDbPlanToAppPlan(safeCast(plan)))
+      );
     },
     enabled: !!session?.user?.id
   })

@@ -5,8 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { Skeleton } from "@/components/ui/skeleton";
-import { assertType, wrapQueryResult } from "@/utils/typeUtils";
 import { adaptDbPlanToAppPlan } from "@/types/energyPlans";
+import { typeSafeQueryFn, safeCast } from "@/utils/supabaseTypeUtils";
 
 interface PlanDiscoveryProps {
   selectedCategory: PlanCategory | null;
@@ -38,8 +38,7 @@ export const PlanDiscovery = ({
   const { data: publicPlans, isLoading: isLoadingPublic } = useQuery<Plan[]>({
     queryKey: ['energy-plans', 'public', selectedCategory, currentCyclePhase],
     queryFn: async () => {
-      // Use wrapQueryResult to prevent "excessively deep" type errors
-      const result = await wrapQueryResult(async () => {
+      return typeSafeQueryFn<any>(async () => {
         let query = supabase
           .from('energy_plans')
           .select(`
@@ -64,15 +63,10 @@ export const PlanDiscovery = ({
         }
 
         return query;
-      });
-      
-      const { data, error } = result;
-      if (error) throw error;
-      
-      // Transform database models to application models
-      return Array.isArray(data) 
-        ? data.map(plan => assertType<Plan>(adaptDbPlanToAppPlan(plan)))
-        : [];
+      }).then(data => 
+        // Transform database models to application models
+        data.map(plan => adaptDbPlanToAppPlan(safeCast(plan)))
+      );
     },
     enabled: !!session?.user?.id
   });

@@ -14,6 +14,7 @@ import {
 import { Brain, Clipboard, Clock, Flame, Plus, Sparkles } from "lucide-react";
 import { adaptTasks, prepareTaskForDb } from "./tasks/TaskTypeUtils";
 import { DbTask } from "@/integrations/supabase/schema";
+import { safeQueryExecute, safeCast } from "@/utils/supabaseTypeUtils";
 
 const EisenhowerMatrix = () => {
   const { session } = useAuth();
@@ -30,15 +31,17 @@ const EisenhowerMatrix = () => {
   const fetchTasks = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("tasks")
-        .select("*")
-        .eq("user_id", session.user.id)
-        .order("created_at", { ascending: false });
+      const { data, error } = await safeQueryExecute<any>(async () => {
+        return supabase
+          .from("tasks")
+          .select("*")
+          .eq("user_id", session.user.id)
+          .order("created_at", { ascending: false });
+      });
 
       if (error) throw error;
       
-      const adaptedTasks = adaptTasks(data as DbTask[]);
+      const adaptedTasks = adaptTasks(safeCast<DbTask[]>(data));
       setTasks(adaptedTasks);
     } catch (error: any) {
       toast({
@@ -100,12 +103,14 @@ const EisenhowerMatrix = () => {
 
       // Convert tasks to database format before inserting
       const tasksForDb = newTasks.map(task => prepareTaskForDb(task));
-      const { data, error } = await supabase.from("tasks").insert(tasksForDb).select();
+      const { data, error } = await safeQueryExecute<any>(async () => {
+        return supabase.from("tasks").insert(tasksForDb).select();
+      });
 
       if (error) throw error;
 
       if (data && data.length) {
-        const adaptedTasks = adaptTasks(data as DbTask[]);
+        const adaptedTasks = adaptTasks(safeCast<DbTask[]>(data));
         setTasks(prevTasks => [...prevTasks, ...adaptedTasks]);
       }
 

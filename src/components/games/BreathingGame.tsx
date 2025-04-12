@@ -7,6 +7,7 @@ import BreathingTechniques, { BreathingTechnique } from '@/components/breathing/
 import PufferfishScene3D from './scenes/PufferfishScene3D';
 import { Loader2 } from 'lucide-react';
 import { generateNatureSound } from '@/utils/audio';
+import { useAudioGenerator } from '@/hooks/useAudioGenerator';
 
 const BreathingGame = () => {
   const [isPlaying, setIsPlaying] = useState(false);
