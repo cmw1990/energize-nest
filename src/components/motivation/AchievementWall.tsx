@@ -8,7 +8,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Award, Medal, Share2, Trophy, LucideIcon, Target, Dumbbell, Coffee, Brain } from "lucide-react";
+import { 
+  Award, 
+  Medal, 
+  Share2, 
+  Trophy, 
+  Target, 
+  Dumbbell, 
+  Coffee, 
+  Brain,
+  Moon,
+  Focus,
+  Utensils,
+  Droplet
+} from "lucide-react";
 import { motion } from "framer-motion";
 
 interface Achievement {
@@ -23,6 +36,28 @@ interface Achievement {
   progress?: number;
   total_required?: number;
   rarity?: "common" | "uncommon" | "rare" | "epic" | "legendary";
+}
+
+type LucideIcon = typeof Trophy;
+
+// Fix database type to match Achievement interface
+interface DatabaseAchievement {
+  id: string;
+  category: string;
+  created_at: string;
+  description: string;
+  icon: string;
+  level: number;
+  next_level_points: number;
+  points: number;
+  progress: number;
+  streak_count: number;
+  target_value: number;
+  title: string;
+  type: string;
+  unlocked_at: string;
+  user_id: string;
+  unlocked?: boolean;
 }
 
 const mockAchievements: Achievement[] = [
@@ -142,11 +177,19 @@ export function AchievementWall() {
         // If no achievements yet, return the mock data
         if (!data || data.length === 0) return mockAchievements;
         
-        // Process achievements from the database
-        return data.map((achievement) => ({
-          ...achievement,
-          icon: getIconByName(achievement.icon_name)
-        }));
+        // Process achievements from the database - map database schema to Achievement interface
+        return data.map((achievement: DatabaseAchievement) => ({
+          id: achievement.id,
+          name: achievement.title,
+          description: achievement.description,
+          icon: getIconByName(achievement.icon),
+          category: achievement.category,
+          level: achievement.level,
+          achieved: !!achievement.unlocked_at,
+          date_achieved: achievement.unlocked_at,
+          progress: achievement.progress,
+          total_required: achievement.target_value,
+        } as Achievement));
       } catch (error) {
         console.error('Error fetching achievements:', error);
         return mockAchievements;
@@ -346,3 +389,31 @@ export function AchievementWall() {
     </Card>
   );
 }
+
+// Add these functions if they aren't already defined elsewhere in the file
+const getRarityColor = (rarity: string | undefined) => {
+  switch (rarity) {
+    case "common": return "bg-gray-100 text-gray-800";
+    case "uncommon": return "bg-green-100 text-green-800";
+    case "rare": return "bg-blue-100 text-blue-800";
+    case "epic": return "bg-purple-100 text-purple-800";
+    case "legendary": return "bg-amber-100 text-amber-800";
+    default: return "bg-gray-100 text-gray-800";
+  }
+};
+
+const getProgressColor = (progress: number = 0, total: number = 100) => {
+  const percentage = (progress / total) * 100;
+  if (percentage < 30) return "bg-red-500";
+  if (percentage < 70) return "bg-amber-500";
+  return "bg-emerald-500";
+};
+
+const getLevelBadge = (level: number) => {
+  switch (level) {
+    case 1: return "bg-bronze text-white";
+    case 2: return "bg-silver text-white";
+    case 3: return "bg-gold text-white";
+    default: return "bg-bronze text-white";
+  }
+};

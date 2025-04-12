@@ -1,521 +1,826 @@
-
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/components/AuthProvider";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Progress } from "@/components/ui/progress";
+import { 
+  Apple, 
+  Plus, 
+  Search, 
+  Calendar, 
+  Utensils, 
+  Clock, 
+  Edit, 
+  Trash, 
+  Settings, 
+  Droplet, 
+  Save, 
+  X, 
+  ChevronDown, 
+  ChevronUp, 
+  BarChart 
+} from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Utensils, Droplet, Search, ArrowRight } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
+import { Slider } from "@/components/ui/slider";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
+// Define proper types to match database structure
 interface FoodItem {
   id: string;
-  name: string;
+  food_name: string;
+  calories: number;
+  protein_grams: number;
+  carbs_grams: number;
+  fat_grams: number;
+  serving_size?: string;
+  meal_type: string;
+  meal_time: string;
+  image_url?: string;
+  notes?: string;
+  user_id: string;
+  created_at: string;
+  updated_at?: string;
+  ai_analysis?: string;
+}
+
+interface NutritionGoals {
+  id: string;
+  user_id: string;
   calories: number;
   protein: number;
   carbs: number;
   fat: number;
   fiber: number;
-  serving_size: string;
-  serving_unit: string;
+  water: number;
+  created_at: string;
+  updated_at?: string;
 }
+
+// Use the API directly with fetch to avoid Supabase type errors
+const fetchFoodDatabase = async () => {
+  const response = await fetch('/api/food-database');
+  if (!response.ok) {
+    throw new Error('Failed to fetch food database');
+  }
+  return response.json();
+};
+
+const fetchUserFoodLogs = async (userId: string) => {
+  const response = await fetch(`/api/food-logs?userId=${userId}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch user food logs');
+  }
+  return response.json();
+};
+
+const fetchUserNutritionGoals = async (userId: string) => {
+  const response = await fetch(`/api/nutrition-goals?userId=${userId}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch nutrition goals');
+  }
+  return response.json();
+};
 
 export function NutritionTracker() {
   const { session } = useAuth();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [foodAmount, setFoodAmount] = useState(1);
-  const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
-  const [mealType, setMealType] = useState("breakfast");
-  const [waterAmount, setWaterAmount] = useState(250);
+  const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
+  const [nutritionGoals, setNutritionGoals] = useState<NutritionGoals | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isAddingFood, setIsAddingFood] = useState(false);
+  const [isSettingGoals, setIsSettingGoals] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  
+  // Initialize state for food log summary
+  const [dailySummary, setDailySummary] = useState({
+    calories: 0,
+    protein: 0,
+    carbs: 0,
+    fat: 0,
+    fiber: 0,
+    water: 0
+  });
 
-  const { data: foodItems, isLoading: foodsLoading } = useQuery({
-    queryKey: ["food_database", searchTerm],
-    queryFn: async () => {
-      if (!searchTerm || searchTerm.length < 2) return [];
+  // New food item form state
+  const [newFoodItem, setNewFoodItem] = useState<Partial<FoodItem>>({
+    food_name: "",
+    calories: 0,
+    protein_grams: 0,
+    carbs_grams: 0,
+    fat_grams: 0,
+    meal_type: "breakfast",
+    meal_time: new Date().toISOString(),
+    notes: ""
+  });
+
+  // Goals form state
+  const [goalForm, setGoalForm] = useState({
+    calories: nutritionGoals?.calories || 2000,
+    protein: nutritionGoals?.protein || 150,
+    carbs: nutritionGoals?.carbs || 200,
+    fat: nutritionGoals?.fat || 70,
+    fiber: nutritionGoals?.fiber || 30,
+    water: nutritionGoals?.water || 2000
+  });
+
+  // Search results
+  const [searchResults, setSearchResults] = useState<FoodItem[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+
+  // Load data
+  useEffect(() => {
+    if (session?.user?.id) {
+      loadUserData();
+    }
+  }, [session?.user?.id, selectedDate]);
+
+  const loadUserData = async () => {
+    try {
+      // Use our async functions that don't rely on Supabase types
+      const foodLogs = await fetchUserFoodLogs(session!.user.id);
+      const goals = await fetchUserNutritionGoals(session!.user.id);
       
+      setFoodItems(foodLogs || []);
+      setNutritionGoals(goals || null);
+      
+      // Calculate the daily summary
+      calculateDailySummary(foodLogs);
+    } catch (error) {
+      console.error("Error loading user data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load your nutrition data",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const calculateDailySummary = (foods: FoodItem[]) => {
+    const summary = foods.reduce((acc, food) => {
+      return {
+        calories: acc.calories + (food.calories || 0),
+        protein: acc.protein + (food.protein_grams || 0),
+        carbs: acc.carbs + (food.carbs_grams || 0),
+        fat: acc.fat + (food.fat_grams || 0),
+        fiber: acc.fiber + 0, // Add fiber if it exists in your data
+        water: acc.water + 0  // Add water if it exists in your data
+      };
+    }, {
+      calories: 0,
+      protein: 0,
+      carbs: 0,
+      fat: 0,
+      fiber: 0,
+      water: 0
+    });
+    
+    setDailySummary(summary);
+  };
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
+    
+    setIsSearching(true);
+    try {
       const { data, error } = await supabase
         .from('food_database')
         .select('*')
-        .ilike('name', `%${searchTerm}%`)
+        .ilike('food_name', `%${searchQuery}%`)
         .limit(10);
       
       if (error) throw error;
-      return data || [];
-    },
-    enabled: searchTerm.length >= 2,
-  });
+      setSearchResults(data as FoodItem[]);
+    } catch (error) {
+      console.error("Error searching food database:", error);
+      toast({
+        title: "Search Error",
+        description: "Failed to search the food database",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
-  const { data: dailyNutrition, isLoading: nutritionLoading } = useQuery({
-    queryKey: ["daily_nutrition"],
-    queryFn: async () => {
-      const today = new Date().toISOString().split('T')[0];
-      
+  const handleAddFoodItem = async () => {
+    if (!session?.user?.id || !newFoodItem.food_name) {
+      toast({
+        title: "Missing Information",
+        description: "Please provide at least a food name",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
       const { data, error } = await supabase
         .from('food_logs')
-        .select('*')
-        .eq('user_id', session?.user?.id)
-        .eq('date', today)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      
-      // Calculate totals
-      let totals = {
-        calories: 0,
-        protein: 0,
-        carbs: 0,
-        fat: 0,
-        fiber: 0,
-        water: 0
-      };
-      
-      if (data && data.length > 0) {
-        data.forEach(item => {
-          totals.calories += item.calorie_intake || 0;
-          totals.protein += item.macros?.protein || 0;
-          totals.carbs += item.macros?.carbs || 0;
-          totals.fat += item.macros?.fat || 0;
-          totals.fiber += item.macros?.fiber || 0;
-          totals.water += item.water_intake || 0;
-        });
-      }
-      
-      return {
-        logs: data || [],
-        totals
-      };
-    },
-    enabled: !!session?.user?.id,
-  });
-
-  const { data: userGoals } = useQuery({
-    queryKey: ["nutrition_goals"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('user_nutrition_goals')
-        .select('*')
-        .eq('user_id', session?.user?.id)
+        .insert({
+          ...newFoodItem,
+          user_id: session.user.id,
+          created_at: new Date().toISOString()
+        })
+        .select()
         .single();
       
-      if (error) {
-        if (error.code === 'PGRST116') {
-          // No goals found, return default values
-          return {
-            calories: 2000,
-            protein: 150,
-            carbs: 200,
-            fat: 70,
-            fiber: 30,
-            water: 2000
-          };
-        }
-        throw error;
-      }
+      if (error) throw error;
       
-      return data;
-    },
-    enabled: !!session?.user?.id,
-  });
+      toast({
+        title: "Food Added",
+        description: "Your food item has been logged successfully"
+      });
+      
+      setFoodItems([...foodItems, data as FoodItem]);
+      calculateDailySummary([...foodItems, data as FoodItem]);
+      setIsAddingFood(false);
+      setNewFoodItem({
+        food_name: "",
+        calories: 0,
+        protein_grams: 0,
+        carbs_grams: 0,
+        fat_grams: 0,
+        meal_type: "breakfast",
+        meal_time: new Date().toISOString(),
+        notes: ""
+      });
+    } catch (error) {
+      console.error("Error adding food item:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add food item",
+        variant: "destructive"
+      });
+    }
+  };
 
-  const addFoodMutation = useMutation({
-    mutationFn: async () => {
-      if (!selectedFood || !session?.user?.id) return;
-      
-      const today = new Date().toISOString().split('T')[0];
-      const scaledNutrition = {
-        calories: Math.round(selectedFood.calories * foodAmount),
-        protein: Math.round(selectedFood.protein * foodAmount * 10) / 10,
-        carbs: Math.round(selectedFood.carbs * foodAmount * 10) / 10,
-        fat: Math.round(selectedFood.fat * foodAmount * 10) / 10,
-        fiber: Math.round(selectedFood.fiber * foodAmount * 10) / 10
-      };
-      
+  const handleDeleteFoodItem = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this food item?")) return;
+    
+    try {
       const { error } = await supabase
         .from('food_logs')
-        .insert({
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      const updatedFoodItems = foodItems.filter(item => item.id !== id);
+      setFoodItems(updatedFoodItems);
+      calculateDailySummary(updatedFoodItems);
+      
+      toast({
+        title: "Food Deleted",
+        description: "The food item has been removed from your log"
+      });
+    } catch (error) {
+      console.error("Error deleting food item:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete food item",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleSaveNutritionGoals = async () => {
+    if (!session?.user?.id) return;
+    
+    try {
+      const { error } = await supabase
+        .from('user_nutrition_goals')
+        .upsert({
           user_id: session.user.id,
-          date: today,
-          food_name: selectedFood.name,
-          serving_size: `${foodAmount} ${selectedFood.serving_unit}`,
-          meal_type: mealType,
-          calorie_intake: scaledNutrition.calories,
-          macros: {
-            protein: scaledNutrition.protein,
-            carbs: scaledNutrition.carbs,
-            fat: scaledNutrition.fat,
-            fiber: scaledNutrition.fiber
-          }
+          calories: goalForm.calories,
+          protein: goalForm.protein,
+          carbs: goalForm.carbs,
+          fat: goalForm.fat,
+          fiber: goalForm.fiber,
+          water: goalForm.water,
+          updated_at: new Date().toISOString()
         });
       
       if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["daily_nutrition"] });
+      
+      setNutritionGoals(goalForm as NutritionGoals);
+      setIsSettingGoals(false);
+      
       toast({
-        title: "Food added",
-        description: `Added ${foodAmount} ${selectedFood?.serving_unit} of ${selectedFood?.name} to your ${mealType}.`,
+        title: "Goals Updated",
+        description: "Your nutrition goals have been updated successfully"
       });
-      setSelectedFood(null);
-      setFoodAmount(1);
-    },
-    onError: (error) => {
+    } catch (error) {
+      console.error("Error saving nutrition goals:", error);
       toast({
         title: "Error",
-        description: "Failed to add food. Please try again.",
-        variant: "destructive",
+        description: "Failed to save nutrition goals",
+        variant: "destructive"
       });
-      console.error(error);
     }
-  });
+  };
 
-  const addWaterMutation = useMutation({
-    mutationFn: async () => {
-      if (!session?.user?.id) return;
-      
-      const today = new Date().toISOString().split('T')[0];
-      
-      const { error } = await supabase
-        .from('food_logs')
-        .insert({
-          user_id: session.user.id,
-          date: today,
-          food_name: "Water",
-          serving_size: `${waterAmount} ml`,
-          meal_type: "hydration",
-          water_intake: waterAmount
-        });
-      
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["daily_nutrition"] });
-      toast({
-        title: "Water added",
-        description: `Added ${waterAmount}ml of water to your daily intake.`,
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to add water. Please try again.",
-        variant: "destructive",
-      });
-      console.error(error);
+  const calculatePercentage = (current: number, target: number) => {
+    if (!target) return 0;
+    const percentage = (current / target) * 100;
+    return Math.min(percentage, 100); // Cap at 100%
+  };
+
+  const getMealTypeIcon = (mealType: string) => {
+    switch (mealType.toLowerCase()) {
+      case 'breakfast':
+        return <Coffee className="h-4 w-4" />;
+      case 'lunch':
+        return <Utensils className="h-4 w-4" />;
+      case 'dinner':
+        return <Utensils className="h-4 w-4" />;
+      case 'snack':
+        return <Apple className="h-4 w-4" />;
+      default:
+        return <Utensils className="h-4 w-4" />;
     }
-  });
+  };
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Utensils className="h-5 w-5 text-primary" />
-          Nutrition Tracker
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid grid-cols-4 h-auto">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="add-food">Add Food</TabsTrigger>
-            <TabsTrigger value="add-water">Add Water</TabsTrigger>
-            <TabsTrigger value="log">Meal Log</TabsTrigger>
-          </TabsList>
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-bold">Nutrition Tracker</h2>
+          <p className="text-muted-foreground">Track your daily food intake and nutrition goals</p>
+        </div>
+        
+        <div className="flex flex-wrap gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="gap-2">
+                <Calendar className="h-4 w-4" />
+                {format(new Date(selectedDate), "MMMM d, yyyy")}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0">
+              <CalendarComponent
+                mode="single"
+                selected={new Date(selectedDate)}
+                onSelect={(date) => date && setSelectedDate(format(date, "yyyy-MM-dd"))}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
           
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Daily Nutrition</h3>
+          <Button onClick={() => setIsAddingFood(true)} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Add Food
+          </Button>
+          
+          <Button variant="outline" onClick={() => setIsSettingGoals(true)} className="gap-2">
+            <Settings className="h-4 w-4" />
+            Set Goals
+          </Button>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Calories</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{dailySummary.calories} kcal</div>
+            <Progress 
+              value={calculatePercentage(dailySummary.calories, nutritionGoals?.calories || 2000)} 
+              className="h-2 mt-2" 
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              {nutritionGoals?.calories ? `Goal: ${nutritionGoals.calories} kcal` : "Set a calorie goal"}
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Protein</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{dailySummary.protein}g</div>
+            <Progress 
+              value={calculatePercentage(dailySummary.protein, nutritionGoals?.protein || 150)} 
+              className="h-2 mt-2" 
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              {nutritionGoals?.protein ? `Goal: ${nutritionGoals.protein}g` : "Set a protein goal"}
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Carbs</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{dailySummary.carbs}g</div>
+            <Progress 
+              value={calculatePercentage(dailySummary.carbs, nutritionGoals?.carbs || 200)} 
+              className="h-2 mt-2" 
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              {nutritionGoals?.carbs ? `Goal: ${nutritionGoals.carbs}g` : "Set a carbs goal"}
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Fat</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{dailySummary.fat}g</div>
+            <Progress 
+              value={calculatePercentage(dailySummary.fat, nutritionGoals?.fat || 70)} 
+              className="h-2 mt-2" 
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              {nutritionGoals?.fat ? `Goal: ${nutritionGoals.fat}g` : "Set a fat goal"}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Food Log</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {foodItems.length === 0 ? (
+            <div className="text-center py-8">
+              <Utensils className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium mb-2">No food logged yet</h3>
+              <p className="text-muted-foreground mb-4">
+                Start tracking your nutrition by adding food items to your log
+              </p>
+              <Button onClick={() => setIsAddingFood(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Your First Food
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <Tabs defaultValue="all">
+                <TabsList>
+                  <TabsTrigger value="all">All</TabsTrigger>
+                  <TabsTrigger value="breakfast">Breakfast</TabsTrigger>
+                  <TabsTrigger value="lunch">Lunch</TabsTrigger>
+                  <TabsTrigger value="dinner">Dinner</TabsTrigger>
+                  <TabsTrigger value="snack">Snacks</TabsTrigger>
+                </TabsList>
                 
-                <div className="space-y-3">
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span>Calories</span>
-                      <span>{dailyNutrition?.totals.calories || 0} / {userGoals?.calories || 2000} kcal</span>
-                    </div>
-                    <Progress value={((dailyNutrition?.totals.calories || 0) / (userGoals?.calories || 2000)) * 100} className="h-2" />
+                <TabsContent value="all" className="mt-4">
+                  <div className="space-y-2">
+                    {foodItems.map((food) => (
+                      <div key={food.id} className="flex items-center justify-between p-3 bg-muted/40 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          {getMealTypeIcon(food.meal_type)}
+                          <div>
+                            <h4 className="font-medium">{food.food_name}</h4>
+                            <p className="text-xs text-muted-foreground">
+                              {food.serving_size ? `${food.serving_size} • ` : ""}
+                              {food.calories} kcal • {food.protein_grams}g protein • {food.carbs_grams}g carbs • {food.fat_grams}g fat
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteFoodItem(food.id)}>
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span>Protein</span>
-                      <span>{dailyNutrition?.totals.protein || 0} / {userGoals?.protein || 150} g</span>
+                </TabsContent>
+                
+                {["breakfast", "lunch", "dinner", "snack"].map((mealType) => (
+                  <TabsContent key={mealType} value={mealType} className="mt-4">
+                    <div className="space-y-2">
+                      {foodItems
+                        .filter((food) => food.meal_type.toLowerCase() === mealType)
+                        .map((food) => (
+                          <div key={food.id} className="flex items-center justify-between p-3 bg-muted/40 rounded-lg">
+                            <div className="flex items-center gap-3">
+                              {getMealTypeIcon(food.meal_type)}
+                              <div>
+                                <h4 className="font-medium">{food.food_name}</h4>
+                                <p className="text-xs text-muted-foreground">
+                                  {food.serving_size ? `${food.serving_size} • ` : ""}
+                                  {food.calories} kcal • {food.protein_grams}g protein • {food.carbs_grams}g carbs • {food.fat_grams}g fat
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="icon" onClick={() => handleDeleteFoodItem(food.id)}>
+                                <Trash className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      
+                      {foodItems.filter((food) => food.meal_type.toLowerCase() === mealType).length === 0 && (
+                        <div className="text-center py-6">
+                          <p className="text-muted-foreground">No {mealType} items logged yet</p>
+                        </div>
+                      )}
                     </div>
-                    <Progress value={((dailyNutrition?.totals.protein || 0) / (userGoals?.protein || 150)) * 100} className="h-2" />
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span>Carbs</span>
-                      <span>{dailyNutrition?.totals.carbs || 0} / {userGoals?.carbs || 200} g</span>
+                  </TabsContent>
+                ))}
+              </Tabs>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+      
+      {/* Add Food Dialog */}
+      <Dialog open={isAddingFood} onOpenChange={setIsAddingFood}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Add Food Item</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <Input
+                  placeholder="Search for a food..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <Button onClick={handleSearch} disabled={isSearching}>
+                {isSearching ? "Searching..." : "Search"}
+              </Button>
+            </div>
+            
+            {searchResults.length > 0 && (
+              <div className="max-h-[200px] overflow-y-auto border rounded-md">
+                {searchResults.map((food) => (
+                  <div
+                    key={food.id}
+                    className="p-2 hover:bg-muted cursor-pointer border-b last:border-b-0"
+                    onClick={() => {
+                      setNewFoodItem({
+                        ...newFoodItem,
+                        food_name: food.food_name,
+                        calories: food.calories,
+                        protein_grams: food.protein_grams,
+                        carbs_grams: food.carbs_grams,
+                        fat_grams: food.fat_grams,
+                        serving_size: food.serving_size
+                      });
+                      setSearchResults([]);
+                      setSearchQuery("");
+                    }}
+                  >
+                    <div className="font-medium">{food.food_name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {food.calories} kcal • {food.protein_grams}g protein • {food.carbs_grams}g carbs • {food.fat_grams}g fat
                     </div>
-                    <Progress value={((dailyNutrition?.totals.carbs || 0) / (userGoals?.carbs || 200)) * 100} className="h-2" />
                   </div>
-                  
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span>Fat</span>
-                      <span>{dailyNutrition?.totals.fat || 0} / {userGoals?.fat || 70} g</span>
-                    </div>
-                    <Progress value={((dailyNutrition?.totals.fat || 0) / (userGoals?.fat || 70)) * 100} className="h-2" />
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span>Fiber</span>
-                      <span>{dailyNutrition?.totals.fiber || 0} / {userGoals?.fiber || 30} g</span>
-                    </div>
-                    <Progress value={((dailyNutrition?.totals.fiber || 0) / (userGoals?.fiber || 30)) * 100} className="h-2" />
-                  </div>
-                </div>
+                ))}
+              </div>
+            )}
+            
+            <div className="space-y-2">
+              <Label htmlFor="food-name">Food Name</Label>
+              <Input
+                id="food-name"
+                value={newFoodItem.food_name || ""}
+                onChange={(e) => setNewFoodItem({ ...newFoodItem, food_name: e.target.value })}
+                placeholder="e.g., Grilled Chicken Breast"
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="calories">Calories</Label>
+                <Input
+                  id="calories"
+                  type="number"
+                  value={newFoodItem.calories || 0}
+                  onChange={(e) => setNewFoodItem({ ...newFoodItem, calories: parseInt(e.target.value) || 0 })}
+                />
               </div>
               
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Hydration</h3>
-                
-                <div className="space-y-3">
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span>Water</span>
-                      <span>{dailyNutrition?.totals.water || 0} / {userGoals?.water || 2000} ml</span>
-                    </div>
-                    <Progress value={((dailyNutrition?.totals.water || 0) / (userGoals?.water || 2000)) * 100} className="h-2" />
-                  </div>
-                  
-                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <Droplet className="h-5 w-5 text-blue-500" />
-                      <h4 className="font-medium">Hydration Tip</h4>
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      Try to drink water consistently throughout the day rather than all at once. Set reminders every hour to take a few sips.
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="mt-6">
-                  <Button 
-                    variant="outline" 
-                    className="w-full" 
-                    onClick={() => document.getElementById('add-water-tab')?.click()}>
-                    <Droplet className="mr-2 h-4 w-4" /> Add Water
-                  </Button>
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="serving-size">Serving Size (optional)</Label>
+                <Input
+                  id="serving-size"
+                  value={newFoodItem.serving_size || ""}
+                  onChange={(e) => setNewFoodItem({ ...newFoodItem, serving_size: e.target.value })}
+                  placeholder="e.g., 100g, 1 cup"
+                />
               </div>
             </div>
             
-            <div className="mt-6">
-              <Button 
-                className="w-full" 
-                onClick={() => document.getElementById('add-food-tab')?.click()}>
-                <Plus className="mr-2 h-4 w-4" /> Add Food
-              </Button>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="add-food" className="space-y-6">
-            <div className="space-y-4">
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <Label htmlFor="food-search">Search Food</Label>
-                  <div className="relative">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="food-search"
-                      placeholder="Enter food name..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-8"
-                    />
-                  </div>
-                </div>
-              </div>
-              
-              {foodsLoading ? (
-                <div className="text-center py-4">Searching foods...</div>
-              ) : foodItems && foodItems.length > 0 ? (
-                <div className="border rounded-md divide-y">
-                  {foodItems.map((food: FoodItem) => (
-                    <div 
-                      key={food.id}
-                      className={`p-3 flex justify-between items-center hover:bg-accent cursor-pointer ${
-                        selectedFood?.id === food.id ? 'bg-accent' : ''
-                      }`}
-                      onClick={() => setSelectedFood(food)}
-                    >
-                      <div>
-                        <p className="font-medium">{food.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {food.calories} kcal | {food.protein}g protein | {food.serving_size} {food.serving_unit}
-                        </p>
-                      </div>
-                      <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  ))}
-                </div>
-              ) : searchTerm.length >= 2 ? (
-                <div className="text-center py-4">No foods found. Try a different search term.</div>
-              ) : null}
-              
-              {selectedFood && (
-                <div className="p-4 border rounded-md space-y-4 mt-4">
-                  <h3 className="font-medium">{selectedFood.name}</h3>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="serving-size">Number of Servings</Label>
-                      <Input
-                        id="serving-size"
-                        type="number"
-                        min="0.25"
-                        step="0.25"
-                        value={foodAmount}
-                        onChange={(e) => setFoodAmount(parseFloat(e.target.value) || 1)}
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        1 serving = {selectedFood.serving_size} {selectedFood.serving_unit}
-                      </p>
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="meal-type">Meal Type</Label>
-                      <Select value={mealType} onValueChange={setMealType}>
-                        <SelectTrigger id="meal-type">
-                          <SelectValue placeholder="Select meal type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="breakfast">Breakfast</SelectItem>
-                          <SelectItem value="lunch">Lunch</SelectItem>
-                          <SelectItem value="dinner">Dinner</SelectItem>
-                          <SelectItem value="snack">Snack</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 mt-4">
-                    <div>
-                      <p className="text-sm">Calories</p>
-                      <p className="font-medium">{Math.round(selectedFood.calories * foodAmount)} kcal</p>
-                    </div>
-                    <div>
-                      <p className="text-sm">Protein</p>
-                      <p className="font-medium">{(selectedFood.protein * foodAmount).toFixed(1)}g</p>
-                    </div>
-                    <div>
-                      <p className="text-sm">Carbs</p>
-                      <p className="font-medium">{(selectedFood.carbs * foodAmount).toFixed(1)}g</p>
-                    </div>
-                    <div>
-                      <p className="text-sm">Fat</p>
-                      <p className="font-medium">{(selectedFood.fat * foodAmount).toFixed(1)}g</p>
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    className="w-full mt-4" 
-                    onClick={() => addFoodMutation.mutate()}
-                    disabled={addFoodMutation.isPending}
-                  >
-                    {addFoodMutation.isPending ? 'Adding...' : 'Add to Log'}
-                  </Button>
-                </div>
-              )}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="add-water" id="add-water-tab" className="space-y-6">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="water-amount">Water Amount (ml)</Label>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="protein">Protein (g)</Label>
                 <Input
-                  id="water-amount"
+                  id="protein"
                   type="number"
-                  min="50"
-                  step="50"
-                  value={waterAmount}
-                  onChange={(e) => setWaterAmount(parseInt(e.target.value) || 0)}
+                  value={newFoodItem.protein_grams || 0}
+                  onChange={(e) => setNewFoodItem({ ...newFoodItem, protein_grams: parseInt(e.target.value) || 0 })}
                 />
               </div>
               
-              <div className="grid grid-cols-4 gap-2">
-                <Button variant="outline" onClick={() => setWaterAmount(100)}>100ml</Button>
-                <Button variant="outline" onClick={() => setWaterAmount(250)}>250ml</Button>
-                <Button variant="outline" onClick={() => setWaterAmount(500)}>500ml</Button>
-                <Button variant="outline" onClick={() => setWaterAmount(1000)}>1000ml</Button>
-              </div>
-              
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg mt-4">
-                <h3 className="font-medium mb-2">Current Hydration</h3>
-                <Progress 
-                  value={((dailyNutrition?.totals.water || 0) / (userGoals?.water || 2000)) * 100} 
-                  className="h-2" 
+              <div className="space-y-2">
+                <Label htmlFor="carbs">Carbs (g)</Label>
+                <Input
+                  id="carbs"
+                  type="number"
+                  value={newFoodItem.carbs_grams || 0}
+                  onChange={(e) => setNewFoodItem({ ...newFoodItem, carbs_grams: parseInt(e.target.value) || 0 })}
                 />
-                <p className="text-sm text-right mt-1">
-                  {dailyNutrition?.totals.water || 0} / {userGoals?.water || 2000} ml
-                </p>
               </div>
               
-              <Button 
-                className="w-full mt-4" 
-                onClick={() => addWaterMutation.mutate()}
-                disabled={addWaterMutation.isPending}
-              >
-                <Droplet className="mr-2 h-4 w-4" />
-                {addWaterMutation.isPending ? 'Adding...' : 'Add Water'}
-              </Button>
+              <div className="space-y-2">
+                <Label htmlFor="fat">Fat (g)</Label>
+                <Input
+                  id="fat"
+                  type="number"
+                  value={newFoodItem.fat_grams || 0}
+                  onChange={(e) => setNewFoodItem({ ...newFoodItem, fat_grams: parseInt(e.target.value) || 0 })}
+                />
+              </div>
             </div>
-          </TabsContent>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="meal-type">Meal Type</Label>
+                <Select
+                  value={newFoodItem.meal_type}
+                  onValueChange={(value) => setNewFoodItem({ ...newFoodItem, meal_type: value })}
+                >
+                  <SelectTrigger id="meal-type">
+                    <SelectValue placeholder="Select meal type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="breakfast">Breakfast</SelectItem>
+                    <SelectItem value="lunch">Lunch</SelectItem>
+                    <SelectItem value="dinner">Dinner</SelectItem>
+                    <SelectItem value="snack">Snack</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="meal-time">Time</Label>
+                <Input
+                  id="meal-time"
+                  type="time"
+                  value={new Date(newFoodItem.meal_time || "").toTimeString().slice(0, 5)}
+                  onChange={(e) => {
+                    const [hours, minutes] = e.target.value.split(':').map(Number);
+                    const date = new Date();
+                    date.setHours(hours, minutes);
+                    setNewFoodItem({ ...newFoodItem, meal_time: date.toISOString() });
+                  }}
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes (optional)</Label>
+              <Textarea
+                id="notes"
+                value={newFoodItem.notes || ""}
+                onChange={(e) => setNewFoodItem({ ...newFoodItem, notes: e.target.value })}
+                placeholder="Any additional notes about this food"
+              />
+            </div>
+          </div>
           
-          <TabsContent value="log" className="space-y-6">
-            {nutritionLoading ? (
-              <div className="text-center py-4">Loading your meal log...</div>
-            ) : dailyNutrition?.logs && dailyNutrition.logs.length > 0 ? (
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Today's Food Log</h3>
-                
-                <div className="border rounded-md divide-y">
-                  {dailyNutrition.logs.map((log) => (
-                    <div key={log.id} className="p-3">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p className="font-medium">{log.food_name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {log.serving_size} • {log.meal_type.charAt(0).toUpperCase() + log.meal_type.slice(1)}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-medium">{log.calorie_intake} kcal</p>
-                          {log.macros && (
-                            <p className="text-xs text-muted-foreground">
-                              P: {log.macros.protein}g • C: {log.macros.carbs}g • F: {log.macros.fat}g
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddingFood(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddFoodItem}>Add Food</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Set Goals Dialog */}
+      <Dialog open={isSettingGoals} onOpenChange={setIsSettingGoals}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Set Nutrition Goals</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Label htmlFor="calories-goal">Daily Calories</Label>
+                <span className="text-sm font-medium">{goalForm.calories} kcal</span>
               </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">No meals logged today.</p>
-                <Button 
-                  className="mt-4" 
-                  onClick={() => document.getElementById('add-food-tab')?.click()}>
-                  <Plus className="mr-2 h-4 w-4" /> Add Your First Meal
-                </Button>
+              <Slider
+                id="calories-goal"
+                min={1000}
+                max={5000}
+                step={50}
+                value={[goalForm.calories]}
+                onValueChange={(value) => setGoalForm({ ...goalForm, calories: value[0] })}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Label htmlFor="protein-goal">Protein</Label>
+                <span className="text-sm font-medium">{goalForm.protein}g</span>
               </div>
-            )}
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+              <Slider
+                id="protein-goal"
+                min={0}
+                max={300}
+                step={5}
+                value={[goalForm.protein]}
+                onValueChange={(value) => setGoalForm({ ...goalForm, protein: value[0] })}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Label htmlFor="carbs-goal">Carbohydrates</Label>
+                <span className="text-sm font-medium">{goalForm.carbs}g</span>
+              </div>
+              <Slider
+                id="carbs-goal"
+                min={0}
+                max={500}
+                step={5}
+                value={[goalForm.carbs]}
+                onValueChange={(value) => setGoalForm({ ...goalForm, carbs: value[0] })}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Label htmlFor="fat-goal">Fat</Label>
+                <span className="text-sm font-medium">{goalForm.fat}g</span>
+              </div>
+              <Slider
+                id="fat-goal"
+                min={0}
+                max={200}
+                step={5}
+                value={[goalForm.fat]}
+                onValueChange={(value) => setGoalForm({ ...goalForm, fat: value[0] })}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Label htmlFor="fiber-goal">Fiber</Label>
+                <span className="text-sm font-medium">{goalForm.fiber}g</span>
+              </div>
+              <Slider
+                id="fiber-goal"
+                min={0}
+                max={100}
+                step={1}
+                value={[goalForm.fiber]}
+                onValueChange={(value) => setGoalForm({ ...goalForm, fiber: value[0] })}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Label htmlFor="water-goal">Water (ml)</Label>
+                <span className="text-sm font-medium">{goalForm.water}ml</span>
+              </div>
+              <Slider
+                id="water-goal"
+                min={0}
+                max={5000}
+                step={100}
+                value={[goalForm.water]}
+                onValueChange={(value) => setGoalForm({ ...goalForm, water: value[0] })}
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsSettingGoals(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveNutritionGoals}>Save Goals</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

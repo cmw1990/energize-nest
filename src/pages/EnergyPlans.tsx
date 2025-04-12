@@ -1,8 +1,10 @@
+
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/components/AuthProvider"
 import { useToast } from "@/hooks/use-toast"
+import { useNavigate } from "react-router-dom"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PlanFilters } from "@/components/energy-plans/PlanFilters"
 import { NewPlanDialog } from "@/components/energy-plans/NewPlanDialog"
@@ -18,12 +20,17 @@ import { Baby, Brain } from "lucide-react"
 import type { Plan, PlanCategory, ProgressRecord } from "@/types/energyPlans"
 import type { Database } from "@/types/supabase"
 
+// Update the UserLifeSituation type to match the database structure
 type UserLifeSituationRow = Database['public']['Tables']['user_life_situations']['Row']
-type UserLifeSituation = Database['public']['Tables']['user_life_situations']['Row'] & { is_active: boolean }
+type UserLifeSituation = UserLifeSituationRow & { 
+  is_active: boolean;
+  situation?: string; // Added for backward compatibility
+}
 
 const EnergyPlans = () => {
   const { session } = useAuth()
   const { toast } = useToast()
+  const navigate = useNavigate() // Add this for navigation
   const [selectedTab, setSelectedTab] = useState("discover")
   const [selectedCategory, setSelectedCategory] = useState<PlanCategory | null>(null)
   const [showLifeSituationDialog, setShowLifeSituationDialog] = useState(false)
@@ -157,14 +164,16 @@ const EnergyPlans = () => {
   })
 
   const updateLifeSituationMutation = useMutation({
-    mutationFn: async (situation: UserLifeSituationRow['situation']) => {
+    mutationFn: async (situationType: string) => {
       if (!session?.user) throw new Error("Not authenticated")
       
       const { error } = await supabase
         .from('user_life_situations')
         .upsert({
           user_id: session.user.id,
-          situation,
+          situation_type: situationType, // Use situation_type instead of situation
+          start_date: new Date().toISOString(),
+          is_active: true,
           updated_at: new Date().toISOString()
         })
 
@@ -199,7 +208,7 @@ const EnergyPlans = () => {
       
       if (error) throw error
       
-      // Redirect to the editor
+      // Use the navigate function to redirect to the editor
       navigate(`/energy-plans/${data.id}/edit`)
     } catch (error) {
       console.error('Error creating plan:', error)
@@ -224,7 +233,7 @@ const EnergyPlans = () => {
           <Dialog open={showLifeSituationDialog} onOpenChange={setShowLifeSituationDialog}>
             <DialogTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2">
-                {lifeSituation?.situation === 'pregnancy' ? <Baby className="h-4 w-4" /> : <Brain className="h-4 w-4" />}
+                {lifeSituation?.situation_type === 'pregnancy' ? <Baby className="h-4 w-4" /> : <Brain className="h-4 w-4" />}
                 Update Life Situation
               </Button>
             </DialogTrigger>
@@ -234,8 +243,8 @@ const EnergyPlans = () => {
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <RadioGroup 
-                  onValueChange={(value) => updateLifeSituationMutation.mutate(value as UserLifeSituationRow['situation'])}
-                  defaultValue={lifeSituation?.situation || "Regular"}
+                  onValueChange={(value) => updateLifeSituationMutation.mutate(value)}
+                  defaultValue={lifeSituation?.situation_type || "regular"}
                   className="gap-4"
                 >
                   <div className="flex items-center space-x-2 rounded-lg border p-4 hover:bg-accent">
@@ -300,7 +309,7 @@ const EnergyPlans = () => {
             progress={planProgress}
             onSavePlan={(id) => savePlanMutation.mutate(id)}
             savedPlans={savedPlans}
-            currentLifeSituation={lifeSituation?.situation}
+            currentLifeSituation={lifeSituation?.situation_type} // Use situation_type
           />
         </TabsContent>
 

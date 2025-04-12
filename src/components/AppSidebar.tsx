@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
@@ -30,12 +29,11 @@ import {
   Scale,
   Cigarette,
   Droplet,
-  Desktop,
+  Laptop,
   LayoutDashboard,
   UserCheck,
   Flame,
   Sun,
-  Laptop,
   FileSpreadsheet,
   ShieldPlus,
   UserCog,
@@ -45,6 +43,7 @@ import {
   Sparkle,
   Clock,
   Shield,
+  Monitor,
 } from "lucide-react";
 
 // Improved navigation structure with clearer categories and more relevant icons
@@ -59,7 +58,7 @@ const navigationGroups = [
       },
       {
         to: "/desktop",
-        icon: Desktop,
+        icon: Monitor,
         label: "Desktop View",
       },
       {
@@ -304,7 +303,7 @@ export const AppSidebar = () => {
                       : "text-muted-foreground"
                   )}
                 >
-                  <link.icon className={cn("mr-2 h-4 w-4", link.iconClassName)} />
+                  <link.icon className="mr-2 h-4 w-4" />
                   {link.label}
                 </Link>
               ))}

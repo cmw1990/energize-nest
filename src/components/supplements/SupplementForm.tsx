@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, ChevronDown, Clock, Pill, Shield, Sparkles, Star, Zap, AtomIcon } from "lucide-react";
+import { Calendar as CalendarIcon, ChevronDown, Clock, Pill, Shield, Sparkles, Star, Zap, AtomIcon, Focus as FocusIcon, Moon as MoonIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const supplementFormSchema = z.object({
@@ -343,7 +342,7 @@ export function SupplementForm() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="flex items-center gap-1">
-                  <Focus className="h-4 w-4 text-blue-500" />
+                  <FocusIcon className="h-4 w-4 text-blue-500" />
                   Focus Impact
                 </Label>
                 <span className="text-sm font-medium">
@@ -381,7 +380,7 @@ export function SupplementForm() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="flex items-center gap-1">
-                  <Moon className="h-4 w-4 text-indigo-500" />
+                  <MoonIcon className="h-4 w-4 text-indigo-500" />
                   Sleep Impact
                 </Label>
                 <span className="text-sm font-medium">
