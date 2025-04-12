@@ -50,6 +50,7 @@ export default {
         'lg': 'var(--radius)',
         'md': 'calc(var(--radius) - 2px)',
         'sm': 'calc(var(--radius) - 4px)',
+        '3xl': '1.5rem',
       },
       keyframes: {
         "float-up": {
@@ -69,6 +70,9 @@ export default {
         "float-up": "float-up 2s ease-in-out forwards",
         "float-down": "float-down 2s ease-in-out forwards",
         "sway": "sway 2s ease-in-out infinite"
+      },
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
       },
     },
   },
