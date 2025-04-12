@@ -23,10 +23,15 @@ import WebTools from './pages/WebTools';
 import LandingPage from './pages/LandingPage';
 import WhyUs from './pages/WhyUs';
 import Auth from './pages/Auth';
-import NotFound from './components/NotFound';
+import NotFound from './pages/NotFound';
 import ErrorPage from './pages/ErrorPage';
 import Layout from './components/Layout';
-import { Outlet } from 'react-router-dom';
+import Focus from './pages/Focus';
+import Meditation from './pages/Meditation';
+import Sleep from './pages/Sleep';
+import DistractionManager from './pages/DistractionManager';
+import SleepTracking from './pages/SleepTracking';
+import Breathing from './pages/Breathing';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -71,6 +76,12 @@ function App() {
               <Route path="brain-games" element={<BrainGames />} />
               <Route path="productivity" element={<ProductivityDashboard />} />
               <Route path="web-tools/*" element={<WebTools />} />
+              <Route path="focus" element={<Focus />} />
+              <Route path="distraction-manager" element={<DistractionManager />} />
+              <Route path="sleep" element={<Sleep />} />
+              <Route path="sleep-tracking" element={<SleepTracking />} />
+              <Route path="meditation" element={<Meditation />} />
+              <Route path="relax" element={<Breathing />} />
             </Route>
             
             {/* Error handling */}

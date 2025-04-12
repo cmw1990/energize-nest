@@ -58,12 +58,12 @@ const navigationGroups = [
         label: "Overview",
       },
       {
-        to: "/desktop",
+        to: "/app/desktop",
         icon: Monitor,
         label: "Desktop View",
       },
       {
-        to: "/health",
+        to: "/app/health",
         icon: Heart,
         label: "Health Hub",
       },
@@ -73,17 +73,17 @@ const navigationGroups = [
     label: "Energy & Focus",
     links: [
       {
-        to: "/energy-plans",
+        to: "/app/energy-plans",
         icon: Battery,
         label: "Energy Plans",
       },
       {
-        to: "/focus",
+        to: "/app/focus",
         icon: Focus,
         label: "Focus Center",
       },
       {
-        to: "/distraction-manager",
+        to: "/app/distraction-manager",
         icon: Shield,
         label: "Distraction Manager",
       },
@@ -93,12 +93,12 @@ const navigationGroups = [
         label: "Sleep",
       },
       {
-        to: "/tools/sleep-tracking",
+        to: "/app/sleep-tracking",
         icon: Activity,
         label: "Sleep Tracking",
       },
       {
-        to: "/motivation",
+        to: "/app/motivation",
         icon: Rocket,
         label: "Motivation",
       },
@@ -118,22 +118,22 @@ const navigationGroups = [
     label: "Productivity",
     links: [
       {
-        to: "/tasks",
+        to: "/app/tasks",
         icon: ListTodo,
         label: "Tasks",
       },
       {
-        to: "/calendar",
+        to: "/app/calendar",
         icon: CalendarDays,
         label: "Calendar",
       },
       {
-        to: "/tracking",
+        to: "/app/tracking",
         icon: LineChart,
         label: "Tracking",
       },
       {
-        to: "/tools/focus-timer",
+        to: "/app/web-tools/focus-timer",
         icon: Clock,
         label: "Focus Timer",
       },
@@ -143,27 +143,27 @@ const navigationGroups = [
     label: "Nutrition & Wellness",
     links: [
       {
-        to: "/nutrition",
+        to: "/app/nutrition",
         icon: Apple,
         label: "Nutrition",
       },
       {
-        to: "/food",
+        to: "/app/food",
         icon: Utensils,
         label: "Food Tracking",
       },
       {
-        to: "/supplements",
+        to: "/app/supplements",
         icon: Pill,
         label: "Supplements",
       },
       {
-        to: "/water",
+        to: "/app/water",
         icon: Droplet,
         label: "Hydration",
       },
       {
-        to: "/weight",
+        to: "/app/weight",
         icon: Scale,
         label: "Weight",
       },
@@ -178,17 +178,17 @@ const navigationGroups = [
     label: "Specialized Support",
     links: [
       {
-        to: "/sobriety",
+        to: "/app/sobriety",
         icon: ThumbsUp,
         label: "Sobriety",
       },
       {
-        to: "/nicotine",
+        to: "/app/nicotine",
         icon: Cigarette,
         label: "Nicotine Tracker",
       },
       {
-        to: "/caffeine",
+        to: "/app/caffeine",
         icon: Coffee,
         label: "Caffeine",
       },
@@ -198,7 +198,7 @@ const navigationGroups = [
         label: "Eye Care",
       },
       {
-        to: "/pregnancy",
+        to: "/app/pregnancy",
         icon: Heart,
         label: "Pregnancy",
       },
@@ -208,47 +208,47 @@ const navigationGroups = [
     label: "Tools & Games",
     links: [
       {
-        to: "/tools",
+        to: "/app/web-tools",
         icon: Wrench,
         label: "Tools Hub",
       },
       {
-        to: "/games",
+        to: "/app/brain-games",
         icon: Gamepad2,
         label: "Games Hub",
       },
       {
-        to: "/tools/brain-match",
+        to: "/app/web-tools/brain-match",
         icon: Brain,
         label: "Brain Match",
       },
       {
-        to: "/tools/bmi-calculator",
+        to: "/app/web-tools/bmi-calculator",
         icon: FileSpreadsheet,
         label: "BMI Calculator",
       },
       {
-        to: "/tools/water-intake-calculator",
+        to: "/app/web-tools/water-intake-calculator",
         icon: Droplet,
         label: "Water Calculator",
       },
       {
-        to: "/tools/speed-math",
+        to: "/app/web-tools/speed-math",
         icon: Brain,
         label: "Speed Math",
       },
       {
-        to: "/tools/stress-check",
+        to: "/app/web-tools/stress-check",
         icon: ZapOff,
         label: "Stress Check",
       },
       {
-        to: "/tools/stroop-test",
+        to: "/app/web-tools/stroop-test",
         icon: Grid3X3,
         label: "Stroop Test",
       },
       {
-        to: "/breathing",
+        to: "/app/breathing",
         icon: Wind,
         label: "Breathing",
       },
@@ -258,22 +258,22 @@ const navigationGroups = [
     label: "Account & Services",
     links: [
       {
-        to: "/insurance/dashboard",
+        to: "/app/insurance/dashboard",
         icon: ShieldPlus,
         label: "Insurance",
       },
       {
-        to: "/user/profile",
+        to: "/app/user/profile",
         icon: UserCog,
         label: "Profile",
       },
       {
-        to: "/user/therapist",
+        to: "/app/user/therapist",
         icon: UserCheck,
         label: "Therapist Connect",
       },
       ...(import.meta.env.DEV ? [{
-        to: "/development",
+        to: "/app/development",
         icon: Wrench,
         label: "Development Tools",
       }] : []),

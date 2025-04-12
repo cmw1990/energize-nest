@@ -1,188 +1,36 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/hooks/use-toast";
-import { Timer, Clock, ListTodo, Zap, Brain } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/components/AuthProvider";
+import { Clock, Focus, Target } from "lucide-react";
 
 export const FocusEnhancementTools = () => {
-  const { session } = useAuth();
-  const { toast } = useToast();
-  const [isPomodoro, setIsPomodoro] = useState(false);
-  const [workDuration, setWorkDuration] = useState(25);
-  const [breakDuration, setBreakDuration] = useState(5);
-  const [timeRemaining, setTimeRemaining] = useState(workDuration * 60);
-  const [isRunning, setIsRunning] = useState(false);
-  const [isBreak, setIsBreak] = useState(false);
-  const [whiteNoiseEnabled, setWhiteNoiseEnabled] = useState(false);
-
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (isRunning && timeRemaining > 0) {
-      timer = setInterval(() => {
-        setTimeRemaining((prev) => prev - 1);
-      }, 1000);
-    } else if (timeRemaining === 0) {
-      handleTimerComplete();
-    }
-    return () => clearInterval(timer);
-  }, [isRunning, timeRemaining]);
-
-  const handleTimerComplete = () => {
-    if (isPomodoro) {
-      setIsBreak(!isBreak);
-      setTimeRemaining(isBreak ? workDuration * 60 : breakDuration * 60);
-      toast({
-        title: isBreak ? "Work Time!" : "Break Time!",
-        description: `Time to ${isBreak ? "focus" : "take a break"}`,
-      });
-    } else {
-      setIsRunning(false);
-      toast({
-        title: "Timer Complete!",
-        description: "Great job staying focused!",
-      });
-    }
-  };
-
-  const toggleTimer = () => {
-    setIsRunning(!isRunning);
-  };
-
-  const resetTimer = () => {
-    setIsRunning(false);
-    setTimeRemaining(workDuration * 60);
-    setIsBreak(false);
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
-  };
-
-  const saveFocusSession = async () => {
-    if (!session?.user?.id) return;
-
-    try {
-      const { error } = await supabase.from("energy_focus_logs").insert({
-        user_id: session.user.id,
-        activity_type: "focus_session",
-        activity_name: isPomodoro ? "pomodoro" : "focus_timer",
-        duration_minutes: Math.round((workDuration * 60 - timeRemaining) / 60),
-        focus_rating: 85,
-        notes: `Completed ${isPomodoro ? "Pomodoro" : "Focus"} session`,
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Session saved!",
-        description: "Your focus session has been recorded.",
-      });
-    } catch (error) {
-      console.error("Error saving focus session:", error);
-      toast({
-        title: "Error saving session",
-        description: "Please try again later",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Brain className="h-5 w-5" />
-          Focus Enhancement Tools
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <Label>Pomodoro Mode</Label>
-              <p className="text-sm text-muted-foreground">
-                Alternate between focused work and breaks
-              </p>
-            </div>
-            <Switch
-              checked={isPomodoro}
-              onCheckedChange={setIsPomodoro}
-              disabled={isRunning}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <Label>White Noise</Label>
-              <p className="text-sm text-muted-foreground">
-                Background noise to help you focus
-              </p>
-            </div>
-            <Switch
-              checked={whiteNoiseEnabled}
-              onCheckedChange={setWhiteNoiseEnabled}
-            />
-          </div>
-
-          <div className="text-center space-y-4">
-            <div className="text-4xl font-bold font-mono">
-              {formatTime(timeRemaining)}
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {isBreak ? "Break Time" : "Focus Time"}
-            </p>
-          </div>
-
-          <div className="flex justify-center gap-4">
-            <Button onClick={toggleTimer} className="w-24">
-              {isRunning ? (
-                <>
-                  <Timer className="h-4 w-4 mr-2" />
-                  Pause
-                </>
-              ) : (
-                <>
-                  <Clock className="h-4 w-4 mr-2" />
-                  Start
-                </>
-              )}
-            </Button>
-            <Button onClick={resetTimer} variant="outline" className="w-24">
-              Reset
-            </Button>
-          </div>
-
-          {!isRunning && timeRemaining !== workDuration * 60 && (
-            <div className="flex justify-center">
-              <Button onClick={saveFocusSession} variant="secondary">
-                <ListTodo className="h-4 w-4 mr-2" />
-                Save Session
-              </Button>
-            </div>
-          )}
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="p-4 border rounded-lg flex flex-col items-center">
+          <Clock className="h-8 w-8 text-primary mb-2" />
+          <h3 className="font-medium">Pomodoro Timer</h3>
+          <p className="text-sm text-muted-foreground text-center my-2">
+            Work in focused intervals with short breaks
+          </p>
+          <Button size="sm" className="mt-2">Start Timer</Button>
         </div>
-
-        <div className="pt-4 border-t">
-          <h3 className="font-semibold mb-2 flex items-center gap-2">
-            <Zap className="h-4 w-4" />
-            Focus Tips
-          </h3>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            <li>• Start with small, manageable tasks</li>
-            <li>• Remove distractions from your environment</li>
-            <li>• Take regular breaks to maintain energy</li>
-            <li>• Stay hydrated and maintain good posture</li>
-          </ul>
+        
+        <div className="p-4 border rounded-lg flex flex-col items-center">
+          <Target className="h-8 w-8 text-primary mb-2" />
+          <h3 className="font-medium">Focus Mode</h3>
+          <p className="text-sm text-muted-foreground text-center my-2">
+            Block distractions and improve concentration
+          </p>
+          <Button size="sm" className="mt-2">Activate</Button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+      
+      <div className="text-center py-2">
+        <p className="text-sm text-muted-foreground">
+          Start using these tools to improve your focus and productivity
+        </p>
+      </div>
+    </div>
   );
 };

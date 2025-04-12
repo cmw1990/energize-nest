@@ -58,15 +58,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Create or update user settings on authentication
   const initializeUserSettings = async (userId: string) => {
-    const { error } = await supabase
-      .from('user_settings')
-      .upsert({
-        user_id: userId,
-        updated_at: new Date().toISOString()
-      });
+    try {
+      const { error } = await supabase
+        .from('user_settings')
+        .upsert({
+          user_id: userId,
+          updated_at: new Date().toISOString()
+        });
 
-    if (error) {
-      console.error('Error initializing user settings:', error);
+      if (error) {
+        console.error('Error initializing user settings:', error);
+      }
+    } catch (e) {
+      console.error('Error initializing user settings:', e);
     }
   };
 
@@ -78,7 +82,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     // Check if current route requires authentication
-    const requiresAuth = !PUBLIC_ROUTES.includes(location.pathname);
+    const isPublicRoute = PUBLIC_ROUTES.some(route => 
+      location.pathname === route || location.pathname.startsWith(route + '/')
+    );
+    
+    const requiresAuth = !isPublicRoute;
     
     // Refresh token function
     const refreshToken = async () => {
