@@ -1,347 +1,201 @@
 
-import { useState } from "react"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { supabase } from "@/integrations/supabase/client"
-import { useAuth } from "@/components/AuthProvider"
-import { useToast } from "@/hooks/use-toast"
-import { useNavigate } from "react-router-dom"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { PlanFilters } from "@/components/energy-plans/PlanFilters"
-import { NewPlanDialog } from "@/components/energy-plans/NewPlanDialog"
-import { CelebrityPlanGallery } from "@/components/energy-plans/CelebrityPlanGallery"
-import { PlanDiscovery } from "@/components/energy-plans/PlanDiscovery"
-import { PersonalPlans } from "@/components/energy-plans/PersonalPlans"
-import { SavedPlans } from "@/components/energy-plans/SavedPlans"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Baby, Brain } from "lucide-react"
-import type { Plan, PlanCategory, ProgressRecord } from "@/types/energyPlans"
-import type { Database } from "@/types/supabase"
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/components/AuthProvider';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PlanList } from '@/components/energy-plans/PlanList';
+import { PlanDiscovery } from '@/components/energy-plans/PlanDiscovery';
+import { NewPlanDialog } from '@/components/energy-plans/NewPlanDialog';
+import { CelebrityPlanGallery } from '@/components/energy-plans/CelebrityPlanGallery';
+import { TopNav } from '@/components/layout/TopNav';
+import { PlanFilters } from '@/components/energy-plans/PlanFilters';
+import { SavedPlans } from '@/components/energy-plans/SavedPlans';
+import { PersonalPlans } from '@/components/energy-plans/PersonalPlans';
+import { LifeSituationDialog } from '@/components/energy-plans/LifeSituationDialog';
+import { Plan, LifeSituation } from '@/types/energyPlans';
+import { safeArrayCast } from '@/utils/typeSafeUtils';
+import { Battery, Zap, Flame, BookOpen } from 'lucide-react';
 
-// Update the UserLifeSituation type to match the database structure
-type UserLifeSituationRow = Database['public']['Tables']['user_life_situations']['Row']
-type UserLifeSituation = UserLifeSituationRow & { 
-  is_active: boolean;
-  situation_type: string;
-}
+// Use proper typing for React.FC
+const EnergyPlans: React.FC = () => {
+  const { session } = useAuth();
+  const [activeTab, setActiveTab] = useState('personal');
+  const [lifeSituation, setLifeSituation] = useState<LifeSituation>("regular");
+  const [showLifeSituationDialog, setShowLifeSituationDialog] = useState(false);
 
-const EnergyPlans = () => {
-  const { session } = useAuth()
-  const { toast } = useToast()
-  const navigate = useNavigate()
-  const [selectedTab, setSelectedTab] = useState("discover")
-  const [selectedCategory, setSelectedCategory] = useState<PlanCategory | null>(null)
-  const [showLifeSituationDialog, setShowLifeSituationDialog] = useState(false)
-  const queryClient = useQueryClient()
-
-  // Type guard to handle Supabase query errors
-  const isQueryError = (data: any): data is { error: true } & string => {
-    return data && typeof data === 'object' && 'error' in data
-  }
-
-  const { data: lifeSituation } = useQuery<UserLifeSituation>({
-    queryKey: ['user-life-situation', session?.user?.id],
+  // Fetch user's personal plans
+  const { data: personalPlans, refetch: refetchPersonalPlans } = useQuery({
+    queryKey: ['energy_plans', 'personal', session?.user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('user_life_situations')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .eq('is_active', true)
-        .single()
-      
-      if (error) {
-        if (error.code !== 'PGRST116') { // No rows returned
-          console.error('Error fetching life situation:', error)
-        }
-        return null
-      }
-      
-      return data as unknown as UserLifeSituation
-    },
-    enabled: !!session?.user?.id
-  })
-
-  const { data: planProgress } = useQuery<ProgressRecord[]>({
-    queryKey: ['energy-plans', 'progress', session?.user?.id],
-    queryFn: async () => {
-      if (!session?.user?.id) return []
+      if (!session?.user?.id) return [];
       
       const { data, error } = await supabase
-        .from('energy_plan_progress')
+        .from('energy_plans')
         .select('*')
         .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false });
       
-      if (error) throw error
-      return data as ProgressRecord[]
+      if (error) throw error;
+      
+      // Use the safer type cast to avoid deep instantiation errors
+      return safeArrayCast<Plan>(data || []);
     },
-    enabled: !!session?.user?.id
-  })
+    enabled: !!session?.user?.id,
+  });
 
-  const { data: celebrityPlans, isLoading: isLoadingCelebrity } = useQuery<Plan[]>({
-    queryKey: ['energy-plans', 'celebrity'],
+  // Fetch expert plans
+  const { data: expertPlans } = useQuery({
+    queryKey: ['energy_plans', 'expert'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('energy_plans')
-        .select(`
-          *,
-          energy_plan_components (*)
-        `)
+        .select('*')
+        .eq('plan_type', 'expert')
         .eq('is_expert_plan', true)
-        .limit(6)
+        .order('created_at', { ascending: false });
       
-      if (error) throw error
+      if (error) throw error;
       
-      // Using type assertion to ensure we handle potential errors
-      return (data && !isQueryError(data)) 
-        ? data as unknown as Plan[]
-        : []
-    }
-  })
-
-  const { data: savedPlans } = useQuery<Plan[]>({
-    queryKey: ['energy-plans', 'saved', session?.user?.id],
-    queryFn: async () => {
-      if (!session?.user?.id) return []
-      
-      const { data, error } = await supabase
-        .from('user_saved_plans')
-        .select(`
-          plan_id,
-          energy_plans (
-            *,
-            energy_plan_components (*)
-          )
-        `)
-        .eq('user_id', session.user.id)
-      
-      if (error) throw error
-      
-      // Using type assertion to handle potential errors
-      return (data && !isQueryError(data))
-        ? data.map(item => item.energy_plans as unknown as Plan)
-        : []
+      // Use the safer type cast to avoid deep instantiation errors
+      return safeArrayCast<Plan>(data || []);
     },
-    enabled: !!session?.user?.id
-  })
+  });
 
-  const savePlanMutation = useMutation({
-    mutationFn: async (planId: string) => {
-      if (!session?.user) throw new Error("Not authenticated")
-      
-      const { error } = await supabase
-        .from('user_saved_plans')
-        .insert({
-          user_id: session.user.id,
-          plan_id: planId
-        })
-
-      if (error) throw error
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['energy-plans', 'saved'] })
-      toast({
-        title: "Plan Saved",
-        description: "The energy plan has been saved to your collection"
-      })
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to save the plan",
-        variant: "destructive"
-      })
-    }
-  })
-
-  const sharePlanMutation = useMutation({
-    mutationFn: async (plan: Plan) => {
-      if (!session?.user) throw new Error("Not authenticated")
-      
-      const { error } = await supabase
-        .from('energy_plans')
-        .update({ 
-          // Use appropriate field names that exist in the database
-          plan_type: 'public' 
-        })
-        .eq('id', plan.id)
-        .eq('user_id', session.user.id)
-
-      if (error) throw error
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['energy-plans'] })
-      toast({
-        title: "Plan Shared",
-        description: "Your plan is now visible to others"
-      })
-    }
-  })
-
-  const updateLifeSituationMutation = useMutation({
-    mutationFn: async (situationType: string) => {
-      if (!session?.user) throw new Error("Not authenticated")
-      
-      const { error } = await supabase
-        .from('user_life_situations')
-        .upsert({
-          user_id: session.user.id,
-          situation_type: situationType,
-          start_date: new Date().toISOString(),
-          is_active: true,
-          updated_at: new Date().toISOString()
-        })
-
-      if (error) throw error
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-life-situation'] })
-      queryClient.invalidateQueries({ queryKey: ['energy-plans'] })
-      toast({
-        title: "Preferences Updated",
-        description: "Your energy plans will be tailored to your current situation"
-      })
-      setShowLifeSituationDialog(false)
-    }
-  })
-
-  const handleCreatePlan = async () => {
-    if (!session?.user?.id) return
-    
-    try {
-      const { data, error } = await supabase
-        .from('energy_plans')
-        .insert({
-          user_id: session.user.id,
-          plan_name: `My Plan ${Math.floor(Math.random() * 1000)}`,
-          plan_type: 'custom',
-          duration_minutes: 30,
-          activities: {}
-        })
-        .select()
-        .single()
-      
-      if (error) throw error
-      
-      // Use the navigate function to redirect to the editor
-      navigate(`/energy-plans/${data.id}/edit`)
-    } catch (error) {
-      console.error('Error creating plan:', error)
-      toast({
-        title: "Error",
-        description: "Failed to create new plan",
-        variant: "destructive"
-      })
-    }
-  }
+  // Function to handle plan creation
+  const handlePlanCreated = () => {
+    refetchPersonalPlans();
+  };
 
   return (
-    <div className="container max-w-6xl mx-auto p-6 space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Energy Plans</h1>
-          <p className="text-muted-foreground">
-            Discover and share energy optimization plans
-          </p>
+    <div className="min-h-screen bg-background">
+      <TopNav />
+      <div className="container mx-auto p-4 space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Battery className="h-6 w-6 text-primary" />
+            <h1 className="text-3xl font-bold">Energy Plans</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowLifeSituationDialog(true)}
+            >
+              Life Situation: {lifeSituation.charAt(0).toUpperCase() + lifeSituation.slice(1)}
+            </Button>
+            <NewPlanDialog onPlanCreated={handlePlanCreated} />
+          </div>
         </div>
-        <div className="flex gap-4">
-          <Dialog open={showLifeSituationDialog} onOpenChange={setShowLifeSituationDialog}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
-                {lifeSituation?.situation_type === 'pregnancy' ? <Baby className="h-4 w-4" /> : <Brain className="h-4 w-4" />}
-                Update Life Situation
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Your Current Life Situation</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <RadioGroup 
-                  onValueChange={(value) => updateLifeSituationMutation.mutate(value)}
-                  defaultValue={lifeSituation?.situation_type || "regular"}
-                  className="gap-4"
-                >
-                  <div className="flex items-center space-x-2 rounded-lg border p-4 hover:bg-accent">
-                    <RadioGroupItem value="regular" id="regular" />
-                    <Label htmlFor="regular" className="flex-1 cursor-pointer">
-                      <div className="font-semibold">Regular Energy Management</div>
-                      <div className="text-sm text-muted-foreground">Standard energy and focus optimization</div>
-                    </Label>
+
+        <Card className="border-primary/10">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Zap className="h-4 w-4 text-primary" />
+              Your Energy Management Center
+            </CardTitle>
+            <CardDescription>
+              Create, discover and manage personalized energy plans
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid grid-cols-3 mb-6">
+                <TabsTrigger value="personal">Personal Plans</TabsTrigger>
+                <TabsTrigger value="explore">Explore Plans</TabsTrigger>
+                <TabsTrigger value="saved">Saved Plans</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="personal">
+                <PersonalPlans 
+                  plans={personalPlans || []} 
+                  onPlanCreated={handlePlanCreated}
+                />
+              </TabsContent>
+              
+              <TabsContent value="explore">
+                <div className="space-y-6">
+                  <PlanFilters />
+                  
+                  <div className="grid gap-6">
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Flame className="h-4 w-4 text-orange-500" />
+                          Featured Expert Plans
+                        </CardTitle>
+                        <CardDescription>
+                          Professionally crafted plans for optimal energy management
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <PlanList plans={expertPlans || []} />
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <BookOpen className="h-4 w-4 text-blue-500" />
+                          Discover Energy Plans
+                        </CardTitle>
+                        <CardDescription>
+                          Browse community-created energy management strategies
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <PlanDiscovery />
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg">Celebrity Energy Plans</CardTitle>
+                        <CardDescription>
+                          Explore how successful people manage their energy
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <CelebrityPlanGallery />
+                      </CardContent>
+                    </Card>
                   </div>
-                  <div className="flex items-center space-x-2 rounded-lg border p-4 hover:bg-accent">
-                    <RadioGroupItem value="pregnancy" id="pregnancy" />
-                    <Label htmlFor="pregnancy" className="flex-1 cursor-pointer">
-                      <div className="font-semibold flex items-center gap-2">
-                        <Baby className="h-4 w-4" />
-                        Pregnancy
-                      </div>
-                      <div className="text-sm text-muted-foreground">Tailored energy plans for pregnancy</div>
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2 rounded-lg border p-4 hover:bg-accent">
-                    <RadioGroupItem value="postpartum" id="postpartum" />
-                    <Label htmlFor="postpartum" className="flex-1 cursor-pointer">
-                      <div className="font-semibold">Postpartum Recovery</div>
-                      <div className="text-sm text-muted-foreground">Support for the postpartum period</div>
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2 rounded-lg border p-4 hover:bg-accent">
-                    <RadioGroupItem value="breastfeeding" id="breastfeeding" />
-                    <Label htmlFor="breastfeeding" className="flex-1 cursor-pointer">
-                      <div className="font-semibold">Breastfeeding</div>
-                      <div className="text-sm text-muted-foreground">Energy support during breastfeeding</div>
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </div>
-            </DialogContent>
-          </Dialog>
-          <PlanFilters 
-            selectedCategory={selectedCategory}
-            onCategoryChange={setSelectedCategory}
-          />
-          <NewPlanDialog onPlanCreated={handleCreatePlan} />
-        </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="saved">
+                <SavedPlans />
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-muted/50">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <h2 className="text-xl font-medium">Need professional guidance?</h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Our expert consultation service provides personalized energy management 
+                strategies tailored to your specific needs and circumstances.
+              </p>
+              <Link to="/expert-consultancy">
+                <Button>Book an Expert Consultation</Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-
-      <CelebrityPlanGallery
-        plans={celebrityPlans || []}
-        onSavePlan={(id) => savePlanMutation.mutate(id)}
-        savedPlans={savedPlans || []}
+      
+      <LifeSituationDialog 
+        open={showLifeSituationDialog}
+        onOpenChange={setShowLifeSituationDialog}
+        lifeSituation={lifeSituation}
+        onSelect={(situation) => setLifeSituation(situation as LifeSituation)}
       />
-
-      <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-        <TabsList className="grid w-full grid-cols-1 md:grid-cols-3">
-          <TabsTrigger value="discover">Discover Plans</TabsTrigger>
-          <TabsTrigger value="my-plans">My Plans</TabsTrigger>
-          <TabsTrigger value="saved">Saved Plans</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="discover">
-          <PlanDiscovery
-            selectedCategory={selectedCategory}
-            progress={planProgress || []}
-            onSavePlan={(id) => savePlanMutation.mutate(id)}
-            savedPlans={savedPlans || []}
-            currentLifeSituation={lifeSituation?.situation_type}
-          />
-        </TabsContent>
-
-        <TabsContent value="my-plans">
-          <PersonalPlans
-            progress={planProgress || []}
-            onSharePlan={(plan) => sharePlanMutation.mutate(plan)}
-          />
-        </TabsContent>
-
-        <TabsContent value="saved">
-          <SavedPlans progress={planProgress || []} />
-        </TabsContent>
-      </Tabs>
     </div>
-  )
-}
+  );
+};
 
-export default EnergyPlans
+export default EnergyPlans;

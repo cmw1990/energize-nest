@@ -55,3 +55,30 @@ export function transformFoodLog(foodLog: Record<string, any>): Record<string, a
     water_intake: foodLog.water_intake || 0
   };
 }
+
+/**
+ * Cast data from database to match ConsultationSession interface
+ * @param data The data returned from a Supabase query
+ */
+export function adaptConsultationSession(data: any): any {
+  if (!data) return null;
+  
+  // Handle the case where professional is an object with full_name
+  if (data.professional && typeof data.professional === 'object') {
+    return data as unknown;
+  }
+  
+  // Handle the case where professional is a string (ID)
+  if (data.professional && typeof data.professional === 'string') {
+    return {
+      ...data,
+      professional: {
+        id: data.professional,
+        full_name: data.professional_name || "Unknown",
+        avatar_url: data.professional_avatar || ""
+      }
+    };
+  }
+  
+  return data;
+}
