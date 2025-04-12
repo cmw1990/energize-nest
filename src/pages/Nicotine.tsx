@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,10 +23,13 @@ import {
   TrendingDown, 
   Activity, 
   BarChart3, 
-  Brain 
+  Brain,
+  Plus,
+  Users 
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO, subDays } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 interface NicotineLog {
   id: string;
@@ -59,6 +61,7 @@ const Nicotine = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("intake");
+  const navigate = useNavigate();
 
   // Fetch nicotine logs
   const { data: nicotineLogs, isLoading: isLogsLoading } = useQuery({

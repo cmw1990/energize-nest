@@ -1,16 +1,14 @@
-
-import { useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/components/AuthProvider";
-import { FoodItem, NutritionGoals } from "@/types/energyPlans";
+import { FoodItem, NutritionGoals } from "@/types/database";
 import { safeArrayCast } from "@/utils/typeSafeUtils";
 
-// This is a simplified version to fix the type issues
 export const NutritionTracker = () => {
   const { session } = useAuth();
   
-  // Fetch food items
   const { data: foodItems, refetch } = useQuery({
     queryKey: ["food_items", session?.user?.id],
     queryFn: async () => {
@@ -29,7 +27,6 @@ export const NutritionTracker = () => {
     enabled: !!session?.user?.id,
   });
   
-  // Fetch nutrition goals
   const { data: nutritionGoals } = useQuery({
     queryKey: ["nutrition_goals", session?.user?.id],
     queryFn: async () => {
@@ -48,7 +45,6 @@ export const NutritionTracker = () => {
     enabled: !!session?.user?.id,
   });
   
-  // Add new food items correctly
   const addFoodItemsMutation = useMutation({
     mutationFn: async (newItems: {
       food_name: string;
@@ -65,7 +61,6 @@ export const NutritionTracker = () => {
         throw new Error("User not authenticated");
       }
       
-      // Make sure each item has the user_id property
       const itemsWithUserId = newItems.map(item => ({
         ...item,
         user_id: session.user.id
@@ -84,6 +79,5 @@ export const NutritionTracker = () => {
     }
   });
   
-  // Return a simplified placeholder
   return <div>Nutrition Tracker - Fixed</div>;
 };

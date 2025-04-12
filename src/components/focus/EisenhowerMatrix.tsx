@@ -10,7 +10,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PlusCircle, ChevronRight, AlertCircle, Check, XCircle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Task } from "@/types/energyPlans";
+import { Task } from "@/types/database";
 
 type TaskFormState = {
   title: string;
@@ -50,6 +50,8 @@ export function EisenhowerMatrix() {
   // Add task mutation
   const addTaskMutation = useMutation({
     mutationFn: async (task: TaskFormState) => {
+      if (!session?.user?.id) throw new Error("Not authenticated");
+      
       const { data, error } = await supabase
         .from("tasks")
         .insert({
@@ -58,7 +60,7 @@ export function EisenhowerMatrix() {
           priority: task.priority,
           description: task.description,
           due_date: task.due_date,
-          user_id: session?.user?.id,
+          user_id: session.user.id,
         });
       
       if (error) throw error;

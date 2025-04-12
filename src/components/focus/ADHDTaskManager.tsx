@@ -23,7 +23,7 @@ import {
   Save,
   XCircle,
 } from "lucide-react";
-import { Task } from "@/types/energyPlans";
+import { Task } from "@/types/database";
 
 type TaskFormData = {
   title: string;
@@ -65,6 +65,8 @@ export function ADHDTaskManager() {
   // Add task mutation
   const addTaskMutation = useMutation({
     mutationFn: async (taskData: TaskFormData) => {
+      if (!session?.user?.id) throw new Error("Not authenticated");
+
       const { data, error } = await supabase
         .from("tasks")
         .insert({
@@ -73,7 +75,7 @@ export function ADHDTaskManager() {
           status: "todo",
           priority: taskData.priority,
           due_date: taskData.due_date,
-          user_id: session?.user?.id,
+          user_id: session.user.id,
         });
       
       if (error) throw error;

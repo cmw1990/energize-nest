@@ -1,19 +1,21 @@
-
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { PlanCategory, PlanType } from "@/types/energyPlans";
+import { Visibility } from "@/types/database";
 import { useAuth } from '@/components/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { PlanType, PlanCategory, Visibility } from '@/types/energyPlans';
+import { useNavigate } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
 
-// This is a simplified version to fix the type issues
 const CreateEnergyPlanPage = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  // Add plan mutation with correct field names
   const createPlanMutation = useMutation({
     mutationFn: async (planData: {
       plan_name: string;
@@ -47,7 +49,6 @@ const CreateEnergyPlanPage = () => {
     }
   });
   
-  // Example submit handler
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -60,7 +61,6 @@ const CreateEnergyPlanPage = () => {
       return;
     }
     
-    // Example plan data with correct field names
     const planData = {
       plan_name: "My New Plan",
       plan_type: "standard" as PlanType,
@@ -72,7 +72,6 @@ const CreateEnergyPlanPage = () => {
     createPlanMutation.mutate(planData);
   };
   
-  // Return a simplified placeholder
   return <div>Create Energy Plan Page - Fixed</div>;
 };
 

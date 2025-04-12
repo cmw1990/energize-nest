@@ -33,3 +33,18 @@ export function adaptArrayModel<T>(data: any[], adapter: (item: any) => T): T[] 
   if (!Array.isArray(data)) return [] as T[];
   return data.map(item => adapter(item));
 }
+
+/**
+ * Fix for the "excessively deep and possibly infinite" TypeScript error
+ * by providing a type assertion function
+ */
+export function assertType<T>(value: any): T {
+  return value as unknown as T;
+}
+
+/**
+ * Helper function to allow controlled type conversions for Supabase data
+ */
+export function safeDatabaseCast<T>(data: any): T {
+  return data as unknown as T;
+}

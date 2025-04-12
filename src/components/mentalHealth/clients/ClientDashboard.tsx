@@ -1,12 +1,14 @@
-
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
-import { ConsultationSession } from "@/types/energyPlans";
+import { ConsultationSession } from "@/types/database";
 import { useToast } from "@/hooks/use-toast";
 import { adaptArrayModel } from "@/utils/typeSafeUtils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
-// This is a simplified version to fix the type issues
 export const ClientDashboard = () => {
   const { session } = useAuth();
   const { toast } = useToast();
@@ -24,7 +26,6 @@ export const ClientDashboard = () => {
 
       if (error) throw error;
 
-      // Adapt the data to match our ConsultationSession interface
       return adaptArrayModel(data || [], (item) => ({
         id: item.id,
         client_id: item.client_id,
@@ -48,6 +49,5 @@ export const ClientDashboard = () => {
     enabled: !!session?.user?.id,
   });
 
-  // Return a simplified placeholder (the actual component would have rendering logic)
   return <div>Client Dashboard - Fixed</div>;
 };

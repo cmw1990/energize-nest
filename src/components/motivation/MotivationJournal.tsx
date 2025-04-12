@@ -1,17 +1,17 @@
-import { useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/components/AuthProvider";
-import { JournalEntry } from "@/types/energyPlans";
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { JournalEntry } from "@/types/database";
 import { adaptArrayModel } from "@/utils/typeSafeUtils";
+import { useAuth } from "@/components/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
 
-// This is a simplified version to fix the type issues
 export const MotivationJournal = () => {
   const { session } = useAuth();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   
-  // Fetch journal entries with proper type adaptation
   const { data: entries, refetch } = useQuery({
     queryKey: ["journal_entries", session?.user?.id],
     queryFn: async () => {
@@ -25,10 +25,9 @@ export const MotivationJournal = () => {
         
       if (error) throw error;
       
-      // Adapt the data to match our JournalEntry interface
       return adaptArrayModel<JournalEntry>(data || [], (item) => ({
         id: item.id,
-        title: item.title || "Untitled", // Add title if missing
+        title: item.title || "Untitled",
         content: item.content,
         entry_type: item.entry_type,
         mood_rating: item.mood_rating,
@@ -41,7 +40,6 @@ export const MotivationJournal = () => {
     enabled: !!session?.user?.id,
   });
   
-  // Create a new journal entry with proper fields
   const createEntryMutation = useMutation({
     mutationFn: async (newEntry: { 
       title: string; 
@@ -77,6 +75,5 @@ export const MotivationJournal = () => {
     }
   });
   
-  // Return a simplified placeholder
   return <div>Motivation Journal - Fixed</div>;
 };
