@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,7 @@ import {
   Heart, 
   Wind, 
   Zap, 
-  Mountains, 
+  Mountain, 
   Timer,
   Play,
   Pause,
@@ -132,7 +131,7 @@ const Meditation = () => {
       title: "Nature Connection",
       description: "Connect with the natural world to restore balance.",
       duration: 18,
-      icon: Mountains,
+      icon: Mountain,
       color: "text-emerald-500",
       bgColor: "bg-emerald-50 dark:bg-emerald-900/20",
       level: "Advanced",
