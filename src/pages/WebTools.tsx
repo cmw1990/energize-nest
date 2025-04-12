@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { TopNav } from "@/components/layout/TopNav";
@@ -79,7 +78,6 @@ const iconMap: Record<string, LucideIcon> = {
   'temperature-converter': ThermometerSun,
 };
 
-// Default tools to seed if none exist in database
 const defaultWebTools: WebTool[] = [
   {
     title: "White Noise Generator",
@@ -260,7 +258,6 @@ const WebTools = () => {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [activeCategory, setActiveCategory] = React.useState<string | null>(null);
 
-  // Fetch tools from database
   const { data: dbTools, isLoading } = useQuery({
     queryKey: ['webTools'],
     queryFn: async () => {
@@ -273,7 +270,6 @@ const WebTools = () => {
 
         if (error) throw error;
         
-        // Seed tools if none exist
         if (!data?.length) {
           await seedWebTools();
           const { data: seededData, error: seededError } = await supabase
@@ -289,13 +285,11 @@ const WebTools = () => {
         return data as WebTool[];
       } catch (error) {
         console.error("Error fetching web tools:", error);
-        // Return default tools as fallback
         return defaultWebTools;
       }
     }
   });
 
-  // Fetch specific tool if toolSlug is provided
   const { data: currentTool, isLoading: isToolLoading } = useQuery({
     queryKey: ['webTool', toolSlug],
     queryFn: async () => {
@@ -309,12 +303,10 @@ const WebTools = () => {
         .single();
       
       if (error) {
-        if (error.code === 'PGRST116') { // No rows returned
-          // Try to find in default tools
+        if (error.code === 'PGRST116') {
           const defaultTool = defaultWebTools.find(t => t.slug === toolSlug);
           if (defaultTool) return defaultTool;
           
-          // Not found in defaults either, redirect to tools page
           navigate('/tools');
           return null;
         }
@@ -373,14 +365,12 @@ const WebTools = () => {
     console.log("Seeding complete");
   };
 
-  // Track view when a tool is accessed
   useEffect(() => {
     if (currentTool?.id && !isToolLoading) {
       trackViewMutation.mutate(currentTool.id);
     }
   }, [currentTool?.id, isToolLoading]);
 
-  // Filter tools by search term and category
   const filteredTools = React.useMemo(() => {
     if (!dbTools) return [];
     
@@ -396,20 +386,17 @@ const WebTools = () => {
     });
   }, [dbTools, searchTerm, activeCategory]);
 
-  // Get unique categories from tools
   const categories = React.useMemo(() => {
     if (!dbTools) return [];
     return Array.from(new Set(dbTools.map(tool => tool.category)));
   }, [dbTools]);
 
-  // Helper to get Icon component from string
   const getIconComponent = (iconName?: string): LucideIcon => {
     if (!iconName) return Brain;
     return iconMap[iconName] || Brain;
   };
 
   if (toolSlug && currentTool) {
-    // Render individual tool view
     return (
       <div className="min-h-screen bg-background">
         <TopNav />
@@ -495,7 +482,6 @@ const WebTools = () => {
     );
   }
 
-  // Render tools listing
   return (
     <div className="min-h-screen bg-background">
       <TopNav />

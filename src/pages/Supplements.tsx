@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/AuthProvider';
@@ -22,8 +21,8 @@ import { TeaTracker } from "@/components/supplements/tea/TeaTracker";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { assertType } from "@/utils/typeSafeUtils";
 
-// Define types for supplements
 interface Supplement {
   id: string;
   name: string;
@@ -59,7 +58,6 @@ const Supplements = () => {
     brand: ""
   });
   
-  // Fetch supplements with correct query method
   const { data: supplements, isLoading, error, refetch } = useQuery({
     queryKey: ['supplements', session?.user?.id],
     queryFn: async () => {
@@ -77,7 +75,6 @@ const Supplements = () => {
     enabled: !!session?.user?.id,
   });
   
-  // Handle add supplement
   const handleAddSupplement = async () => {
     if (!session?.user?.id) return;
     
@@ -119,7 +116,6 @@ const Supplements = () => {
     }
   };
   
-  // Handle edit supplement
   const handleEditSupplement = async () => {
     if (!session?.user?.id || !selectedSupplement) return;
     
@@ -149,7 +145,6 @@ const Supplements = () => {
     }
   };
   
-  // Handle delete supplement
   const handleDeleteSupplement = async () => {
     if (!session?.user?.id || !selectedSupplement) return;
     
@@ -336,7 +331,6 @@ const Supplements = () => {
         </TabsContent>
       </Tabs>
 
-      {/* Add Supplement Dialog */}
       <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
@@ -459,7 +453,6 @@ const Supplements = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Supplement Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
@@ -578,7 +571,6 @@ const Supplements = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>

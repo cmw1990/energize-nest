@@ -1,133 +1,143 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, TooltipProps } from "recharts";
-import { Coffee, Zap, Info } from "lucide-react";
+
+import React, { useState } from "react";
 import {
-  Tooltip as UITooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+} from "recharts";
+import { Button } from "@/components/ui/button";
+import { BarChart3, LineChart as LineChartIcon, Filter } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface CaffeineChartProps {
-  data: Array<{
+  data: {
     date: string;
     amount: number;
     energy: number;
-  }>;
-  isLoading?: boolean;
+  }[];
+  isLoading: boolean;
 }
 
-const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
-  if (!active || !payload || !payload.length) return null;
+export function CaffeineChart({ data, isLoading }: CaffeineChartProps) {
+  const [chartType, setChartType] = useState<"line" | "bar">("line");
+  const [dataPoint, setDataPoint] = useState<"all" | "caffeine" | "energy">("all");
 
-  return (
-    <div className="bg-background border rounded-lg p-3 shadow-lg">
-      <p className="font-medium mb-2">{label}</p>
-      <div className="space-y-1">
-        <div className="flex items-center gap-2">
-          <Coffee className="h-4 w-4" />
-          <span>{payload[0].value}mg caffeine</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Zap className="h-4 w-4" />
-          <span>Energy level: {payload[1].value}/10</span>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export const CaffeineChart = ({ data, isLoading }: CaffeineChartProps) => {
   if (isLoading) {
-    return (
-      <div className="h-[300px] w-full flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading data...</div>
-      </div>
-    );
+    return <div className="h-64 flex items-center justify-center">Loading chart data...</div>;
   }
 
   if (!data || data.length === 0) {
     return (
-      <div className="h-[300px] w-full flex items-center justify-center">
-        <div className="text-center space-y-2">
-          <p className="text-muted-foreground">No caffeine intake data available</p>
-          <p className="text-sm text-muted-foreground">Start logging your caffeine intake to see trends</p>
-        </div>
+      <div className="h-64 flex flex-col items-center justify-center">
+        <p className="text-muted-foreground">Not enough data to display chart.</p>
+        <p className="text-sm text-muted-foreground mt-2">
+          Log your caffeine intake to see trends over time.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="h-[300px] w-full">
-      <div className="flex justify-end mb-2">
-        <TooltipProvider>
-          <UITooltip>
-            <TooltipTrigger asChild>
-              <button className="p-1 hover:bg-accent rounded-full">
-                <Info className="h-4 w-4 text-muted-foreground" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Track your caffeine intake and energy levels over time</p>
-            </TooltipContent>
-          </UITooltip>
-        </TooltipProvider>
+    <div className="h-[400px]">
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex space-x-2">
+          <Select 
+            value={dataPoint} 
+            onValueChange={(value) => setDataPoint(value as "all" | "caffeine" | "energy")}
+          >
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Select data" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Data Points</SelectItem>
+              <SelectItem value="caffeine">Caffeine Only</SelectItem>
+              <SelectItem value="energy">Energy Impact</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex space-x-2">
+          <Button
+            variant={chartType === "line" ? "default" : "outline"}
+            size="icon"
+            onClick={() => setChartType("line")}
+            title="Line Chart"
+          >
+            <LineChartIcon className="h-4 w-4" />
+          </Button>
+          <Button
+            variant={chartType === "bar" ? "default" : "outline"}
+            size="icon"
+            onClick={() => setChartType("bar")}
+            title="Bar Chart"
+          >
+            <BarChart3 className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart 
-          data={data}
-          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" className="opacity-50" />
-          <XAxis 
-            dataKey="date" 
-            tick={{ fontSize: 12 }}
-            tickMargin={10}
-          />
-          <YAxis 
-            yAxisId="left" 
-            label={{ 
-              value: 'Caffeine (mg)', 
-              angle: -90, 
-              position: 'insideLeft',
-              style: { textAnchor: 'middle' }
-            }}
-            tick={{ fontSize: 12 }}
-          />
-          <YAxis 
-            yAxisId="right" 
-            orientation="right" 
-            label={{ 
-              value: 'Energy Level', 
-              angle: 90, 
-              position: 'insideRight',
-              style: { textAnchor: 'middle' }
-            }}
-            domain={[0, 10]}
-            tick={{ fontSize: 12 }}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Line 
-            yAxisId="left" 
-            type="monotone" 
-            dataKey="amount" 
-            stroke="#ee9ca7"
-            strokeWidth={2}
-            dot={{ strokeWidth: 2 }}
-            activeDot={{ r: 6, strokeWidth: 2 }}
-            name="Caffeine Intake" 
-          />
-          <Line 
-            yAxisId="right" 
-            type="monotone" 
-            dataKey="energy" 
-            stroke="#6b8cce"
-            strokeWidth={2}
-            dot={{ strokeWidth: 2 }}
-            activeDot={{ r: 6, strokeWidth: 2 }}
-            name="Energy Level" 
-          />
-        </LineChart>
+
+      <ResponsiveContainer width="100%" height="90%">
+        {chartType === "line" ? (
+          <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis yAxisId="left" orientation="left" />
+            <YAxis yAxisId="right" orientation="right" domain={[0, 10]} />
+            <Tooltip />
+            <Legend />
+            {(dataPoint === "all" || dataPoint === "caffeine") && (
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="amount"
+                stroke="#8884d8"
+                activeDot={{ r: 8 }}
+                name="Caffeine (mg)"
+              />
+            )}
+            {(dataPoint === "all" || dataPoint === "energy") && (
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="energy"
+                stroke="#82ca9d"
+                name="Energy Impact (1-10)"
+              />
+            )}
+          </LineChart>
+        ) : (
+          <BarChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis yAxisId="left" orientation="left" />
+            <YAxis yAxisId="right" orientation="right" domain={[0, 10]} />
+            <Tooltip />
+            <Legend />
+            {(dataPoint === "all" || dataPoint === "caffeine") && (
+              <Bar
+                yAxisId="left"
+                dataKey="amount"
+                fill="#8884d8"
+                name="Caffeine (mg)"
+              />
+            )}
+            {(dataPoint === "all" || dataPoint === "energy") && (
+              <Bar
+                yAxisId="right"
+                dataKey="energy"
+                fill="#82ca9d"
+                name="Energy Impact (1-10)"
+              />
+            )}
+          </BarChart>
+        )}
       </ResponsiveContainer>
     </div>
   );
-};
+}

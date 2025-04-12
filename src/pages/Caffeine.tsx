@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CaffeineIntakeForm } from "@/components/caffeine/CaffeineIntakeForm";
 import { CaffeineHistory } from "@/components/caffeine/CaffeineHistory";
 import { CaffeineChart } from "@/components/caffeine/CaffeineChart";
+import { assertType } from "@/utils/typeSafeUtils";
 
 const Caffeine = () => {
   const { session } = useAuth();

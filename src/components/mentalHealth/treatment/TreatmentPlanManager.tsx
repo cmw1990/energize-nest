@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -91,7 +90,7 @@ export const TreatmentPlanManager = () => {
       // Fetch tasks for each plan
       const plansWithTasks = await Promise.all(plans.map(async (plan) => {
         const { data: tasks, error: tasksError } = await supabase
-          .from('treatment_tasks')
+          .from('treatment_plan_tasks')
           .select('*')
           .eq('plan_id', plan.id)
           .order('created_at', { ascending: true });
@@ -158,7 +157,7 @@ export const TreatmentPlanManager = () => {
       if (!session?.user?.id || !selectedPlan) throw new Error("Invalid operation");
       
       const { data, error } = await supabase
-        .from('treatment_tasks')
+        .from('treatment_plan_tasks')
         .insert({
           plan_id: selectedPlan.id,
           title: newTask.title,
@@ -198,7 +197,7 @@ export const TreatmentPlanManager = () => {
   const toggleTaskCompletionMutation = useMutation({
     mutationFn: async ({ taskId, isCompleted }: { taskId: string; isCompleted: boolean }) => {
       const { error } = await supabase
-        .from('treatment_tasks')
+        .from('treatment_plan_tasks')
         .update({ completed: isCompleted })
         .eq('id', taskId);
       
@@ -220,7 +219,7 @@ export const TreatmentPlanManager = () => {
   const deleteTaskMutation = useMutation({
     mutationFn: async (taskId: string) => {
       const { error } = await supabase
-        .from('treatment_tasks')
+        .from('treatment_plan_tasks')
         .delete()
         .eq('id', taskId);
       

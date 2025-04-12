@@ -25,6 +25,7 @@ import {
   BarChart3, 
   Brain,
   Plus,
+  UserRound,
   Users 
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";

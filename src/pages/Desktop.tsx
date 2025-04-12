@@ -3,7 +3,6 @@ import { useAuth } from "@/components/AuthProvider";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Battery, Brain, Gamepad2 } from "lucide-react";
-import { motion } from "framer-motion";
 import { GameAssetsGenerator } from "@/components/GameAssetsGenerator";
 import { MoodOverview } from "@/components/MoodOverview";
 import { ADHDTaskManager } from "@/components/focus/ADHDTaskManager";

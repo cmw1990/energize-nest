@@ -1,51 +1,36 @@
-
-// Define types for the task table missing in the default Supabase types
-export interface TasksTable {
-  Row: {
-    id: string;
-    user_id: string;
-    title: string;
-    description?: string;
-    due_date?: string;
-    priority: string; // 'urgent', 'important', 'regular', 'low'
-    status: string; // 'todo', 'in-progress', 'done'
-    created_at: string;
-    updated_at?: string;
-  };
-  Insert: {
-    id?: string;
-    user_id: string;
-    title: string;
-    description?: string;
-    due_date?: string;
-    priority?: string;
-    status?: string;
-    created_at?: string;
-    updated_at?: string;
-  };
-  Update: {
-    id?: string;
-    user_id?: string;
-    title?: string;
-    description?: string;
-    due_date?: string;
-    priority?: string;
-    status?: string;
-    created_at?: string;
-    updated_at?: string;
-  };
+export interface UserProfile {
+  id: string;
+  user_id: string;
+  full_name?: string;
+  avatar_url?: string;
+  website?: string;
+  updated_at?: string;
 }
 
-// Export a type that can be used to extend the Database interface
-export interface CustomTables {
-  tasks: TasksTable;
+export interface EnergyFocusLog {
+  id: string;
+  user_id: string;
+  activity_type: string;
+  activity_name: string;
+  duration_minutes?: number;
+  focus_rating?: number;
+  energy_rating?: number;
+  notes?: string;
+  created_at: string;
 }
 
-// Add a Task type for easier consumption
-export type Task = TasksTable['Row'];
+export interface EnergyPlan {
+  id: string;
+  user_id: string;
+  plan_name: string;
+  plan_type: string;
+  duration_minutes: number;
+  activities: Record<string, any>;
+  created_at: string;
+}
 
-// Add missing types from energyPlans.d.ts
-export type ConsultationSession = {
+// Type for consultation sessions used in client dashboards
+export interface ConsultationSession {
   id: string;
   client_id: string;
   professional_id: string;
@@ -63,51 +48,72 @@ export type ConsultationSession = {
     full_name: string;
     avatar_url: string;
   };
-};
+}
 
-export type JournalEntry = {
+// FoodItem type for nutrition tracking
+export interface FoodItem {
   id: string;
-  title: string;
-  content: string;
-  entry_type: string;
-  mood_rating: number;
-  tags: string[];
   user_id: string;
-  created_at: string;
-  updated_at: string;
-};
-
-export type FoodItem = {
-  id: string;
   food_name: string;
   calories: number;
   protein_grams: number;
   carbs_grams: number;
   fat_grams: number;
   serving_size?: string;
-  image_url?: string;
   meal_type?: string;
   meal_time?: string;
-  user_id?: string;
   notes?: string;
-  created_at?: string;
-  updated_at?: string;
-  ai_analysis?: string;
-  fiber_grams?: number;
-};
+  created_at: string;
+}
 
-export type NutritionGoals = {
+// NutritionGoals type
+export interface NutritionGoals {
   id: string;
   user_id: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  fiber: number;
-  water: number;
-  created_at?: string;
-  updated_at?: string;
-};
+  daily_calories: number;
+  daily_protein: number;
+  daily_carbs: number;
+  daily_fat: number;
+  created_at: string;
+  updated_at: string;
+}
 
-// Add missing type for Visibility
-export type Visibility = "private" | "public";
+// Task interface for use in ADHD task management and Eisenhower Matrix
+export interface Task {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string;
+  priority: 'high' | 'medium' | 'low';
+  urgency: 'urgent' | 'normal' | 'low';
+  due_date: string | null;
+  status: 'todo' | 'in_progress' | 'done';
+  estimated_minutes: number;
+  actual_minutes?: number;
+  category?: string;
+  cognitive_load_estimate?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// Journal Entry interface
+export interface JournalEntry {
+  id: string;
+  user_id: string;
+  title: string;
+  content: string;
+  mood_rating: number;
+  energy_level: number;
+  tags: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+// Visibility enum for sharing settings
+export enum Visibility {
+  PRIVATE = 'private',
+  PUBLIC = 'public',
+  SHARED = 'shared'
+}
+
+// Define other missing types that were referenced in the error message

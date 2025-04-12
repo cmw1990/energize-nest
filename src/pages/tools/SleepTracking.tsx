@@ -7,6 +7,7 @@ import { TopNav } from "@/components/layout/TopNav"
 import { ToolAnalyticsWrapper } from "@/components/tools/ToolAnalyticsWrapper"
 import { Button } from "@/components/ui/button"
 import { Moon, Sun, Calendar } from "lucide-react"
+import { assertType } from "@/utils/typeSafeUtils"
 
 type SleepEntry = {
   id: string
@@ -17,16 +18,6 @@ type SleepEntry = {
   user_id: string
   created_at: string
   updated_at: string
-}
-
-type Database = {
-  public: {
-    Tables: {
-      sleep_tracking: {
-        Row: SleepEntry
-      }
-    }
-  }
 }
 
 export default function SleepTracking() {
@@ -44,7 +35,7 @@ export default function SleepTracking() {
         return []
       }
       
-      return (data || []) as SleepEntry[]
+      return assertType<SleepEntry[]>(data || [])
     }
   })
 
