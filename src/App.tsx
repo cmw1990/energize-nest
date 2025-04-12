@@ -20,6 +20,9 @@ import Nutrition from './pages/Nutrition';
 import BrainGames from './pages/BrainGames';
 import ProductivityDashboard from './pages/ProductivityDashboard';
 import WebTools from './pages/WebTools';
+import LandingPage from './pages/LandingPage';
+import WhyUs from './pages/WhyUs';
+import Auth from './pages/Auth';
 import NotFound from './components/NotFound';
 
 // Create a client
@@ -40,7 +43,7 @@ function App() {
       <ThemeProvider defaultTheme="light" storageKey="wellness-ui-theme">
         <AuthProvider>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/" element={<LandingPage />} />
             <Route path="/app" element={<Dashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/desktop" element={<Desktop />} />
@@ -59,6 +62,8 @@ function App() {
             <Route path="/brain-games" element={<BrainGames />} />
             <Route path="/productivity" element={<ProductivityDashboard />} />
             <Route path="/web-tools/*" element={<WebTools />} />
+            <Route path="/why-us" element={<WhyUs />} />
+            <Route path="/auth" element={<Auth />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

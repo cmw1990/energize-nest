@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -153,8 +153,15 @@ const Auth = () => {
             </TabsContent>
           </Tabs>
         </CardContent>
-        <CardFooter className="text-sm text-muted-foreground text-center">
-          By continuing, you agree to our Terms of Service and Privacy Policy.
+        <CardFooter className="flex flex-col space-y-4">
+          <div className="text-sm text-muted-foreground text-center">
+            By continuing, you agree to our Terms of Service and Privacy Policy.
+          </div>
+          <Link to="/" className="w-full">
+            <Button variant="outline" className="w-full">
+              Return to Landing Page
+            </Button>
+          </Link>
         </CardFooter>
       </Card>
     </div>
