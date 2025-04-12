@@ -62,7 +62,7 @@ const Layout = ({ children }: LayoutProps) => {
         title: "Signed out successfully",
         description: "Come back soon!",
       });
-      navigate("/auth");
+      navigate("/");
     } catch (error) {
       toast({
         title: "Error signing out",
@@ -93,6 +93,15 @@ const Layout = ({ children }: LayoutProps) => {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
+  // Redirect to auth if not logged in for protected routes
+  useEffect(() => {
+    if (!session) {
+      // We'll handle this in the AuthProvider now, so no need to redirect here
+      return;
+    }
+  }, [session, navigate]);
+
+  // If no session, just render children without the app layout
   if (!session) {
     return <div className="min-h-screen">{children || <Outlet />}</div>;
   }

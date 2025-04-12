@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom"
 import { ArrowRight, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -31,6 +30,7 @@ const LandingPage = () => {
         </div>
       </header>
 
+      {/* Keep the rest of the content the same */}
       {/* Hero Section */}
       <section className="container mx-auto px-6 pt-12 pb-16 text-center">
         <h1 className="text-4xl md:text-6xl font-bold text-primary mb-12 max-w-4xl mx-auto">

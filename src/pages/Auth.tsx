@@ -15,12 +15,14 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Check if user is already logged in
+  // Modified to prevent automatic redirects from the auth page
   useEffect(() => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate("/app");
+      // Only redirect if there's an active session AND we came from a protected route
+      if (session && localStorage.getItem("redirectAfterAuth")) {
+        navigate(localStorage.getItem("redirectAfterAuth") || "/app");
+        localStorage.removeItem("redirectAfterAuth");
       }
     };
     checkUser();
@@ -82,7 +84,11 @@ const Auth = () => {
       });
 
       if (error) throw error;
-      navigate("/app");
+      
+      // Get redirect target or default to app
+      const redirectTo = localStorage.getItem("redirectAfterAuth") || "/app";
+      localStorage.removeItem("redirectAfterAuth");
+      navigate(redirectTo);
     } catch (error) {
       toast({
         title: "Error",

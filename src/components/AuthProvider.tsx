@@ -1,6 +1,6 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -27,11 +27,15 @@ export const useAuth = () => {
   return context;
 };
 
+// Define public routes that don't require authentication
+const PUBLIC_ROUTES = ['/', '/auth', '/why-us'];
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
 
   // Fetch user role
@@ -73,17 +77,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [roleData]);
 
   useEffect(() => {
+    // Check if current route requires authentication
+    const requiresAuth = !PUBLIC_ROUTES.includes(location.pathname);
+    
     // Refresh token function
     const refreshToken = async () => {
       const { data: { session: newSession }, error } = await supabase.auth.refreshSession();
       if (error) {
         console.error('Error refreshing token:', error);
-        toast({
-          title: "Session Error",
-          description: "Please sign in again",
-          variant: "destructive",
-        });
-        navigate("/auth");
+        
+        // Only redirect to auth if we're on a protected route
+        if (requiresAuth) {
+          toast({
+            title: "Session Error",
+            description: "Please sign in again",
+            variant: "destructive",
+          });
+          localStorage.setItem("redirectAfterAuth", location.pathname);
+          navigate("/auth");
+        }
       } else if (newSession) {
         setSession(newSession);
         if (newSession.user?.id) {
@@ -100,6 +112,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
       setLoading(false);
 
+      // If no session and on a protected route, redirect to auth
+      if (!session && requiresAuth) {
+        localStorage.setItem("redirectAfterAuth", location.pathname);
+        navigate("/auth");
+      }
+
       // Set up token refresh interval
       const tokenRefreshInterval = setInterval(() => {
         if (session) {
@@ -111,11 +129,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }).catch((error) => {
       console.error("Error getting session:", error);
       setLoading(false);
-      toast({
-        title: "Authentication Error",
-        description: "Please try logging in again",
-        variant: "destructive",
-      });
+      if (requiresAuth) {
+        toast({
+          title: "Authentication Error",
+          description: "Please try logging in again",
+          variant: "destructive",
+        });
+        navigate("/auth");
+      }
     });
 
     // Listen for auth changes
@@ -123,15 +144,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
-      if (!session) {
+      if (!session && requiresAuth) {
+        localStorage.setItem("redirectAfterAuth", location.pathname);
         navigate("/auth");
-      } else if (session.user?.id) {
+      } else if (session?.user?.id) {
         initializeUserSettings(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, toast]);
+  }, [navigate, toast, location.pathname]);
 
   return (
     <>
