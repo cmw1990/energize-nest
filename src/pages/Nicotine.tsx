@@ -1,641 +1,588 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+import React, { useState } from 'react';
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import { NicotineIntakeForm } from "@/components/nicotine/NicotineIntakeForm";
-import { NicotineHistory } from "@/components/nicotine/NicotineHistory";
-import { NicotineChart } from "@/components/nicotine/NicotineChart";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { 
-  Tabs, 
-  TabsList, 
-  TabsTrigger, 
-  TabsContent 
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { 
-  Info, 
-  ArrowUpRight, 
-  Cigarette, 
-  TrendingDown, 
-  Activity, 
-  BarChart3, 
-  Brain,
-  Plus,
-  UserRound,
-  Users 
-} from "lucide-react";
+import { NicotineTracker } from "@/components/nicotine/NicotineTracker";
+import { NicotineChart } from "@/components/nicotine/NicotineChart";
+import { Cigarette, BarChart, Clock, Leaf, Flag, Calendar, Target, ExternalLink } from "lucide-react";
+import { format, subDays } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { format, parseISO, subDays } from "date-fns";
+import { Progress } from "@/components/ui/progress";
 import { useNavigate } from "react-router-dom";
-
-interface NicotineLog {
-  id: string;
-  user_id: string;
-  nicotine_type: string;
-  product_name?: string;
-  amount: number;
-  unit: string;
-  energy_impact: number;
-  mood_impact: number;
-  cravings_before: number;
-  urge_triggers?: string[];
-  location?: string;
-  notes?: string;
-  created_at: string;
-}
-
-interface NicotineStats {
-  daily_average: number;
-  weekly_trend: number;
-  most_common_trigger: string;
-  most_common_location: string;
-  days_tracked: number;
-  total_logged: number;
-}
 
 const Nicotine = () => {
   const { session } = useAuth();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState("intake");
   const navigate = useNavigate();
-
-  // Fetch nicotine logs
-  const { data: nicotineLogs, isLoading: isLogsLoading } = useQuery({
-    queryKey: ["nicotineLogs", session?.user?.id],
+  const [timeRange, setTimeRange] = useState<"week" | "month" | "3months">("week");
+  
+  const startDate = React.useMemo(() => {
+    let days = 7;
+    if (timeRange === "month") days = 30;
+    if (timeRange === "3months") days = 90;
+    
+    return format(subDays(new Date(), days), "yyyy-MM-dd");
+  }, [timeRange]);
+  
+  const { data: nicotineLogs, isLoading: logsLoading } = useQuery({
+    queryKey: ['nicotine-chart-data', timeRange],
     queryFn: async () => {
       if (!session?.user?.id) return [];
-
+      
       const { data, error } = await supabase
-        .from("nicotine_logs")
-        .select("*")
-        .eq("user_id", session.user.id)
-        .order("created_at", { ascending: false })
-        .limit(50);
-
+        .from('nicotine_logs')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .gte('date', startDate)
+        .order('date', { ascending: true });
+      
       if (error) throw error;
-      return data as NicotineLog[];
+      
+      // Process data for chart
+      return data?.map(log => ({
+        date: format(new Date(log.date), 'MM/dd'),
+        amount: log.amount,
+        energy: log.energy_impact,
+        mood: log.mood_impact
+      })) || [];
     },
     enabled: !!session?.user?.id,
   });
-
-  // Calculate nicotine stats
-  const { data: nicotineStats, isLoading: isStatsLoading } = useQuery({
-    queryKey: ["nicotineStats", session?.user?.id],
+  
+  const { data: quitAttempt } = useQuery({
+    queryKey: ['quit-attempt'],
     queryFn: async () => {
-      if (!session?.user?.id || !nicotineLogs || nicotineLogs.length === 0) {
-        return {
-          daily_average: 0,
-          weekly_trend: 0,
-          most_common_trigger: "None",
-          most_common_location: "None",
-          days_tracked: 0,
-          total_logged: 0
-        };
-      }
-
-      // Group logs by date
-      const logsByDate = nicotineLogs.reduce((acc, log) => {
-        const date = new Date(log.created_at).toISOString().split('T')[0];
-        if (!acc[date]) acc[date] = [];
-        acc[date].push(log);
-        return acc;
-      }, {} as Record<string, NicotineLog[]>);
+      if (!session?.user?.id) return null;
       
-      // Calculate daily averages
-      const dailyTotals = Object.values(logsByDate).map(logs => 
-        logs.reduce((sum, log) => sum + log.amount, 0)
-      );
+      const { data, error } = await supabase
+        .from('quit_attempts')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .order('start_date', { ascending: false })
+        .limit(1)
+        .maybeSingle();
       
-      const dailyAverage = dailyTotals.length > 0 
-        ? dailyTotals.reduce((sum, total) => sum + total, 0) / dailyTotals.length
-        : 0;
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!session?.user?.id,
+  });
+  
+  const { data: usageSummary } = useQuery({
+    queryKey: ['nicotine-summary', timeRange],
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
       
-      // Calculate weekly trend (positive means reduction)
-      const today = new Date();
-      const lastWeek = subDays(today, 7);
+      const { data, error } = await supabase
+        .from('nicotine_logs')
+        .select('amount, product_type, energy_impact, mood_impact')
+        .eq('user_id', session.user.id)
+        .gte('date', startDate);
       
-      const recentLogs = nicotineLogs.filter(log => 
-        new Date(log.created_at) >= lastWeek
-      );
+      if (error) throw error;
       
-      const olderLogs = nicotineLogs.filter(log => 
-        new Date(log.created_at) < lastWeek && 
-        new Date(log.created_at) >= subDays(lastWeek, 7)
-      );
+      if (!data || data.length === 0) return null;
       
-      const recentAvg = recentLogs.length > 0 
-        ? recentLogs.reduce((sum, log) => sum + log.amount, 0) / recentLogs.length
-        : 0;
-        
-      const olderAvg = olderLogs.length > 0 
-        ? olderLogs.reduce((sum, log) => sum + log.amount, 0) / olderLogs.length
-        : 0;
+      // Calculate summary
+      const totalAmount = data.reduce((sum, log) => sum + (log.amount || 0), 0);
+      const avgEnergy = data.reduce((sum, log) => sum + (log.energy_impact || 5), 0) / data.length;
+      const avgMood = data.reduce((sum, log) => sum + (log.mood_impact || 5), 0) / data.length;
       
-      const weeklyTrend = olderAvg > 0 
-        ? ((olderAvg - recentAvg) / olderAvg) * 100
-        : 0;
-      
-      // Find most common trigger
-      const triggerCounts = nicotineLogs
-        .filter(log => log.urge_triggers && log.urge_triggers.length > 0)
-        .flatMap(log => log.urge_triggers)
-        .reduce((acc, trigger) => {
-          acc[trigger as string] = (acc[trigger as string] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>);
-      
-      const mostCommonTrigger = Object.entries(triggerCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "None";
-      
-      // Find most common location
-      const locationCounts = nicotineLogs
-        .filter(log => log.location)
-        .reduce((acc, log) => {
-          acc[log.location as string] = (acc[log.location as string] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>);
-      
-      const mostCommonLocation = Object.entries(locationCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "None";
+      // Group by product type
+      const productTypes: Record<string, number> = {};
+      data.forEach(log => {
+        const type = log.product_type || 'unknown';
+        productTypes[type] = (productTypes[type] || 0) + (log.amount || 0);
+      });
       
       return {
-        daily_average: Math.round(dailyAverage * 10) / 10,
-        weekly_trend: Math.round(weeklyTrend * 10) / 10,
-        most_common_trigger: mostCommonTrigger,
-        most_common_location: mostCommonLocation,
-        days_tracked: Object.keys(logsByDate).length,
-        total_logged: nicotineLogs.length
+        totalAmount,
+        avgEnergy,
+        avgMood,
+        productTypes,
+        daysLogged: new Set(data.map(log => log.date)).size
       };
     },
-    enabled: !!session?.user?.id && !!nicotineLogs,
+    enabled: !!session?.user?.id,
   });
-
-  // Get chart data formatted for recharts
-  const { data: chartData, isLoading: isChartLoading } = useQuery({
-    queryKey: ["nicotineChartData", session?.user?.id],
-    queryFn: async () => {
-      if (!session?.user?.id || !nicotineLogs) return [];
-
-      // Group logs by date
-      const logsByDate = nicotineLogs.reduce((acc, log) => {
-        const date = new Date(log.created_at).toISOString().split('T')[0];
-        if (!acc[date]) {
-          acc[date] = {
-            date,
-            amount: 0,
-            energy: 0,
-            mood: 0,
-            count: 0
-          };
-        }
-        acc[date].amount += log.amount;
-        acc[date].energy += log.energy_impact;
-        acc[date].mood += log.mood_impact;
-        acc[date].count += 1;
-        return acc;
-      }, {} as Record<string, { date: string; amount: number; energy: number; mood: number; count: number }>);
-
-      // Calculate averages and format for chart
-      return Object.values(logsByDate)
-        .map(day => ({
-          date: format(parseISO(day.date), 'MMM dd'),
-          amount: Math.round(day.amount * 10) / 10,
-          energy: Math.round((day.energy / day.count) * 10) / 10,
-          mood: Math.round((day.mood / day.count) * 10) / 10
-        }))
-        .sort((a, b) => {
-          const dateA = parseISO(a.date);
-          const dateB = parseISO(b.date);
-          return dateA.getTime() - dateB.getTime();
-        });
-    },
-    enabled: !!session?.user?.id && !!nicotineLogs,
-  });
-
-  // Log nicotine use
-  const logNicotineMutation = useMutation({
-    mutationFn: async (values: {
-      nicotineType: string;
-      productName?: string;
-      amount: string;
-      unit: string;
-      energyImpact: number;
-      moodImpact: number;
-      cravingsBefore: number;
-      urgeTriggers?: string;
-      location?: string;
-      notes?: string;
-    }) => {
-      if (!session?.user?.id) throw new Error("Not authenticated");
-
-      const { error } = await supabase.from("nicotine_logs").insert({
-        user_id: session.user.id,
-        nicotine_type: values.nicotineType,
-        product_name: values.productName || null,
-        amount: parseFloat(values.amount),
-        unit: values.unit,
-        energy_impact: values.energyImpact,
-        mood_impact: values.moodImpact,
-        cravings_before: values.cravingsBefore,
-        urge_triggers: values.urgeTriggers ? values.urgeTriggers.split(',').map(t => t.trim()) : null,
-        location: values.location || null,
-        notes: values.notes || null,
-      });
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["nicotineLogs"] });
-      queryClient.invalidateQueries({ queryKey: ["nicotineStats"] });
-      queryClient.invalidateQueries({ queryKey: ["nicotineChartData"] });
-      
-      toast({
-        title: "Success",
-        description: "Nicotine intake logged successfully",
-      });
-      
-      setActiveTab("trends");
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to log nicotine intake",
-        variant: "destructive",
-      });
-      console.error("Error logging nicotine:", error);
-    },
-  });
-
-  // Delete log entry
-  const deleteLogMutation = useMutation({
-    mutationFn: async (logId: string) => {
-      const { error } = await supabase
-        .from("nicotine_logs")
-        .delete()
-        .eq("id", logId);
-      
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["nicotineLogs"] });
-      queryClient.invalidateQueries({ queryKey: ["nicotineStats"] });
-      queryClient.invalidateQueries({ queryKey: ["nicotineChartData"] });
-      
-      toast({
-        title: "Log deleted",
-        description: "Nicotine log entry has been deleted",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to delete log entry",
-        variant: "destructive",
-      });
-      console.error("Error deleting log:", error);
-    },
-  });
-
-  const handleSubmit = (values: {
-    nicotineType: string;
-    productName?: string;
-    amount: string;
-    unit: string;
-    energyImpact: number;
-    moodImpact: number;
-    cravingsBefore: number;
-    urgeTriggers?: string;
-    location?: string;
-    notes?: string;
-  }) => {
-    if (!values.amount || parseFloat(values.amount) <= 0) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid amount",
-        variant: "destructive",
-      });
-      return;
+  
+  const calculateDaysSince = () => {
+    if (!quitAttempt) return 0;
+    const startDate = new Date(quitAttempt.start_date);
+    const today = new Date();
+    const diffTime = Math.abs(today.getTime() - startDate.getTime());
+    return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  };
+  
+  const daysSinceQuit = calculateDaysSince();
+  
+  const getMilestoneProgress = () => {
+    if (!daysSinceQuit) return { current: 0, next: 1, progress: 0 };
+    
+    const milestones = [1, 3, 7, 14, 30, 60, 90, 180, 365];
+    let current = 0;
+    let next = milestones[0];
+    
+    for (let i = milestones.length - 1; i >= 0; i--) {
+      if (daysSinceQuit >= milestones[i]) {
+        current = milestones[i];
+        next = milestones[i + 1] || current * 2;
+        break;
+      }
     }
     
-    logNicotineMutation.mutate(values);
-  };
-
-  const handleDeleteLog = (logId: string) => {
-    if (window.confirm("Are you sure you want to delete this log entry?")) {
-      deleteLogMutation.mutate(logId);
+    // If not yet reached first milestone
+    if (current === 0) {
+      current = 0;
+      next = milestones[0];
     }
+    
+    const progress = ((daysSinceQuit - current) / (next - current)) * 100;
+    return { current, next, progress: Math.min(100, Math.max(0, progress)) };
   };
-
-  const getTrendDirection = () => {
-    if (!nicotineStats || nicotineStats.weekly_trend === 0) return "neutral";
-    return nicotineStats.weekly_trend > 0 ? "positive" : "negative";
-  };
-
-  return (
-    <div className="container mx-auto p-4 space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Nicotine Tracker</h1>
-          <p className="text-muted-foreground">
-            Track your nicotine consumption patterns to make informed decisions
-          </p>
-        </div>
-        <Button onClick={() => setActiveTab("intake")}>
-          <Plus className="mr-2 h-4 w-4" />
-          Log Intake
-        </Button>
+  
+  const renderProductTypeSummary = () => {
+    if (!usageSummary || !usageSummary.productTypes) return null;
+    
+    const types = Object.entries(usageSummary.productTypes).sort((a, b) => b[1] - a[1]);
+    
+    return (
+      <div className="space-y-2">
+        {types.map(([type, count]) => (
+          <div key={type} className="flex items-center justify-between">
+            <span className="text-sm capitalize">{type}</span>
+            <Badge variant="outline">{count}</Badge>
+          </div>
+        ))}
       </div>
-
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertTitle>Health Advisory</AlertTitle>
-        <AlertDescription>
-          While we understand nicotine use is a personal choice, we recommend considering safer alternatives or gradual reduction. 
-          Oral nicotine products are generally safer than smoking. Consider speaking with a healthcare provider about nicotine replacement therapy.
-        </AlertDescription>
-      </Alert>
-
-      {!isStatsLoading && nicotineStats && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-base font-medium">Daily Average</CardTitle>
-                <Cigarette className="h-4 w-4 text-muted-foreground" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {nicotineStats.daily_average} {nicotineLogs?.[0]?.unit || 'units'}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Based on {nicotineStats.days_tracked} days tracked
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-base font-medium">Weekly Trend</CardTitle>
-                <TrendingDown className="h-4 w-4 text-muted-foreground" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className={`text-2xl font-bold ${
-                getTrendDirection() === 'positive' 
-                  ? 'text-green-500' 
-                  : getTrendDirection() === 'negative'
-                    ? 'text-red-500'
-                    : ''
-              }`}>
-                {nicotineStats.weekly_trend > 0 ? '↓ ' : nicotineStats.weekly_trend < 0 ? '↑ ' : ''}
-                {Math.abs(nicotineStats.weekly_trend)}%
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {nicotineStats.weekly_trend > 0 
-                  ? 'Decreasing usage - Great job!' 
-                  : nicotineStats.weekly_trend < 0
-                    ? 'Increasing usage - Need support?'
-                    : 'No change in usage pattern'}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-base font-medium">Top Trigger</CardTitle>
-                <Brain className="h-4 w-4 text-muted-foreground" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-lg font-medium">
-                {nicotineStats.most_common_trigger}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Most common reason for cravings
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-base font-medium">Total Tracked</CardTitle>
-                <BarChart3 className="h-4 w-4 text-muted-foreground" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {nicotineStats.total_logged} entries
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Across {nicotineStats.days_tracked} days
-              </p>
-            </CardContent>
-          </Card>
+    );
+  };
+  
+  const getTriggerToAvoid = () => {
+    return "Stress/Anxiety";
+  };
+  
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Nicotine Tracker</h1>
+        <div className="flex items-center gap-2 text-primary">
+          <Leaf className="h-5 w-5" />
+          <span className="font-medium">Mission Fresh</span>
         </div>
+      </div>
+      
+      {quitAttempt && (
+        <Card className="border-green-200 dark:border-green-900 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div className="space-y-2">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <Flag className="h-5 w-5 text-green-600" />
+                  <span>Quit Journey</span>
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  You started your fresh journey on {format(new Date(quitAttempt.start_date), "MMMM d, yyyy")}
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="rounded-full border-4 border-primary w-16 h-16 flex items-center justify-center bg-white dark:bg-background">
+                  <span className="text-xl font-bold">{daysSinceQuit}</span>
+                </div>
+                <div>
+                  <div className="font-medium">Days</div>
+                  <div className="text-sm text-muted-foreground">Fresh & Free</div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-6 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Current: {getMilestoneProgress().current} days</span>
+                <span>Next: {getMilestoneProgress().next} days</span>
+              </div>
+              <Progress value={getMilestoneProgress().progress} className="h-2" />
+            </div>
+          </CardContent>
+        </Card>
       )}
-
-      <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="intake">Log Intake</TabsTrigger>
-          <TabsTrigger value="history">History</TabsTrigger>
-          <TabsTrigger value="trends">Trends</TabsTrigger>
+      
+      <Tabs defaultValue="track" className="space-y-6">
+        <TabsList className="grid w-full max-w-md mx-auto grid-cols-3">
+          <TabsTrigger value="track" className="flex items-center gap-2">
+            <Cigarette className="h-4 w-4" />
+            <span>Track</span>
+          </TabsTrigger>
+          <TabsTrigger value="stats" className="flex items-center gap-2">
+            <BarChart className="h-4 w-4" />
+            <span>Analytics</span>
+          </TabsTrigger>
+          <TabsTrigger value="progress" className="flex items-center gap-2">
+            <Target className="h-4 w-4" />
+            <span>Goals</span>
+          </TabsTrigger>
         </TabsList>
-
-        <TabsContent value="intake" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Log Nicotine Intake</CardTitle>
-              <CardDescription>
-                Record your nicotine use to track patterns and identify triggers
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <NicotineIntakeForm onSubmit={handleSubmit} isSubmitting={logNicotineMutation.isPending} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="history" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent History</CardTitle>
-              <CardDescription>
-                Your nicotine intake over time
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <NicotineHistory 
-                history={nicotineLogs || []} 
-                isLoading={isLogsLoading}
-                onDelete={handleDeleteLog}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="trends" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Nicotine Intake Trends</CardTitle>
-              <CardDescription>
-                Visualize your nicotine usage patterns over time
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="h-80">
-              <NicotineChart 
-                data={chartData || []} 
-                isLoading={isChartLoading} 
-              />
-            </CardContent>
-          </Card>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Impact on Energy</CardTitle>
-                <CardDescription>
-                  How nicotine affects your energy levels
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {!isLogsLoading && nicotineLogs && nicotineLogs.length > 0 ? (
-                  <>
-                    <div className="flex items-center justify-between">
-                      <span>Average Energy Impact:</span>
-                      <Badge variant={
-                        nicotineLogs.reduce((sum, log) => sum + log.energy_impact, 0) / nicotineLogs.length > 5
-                          ? "default"
-                          : "destructive"
-                      }>
-                        {(nicotineLogs.reduce((sum, log) => sum + log.energy_impact, 0) / nicotineLogs.length).toFixed(1)}/10
-                      </Badge>
+        
+        <TabsContent value="track" className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <NicotineTracker />
+            
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5 text-primary" />
+                    Recent Activity
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {logsLoading ? (
+                    <div className="py-8 text-center text-muted-foreground">
+                      Loading your recent logs...
                     </div>
-                    <Progress value={
-                      (nicotineLogs.reduce((sum, log) => sum + log.energy_impact, 0) / nicotineLogs.length) * 10
-                    } />
+                  ) : nicotineLogs && nicotineLogs.length > 0 ? (
+                    <div className="space-y-4">
+                      <div className="flex justify-between text-sm font-medium">
+                        <span>Date</span>
+                        <span>Amount</span>
+                      </div>
+                      {nicotineLogs.slice(0, 5).map((log, index) => (
+                        <div key={index} className="flex justify-between items-center py-2 border-b border-border last:border-0">
+                          <span>{log.date}</span>
+                          <Badge variant="outline">{log.amount}</Badge>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-8 text-center text-muted-foreground">
+                      No recent nicotine logs found. Start tracking to see your data here.
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+              
+              {!quitAttempt && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Flag className="h-5 w-5 text-primary" />
+                      Ready to Go Fresh?
+                    </CardTitle>
+                    <CardDescription>Set a quit date to start your journey</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
                     <p className="text-sm text-muted-foreground">
-                      {nicotineLogs.reduce((sum, log) => sum + log.energy_impact, 0) / nicotineLogs.length > 5
-                        ? "Nicotine appears to positively impact your energy levels overall."
-                        : "Nicotine seems to have a limited or negative effect on your energy."}
+                      Setting a quit date is the first step to a fresher lifestyle. Our app will provide you with all the tools and support you need on your journey.
                     </p>
-                  </>
-                ) : (
-                  <p className="text-center text-muted-foreground">Log your nicotine use to see energy impact data</p>
-                )}
+                    <Button className="w-full">Set Quit Date</Button>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="stats" className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-3">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Cigarette className="h-5 w-5 text-red-500" />
+                  Usage Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Total Tracked</span>
+                      <span className="text-2xl font-bold">{usageSummary?.totalAmount || 0}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Days Logged</span>
+                      <span className="font-medium">{usageSummary?.daysLogged || 0}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Daily Average</span>
+                      <span className="font-medium">
+                        {usageSummary ? (usageSummary.totalAmount / usageSummary.daysLogged).toFixed(1) : "0"}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium">By Product Type</h4>
+                    {renderProductTypeSummary()}
+                  </div>
+                </div>
               </CardContent>
             </Card>
-
+            
             <Card>
-              <CardHeader>
-                <CardTitle>Impact on Mood</CardTitle>
-                <CardDescription>
-                  How nicotine affects your mood
-                </CardDescription>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Target className="h-5 w-5 text-indigo-500" />
+                  Primary Trigger
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {!isLogsLoading && nicotineLogs && nicotineLogs.length > 0 ? (
-                  <>
-                    <div className="flex items-center justify-between">
-                      <span>Average Mood Impact:</span>
-                      <Badge variant={
-                        nicotineLogs.reduce((sum, log) => sum + log.mood_impact, 0) / nicotineLogs.length > 5
-                          ? "default"
-                          : "destructive"
-                      }>
-                        {(nicotineLogs.reduce((sum, log) => sum + log.mood_impact, 0) / nicotineLogs.length).toFixed(1)}/10
-                      </Badge>
-                    </div>
-                    <Progress value={
-                      (nicotineLogs.reduce((sum, log) => sum + log.mood_impact, 0) / nicotineLogs.length) * 10
-                    } />
-                    <p className="text-sm text-muted-foreground">
-                      {nicotineLogs.reduce((sum, log) => sum + log.mood_impact, 0) / nicotineLogs.length > 5
-                        ? "Nicotine appears to positively impact your mood overall."
-                        : "Nicotine seems to have a limited or negative effect on your mood."}
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="rounded-lg bg-muted p-4">
+                    <p className="font-medium">{getTriggerToAvoid()}</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Your most common trigger during this period
                     </p>
-                  </>
-                ) : (
-                  <p className="text-center text-muted-foreground">Log your nicotine use to see mood impact data</p>
-                )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium">Recommendation</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Try a 5-minute breathing exercise when you feel stressed instead of reaching for nicotine.
+                    </p>
+                    <Button 
+                      variant="link" 
+                      className="p-0 h-6" 
+                      onClick={() => navigate("/app/breathing")}
+                    >
+                      Try breathing exercises →
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Leaf className="h-5 w-5 text-green-500" />
+                  Wellbeing Impact
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Energy Levels</span>
+                      <span className="font-medium">
+                        {usageSummary ? usageSummary.avgEnergy.toFixed(1) : "5"}/10
+                      </span>
+                    </div>
+                    <Progress value={usageSummary ? (usageSummary.avgEnergy / 10) * 100 : 50} className="h-2" />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Mood Impact</span>
+                      <span className="font-medium">
+                        {usageSummary ? usageSummary.avgMood.toFixed(1) : "5"}/10
+                      </span>
+                    </div>
+                    <Progress value={usageSummary ? (usageSummary.avgMood / 10) * 100 : 50} className="h-2" />
+                  </div>
+                  
+                  <div className="rounded-lg bg-muted p-3">
+                    <p className="text-sm text-muted-foreground">
+                      {usageSummary?.avgEnergy > 7 ? 
+                        "Nicotine appears to be improving your energy levels. Consider gradually reducing usage while maintaining energy through other means." : 
+                        "Your energy levels may improve by reducing nicotine and focusing on natural energy boosters like exercise and proper sleep."}
+                    </p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
-
+          
           <Card>
             <CardHeader>
-              <CardTitle>Support Resources</CardTitle>
-              <CardDescription>
-                Tools and resources to help you manage your nicotine use
-              </CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart className="h-5 w-5 text-primary" />
+                Usage Patterns
+              </CardTitle>
+              <div className="flex items-center gap-2 mt-2">
+                <Button
+                  variant={timeRange === "week" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setTimeRange("week")}
+                >
+                  Week
+                </Button>
+                <Button
+                  variant={timeRange === "month" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setTimeRange("month")}
+                >
+                  Month
+                </Button>
+                <Button
+                  variant={timeRange === "3months" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setTimeRange("3months")}
+                >
+                  3 Months
+                </Button>
+              </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 border rounded-lg">
-                  <h3 className="font-semibold mb-2 flex items-center">
-                    <Activity className="h-4 w-4 mr-2" />
-                    Exercise
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Physical activity can reduce nicotine cravings and withdrawal symptoms.
-                  </p>
-                  <Button variant="link" className="p-0 h-auto mt-2" asChild>
-                    <a href="/exercise" className="flex items-center">
-                      View Exercises
-                      <ArrowUpRight className="ml-1 h-3 w-3" />
-                    </a>
-                  </Button>
-                </div>
-                
-                <div className="p-4 border rounded-lg">
-                  <h3 className="font-semibold mb-2 flex items-center">
-                    <Brain className="h-4 w-4 mr-2" />
-                    Mindfulness
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Meditation and breathing exercises can help manage cravings.
-                  </p>
-                  <Button variant="link" className="p-0 h-auto mt-2" asChild>
-                    <a href="/meditation" className="flex items-center">
-                      Try Meditation
-                      <ArrowUpRight className="ml-1 h-3 w-3" />
-                    </a>
-                  </Button>
-                </div>
-                
-                <div className="p-4 border rounded-lg">
-                  <h3 className="font-semibold mb-2 flex items-center">
-                    <Users className="h-4 w-4 mr-2" />
-                    Support
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Connect with others who are managing or quitting nicotine use.
-                  </p>
-                  <Button variant="link" className="p-0 h-auto mt-2" asChild>
-                    <a href="/sobriety/support" className="flex items-center">
-                      Get Support
-                      <ArrowUpRight className="ml-1 h-3 w-3" />
-                    </a>
-                  </Button>
-                </div>
+            <CardContent>
+              <div className="h-[350px]">
+                <NicotineChart data={nicotineLogs || []} isLoading={logsLoading} />
               </div>
             </CardContent>
-            <CardFooter>
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => navigate('/sobriety')}
-              >
-                View Comprehensive Sobriety Tools
-              </Button>
-            </CardFooter>
           </Card>
+        </TabsContent>
+        
+        <TabsContent value="progress" className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Flag className="h-5 w-5 text-primary" />
+                  Your Journey
+                </CardTitle>
+                <CardDescription>Track your progress toward a fresher life</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {quitAttempt ? (
+                  <div className="space-y-6">
+                    <div className="space-y-2 text-center">
+                      <div className="text-4xl font-bold">{daysSinceQuit}</div>
+                      <div className="text-muted-foreground">Days Fresh</div>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <h4 className="font-medium">Health Benefits Timeline</h4>
+                      <div className="space-y-4">
+                        <div className={`p-3 rounded-lg ${daysSinceQuit >= 1 ? 'bg-green-50 dark:bg-green-900/20' : 'bg-muted'}`}>
+                          <div className="flex items-center gap-2">
+                            <Clock className={`h-4 w-4 ${daysSinceQuit >= 1 ? 'text-green-500' : 'text-muted-foreground'}`} />
+                            <span className="font-medium">20 minutes - 1 day</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Heart rate and blood pressure begin to drop
+                          </p>
+                        </div>
+                        
+                        <div className={`p-3 rounded-lg ${daysSinceQuit >= 2 ? 'bg-green-50 dark:bg-green-900/20' : 'bg-muted'}`}>
+                          <div className="flex items-center gap-2">
+                            <Clock className={`h-4 w-4 ${daysSinceQuit >= 2 ? 'text-green-500' : 'text-muted-foreground'}`} />
+                            <span className="font-medium">2-3 days</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Carbon monoxide levels in blood drop to normal
+                          </p>
+                        </div>
+                        
+                        <div className={`p-3 rounded-lg ${daysSinceQuit >= 14 ? 'bg-green-50 dark:bg-green-900/20' : 'bg-muted'}`}>
+                          <div className="flex items-center gap-2">
+                            <Clock className={`h-4 w-4 ${daysSinceQuit >= 14 ? 'text-green-500' : 'text-muted-foreground'}`} />
+                            <span className="font-medium">2 weeks</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Circulation and lung function improve
+                          </p>
+                        </div>
+                        
+                        <div className={`p-3 rounded-lg ${daysSinceQuit >= 30 ? 'bg-green-50 dark:bg-green-900/20' : 'bg-muted'}`}>
+                          <div className="flex items-center gap-2">
+                            <Clock className={`h-4 w-4 ${daysSinceQuit >= 30 ? 'text-green-500' : 'text-muted-foreground'}`} />
+                            <span className="font-medium">1 month</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Many smoking-related symptoms improve
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground mb-4">
+                      Set a quit date to begin tracking your fresh journey
+                    </p>
+                    <Button>Start Your Fresh Journey</Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Leaf className="h-5 w-5 text-primary" />
+                  Resources & Support
+                </CardTitle>
+                <CardDescription>Tools to help you stay fresh</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div className="p-3 rounded-lg bg-muted">
+                    <h3 className="font-medium flex items-center gap-2">
+                      <Battery className="h-4 w-4 text-green-500" />
+                      Energy Support
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Tools to manage energy levels during cravings
+                    </p>
+                    <Button 
+                      variant="link" 
+                      className="p-0 h-6 mt-1" 
+                      onClick={() => navigate("/app/focus")}
+                    >
+                      Access energy tools →
+                    </Button>
+                  </div>
+                  
+                  <div className="p-3 rounded-lg bg-muted">
+                    <h3 className="font-medium flex items-center gap-2">
+                      <Brain className="h-4 w-4 text-indigo-500" />
+                      Focus Enhancement
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Improve concentration without nicotine
+                    </p>
+                    <Button 
+                      variant="link" 
+                      className="p-0 h-6 mt-1" 
+                      onClick={() => navigate("/app/focus")}
+                    >
+                      Access focus tools →
+                    </Button>
+                  </div>
+                  
+                  <div className="p-3 rounded-lg bg-muted">
+                    <h3 className="font-medium flex items-center gap-2">
+                      <Wind className="h-4 w-4 text-blue-500" />
+                      Craving Management
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Breathing techniques to reduce cravings
+                    </p>
+                    <Button 
+                      variant="link" 
+                      className="p-0 h-6 mt-1" 
+                      onClick={() => navigate("/app/breathing")}
+                    >
+                      Try breathing exercises →
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="p-4 rounded-lg border border-primary/10">
+                  <h3 className="font-medium mb-2">Need Additional Support?</h3>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Connect with professionals who specialize in nicotine cessation
+                  </p>
+                  <Button className="w-full" variant="outline">
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Find Specialists
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

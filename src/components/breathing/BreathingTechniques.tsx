@@ -1,21 +1,13 @@
-import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Wind } from "lucide-react";
 
-export type BreathingTechnique = {
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Lungs, Wind, Brain, Heart, Zap } from 'lucide-react';
+import { BreathingExercise } from './BreathingExercise';
+
+interface BreathingTechniqueType {
   id: string;
   name: string;
   description: string;
@@ -25,180 +17,213 @@ export type BreathingTechnique = {
     hold?: number;
     exhale: number;
     holdAfterExhale?: number;
+    repetitions: number;
   };
-  bestFor: string[];
-};
+  icon: React.ElementType;
+  color: string;
+}
 
-const breathingTechniques: BreathingTechnique[] = [
+const techniques: BreathingTechniqueType[] = [
   {
-    id: "box",
-    name: "Box Breathing",
-    description: "Equal duration for inhale, hold, exhale, and hold - creating a square pattern.",
+    id: 'box',
+    name: 'Box Breathing',
+    description: 'A simple technique used by Navy SEALs to reduce stress and improve concentration',
     benefits: [
-      "Reduces stress and anxiety",
-      "Improves concentration",
-      "Helps manage emotions"
+      'Reduces stress and anxiety',
+      'Improves concentration and focus',
+      'Helps manage emotional responses',
+      'Can be done anywhere, anytime'
     ],
     pattern: {
       inhale: 4,
       hold: 4,
       exhale: 4,
-      holdAfterExhale: 4
+      holdAfterExhale: 4,
+      repetitions: 5
     },
-    bestFor: [
-      "Before stressful situations",
-      "During work breaks",
-      "When feeling overwhelmed"
-    ]
+    icon: Wind,
+    color: 'text-blue-500'
   },
   {
-    id: "478",
-    name: "4-7-8 Breathing",
-    description: "Inhale for 4, hold for 7, exhale for 8 - a natural tranquilizer for the nervous system.",
+    id: '478',
+    name: '4-7-8 Breathing',
+    description: 'A tranquilizing breath that can help you fall asleep quickly',
     benefits: [
-      "Promotes better sleep",
-      "Reduces anxiety",
-      "Helps control cravings"
+      'Helps you fall asleep faster',
+      'Reduces anxiety and stress',
+      'Manages food cravings',
+      'Controls emotional responses'
     ],
     pattern: {
       inhale: 4,
       hold: 7,
-      exhale: 8
+      exhale: 8,
+      repetitions: 4
     },
-    bestFor: [
-      "Before bedtime",
-      "During stress or anxiety",
-      "When experiencing cravings"
-    ]
+    icon: Lungs,
+    color: 'text-indigo-500'
   },
   {
-    id: "coherent",
-    name: "Coherent Breathing",
-    description: "Simple 5-5 pattern that balances the autonomic nervous system.",
+    id: 'coherent',
+    name: 'Coherent Breathing',
+    description: 'Breathing at a rate of 5 breaths per minute to balance the autonomic nervous system',
     benefits: [
-      "Improves heart rate variability",
-      "Reduces stress",
-      "Increases energy"
+      'Balances the nervous system',
+      'Reduces stress and anxiety',
+      'Improves heart rate variability',
+      'Enhances emotional regulation'
     ],
     pattern: {
-      inhale: 5,
-      exhale: 5
+      inhale: 6,
+      exhale: 6,
+      repetitions: 7
     },
-    bestFor: [
-      "Daily practice",
-      "During meditation",
-      "When feeling tired"
-    ]
+    icon: Heart,
+    color: 'text-rose-500'
   },
   {
-    id: "alternate",
-    name: "Alternate Nostril",
-    description: "Alternating breath between nostrils to balance both brain hemispheres.",
+    id: 'energizing',
+    name: 'Energizing Breath',
+    description: 'A technique to increase alertness, energy, and readiness for action',
     benefits: [
-      "Improves focus",
-      "Balances energy",
-      "Reduces stress"
+      'Increases energy and alertness',
+      'Improves focus and mental clarity',
+      'Activates the sympathetic nervous system',
+      'Can replace caffeine for an energy boost'
+    ],
+    pattern: {
+      inhale: 3,
+      hold: 1,
+      exhale: 2,
+      repetitions: 10
+    },
+    icon: Zap,
+    color: 'text-yellow-500'
+  },
+  {
+    id: 'alternate',
+    name: 'Alternate Nostril Breathing',
+    description: 'A yogic breath control technique that can calm the mind and optimize brain function',
+    benefits: [
+      'Balances left and right brain hemispheres',
+      'Promotes mental clarity',
+      'Reduces stress and anxiety',
+      'Improves cardiovascular function'
     ],
     pattern: {
       inhale: 4,
-      hold: 4,
-      exhale: 4
+      hold: 2,
+      exhale: 6,
+      repetitions: 6
     },
-    bestFor: [
-      "Before meditation",
-      "When needing focus",
-      "To balance energy"
-    ]
+    icon: Brain,
+    color: 'text-purple-500'
   }
 ];
 
-export interface BreathingTechniquesProps {
-  onSelectTechnique?: (technique: BreathingTechnique) => void;
-  className?: string;
-}
-
-export const BreathingTechniques = ({ onSelectTechnique, className = "" }: BreathingTechniquesProps) => {
-  const [selectedTechnique, setSelectedTechnique] = useState<BreathingTechnique>(breathingTechniques[0]);
-
-  const handleTechniqueChange = (techniqueId: string) => {
-    const technique = breathingTechniques.find(t => t.id === techniqueId) || breathingTechniques[0];
+export default function BreathingTechniques() {
+  const [selectedTechnique, setSelectedTechnique] = useState<BreathingTechniqueType | null>(null);
+  
+  const handleSelectTechnique = (technique: BreathingTechniqueType) => {
     setSelectedTechnique(technique);
-    if (onSelectTechnique) {
-      onSelectTechnique(technique);
-    }
   };
-
-  return (
-    <Card className={className}>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Wind className="h-5 w-5" />
-          Breathing Technique
-        </CardTitle>
-        <CardDescription>
-          Select a breathing technique that suits your needs
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <Select
-          value={selectedTechnique.id}
-          onValueChange={handleTechniqueChange}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select a technique" />
-          </SelectTrigger>
-          <SelectContent>
-            {breathingTechniques.map((technique) => (
-              <SelectItem key={technique.id} value={technique.id}>
-                {technique.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <div className="space-y-4">
-          <div>
-            <h4 className="font-medium">Description</h4>
-            <p className="text-sm text-muted-foreground">{selectedTechnique.description}</p>
-          </div>
-
-          <div>
-            <h4 className="font-medium">Benefits</h4>
-            <ul className="list-disc list-inside text-sm text-muted-foreground">
-              {selectedTechnique.benefits.map((benefit, index) => (
-                <li key={index}>{benefit}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-medium">Best Used For</h4>
-            <ul className="list-disc list-inside text-sm text-muted-foreground">
-              {selectedTechnique.bestFor.map((use, index) => (
-                <li key={index}>{use}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-medium">Pattern</h4>
-            <div className="text-sm text-muted-foreground">
-              <p>Inhale: {selectedTechnique.pattern.inhale} seconds</p>
-              {selectedTechnique.pattern.hold && (
-                <p>Hold: {selectedTechnique.pattern.hold} seconds</p>
-              )}
-              <p>Exhale: {selectedTechnique.pattern.exhale} seconds</p>
-              {selectedTechnique.pattern.holdAfterExhale && (
-                <p>Hold after exhale: {selectedTechnique.pattern.holdAfterExhale} seconds</p>
-              )}
-            </div>
-          </div>
+  
+  const handleBackToList = () => {
+    setSelectedTechnique(null);
+  };
+  
+  if (selectedTechnique) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="mb-4">
+          <Button variant="ghost" onClick={handleBackToList} className="flex items-center gap-2">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6.85355 3.14645C7.04882 3.34171 7.04882 3.65829 6.85355 3.85355L3.70711 7H12.5C12.7761 7 13 7.22386 13 7.5C13 7.77614 12.7761 8 12.5 8H3.70711L6.85355 11.1464C7.04882 11.3417 7.04882 11.6583 6.85355 11.8536C6.65829 12.0488 6.34171 12.0488 6.14645 11.8536L2.14645 7.85355C1.95118 7.65829 1.95118 7.34171 2.14645 7.14645L6.14645 3.14645C6.34171 2.95118 6.65829 2.95118 6.85355 3.14645Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
+            </svg>
+            Back to techniques
+          </Button>
         </div>
-      </CardContent>
-    </Card>
+        <BreathingExercise technique={selectedTechnique} />
+      </motion.div>
+    );
+  }
+  
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {techniques.map((technique) => (
+          <motion.div
+            key={technique.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Card className="h-full hover:shadow-md transition-shadow cursor-pointer" onClick={() => handleSelectTechnique(technique)}>
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-2">
+                  <technique.icon className={`h-5 w-5 ${technique.color}`} />
+                  <CardTitle className="text-lg">{technique.name}</CardTitle>
+                </div>
+                <CardDescription>{technique.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <span>{technique.pattern.repetitions} cycles</span>
+                    <span>•</span>
+                    <span>~{Math.round((technique.pattern.inhale + (technique.pattern.hold || 0) + technique.pattern.exhale + (technique.pattern.holdAfterExhale || 0)) * technique.pattern.repetitions / 60)} min</span>
+                  </div>
+                  <Button size="sm">Practice</Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+      
+      <Accordion type="single" collapsible className="w-full bg-muted rounded-lg px-4">
+        <AccordionItem value="benefits">
+          <AccordionTrigger>Benefits of Breathing Exercises</AccordionTrigger>
+          <AccordionContent>
+            <div className="grid gap-4 sm:grid-cols-2 py-2">
+              <div className="flex items-start gap-2">
+                <Brain className="h-5 w-5 text-purple-500 mt-0.5" />
+                <div>
+                  <h4 className="font-medium">Mental Clarity</h4>
+                  <p className="text-sm text-muted-foreground">Improves focus, concentration, and cognitive function</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <Heart className="h-5 w-5 text-rose-500 mt-0.5" />
+                <div>
+                  <h4 className="font-medium">Stress Reduction</h4>
+                  <p className="text-sm text-muted-foreground">Activates the parasympathetic nervous system to reduce stress</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <Lungs className="h-5 w-5 text-blue-500 mt-0.5" />
+                <div>
+                  <h4 className="font-medium">Improved Respiration</h4>
+                  <p className="text-sm text-muted-foreground">Enhances lung capacity and breathing efficiency</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <Zap className="h-5 w-5 text-yellow-500 mt-0.5" />
+                <div>
+                  <h4 className="font-medium">Energy Regulation</h4>
+                  <p className="text-sm text-muted-foreground">Balance energy levels throughout the day</p>
+                </div>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
   );
-};
-
-export { breathingTechniques };
-
-export default BreathingTechniques;
+}

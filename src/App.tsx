@@ -32,6 +32,7 @@ import Sleep from './pages/Sleep';
 import DistractionManager from './pages/DistractionManager';
 import SleepTracking from './pages/SleepTracking';
 import Breathing from './pages/Breathing';
+import SleepCalculator from './pages/tools/SleepCalculator';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -81,11 +82,15 @@ function App() {
               <Route path="sleep" element={<Sleep />} />
               <Route path="sleep-tracking" element={<SleepTracking />} />
               <Route path="meditation" element={<Meditation />} />
-              <Route path="relax" element={<Breathing />} />
+              <Route path="breathing" element={<Breathing />} />
+              
+              {/* Tool pages */}
+              <Route path="web-tools/sleep-calculator" element={<SleepCalculator />} />
             </Route>
             
             {/* Error handling */}
             <Route path="*" element={<NotFound />} />
+            <Route path="/error" element={<ErrorPage />} />
           </Routes>
         </AuthProvider>
       </ThemeProvider>
