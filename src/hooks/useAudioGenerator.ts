@@ -1,78 +1,66 @@
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useToast } from './use-toast';
-import { generateNatureSound, NatureSound } from '@/utils/audio';
+import { generateNatureSound, generateBinauralBeat, NatureSound } from '@/utils/audio';
+import type { BinauralBeat, AudioGeneratorHook } from '@/types/audio';
 
-// Define the BinauralBeat structure explicitly since we're replacing the import
-interface BinauralBeat {
-  baseFrequency: number;
-  beatFrequency: number;
-  volume: number;
-  isPlaying: boolean;
-  play: () => Promise<void>;
-  pause: () => void;
-  stop: () => void;
-  setVolume: (newVolume: number) => void;
-  setFrequencies: (newBaseFreq: number, newBeatFreq: number) => void;
-}
-
-// Implement the generateBinauralBeat function since it seems to be missing
-function generateBinauralBeat(baseFreq: number, beatFreq: number, volume: number = 0.5): BinauralBeat {
-  console.log(`Creating binaural beat with base frequency ${baseFreq}Hz and beat frequency ${beatFreq}Hz`);
-  
-  return {
-    baseFrequency: baseFreq,
-    beatFrequency: beatFreq,
-    volume: volume,
-    isPlaying: false,
-    
-    play: function() {
-      this.isPlaying = true;
-      console.log(`Playing binaural beat: ${baseFreq}Hz + ${beatFreq}Hz at volume ${volume}`);
-      return Promise.resolve();
-    },
-    
-    pause: function() {
-      this.isPlaying = false;
-      console.log(`Paused binaural beat`);
-    },
-    
-    stop: function() {
-      this.isPlaying = false;
-      console.log(`Stopped binaural beat`);
-    },
-    
-    setVolume: function(newVolume: number) {
-      this.volume = newVolume;
-      console.log(`Set binaural beat volume to ${newVolume}`);
-    },
-    
-    setFrequencies: function(newBaseFreq: number, newBeatFreq: number) {
-      this.baseFrequency = newBaseFreq;
-      this.beatFrequency = newBeatFreq;
-      console.log(`Changed frequencies to: ${newBaseFreq}Hz + ${newBeatFreq}Hz`);
-    }
-  };
-}
-
-export const useAudioGenerator = () => {
+export const useAudioGenerator = (): AudioGeneratorHook => {
   const [binauralAudio, setBinauralAudio] = useState<BinauralBeat | null>(null);
   const [natureAudio, setNatureAudio] = useState<ReturnType<typeof generateNatureSound> | null>(null);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [volume, setVolume] = useState<number>(0.5);
   const { toast } = useToast();
+  
+  // Store audio settings for resume functionality
+  const audioSettingsRef = useRef<{
+    binaural?: { baseFreq: number; beatFreq: number; volume: number };
+    nature?: { type: NatureSound | string; volume: number };
+  }>({});
+  
+  // Clean up audio when component unmounts
+  useEffect(() => {
+    return () => {
+      stopAllAudio();
+    };
+  }, []);
 
-  const startBinauralBeat = (baseFreq: number, beatFreq: number, volume = 0.5) => {
+  // Adjust the volume for all active audio
+  useEffect(() => {
+    if (binauralAudio) {
+      binauralAudio.setVolume(volume);
+    }
+    if (natureAudio) {
+      natureAudio.setVolume(volume);
+    }
+  }, [volume, binauralAudio, natureAudio]);
+
+  const startBinauralBeat = (baseFreq: number, beatFreq: number, volume = 0.5): BinauralBeat | null => {
     stopBinauralBeat();
     
     try {
       const audio = generateBinauralBeat(baseFreq, beatFreq, volume);
-      audio.play();
-      setBinauralAudio(audio);
-      return audio;
+      audio.play()
+        .then(() => {
+          setIsPlaying(true);
+          // Store settings for resume
+          audioSettingsRef.current.binaural = { baseFreq, beatFreq, volume };
+        })
+        .catch(error => {
+          console.error('Failed to start binaural beat:', error);
+          toast({
+            title: 'Audio Error',
+            description: 'Failed to start binaural beat. Please try again.',
+            variant: 'destructive'
+          });
+        });
+      
+      setBinauralAudio(audio as BinauralBeat);
+      return audio as BinauralBeat;
     } catch (error) {
-      console.error('Failed to start binaural beat:', error);
+      console.error('Failed to create binaural beat:', error);
       toast({
         title: 'Audio Error',
-        description: 'Failed to start binaural beat audio.',
+        description: 'Failed to create binaural beat audio.',
         variant: 'destructive'
       });
       return null;
@@ -83,6 +71,7 @@ export const useAudioGenerator = () => {
     if (binauralAudio) {
       binauralAudio.stop();
       setBinauralAudio(null);
+      setIsPlaying(false);
     }
   };
 
@@ -91,7 +80,21 @@ export const useAudioGenerator = () => {
     
     try {
       const audio = generateNatureSound(type, volume);
-      audio.play();
+      audio.play()
+        .then(() => {
+          setIsPlaying(true);
+          // Store settings for resume
+          audioSettingsRef.current.nature = { type, volume };
+        })
+        .catch(error => {
+          console.error('Failed to play nature sound:', error);
+          toast({
+            title: 'Audio Error',
+            description: 'Failed to play nature sound. Please try again.',
+            variant: 'destructive'
+          });
+        });
+      
       setNatureAudio(audio);
       return audio;
     } catch (error) {
@@ -109,12 +112,58 @@ export const useAudioGenerator = () => {
     if (natureAudio) {
       natureAudio.stop();
       setNatureAudio(null);
+      setIsPlaying(false);
     }
   };
 
   const stopAllAudio = () => {
     stopBinauralBeat();
     stopNatureSound();
+    setIsPlaying(false);
+  };
+
+  const pauseAllAudio = () => {
+    if (binauralAudio) {
+      binauralAudio.pause();
+    }
+    if (natureAudio) {
+      natureAudio.pause();
+    }
+    setIsPlaying(false);
+  };
+
+  const resumeAllAudio = () => {
+    if (binauralAudio) {
+      binauralAudio.resume();
+      setIsPlaying(true);
+      return;
+    }
+    
+    if (natureAudio) {
+      natureAudio.resume();
+      setIsPlaying(true);
+      return;
+    }
+    
+    // If no active audio but we have settings stored, restart audio
+    const settings = audioSettingsRef.current;
+    if (settings.binaural) {
+      startBinauralBeat(
+        settings.binaural.baseFreq, 
+        settings.binaural.beatFreq, 
+        settings.binaural.volume
+      );
+    } else if (settings.nature) {
+      startNatureSound(
+        settings.nature.type, 
+        settings.nature.volume
+      );
+    }
+  };
+
+  const setGlobalVolume = (newVolume: number) => {
+    const clampedVolume = Math.min(1, Math.max(0, newVolume));
+    setVolume(clampedVolume);
   };
 
   return {
@@ -123,6 +172,11 @@ export const useAudioGenerator = () => {
     startNatureSound,
     stopNatureSound,
     stopAllAudio,
+    pauseAllAudio,
+    resumeAllAudio,
+    setVolume: setGlobalVolume,
+    isPlaying,
+    volume,
     binauralAudio,
     natureAudio
   };

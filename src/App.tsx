@@ -29,10 +29,21 @@ import Layout from './components/Layout';
 import Focus from './pages/Focus';
 import Meditation from './pages/Meditation';
 import Sleep from './pages/Sleep';
+import Relax from './pages/Relax';
 import DistractionManager from './pages/DistractionManager';
 import SleepTracking from './pages/SleepTracking';
 import Breathing from './pages/Breathing';
+import CBT from './pages/CBT';
+import Cycle from './pages/Cycle';
+import Caffeine from './pages/Caffeine';
 import SleepCalculator from './pages/tools/SleepCalculator';
+import SleepGoals from './pages/tools/SleepGoals';
+import WithdrawalTracker from './pages/tools/WithdrawalTracker';
+import Community from './pages/Community';
+import Profile from './pages/Profile';
+import Settings from './pages/Settings';
+import Help from './pages/Help';
+import { Toaster } from './components/ui/toaster';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -51,6 +62,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="wellness-ui-theme">
         <AuthProvider>
+          <Toaster />
           <Routes>
             {/* Public routes outside the Layout */}
             <Route path="/" element={<LandingPage />} />
@@ -83,9 +95,19 @@ function App() {
               <Route path="sleep-tracking" element={<SleepTracking />} />
               <Route path="meditation" element={<Meditation />} />
               <Route path="breathing" element={<Breathing />} />
+              <Route path="relax" element={<Relax />} />
+              <Route path="cbt" element={<CBT />} />
+              <Route path="cycle" element={<Cycle />} />
+              <Route path="caffeine" element={<Caffeine />} />
+              <Route path="community" element={<Community />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="help" element={<Help />} />
               
               {/* Tool pages */}
               <Route path="web-tools/sleep-calculator" element={<SleepCalculator />} />
+              <Route path="web-tools/sleep-goals" element={<SleepGoals />} />
+              <Route path="web-tools/withdrawal-tracker" element={<WithdrawalTracker />} />
             </Route>
             
             {/* Error handling */}

@@ -1,5 +1,17 @@
 
-import { Json } from "./supabase";
+export interface ConsultationSession {
+  id: string;
+  title: string;
+  description: string;
+  client_id: string;
+  professional_id: string;
+  scheduled_at: string;
+  duration_minutes: number;
+  status: 'scheduled' | 'completed' | 'cancelled' | 'no_show';
+  price: number;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface ClientProgressTracking {
   id?: string;
@@ -13,84 +25,48 @@ export interface ClientProgressTracking {
   updated_at?: string;
 }
 
-export interface CustomerBehavior {
+export interface ClientProfile {
   id: string;
-  vendor_id: string;
-  behavior_patterns: {
-    active_users: number;
-    engagement_rate: number;
-    response_rate: number;
-    peak_hours: string[];
-    segments: Array<{name: string, value: number}>;
-  };
-  customer_segments: {
-    new: number;
-    returning: number;
-    inactive: number;
-  };
-  revenue_trends: {
-    daily: any[];
-    weekly: any[];
-    monthly: any[];
-  };
-  created_at: string;
-}
-
-export interface ClientConsultation {
-  id: string;
-  client_id: string;
-  professional_id: string;
-  consultation_date: string;
-  duration_minutes: number;
-  notes: string;
-  status: string;
-  mode: string;
-  primary_concern: string;
+  user_id: string;
+  full_name: string;
+  email: string;
+  phone?: string;
+  emergency_contact?: string;
+  date_of_birth?: string;
   created_at: string;
   updated_at: string;
-  client?: {
-    full_name: string;
-    email: string;
-    profile_image?: string;
-  };
 }
 
-export interface ConsultationNote {
+export interface ProfessionalProfile {
   id: string;
-  consultation_id?: string;
-  session_id?: string;
-  client_id?: string;
+  user_id: string;
+  full_name: string;
+  bio: string;
+  specialty: string[];
+  credentials: string[];
+  years_experience: number;
+  hourly_rate: number;
+  availability: Availability[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Availability {
+  day: string;
+  start_time: string;
+  end_time: string;
+}
+
+export interface ConsultationPackage {
+  id: string;
+  title: string;
+  description: string;
   professional_id: string;
-  note_content?: string;
-  content?: string; // Some components use this field
-  mood_observed?: string;
-  progress_notes?: string;
-  recommendations?: Json;
-  follow_up_date?: string;
+  session_count: number;
+  total_price: number;
+  validity_days: number;
   created_at: string;
-  updated_at?: string;
-}
-
-export interface ConsultationSession {
-  id: string;
-  client_id: string;
-  professional_id: string;
-  session_date: string;
-  status: string;
-  created_at: string;
-  updated_at?: string;
-  professional?: string; // Added for compatibility
-  meeting_link?: string; // Added for compatibility
-}
-
-export interface PackagePurchase {
-  id: string;
-  client_id: string;
-  package_id: string;
-  purchase_date: string;
-  status: string;
-  created_at: string;
-  updated_at?: string;
+  updated_at: string;
 }
 
 export interface TreatmentPlan {
@@ -100,23 +76,30 @@ export interface TreatmentPlan {
   title: string;
   description: string;
   goals: string[];
+  activities: TreatmentActivity[];
+  start_date: string;
+  end_date?: string;
   created_at: string;
-  updated_at?: string;
-  status?: string; // Added for compatibility
-  start_date?: string; // Added for compatibility
-  end_date?: string; // Added for compatibility
-  interventions?: any[]; // Added for compatibility
+  updated_at: string;
+}
+
+export interface TreatmentActivity {
+  id: string;
+  title: string;
+  description: string;
+  frequency: string;
+  is_completed: boolean;
 }
 
 export interface ClientGoal {
   id: string;
   client_id: string;
-  professional_id: string;
+  professional_id?: string;
   title: string;
   description: string;
-  status: string;
   target_date?: string;
+  progress: number;
+  status: 'active' | 'completed' | 'abandoned';
   created_at: string;
-  updated_at?: string;
-  progress?: number; // Added for compatibility
+  updated_at: string;
 }
