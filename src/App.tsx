@@ -26,6 +26,7 @@ import Auth from './pages/Auth';
 import NotFound from './components/NotFound';
 import ErrorPage from './pages/ErrorPage';
 import Layout from './components/Layout';
+import { Outlet } from 'react-router-dom';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -45,30 +46,31 @@ function App() {
       <ThemeProvider defaultTheme="light" storageKey="wellness-ui-theme">
         <AuthProvider>
           <Routes>
+            {/* Public routes outside the Layout */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/why-us" element={<WhyUs />} />
             
             {/* Protected routes inside the Layout */}
-            <Route element={<Layout />}>
-              <Route path="/app" element={<Dashboard />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/desktop" element={<Desktop />} />
-              <Route path="/tasks" element={<Tasks />} />
-              <Route path="/energy-plans" element={<EnergyPlans />} />
-              <Route path="/energy-plans/create" element={<CreateEnergyPlanPage />} />
-              <Route path="/energy-plans/edit/:id" element={<EditEnergyPlanPage />} />
-              <Route path="/energy-plans/:id" element={<EnergyPlanDetailsPage />} />
-              <Route path="/health" element={<HealthDashboard />} />
-              <Route path="/motivation" element={<Motivation />} />
-              <Route path="/supplements" element={<Supplements />} />
-              <Route path="/nicotine" element={<Nicotine />} />
-              <Route path="/recovery" element={<Recovery />} />
-              <Route path="/sobriety" element={<Sobriety />} />
-              <Route path="/nutrition" element={<Nutrition />} />
-              <Route path="/brain-games" element={<BrainGames />} />
-              <Route path="/productivity" element={<ProductivityDashboard />} />
-              <Route path="/web-tools/*" element={<WebTools />} />
+            <Route path="/app" element={<Layout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="desktop" element={<Desktop />} />
+              <Route path="tasks" element={<Tasks />} />
+              <Route path="energy-plans" element={<EnergyPlans />} />
+              <Route path="energy-plans/create" element={<CreateEnergyPlanPage />} />
+              <Route path="energy-plans/edit/:id" element={<EditEnergyPlanPage />} />
+              <Route path="energy-plans/:id" element={<EnergyPlanDetailsPage />} />
+              <Route path="health" element={<HealthDashboard />} />
+              <Route path="motivation" element={<Motivation />} />
+              <Route path="supplements" element={<Supplements />} />
+              <Route path="nicotine" element={<Nicotine />} />
+              <Route path="recovery" element={<Recovery />} />
+              <Route path="sobriety" element={<Sobriety />} />
+              <Route path="nutrition" element={<Nutrition />} />
+              <Route path="brain-games" element={<BrainGames />} />
+              <Route path="productivity" element={<ProductivityDashboard />} />
+              <Route path="web-tools/*" element={<WebTools />} />
             </Route>
             
             {/* Error handling */}

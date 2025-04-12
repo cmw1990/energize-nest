@@ -114,20 +114,24 @@ const LandingPage = () => {
             Get Started <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
           
-          <Button size="lg" variant="outline" className="rounded-full border-gray-300 px-8 py-6 text-base">
-            <span className="flex items-center gap-2">
-              Launch Web App 
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7 17L17 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M7 7H17V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </span>
-          </Button>
+          <Link to="/app">
+            <Button size="lg" variant="outline" className="rounded-full border-gray-300 px-8 py-6 text-base">
+              <span className="flex items-center gap-2">
+                Launch Web App 
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7 17L17 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M7 7H17V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </span>
+            </Button>
+          </Link>
         </div>
 
-        <Button variant="ghost" size="lg" className="rounded-full text-base">
-          Why The Well-Charged? <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
+        <Link to="/why-us">
+          <Button variant="ghost" size="lg" className="rounded-full text-base">
+            Why The Well-Charged? <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </Link>
       </section>
 
       {/* Celebrity Energy Section */}
