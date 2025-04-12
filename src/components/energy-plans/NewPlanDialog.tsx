@@ -38,11 +38,11 @@ export function NewPlanDialog({
       const { data, error } = await supabase
         .from("energy_plans")
         .insert({
-          user_id: session.user.id, // Use user_id instead of created_by
-          plan_name: title, // Use plan_name as in database schema
+          user_id: session.user.id,
+          plan_name: title,
           plan_type: "standard",
-          duration_minutes: 30, // Add required duration_minutes field
-          activities: {}, // Add required activities field
+          duration_minutes: 30,
+          activities: {},
         })
         .select()
         .single();

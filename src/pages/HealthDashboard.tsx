@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,6 +9,7 @@ import { FocusExercises } from "@/components/health/FocusExercises";
 import { SleepAnalysis } from "@/components/sleep/SleepAnalysis";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { transformFoodLog } from "@/utils/supabaseHelpers";
 
 const HealthDashboard = () => {
   const { data: sleepData, isLoading: sleepLoading } = useQuery({
@@ -22,7 +22,22 @@ const HealthDashboard = () => {
         .limit(7);
       
       if (error) throw error;
-      return data || [];
+      return (data || []).map(item => {
+        if (item.bedtime && item.wake_time) {
+          const start = new Date(item.bedtime);
+          const end = new Date(item.wake_time);
+          const durationMs = end.getTime() - start.getTime();
+          const durationMinutes = Math.floor(durationMs / (1000 * 60));
+          return {
+            ...item,
+            duration_minutes: durationMinutes
+          };
+        }
+        return {
+          ...item,
+          duration_minutes: 0
+        };
+      });
     }
   });
 
@@ -30,13 +45,17 @@ const HealthDashboard = () => {
     queryKey: ['stress_data'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('stress_logs')
+        .from('mood_logs')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(7);
       
       if (error) throw error;
-      return data || [];
+      return (data || []).map(item => ({
+        ...item,
+        mood_score: item.overall_mood || 0,
+        stress_level: item.stress || 0
+      }));
     }
   });
 
@@ -50,7 +69,8 @@ const HealthDashboard = () => {
         .limit(7);
       
       if (error) throw error;
-      return data || [];
+      
+      return (data || []).map(item => transformFoodLog(item));
     }
   });
 

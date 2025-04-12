@@ -24,17 +24,22 @@ import type { Database } from "@/types/supabase"
 type UserLifeSituationRow = Database['public']['Tables']['user_life_situations']['Row']
 type UserLifeSituation = UserLifeSituationRow & { 
   is_active: boolean;
-  situation?: string; // Added for backward compatibility
+  situation_type: string;
 }
 
 const EnergyPlans = () => {
   const { session } = useAuth()
   const { toast } = useToast()
-  const navigate = useNavigate() // Add this for navigation
+  const navigate = useNavigate()
   const [selectedTab, setSelectedTab] = useState("discover")
   const [selectedCategory, setSelectedCategory] = useState<PlanCategory | null>(null)
   const [showLifeSituationDialog, setShowLifeSituationDialog] = useState(false)
   const queryClient = useQueryClient()
+
+  // Type guard to handle Supabase query errors
+  const isQueryError = (data: any): data is { error: true } & string => {
+    return data && typeof data === 'object' && 'error' in data
+  }
 
   const { data: lifeSituation } = useQuery<UserLifeSituation>({
     queryKey: ['user-life-situation', session?.user?.id],
@@ -87,7 +92,11 @@ const EnergyPlans = () => {
         .limit(6)
       
       if (error) throw error
-      return data as Plan[]
+      
+      // Using type assertion to ensure we handle potential errors
+      return (data && !isQueryError(data)) 
+        ? data as unknown as Plan[]
+        : []
     }
   })
 
@@ -108,7 +117,11 @@ const EnergyPlans = () => {
         .eq('user_id', session.user.id)
       
       if (error) throw error
-      return data.map(item => item.energy_plans) as Plan[]
+      
+      // Using type assertion to handle potential errors
+      return (data && !isQueryError(data))
+        ? data.map(item => item.energy_plans as unknown as Plan)
+        : []
     },
     enabled: !!session?.user?.id
   })
@@ -148,9 +161,12 @@ const EnergyPlans = () => {
       
       const { error } = await supabase
         .from('energy_plans')
-        .update({ visibility: 'public' })
+        .update({ 
+          // Use appropriate field names that exist in the database
+          plan_type: 'public' 
+        })
         .eq('id', plan.id)
-        .eq('created_by', session.user.id)
+        .eq('user_id', session.user.id)
 
       if (error) throw error
     },
@@ -171,7 +187,7 @@ const EnergyPlans = () => {
         .from('user_life_situations')
         .upsert({
           user_id: session.user.id,
-          situation_type: situationType, // Use situation_type instead of situation
+          situation_type: situationType,
           start_date: new Date().toISOString(),
           is_active: true,
           updated_at: new Date().toISOString()
@@ -291,9 +307,9 @@ const EnergyPlans = () => {
       </div>
 
       <CelebrityPlanGallery
-        plans={celebrityPlans}
+        plans={celebrityPlans || []}
         onSavePlan={(id) => savePlanMutation.mutate(id)}
-        savedPlans={savedPlans}
+        savedPlans={savedPlans || []}
       />
 
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>
@@ -306,22 +322,22 @@ const EnergyPlans = () => {
         <TabsContent value="discover">
           <PlanDiscovery
             selectedCategory={selectedCategory}
-            progress={planProgress}
+            progress={planProgress || []}
             onSavePlan={(id) => savePlanMutation.mutate(id)}
-            savedPlans={savedPlans}
-            currentLifeSituation={lifeSituation?.situation_type} // Use situation_type
+            savedPlans={savedPlans || []}
+            currentLifeSituation={lifeSituation?.situation_type}
           />
         </TabsContent>
 
         <TabsContent value="my-plans">
           <PersonalPlans
-            progress={planProgress}
+            progress={planProgress || []}
             onSharePlan={(plan) => sharePlanMutation.mutate(plan)}
           />
         </TabsContent>
 
         <TabsContent value="saved">
-          <SavedPlans progress={planProgress} />
+          <SavedPlans progress={planProgress || []} />
         </TabsContent>
       </Tabs>
     </div>

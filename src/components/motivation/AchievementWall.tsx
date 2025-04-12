@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -390,7 +389,6 @@ export function AchievementWall() {
   );
 }
 
-// Add these functions if they aren't already defined elsewhere in the file
 const getRarityColor = (rarity: string | undefined) => {
   switch (rarity) {
     case "common": return "bg-gray-100 text-gray-800";

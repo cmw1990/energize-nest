@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,15 +10,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PlusCircle, ChevronRight, AlertCircle, Check, XCircle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-
-type Task = {
-  id: string;
-  title: string;
-  status: string;
-  priority: string;
-  description?: string;
-  due_date?: string;
-};
+import { Task } from "@/types/energyPlans";
 
 type TaskFormState = {
   title: string;
@@ -49,7 +42,7 @@ export function EisenhowerMatrix() {
         .order("created_at", { ascending: false });
       
       if (error) throw error;
-      return data || [];
+      return data as Task[] || [];
     },
     enabled: !!session?.user?.id
   });
@@ -60,12 +53,12 @@ export function EisenhowerMatrix() {
       const { data, error } = await supabase
         .from("tasks")
         .insert({
-          user_id: session?.user?.id,
-          status: "todo",
           title: task.title,
-          priority: task.priority.toString(),
+          status: "todo",
+          priority: task.priority,
           description: task.description,
           due_date: task.due_date,
+          user_id: session?.user?.id,
         });
       
       if (error) throw error;
