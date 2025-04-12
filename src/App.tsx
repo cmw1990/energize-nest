@@ -20,6 +20,7 @@ import Nutrition from './pages/Nutrition';
 import BrainGames from './pages/BrainGames';
 import ProductivityDashboard from './pages/ProductivityDashboard';
 import WebTools from './pages/WebTools';
+import NotFound from './components/NotFound';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -40,6 +41,7 @@ function App() {
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/app" element={<Dashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/desktop" element={<Desktop />} />
             <Route path="/tasks" element={<Tasks />} />
@@ -57,6 +59,7 @@ function App() {
             <Route path="/brain-games" element={<BrainGames />} />
             <Route path="/productivity" element={<ProductivityDashboard />} />
             <Route path="/web-tools/*" element={<WebTools />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
       </ThemeProvider>
