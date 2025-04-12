@@ -100,3 +100,115 @@ export async function safeDbMutation<T = any>(
     };
   }
 }
+
+/**
+ * Perform a safe upsert operation with proper error handling
+ */
+export async function safeUpsertOperation<T = any>(
+  table: string,
+  data: any,
+  matchingColumn: string,
+  errorHandler?: (error: any) => void
+): Promise<{ data: T | null; error: Error | null }> {
+  try {
+    const { supabase } = await import('@/integrations/supabase/client');
+    const response = await supabase
+      .from(table)
+      .upsert(data, { 
+        onConflict: matchingColumn,
+        ignoreDuplicates: false
+      })
+      .select();
+    
+    if (response.error) {
+      throw response.error;
+    }
+    
+    return { 
+      data: response.data[0] as unknown as T,
+      error: null 
+    };
+  } catch (error) {
+    console.error(`Database upsert error on ${table}:`, error);
+    if (errorHandler) {
+      errorHandler(error);
+    }
+    return { 
+      data: null, 
+      error: error as Error 
+    };
+  }
+}
+
+/**
+ * Batch insert data with proper error handling
+ */
+export async function safeBatchInsert<T = any>(
+  table: string,
+  data: any[],
+  errorHandler?: (error: any) => void
+): Promise<{ data: T[] | null; error: Error | null }> {
+  try {
+    if (!data.length) return { data: [], error: null };
+    
+    const { supabase } = await import('@/integrations/supabase/client');
+    const response = await supabase
+      .from(table)
+      .insert(data)
+      .select();
+    
+    if (response.error) {
+      throw response.error;
+    }
+    
+    return { 
+      data: response.data as unknown as T[],
+      error: null 
+    };
+  } catch (error) {
+    console.error(`Database batch insert error on ${table}:`, error);
+    if (errorHandler) {
+      errorHandler(error);
+    }
+    return { 
+      data: null, 
+      error: error as Error 
+    };
+  }
+}
+
+/**
+ * Safe delete operation with proper error handling
+ */
+export async function safeDeleteOperation(
+  table: string,
+  column: string,
+  value: any,
+  errorHandler?: (error: any) => void
+): Promise<{ success: boolean; error: Error | null }> {
+  try {
+    const { supabase } = await import('@/integrations/supabase/client');
+    const response = await supabase
+      .from(table)
+      .delete()
+      .eq(column, value);
+    
+    if (response.error) {
+      throw response.error;
+    }
+    
+    return { 
+      success: true,
+      error: null 
+    };
+  } catch (error) {
+    console.error(`Database delete error on ${table}:`, error);
+    if (errorHandler) {
+      errorHandler(error);
+    }
+    return { 
+      success: false, 
+      error: error as Error 
+    };
+  }
+}
