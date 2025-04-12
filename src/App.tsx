@@ -24,7 +24,8 @@ import LandingPage from './pages/LandingPage';
 import WhyUs from './pages/WhyUs';
 import Auth from './pages/Auth';
 import NotFound from './components/NotFound';
-import { BrowserRouter as Router } from 'react-router-dom';
+import ErrorPage from './pages/ErrorPage';
+import Layout from './components/Layout';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -42,10 +43,14 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="wellness-ui-theme">
-        <Router>
-          <AuthProvider>
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/why-us" element={<WhyUs />} />
+            
+            {/* Protected routes inside the Layout */}
+            <Route element={<Layout />}>
               <Route path="/app" element={<Dashboard />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/desktop" element={<Desktop />} />
@@ -64,12 +69,12 @@ function App() {
               <Route path="/brain-games" element={<BrainGames />} />
               <Route path="/productivity" element={<ProductivityDashboard />} />
               <Route path="/web-tools/*" element={<WebTools />} />
-              <Route path="/why-us" element={<WhyUs />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AuthProvider>
-        </Router>
+            </Route>
+            
+            {/* Error handling */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
