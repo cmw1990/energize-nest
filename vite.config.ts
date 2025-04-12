@@ -1,4 +1,3 @@
-
 import path from "path"
 import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react-swc"
@@ -10,7 +9,7 @@ export default defineConfig(({ mode }) => ({
     mode === 'development' && componentTagger(),
   ].filter(Boolean),
   server: {
-    port: 8080
+    port: 8001
   },
   resolve: {
     alias: {

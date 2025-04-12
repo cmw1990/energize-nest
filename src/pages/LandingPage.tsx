@@ -2,33 +2,13 @@ import { Link } from "react-router-dom"
 import { ArrowRight, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { LandingHeader } from "@/components/layout/LandingHeader" // Import the new header
 
 const LandingPage = () => {
   return (
     <div className="min-h-screen bg-background">
-      {/* Header/Nav */}
-      <header className="container mx-auto px-6 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-2 text-primary">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" strokeWidth="2"/>
-            <path d="M12 7V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            <path d="M9 10L15 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-          <span className="font-semibold">The Well-Charged</span>
-        </div>
-        
-        <div className="hidden md:flex items-center gap-6">
-          <Link to="/tools" className="text-foreground/80 hover:text-primary transition-colors">
-            Tools
-          </Link>
-          <Link to="/app" className="text-foreground/80 hover:text-primary transition-colors">
-            Web App
-          </Link>
-          <Button className="bg-orange-500 hover:bg-orange-600 rounded-full text-white">
-            Advertise
-          </Button>
-        </div>
-      </header>
+      {/* Use the LandingHeader component */}
+      <LandingHeader />
 
       {/* Keep the rest of the content the same */}
       {/* Hero Section */}
@@ -36,25 +16,25 @@ const LandingPage = () => {
         <h1 className="text-4xl md:text-6xl font-bold text-primary mb-12 max-w-4xl mx-auto">
           Optimize Your Energy & Performance
         </h1>
-        
+
         <p className="text-xl font-semibold text-foreground mb-3">
           Clear your phone. Cancel your subscriptions.
         </p>
-        
+
         <p className="text-xl text-primary font-medium mb-3 max-w-3xl mx-auto">
-          The Well-Charged is the only wellness platform you'll ever need - 
+          The Well-Charged is the only wellness platform you'll ever need -
           <br className="hidden md:block" />free or premium, we've got you covered.
         </p>
-        
+
         <p className="text-lg text-muted-foreground mb-12 max-w-3xl mx-auto">
-          Access powerful tools and comprehensive guides to enhance your focus, energy, and overall well-being. 
+          Access powerful tools and comprehensive guides to enhance your focus, energy, and overall well-being.
           <br className="hidden md:block" />Join thousands of high performers who trust The Well-Charged.
         </p>
-        
+
         {/* Platform Availability */}
         <div className="bg-primary/5 p-6 rounded-3xl max-w-3xl mx-auto mb-12">
           <h3 className="text-lg font-semibold mb-6">Available Everywhere You Need It</h3>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div className="flex items-center gap-2 p-3 rounded-lg hover:bg-primary/10 transition-colors">
               <svg className="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -63,7 +43,7 @@ const LandingPage = () => {
               </svg>
               <span>iOS App</span>
             </div>
-            
+
             <div className="flex items-center gap-2 p-3 rounded-lg hover:bg-primary/10 transition-colors">
               <svg className="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect x="5" y="2" width="14" height="20" rx="2" stroke="currentColor" strokeWidth="2"/>
@@ -71,7 +51,7 @@ const LandingPage = () => {
               </svg>
               <span>Android App</span>
             </div>
-            
+
             <div className="flex items-center gap-2 p-3 rounded-lg hover:bg-primary/10 transition-colors">
               <svg className="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect x="3" y="4" width="18" height="12" rx="1" stroke="currentColor" strokeWidth="2"/>
@@ -80,7 +60,7 @@ const LandingPage = () => {
               </svg>
               <span>Mac App</span>
             </div>
-            
+
             <div className="flex items-center gap-2 p-3 rounded-lg hover:bg-primary/10 transition-colors">
               <svg className="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect x="4" y="4" width="16" height="12" rx="1" stroke="currentColor" strokeWidth="2"/>
@@ -89,7 +69,7 @@ const LandingPage = () => {
               </svg>
               <span>Windows App</span>
             </div>
-            
+
             <div className="flex items-center gap-2 p-3 rounded-lg hover:bg-primary/10 transition-colors">
               <svg className="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
@@ -97,7 +77,7 @@ const LandingPage = () => {
               </svg>
               <span>Chrome Extension</span>
             </div>
-            
+
             <div className="flex items-center gap-2 p-3 rounded-lg hover:bg-primary/10 transition-colors">
               <svg className="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
@@ -113,11 +93,11 @@ const LandingPage = () => {
           <Button size="lg" className="bg-primary hover:bg-primary/90 rounded-full px-8 py-6 text-base">
             Get Started <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
-          
+
           <Link to="/app">
             <Button size="lg" variant="outline" className="rounded-full border-gray-300 px-8 py-6 text-base">
               <span className="flex items-center gap-2">
-                Launch Web App 
+                Launch Web App
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M7 17L17 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M7 7H17V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -140,12 +120,12 @@ const LandingPage = () => {
           <Star className="h-6 w-6" />
           <h2 className="text-3xl font-bold">Celebrity Energy Recipes</h2>
         </div>
-        
+
         <p className="text-lg text-muted-foreground mb-8 max-w-3xl mx-auto">
-          Discover energy optimization routines from world-class performers, experts, and leaders. 
+          Discover energy optimization routines from world-class performers, experts, and leaders.
           Learn from their proven strategies and adapt them to your lifestyle.
         </p>
-        
+
         <Button className="bg-primary hover:bg-primary/90 rounded-full px-8 py-6 text-base">
           Explore Celebrity Plans <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
@@ -162,7 +142,7 @@ const LandingPage = () => {
                   <path d="M12 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                   <path d="M7 12H17" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
-                
+
                 <h3 className="text-xl font-bold mb-2">Cognitive Enhancement</h3>
                 <p className="text-muted-foreground">
                   Science-backed tools and comprehensive guides for optimal mental performance
@@ -179,7 +159,7 @@ const LandingPage = () => {
                   <path d="M12 8L12 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                   <path d="M16 12L8 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
-                
+
                 <h3 className="text-xl font-bold mb-2">Accessible Anywhere</h3>
                 <p className="text-muted-foreground">
                   Use our tools directly in your browser - no downloads or installations needed
@@ -194,7 +174,7 @@ const LandingPage = () => {
                 <svg className="h-12 w-12 text-primary mb-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                
+
                 <h3 className="text-xl font-bold mb-2">Energy Management</h3>
                 <p className="text-muted-foreground">
                   Optimize your energy levels with our guides and tracking tools
@@ -208,7 +188,7 @@ const LandingPage = () => {
       {/* Featured Tools Section */}
       <section className="container mx-auto px-6 py-12">
         <h2 className="text-3xl font-bold text-center mb-12">Featured Tools & Guides</h2>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="rounded-3xl border border-gray-100 shadow-sm hover:shadow transition-all">
             <CardContent className="pt-6">
@@ -218,7 +198,7 @@ const LandingPage = () => {
                   <path d="M13.5 8L13.5 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                   <path d="M15.5 10L11.5 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
-                
+
                 <h3 className="text-xl font-bold mb-2">White Noise Generator</h3>
                 <p className="text-muted-foreground">
                   Enhance focus and productivity with customizable white noise
@@ -236,7 +216,7 @@ const LandingPage = () => {
                   <path d="M9 10L9 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                   <path d="M15 10L15 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
-                
+
                 <h3 className="text-xl font-bold mb-2">Supplement Guide</h3>
                 <p className="text-muted-foreground">
                   Comprehensive guide to nootropics and cognitive enhancement
@@ -253,7 +233,7 @@ const LandingPage = () => {
                   <path d="M12 8C12 5.79086 10.2091 4 8 4V8L12 8Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M12 8C12 5.79086 13.7909 4 16 4V8L12 8Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                
+
                 <h3 className="text-xl font-bold mb-2">Caffeine Guide</h3>
                 <p className="text-muted-foreground">
                   Optimize your caffeine intake for better energy and focus
@@ -262,7 +242,7 @@ const LandingPage = () => {
             </CardContent>
           </Card>
         </div>
-        
+
         <div className="flex justify-center">
           <Button variant="outline" size="lg" className="rounded-full border-gray-300 px-8 py-6 text-base">
             View All Tools <ArrowRight className="ml-2 h-4 w-4" />
@@ -281,7 +261,7 @@ const LandingPage = () => {
             </svg>
             <span className="font-semibold">The Well-Charged</span>
           </div>
-          
+
           <div className="flex gap-8">
             <Link to="/privacy" className="text-muted-foreground hover:text-primary">
               Privacy

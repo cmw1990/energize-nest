@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, lazy, Suspense } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { TopNav } from "@/components/layout/TopNav";
 import { Link, useParams, useNavigate } from "react-router-dom";
@@ -249,6 +249,17 @@ const defaultWebTools: WebTool[] = [
   }
 ];
 
+// Lazy load tool components
+const SleepCalculator = lazy(() => import('@/pages/tools/SleepCalculator'));
+const FocusTimer = lazy(() => import('@/pages/tools/FocusTimer')); // Assuming path
+const BMICalculator = lazy(() => import('@/pages/tools/BMICalculator')); // Assuming path
+const WaterIntakeCalculator = lazy(() => import('@/pages/tools/WaterIntakeCalculator')); // Assuming path
+const StressCheck = lazy(() => import('@/pages/tools/StressCheck')); // Assuming path
+const StroopTest = lazy(() => import('@/pages/tools/StroopTest')); // Assuming path
+const SpeedMath = lazy(() => import('@/pages/tools/SpeedMath')); // Assuming path
+const BrainMatch = lazy(() => import('@/pages/tools/BrainMatch')); // Assuming path
+// Add other tool imports here as needed
+
 const WebTools = () => {
   const { toolSlug } = useParams();
   const navigate = useNavigate();
@@ -396,6 +407,28 @@ const WebTools = () => {
     return iconMap[iconName] || Brain;
   };
 
+  // Function to get the correct tool component based on slug
+  const getToolComponent = (slug?: string) => {
+    if (!slug) return null;
+    switch (slug) {
+      case 'sleep-calculator': return <SleepCalculator />;
+      case 'focus-timer': return <FocusTimer />;
+      case 'bmi-calculator': return <BMICalculator />;
+      case 'water-intake-calculator': return <WaterIntakeCalculator />;
+      case 'stress-check': return <StressCheck />;
+      case 'stroop-test': return <StroopTest />;
+      case 'speed-math': return <SpeedMath />;
+      case 'brain-match': return <BrainMatch />;
+      // Add other cases here
+      default: return (
+        <div className="bg-muted p-4 rounded-lg mt-6">
+          <h3 className="text-lg font-semibold mb-2">Tool Not Found or Coming Soon</h3>
+          <p>We couldn't find the specific tool component for this slug, or it's still under development.</p>
+        </div>
+      );
+    }
+  };
+
   if (toolSlug && currentTool) {
     return (
       <div className="min-h-screen bg-background">
@@ -430,21 +463,16 @@ const WebTools = () => {
           
           <Card className="prose max-w-none dark:prose-invert">
             <CardContent className="pt-6">
-              <p className="text-lg">{currentTool.description}</p>
+              {/* Removed description paragraph as it might be redundant if tool renders */}
               
               {currentTool.content && currentTool.content !== currentTool.description && (
-                <div className="mt-4" dangerouslySetInnerHTML={{ __html: currentTool.content }} />
+                <div className="mt-4 mb-6" dangerouslySetInnerHTML={{ __html: currentTool.content }} />
               )}
               
-              <div className="bg-muted p-4 rounded-lg mt-6">
-                <h3 className="text-lg font-semibold mb-2">Tool Coming Soon</h3>
-                <p>
-                  We're currently developing this tool for you. Sign in to get notified when it's available!
-                </p>
-                <div className="mt-4">
-                  <Button onClick={() => navigate('/auth')}>Sign In</Button>
-                </div>
-              </div>
+              {/* Render the actual tool component using Suspense */}
+              <Suspense fallback={<div className="text-center p-8">Loading Tool...</div>}>
+                {getToolComponent(currentTool.slug)}
+              </Suspense>
             </CardContent>
           </Card>
           
