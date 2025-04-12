@@ -32,6 +32,12 @@ import StroopTest from "@/pages/tools/StroopTest";
 import FocusTimer from "@/pages/tools/FocusTimer";
 import SpeedMath from "@/pages/tools/SpeedMath";
 import WaterIntakeCalculator from "@/pages/tools/WaterIntakeCalculator";
+import Motivation from "@/pages/Motivation";
+import Food from "@/pages/Food";
+import Nicotine from "@/pages/Nicotine";
+import Supplements from "@/pages/Supplements";
+import Desktop from "@/pages/Desktop";
+import DistractionManager from "@/pages/DistractionManager";
 
 export const mainRoutes: RouteObject[] = [
   {
@@ -48,6 +54,10 @@ export const mainRoutes: RouteObject[] = [
       {
         path: "app/dashboard",
         element: <Dashboard />,
+      },
+      {
+        path: "desktop",
+        element: <Desktop />,
       },
       {
         path: "energy-plans",
@@ -150,6 +160,22 @@ export const mainRoutes: RouteObject[] = [
         element: <Nutrition />,
       },
       {
+        path: "food",
+        element: <Food />,
+      },
+      {
+        path: "motivation",
+        element: <Motivation />,
+      },
+      {
+        path: "supplements",
+        element: <Supplements />,
+      },
+      {
+        path: "distraction-manager",
+        element: <DistractionManager />,
+      },
+      {
         path: "focus",
         element: <Focus />,
       },
@@ -164,6 +190,10 @@ export const mainRoutes: RouteObject[] = [
       {
         path: "sobriety",
         element: <Sobriety />,
+      },
+      {
+        path: "nicotine",
+        element: <Nicotine />,
       },
       {
         path: "sobriety/recovery",

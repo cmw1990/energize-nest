@@ -30,21 +30,62 @@ import {
   Scale,
   Cigarette,
   Droplet,
+  Desktop,
+  LayoutDashboard,
+  UserCheck,
+  Flame,
+  Sun,
+  Laptop,
+  FileSpreadsheet,
+  ShieldPlus,
+  UserCog,
+  Rocket,
+  ThumbsUp,
+  ZapOff,
+  Sparkle,
+  Clock,
+  Shield,
 } from "lucide-react";
 
+// Improved navigation structure with clearer categories and more relevant icons
 const navigationGroups = [
   {
-    label: "Core Energy",
+    label: "Dashboard",
     links: [
       {
         to: "/app/dashboard",
-        icon: Activity,
+        icon: LayoutDashboard,
         label: "Overview",
+      },
+      {
+        to: "/desktop",
+        icon: Desktop,
+        label: "Desktop View",
       },
       {
         to: "/health",
         icon: Heart,
         label: "Health Hub",
+      },
+    ]
+  },
+  {
+    label: "Energy & Focus",
+    links: [
+      {
+        to: "/energy-plans",
+        icon: Battery,
+        label: "Energy Plans",
+      },
+      {
+        to: "/focus",
+        icon: Focus,
+        label: "Focus Center",
+      },
+      {
+        to: "/distraction-manager",
+        icon: Shield,
+        label: "Distraction Manager",
       },
       {
         to: "/app/sleep",
@@ -52,14 +93,14 @@ const navigationGroups = [
         label: "Sleep",
       },
       {
-        to: "/app/relax",
-        icon: Flower2,
-        label: "Relax",
+        to: "/tools/sleep-tracking",
+        icon: Activity,
+        label: "Sleep Tracking",
       },
       {
-        to: "/focus",
-        icon: Focus,
-        label: "Focus",
+        to: "/motivation",
+        icon: Rocket,
+        label: "Motivation",
       },
       {
         to: "/app/meditation",
@@ -67,14 +108,9 @@ const navigationGroups = [
         label: "Meditation",
       },
       {
-        to: "/app/exercise",
-        icon: Dumbbell,
-        label: "Exercise",
-      },
-      {
-        to: "/app/eye-exercises",
-        icon: Eye,
-        label: "Eye Care",
+        to: "/app/relax",
+        icon: Flower2,
+        label: "Relax",
       },
     ]
   },
@@ -96,6 +132,11 @@ const navigationGroups = [
         icon: LineChart,
         label: "Tracking",
       },
+      {
+        to: "/tools/focus-timer",
+        icon: Clock,
+        label: "Focus Timer",
+      },
     ]
   },
   {
@@ -105,6 +146,16 @@ const navigationGroups = [
         to: "/nutrition",
         icon: Apple,
         label: "Nutrition",
+      },
+      {
+        to: "/food",
+        icon: Utensils,
+        label: "Food Tracking",
+      },
+      {
+        to: "/supplements",
+        icon: Pill,
+        label: "Supplements",
       },
       {
         to: "/water",
@@ -117,9 +168,24 @@ const navigationGroups = [
         label: "Weight",
       },
       {
+        to: "/app/exercise",
+        icon: Dumbbell,
+        label: "Exercise",
+      },
+    ]
+  },
+  {
+    label: "Specialized Support",
+    links: [
+      {
         to: "/sobriety",
+        icon: ThumbsUp,
+        label: "Sobriety",
+      },
+      {
+        to: "/nicotine",
         icon: Cigarette,
-        label: "Quit Smoking",
+        label: "Nicotine Tracker",
       },
       {
         to: "/caffeine",
@@ -127,35 +193,25 @@ const navigationGroups = [
         label: "Caffeine",
       },
       {
-        to: "/supplements",
-        icon: Pill,
-        label: "Supplements",
+        to: "/app/eye-exercises",
+        icon: Eye,
+        label: "Eye Care",
+      },
+      {
+        to: "/pregnancy",
+        icon: Heart,
+        label: "Pregnancy",
       },
     ]
   },
   {
-    label: "Support Tools",
+    label: "Tools & Games",
     links: [
       {
         to: "/tools",
         icon: Wrench,
         label: "Tools Hub",
       },
-      {
-        to: "/breathing",
-        icon: Wind,
-        label: "Breathing",
-      },
-      {
-        to: "/sobriety",
-        icon: Heart,
-        label: "Sobriety",
-      },
-    ]
-  },
-  {
-    label: "Game Center",
-    links: [
       {
         to: "/games",
         icon: Gamepad2,
@@ -167,34 +223,54 @@ const navigationGroups = [
         label: "Brain Match",
       },
       {
-        to: "/tools/memory-cards",
-        icon: Grid3X3,
-        label: "Memory Cards",
+        to: "/tools/bmi-calculator",
+        icon: FileSpreadsheet,
+        label: "BMI Calculator",
       },
       {
-        to: "/tools/mental-rotation",
-        icon: Target,
-        label: "Mental Rotation",
+        to: "/tools/water-intake-calculator",
+        icon: Droplet,
+        label: "Water Calculator",
+      },
+      {
+        to: "/tools/speed-math",
+        icon: Brain,
+        label: "Speed Math",
+      },
+      {
+        to: "/tools/stress-check",
+        icon: ZapOff,
+        label: "Stress Check",
+      },
+      {
+        to: "/tools/stroop-test",
+        icon: Grid3X3,
+        label: "Stroop Test",
+      },
+      {
+        to: "/breathing",
+        icon: Wind,
+        label: "Breathing",
       },
     ]
   },
   {
-    label: "Planning & Health",
+    label: "Account & Services",
     links: [
       {
-        to: "/energy-plans",
-        icon: Battery,
-        label: "Energy Plans",
-      },
-      {
-        to: "/pregnancy",
-        icon: Heart,
-        label: "Pregnancy",
-      },
-      {
         to: "/insurance/dashboard",
-        icon: Activity,
+        icon: ShieldPlus,
         label: "Insurance",
+      },
+      {
+        to: "/user/profile",
+        icon: UserCog,
+        label: "Profile",
+      },
+      {
+        to: "/user/therapist",
+        icon: UserCheck,
+        label: "Therapist Connect",
       },
       ...(import.meta.env.DEV ? [{
         to: "/development",
