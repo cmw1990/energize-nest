@@ -1,117 +1,113 @@
 
-import { Json } from "./supabase";
-
-export type PlanCategory = 'charged' | 'recharged';
-
 export interface Plan {
   id: string;
+  title: string;
+  description: string;
+  created_by: string;
   created_at: string;
   updated_at: string;
-  created_by: string;
-  title: string;
-  description: string | null;
-  plan_type: string;
-  category: PlanCategory;
-  visibility: 'public' | 'private' | 'shared';
-  is_expert_plan: boolean;
-  energy_level_required: number;
-  estimated_duration_minutes: number;
-  likes_count: number;
-  saves_count: number;
-  recommended_time_of_day: string[];
-  suitable_contexts: string[];
+  is_public: boolean;
   tags: string[];
-  energy_plan_components?: PlanComponent[];
-  celebrity_name?: string; // Added celebrity_name field
+  category: string;
+  difficulty: number;
+  duration_days: number;
+  energy_impact: number;
+  focus_impact: number;
+  mood_impact: number;
+  components: PlanComponent[];
+  image_url?: string;
+  source?: string;
+  source_name?: string;
+  success_metrics?: string[];
 }
 
 export interface PlanComponent {
   id: string;
   plan_id: string;
   title: string;
-  description: string | null;
-  duration_minutes: number;
+  description: string;
+  type: 'supplement' | 'habit' | 'exercise' | 'nutrition' | 'sleep' | 'other';
+  frequency: 'daily' | 'weekly' | 'monthly' | 'once' | 'as_needed';
+  duration_minutes?: number;
+  schedule?: string;
+  dosage?: string;
+  notes?: string;
+  day?: number;
+  week?: number;
+  custom_fields?: {
+    [key: string]: any;
+  };
+  impact_score?: number;
+  evidence_level?: 'anecdotal' | 'some_research' | 'well_researched' | 'clinical';
+  optional: boolean;
   order: number;
-  type: string;
-  details: Json;
-  media_url: string | null;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface ProgressRecord {
   id: string;
-  user_id: string;
   plan_id: string;
+  user_id: string;
   date: string;
-  energy_before: number;
-  energy_after: number;
-  mood_before: number;
-  mood_after: number;
-  completed: boolean; // Changed from completed_at to match database schema
-  notes: string | null;
-  created_at: string;
-  updated_at: string;
+  overall_adherence: number;
+  energy_rating?: number;
+  focus_rating?: number;
+  mood_rating?: number;
+  notes?: string;
+  component_progress: ComponentProgress[];
 }
 
-export type LifeSituation = 
-  | 'working_from_home'
-  | 'office_work'
-  | 'parenting'
-  | 'traveling'
-  | 'studying'
-  | 'recovery'
-  | 'illness'
-  | 'burnout'
-  | 'vacation'
-  | 'regular'; // Added 'regular' to match usage in code
+export interface ComponentProgress {
+  component_id: string;
+  completed: boolean;
+  adherence_level?: number;
+  notes?: string;
+}
 
-export type PlanType = 
-  | 'standard' 
-  | 'custom' 
-  | 'expert' 
-  | 'public';
-
-// Adapter function to transform database model to application model
+// DB to App model conversion utility
 export function adaptDbPlanToAppPlan(dbPlan: any): Plan {
+  let components: PlanComponent[] = [];
+  
+  if (dbPlan.energy_plan_components && Array.isArray(dbPlan.energy_plan_components)) {
+    components = dbPlan.energy_plan_components.map((comp: any) => ({
+      id: comp.id,
+      plan_id: comp.plan_id,
+      title: comp.title || '',
+      description: comp.description || '',
+      type: comp.type || 'other',
+      frequency: comp.frequency || 'daily',
+      duration_minutes: comp.duration_minutes,
+      schedule: comp.schedule,
+      dosage: comp.dosage,
+      notes: comp.notes,
+      day: comp.day,
+      week: comp.week,
+      custom_fields: comp.custom_fields,
+      impact_score: comp.impact_score,
+      evidence_level: comp.evidence_level,
+      optional: comp.optional || false,
+      order: comp.order || 0
+    }));
+  }
+  
   return {
     id: dbPlan.id,
+    title: dbPlan.title || 'Untitled Plan',
+    description: dbPlan.description || '',
+    created_by: dbPlan.created_by,
     created_at: dbPlan.created_at,
     updated_at: dbPlan.updated_at,
-    created_by: dbPlan.user_id || dbPlan.created_by,
-    title: dbPlan.plan_name || dbPlan.title,
-    description: dbPlan.description,
-    plan_type: dbPlan.plan_type,
-    category: (dbPlan.category || 'charged') as PlanCategory,
-    visibility: dbPlan.visibility || 'private',
-    is_expert_plan: !!dbPlan.is_expert_plan,
-    energy_level_required: dbPlan.energy_level_required || 5,
-    estimated_duration_minutes: dbPlan.duration_minutes || dbPlan.estimated_duration_minutes || 30,
-    likes_count: dbPlan.likes_count || 0,
-    saves_count: dbPlan.saves_count || 0,
-    recommended_time_of_day: dbPlan.recommended_time_of_day || [],
-    suitable_contexts: dbPlan.suitable_contexts || [],
+    is_public: dbPlan.is_public || false,
     tags: dbPlan.tags || [],
-    energy_plan_components: dbPlan.energy_plan_components || [],
-    celebrity_name: dbPlan.celebrity_name || null,
-  };
-}
-
-// Adapter function to transform application model to database model
-export function adaptAppPlanToDbPlan(appPlan: Partial<Plan>): any {
-  return {
-    user_id: appPlan.created_by,
-    plan_name: appPlan.title,
-    description: appPlan.description,
-    plan_type: appPlan.plan_type,
-    category: appPlan.category,
-    visibility: appPlan.visibility,
-    is_expert_plan: appPlan.is_expert_plan,
-    energy_level_required: appPlan.energy_level_required,
-    duration_minutes: appPlan.estimated_duration_minutes,
-    recommended_time_of_day: appPlan.recommended_time_of_day,
-    suitable_contexts: appPlan.suitable_contexts,
-    tags: appPlan.tags,
-    celebrity_name: appPlan.celebrity_name,
+    category: dbPlan.category || 'general',
+    difficulty: dbPlan.difficulty || 2,
+    duration_days: dbPlan.duration_days || 30,
+    energy_impact: dbPlan.energy_impact || 3,
+    focus_impact: dbPlan.focus_impact || 3,
+    mood_impact: dbPlan.mood_impact || 3,
+    components: components,
+    image_url: dbPlan.image_url,
+    source: dbPlan.source,
+    source_name: dbPlan.source_name,
+    success_metrics: dbPlan.success_metrics
   };
 }
