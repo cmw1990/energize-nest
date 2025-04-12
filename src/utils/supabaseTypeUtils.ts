@@ -6,7 +6,8 @@ import { PostgrestResponse } from '@supabase/supabase-js';
  * avoiding "Type instantiation is excessively deep and possibly infinite" errors
  */
 export async function safeQueryExecute<T = any>(
-  queryFn: () => Promise<PostgrestResponse<any>>
+  queryFn: () => Promise<PostgrestResponse<any>>,
+  errorHandler?: (error: any) => void
 ): Promise<{ data: T[] | null; error: Error | null }> {
   try {
     const response = await queryFn();
@@ -21,6 +22,9 @@ export async function safeQueryExecute<T = any>(
     };
   } catch (error) {
     console.error('Database query error:', error);
+    if (errorHandler) {
+      errorHandler(error);
+    }
     return { 
       data: null, 
       error: error as Error 
@@ -47,9 +51,52 @@ export function safeArrayCast<T>(array: any[]): T[] {
  * Utility to handle callback-based React Query queryFn with proper typing
  */
 export async function typeSafeQueryFn<T>(
-  queryFn: () => Promise<PostgrestResponse<any>>
+  queryFn: () => Promise<PostgrestResponse<any>>,
+  errorHandler?: (error: any) => void
 ): Promise<T[]> {
-  const { data, error } = await safeQueryExecute<T>(queryFn);
+  const { data, error } = await safeQueryExecute<T>(queryFn, errorHandler);
   if (error) throw error;
   return data || [];
+}
+
+/**
+ * Utility to handle single row queries with proper typing
+ */
+export async function typeSafeSingleQueryFn<T>(
+  queryFn: () => Promise<PostgrestResponse<any>>,
+  errorHandler?: (error: any) => void
+): Promise<T | null> {
+  const { data, error } = await safeQueryExecute<T>(queryFn, errorHandler);
+  if (error) throw error;
+  return data && data.length > 0 ? data[0] : null;
+}
+
+/**
+ * Safely run a mutation and return typed results
+ */
+export async function safeDbMutation<T = any>(
+  mutationFn: () => Promise<PostgrestResponse<any>>,
+  errorHandler?: (error: any) => void
+): Promise<{ data: T | null; error: Error | null }> {
+  try {
+    const response = await mutationFn();
+    
+    if (response.error) {
+      throw response.error;
+    }
+    
+    return { 
+      data: response.data as unknown as T,
+      error: null 
+    };
+  } catch (error) {
+    console.error('Database mutation error:', error);
+    if (errorHandler) {
+      errorHandler(error);
+    }
+    return { 
+      data: null, 
+      error: error as Error 
+    };
+  }
 }

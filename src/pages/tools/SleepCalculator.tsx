@@ -1,301 +1,284 @@
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { TopNav } from "@/components/layout/TopNav";
-import { ToolAnalyticsWrapper } from "@/components/tools/ToolAnalyticsWrapper";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Moon, Sun, Clock, Info, Check, BedDouble } from "lucide-react";
-import { addMinutes, format, parse } from "date-fns";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import React, { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { TopNav } from "@/components/layout/TopNav"
+import { ToolAnalyticsWrapper } from "@/components/tools/ToolAnalyticsWrapper"
+import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Moon, Clock, Bed, AlarmClock } from "lucide-react"
+import { motion } from "framer-motion"
+import { supabase } from "@/integrations/supabase/client"
+import { useAuth } from "@/components/AuthProvider"
+import { useToast } from "@/hooks/use-toast"
+
+interface SleepCycle {
+  bedtime: string;
+  wakeTime: string;
+  cycles: number;
+}
 
 export default function SleepCalculator() {
   const [wakeUpTime, setWakeUpTime] = useState("07:00");
-  const [bedTime, setBedTime] = useState("23:00");
-  const [cycles, setCycles] = useState<string[]>([]);
-  const [calculationMode, setCalculationMode] = useState<"wake" | "bed">("wake");
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [bedTime, setBedTime] = useState("");
+  const [sleepCycles, setSleepCycles] = useState<SleepCycle[]>([]);
+  const [calculationMode, setCalculationMode] = useState<'wakeup' | 'bedtime'>('wakeup');
+  const [isAnimating, setIsAnimating] = useState(false);
+  const { session } = useAuth();
+  const { toast } = useToast();
 
-  useEffect(() => {
-    // Calculate on initial load
-    calculateSleepCycles(wakeUpTime, true);
-  }, []);
+  const averageSleepCycleDuration = 90; // minutes
+  const timeToFallAsleep = 14; // minutes
 
-  const calculateSleepCycles = (time: string, isWakeUp: boolean) => {
-    setCalculationMode(isWakeUp ? "wake" : "bed");
+  // Calculate optimal sleep times based on wake up time
+  const calculateSleepTimes = () => {
+    setIsAnimating(true);
+    const cycles = [3, 4, 5, 6];
+    const results: SleepCycle[] = [];
     
-    const baseDate = new Date();
-    const timeDate = parse(time, "HH:mm", baseDate);
-    const cycleLength = 90; // minutes per sleep cycle
-    const fallAsleepTime = 15; // minutes to fall asleep
-    const cycles: string[] = [];
-
-    // Calculate 6 cycles (approximately 9 hours of sleep)
-    for (let i = 0; i < 6; i++) {
-      let cycleTime;
+    if (calculationMode === 'wakeup') {
+      // Parse wake-up time
+      const [wakeHours, wakeMinutes] = wakeUpTime.split(':').map(Number);
+      const wakeTimeDate = new Date();
+      wakeTimeDate.setHours(wakeHours, wakeMinutes, 0, 0);
       
-      if (isWakeUp) {
-        // Work backwards from wake time (subtract time)
-        cycleTime = addMinutes(timeDate, -(i + 1) * cycleLength - fallAsleepTime);
-      } else {
-        // Work forwards from bedtime (add time)
-        cycleTime = addMinutes(timeDate, (i + 1) * cycleLength + fallAsleepTime);
-      }
-      
-      cycles.push(format(cycleTime, "HH:mm"));
-    }
-
-    // For wake-up mode, reverse the array to show earliest bedtime first
-    if (isWakeUp) {
-      cycles.reverse();
-    }
-
-    setCycles(cycles);
-    setSelectedTime(null);
-  };
-
-  const getCycleCountText = (index: number) => {
-    const cycleCount = calculationMode === "wake" ? 6 - index : index + 1;
-    const hoursMinutes = getCycleDuration(cycleCount);
-    return `${cycleCount} sleep cycles (~${hoursMinutes})`;
-  };
-
-  const getCycleDuration = (cycles: number) => {
-    const totalMinutes = cycles * 90 + 15; // Add 15 min to fall asleep
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
-    return `${hours}h ${minutes}m`;
-  };
-
-  const getQualityIndicator = (index: number) => {
-    const cycleCount = calculationMode === "wake" ? 6 - index : index + 1;
-    if (cycleCount <= 2) return { color: "text-red-500", label: "Not enough sleep" };
-    if (cycleCount <= 3) return { color: "text-amber-500", label: "Minimum rest" };
-    if (cycleCount <= 4) return { color: "text-blue-500", label: "Good rest" };
-    return { color: "text-green-500", label: "Optimal rest" };
-  };
-
-  const handleSelectTime = (time: string) => {
-    setSelectedTime(time);
-    if (calculationMode === "wake") {
-      setBedTime(time);
+      // Calculate bedtimes for each cycle count
+      cycles.forEach(cycle => {
+        const totalSleepMinutes = cycle * averageSleepCycleDuration;
+        const totalMinutesBeforeSleep = totalSleepMinutes + timeToFallAsleep;
+        
+        const bedTimeDate = new Date(wakeTimeDate.getTime() - totalMinutesBeforeSleep * 60 * 1000);
+        const bedtime = `${String(bedTimeDate.getHours()).padStart(2, '0')}:${String(bedTimeDate.getMinutes()).padStart(2, '0')}`;
+        
+        results.push({
+          bedtime,
+          wakeTime: wakeUpTime,
+          cycles: cycle
+        });
+      });
     } else {
-      setWakeUpTime(time);
+      // Parse bedtime
+      const [bedHours, bedMinutes] = bedTime.split(':').map(Number);
+      const bedTimeDate = new Date();
+      bedTimeDate.setHours(bedHours, bedMinutes, 0, 0);
+      
+      // Calculate wake times for each cycle count
+      cycles.forEach(cycle => {
+        const totalSleepMinutes = cycle * averageSleepCycleDuration;
+        const totalMinutesAfterBed = totalSleepMinutes + timeToFallAsleep;
+        
+        const wakeTimeDate = new Date(bedTimeDate.getTime() + totalMinutesAfterBed * 60 * 1000);
+        const wakeTime = `${String(wakeTimeDate.getHours()).padStart(2, '0')}:${String(wakeTimeDate.getMinutes()).padStart(2, '0')}`;
+        
+        results.push({
+          bedtime: bedTime,
+          wakeTime,
+          cycles: cycle
+        });
+      });
+    }
+    
+    setSleepCycles(results);
+    setTimeout(() => setIsAnimating(false), 500);
+  };
+
+  // Save user's preferred sleep time to their profile
+  const saveSleepPreference = async (cycleData: SleepCycle) => {
+    if (!session?.user?.id) {
+      toast({
+        title: "Sign in Required",
+        description: "Please sign in to save your sleep preferences.",
+        variant: "default"
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('sleep_preferences')
+        .upsert({
+          user_id: session.user.id,
+          preferred_bedtime: cycleData.bedtime,
+          preferred_wake_time: cycleData.wakeTime,
+          preferred_cycles: cycleData.cycles,
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Preferences Saved",
+        description: "Your sleep preferences have been saved to your profile.",
+        variant: "default"
+      });
+    } catch (error) {
+      console.error('Error saving sleep preferences:', error);
+      toast({
+        title: "Save Error",
+        description: "We couldn't save your preferences. Please try again later.",
+        variant: "destructive"
+      });
     }
   };
+
+  // Format time for display
+  const formatTime = (timeString: string) => {
+    const [hours, minutes] = timeString.split(':').map(Number);
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12; // Convert 0 to 12
+    return `${displayHours}:${String(minutes).padStart(2, '0')} ${period}`;
+  };
+
+  // Effect to calculate on mount
+  useEffect(() => {
+    calculateSleepTimes();
+  }, []);
 
   return (
     <ToolAnalyticsWrapper 
       toolName="sleep-calculator"
-      toolType="wellness"
-      toolSettings={{
-        showNav: true,
-        allowShare: true,
-      }}
+      toolType="sleep"
+      toolSettings={{ mode: calculationMode }}
     >
       <div className="min-h-screen bg-background">
         <TopNav />
         <div className="container mx-auto p-4 space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <BedDouble className="h-6 w-6 text-indigo-500" />
-                <CardTitle>Sleep Cycle Calculator</CardTitle>
-              </div>
-              <CardDescription>
-                Calculate optimal bedtime or wake-up time based on sleep cycles. Each cycle is approximately 90 minutes.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="wakeup" className="space-y-6">
-                <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
-                  <TabsTrigger value="wakeup" onClick={() => calculateSleepCycles(wakeUpTime, true)} className="flex items-center gap-2">
-                    <Sun className="h-4 w-4" />
-                    <span className="hidden sm:inline">Plan from Wake-Up Time</span>
-                    <span className="sm:hidden">Wake-Up</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="bedtime" onClick={() => calculateSleepCycles(bedTime, false)} className="flex items-center gap-2">
-                    <Moon className="h-4 w-4" />
-                    <span className="hidden sm:inline">Plan from Bedtime</span>
-                    <span className="sm:hidden">Bedtime</span>
-                  </TabsTrigger>
-                </TabsList>
-
-                <div className="grid gap-6 md:grid-cols-2">
-                  <div className="space-y-4">
-                    <TabsContent value="wakeup" className="space-y-4 mt-0">
-                      <div className="space-y-2">
-                        <Label>I want to wake up at:</Label>
-                        <div className="flex items-center gap-2">
-                          <Sun className="h-4 w-4 text-yellow-500" />
-                          <Input
-                            type="time"
-                            value={wakeUpTime}
-                            onChange={(e) => setWakeUpTime(e.target.value)}
-                          />
-                          <Button 
-                            onClick={() => calculateSleepCycles(wakeUpTime, true)}
-                            className="w-32"
-                          >
-                            Calculate
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="p-4 rounded-lg bg-muted space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Info className="h-4 w-4 text-blue-500" />
-                          <span className="text-sm font-medium">How it works</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          This calculator finds optimal bedtimes based on when you want to wake up, 
-                          ensuring you complete full sleep cycles to avoid waking up groggy.
-                        </p>
-                      </div>
-                    </TabsContent>
-
-                    <TabsContent value="bedtime" className="space-y-4 mt-0">
-                      <div className="space-y-2">
-                        <Label>I want to go to bed at:</Label>
-                        <div className="flex items-center gap-2">
-                          <Moon className="h-4 w-4 text-indigo-500" />
-                          <Input
-                            type="time"
-                            value={bedTime}
-                            onChange={(e) => setBedTime(e.target.value)}
-                          />
-                          <Button 
-                            onClick={() => calculateSleepCycles(bedTime, false)}
-                            className="w-32"
-                          >
-                            Calculate
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="p-4 rounded-lg bg-muted space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Info className="h-4 w-4 text-blue-500" />
-                          <span className="text-sm font-medium">How it works</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          This calculator finds optimal wake-up times based on when you go to bed,
-                          ensuring you complete full sleep cycles for the most refreshing rest.
-                        </p>
-                      </div>
-                    </TabsContent>
-                    
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <Label>Selected {calculationMode === "wake" ? "Bedtime" : "Wake-up Time"}</Label>
-                        {selectedTime && (
-                          <span className="text-sm font-medium flex items-center gap-1">
-                            <Check className="h-3 w-3 text-green-500" />
-                            {selectedTime}
-                          </span>
-                        )}
-                      </div>
-                      <div className="p-4 rounded-lg bg-primary/5 border border-primary/10">
-                        {selectedTime ? (
-                          <div className="space-y-2">
-                            <div className="text-sm">
-                              Going to bed at <span className="font-medium">{calculationMode === "wake" ? selectedTime : bedTime}</span> and 
-                              waking up at <span className="font-medium">{calculationMode === "wake" ? wakeUpTime : selectedTime}</span> gives you:
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Clock className="h-4 w-4 text-primary" />
-                              <span className="font-medium">{getCycleDuration(calculationMode === "wake" ? 6 - cycles.indexOf(selectedTime) : cycles.indexOf(selectedTime) + 1)} of sleep</span>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="text-sm text-muted-foreground text-center">
-                            Select a recommended time to see details
-                          </div>
-                        )}
-                      </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Card className="border border-primary/10 overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20">
+                <CardTitle className="flex items-center gap-2">
+                  <Moon className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                  Sleep Cycle Calculator
+                </CardTitle>
+                <CardDescription>
+                  Calculate optimal bedtime or wake-up time based on sleep cycles
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-6 space-y-6">
+                <div className="flex flex-col md:flex-row gap-4 w-full">
+                  <div className="space-y-2 w-full md:w-1/2">
+                    <div className="flex items-center mb-2">
+                      <Select
+                        value={calculationMode}
+                        onValueChange={(value) => setCalculationMode(value as 'wakeup' | 'bedtime')}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="I want to..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="wakeup">I need to wake up at...</SelectItem>
+                          <SelectItem value="bedtime">I plan to go to sleep at...</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                  </div>
-
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-lg">Recommended Times</CardTitle>
-                      <CardDescription>
-                        For optimal rest, try to {calculationMode === "wake" ? "go to bed" : "wake up"} at one of these times
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {cycles.map((time, index) => {
-                          const quality = getQualityIndicator(index);
-                          return (
-                            <div 
-                              key={time}
-                              className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors
-                                ${selectedTime === time ? 'bg-primary/10 border border-primary/20' : 'bg-secondary/10 hover:bg-secondary/20'}`}
-                              onClick={() => handleSelectTime(time)}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${selectedTime === time ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                                  {calculationMode === "wake" ? (
-                                    <Moon className="h-4 w-4" />
-                                  ) : (
-                                    <Sun className="h-4 w-4" />
-                                  )}
-                                </div>
-                                <span className="font-mono text-lg">{time}</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger>
-                                      <div className={`px-2 py-1 rounded text-xs font-medium ${quality.color}`}>
-                                        {quality.label}
-                                      </div>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p>{getCycleCountText(index)}</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              </div>
-                            </div>
-                          );
-                        })}
+                    
+                    {calculationMode === 'wakeup' ? (
+                      <div className="flex items-center space-x-2">
+                        <AlarmClock className="text-indigo-600 dark:text-indigo-400 h-5 w-5" />
+                        <input
+                          type="time"
+                          value={wakeUpTime}
+                          onChange={(e) => setWakeUpTime(e.target.value)}
+                          className="p-2 border rounded-md border-input bg-background w-full"
+                        />
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </Tabs>
-              
-              <div className="mt-8 p-4 rounded-lg bg-muted space-y-4">
-                <h3 className="font-medium flex items-center gap-2">
-                  <Info className="h-5 w-5 text-blue-500" />
-                  About Sleep Cycles
-                </h3>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium">What are sleep cycles?</h4>
+                    ) : (
+                      <div className="flex items-center space-x-2">
+                        <Bed className="text-indigo-600 dark:text-indigo-400 h-5 w-5" />
+                        <input
+                          type="time"
+                          value={bedTime}
+                          onChange={(e) => setBedTime(e.target.value)}
+                          className="p-2 border rounded-md border-input bg-background w-full"
+                        />
+                      </div>
+                    )}
+                    
+                    <Button 
+                      onClick={calculateSleepTimes}
+                      className="w-full"
+                    >
+                      Calculate
+                    </Button>
+                  </div>
+                  
+                  <div className="w-full md:w-1/2 p-4 bg-secondary/10 rounded-lg">
+                    <h3 className="font-medium mb-2">About Sleep Cycles</h3>
                     <p className="text-sm text-muted-foreground">
-                      Sleep follows a pattern of alternating REM (rapid eye movement) and NREM (non-rapid eye movement) 
-                      sleep throughout a typical night in a cycle that repeats itself about every 90 minutes.
+                      Sleep occurs in cycles of approximately 90 minutes. To wake up feeling refreshed, 
+                      it's better to wake at the end of a cycle rather than in the middle. Most adults 
+                      need 4-6 complete sleep cycles (6-9 hours) per night.
                     </p>
                   </div>
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium">Why do they matter?</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Waking up in the middle of a sleep cycle, when you're in deep sleep, can cause you to feel groggy. 
-                      Timing your sleep in 90-minute increments helps you wake up between cycles when you're in lighter sleep.
-                    </p>
+                </div>
+                
+                <div className="space-y-4">
+                  <h3 className="font-medium text-lg flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-primary" />
+                    {calculationMode === 'wakeup' ? 'Suggested Bedtimes' : 'Suggested Wake-up Times'}
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    {sleepCycles.map((cycle, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ 
+                          opacity: isAnimating ? 0 : 1, 
+                          scale: isAnimating ? 0.9 : 1 
+                        }}
+                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                      >
+                        <Card className="overflow-hidden h-full">
+                          <CardHeader className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+                            <CardTitle className="text-md flex justify-between items-center">
+                              <span>{cycle.cycles} Cycles</span>
+                              <span className="text-sm font-normal text-muted-foreground">
+                                {cycle.cycles * 1.5} hours
+                              </span>
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="p-4 text-center space-y-3">
+                            {calculationMode === 'wakeup' ? (
+                              <div>
+                                <div className="flex items-center justify-center gap-2 mb-1">
+                                  <Bed className="h-4 w-4 text-primary" />
+                                  <span className="font-medium">Bedtime</span>
+                                </div>
+                                <p className="text-xl">{formatTime(cycle.bedtime)}</p>
+                              </div>
+                            ) : (
+                              <div>
+                                <div className="flex items-center justify-center gap-2 mb-1">
+                                  <AlarmClock className="h-4 w-4 text-primary" />
+                                  <span className="font-medium">Wake Up</span>
+                                </div>
+                                <p className="text-xl">{formatTime(cycle.wakeTime)}</p>
+                              </div>
+                            )}
+                            
+                            {session?.user && (
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                className="w-full"
+                                onClick={() => saveSleepPreference(cycle)}
+                              >
+                                Save Preference
+                              </Button>
+                            )}
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))}
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
       </div>
     </ToolAnalyticsWrapper>

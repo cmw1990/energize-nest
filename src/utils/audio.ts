@@ -1,136 +1,216 @@
 
-/**
- * Generates and plays naturalistic sounds for meditation and breathing exercises
- * @param type The type of sound to generate (e.g., 'wind', 'rain', 'ocean')
- * @param volume Volume from 0 to 1
- * @returns The audio controller object
- */
-export type NatureSound = 'wind' | 'rain' | 'ocean' | 'stream' | 'birds' | 'forest' | 
-  'shower-energy' | 'shower-creative' | 'shower-calm' | 'shower-relax';
+export type NatureSound = 'rain' | 'ocean' | 'forest' | 'fire' | 'wind' | 'thunder' | 'stream' | 'whitenoise';
 
-export const generateNatureSound = (type: NatureSound | string, volume: number = 0.5) => {
-  // In a real app, you would have actual sound files to play
-  // For this example, we'll simulate by just returning an object with controls
+interface AudioInstance {
+  isPlaying: boolean;
+  volume: number;
+  play: () => Promise<void>;
+  pause: () => void;
+  stop: () => void;
+  setVolume: (volume: number) => void;
+}
+
+// Improved binaural beat generator with actual audio functionality
+export function generateBinauralBeat(baseFreq: number, beatFreq: number, volume = 0.5): AudioInstance & {
+  baseFrequency: number;
+  beatFrequency: number;
+  setFrequencies: (newBaseFreq: number, newBeatFreq: number) => void;
+} {
+  let audioContext: AudioContext | null = null;
+  let leftOscillator: OscillatorNode | null = null;
+  let rightOscillator: OscillatorNode | null = null;
+  let gainNode: GainNode | null = null;
+  let pannerLeft: StereoPannerNode | null = null;
+  let pannerRight: StereoPannerNode | null = null;
+  let isPlaying = false;
+  let baseFrequency = baseFreq;
+  let beatFrequency = beatFreq;
   
-  const sound = {
-    type,
-    volume,
-    isPlaying: false,
-    
-    play: function() {
-      this.isPlaying = true;
-      console.log(`Playing ${type} sound at volume ${volume}`);
-      return Promise.resolve();
-    },
-    
-    pause: function() {
-      this.isPlaying = false;
-      console.log(`Paused ${type} sound`);
-    },
-    
-    stop: function() {
-      this.isPlaying = false;
-      console.log(`Stopped ${type} sound`);
-    },
-    
-    setVolume: function(newVolume: number) {
-      this.volume = newVolume;
-      console.log(`Set ${type} sound volume to ${newVolume}`);
+  const setupAudio = () => {
+    try {
+      audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      
+      // Create oscillators for each ear
+      leftOscillator = audioContext.createOscillator();
+      rightOscillator = audioContext.createOscillator();
+      
+      // Create gain node for volume control
+      gainNode = audioContext.createGain();
+      gainNode.gain.value = volume;
+      
+      // Create stereo panner nodes
+      pannerLeft = audioContext.createStereoPanner();
+      pannerRight = audioContext.createStereoPanner();
+      
+      // Set panning (left = -1, right = 1)
+      pannerLeft.pan.value = -1;
+      pannerRight.pan.value = 1;
+      
+      // Set frequencies
+      leftOscillator.frequency.value = baseFrequency;
+      rightOscillator.frequency.value = baseFrequency + beatFrequency;
+      
+      // Connect nodes
+      leftOscillator.connect(pannerLeft);
+      rightOscillator.connect(pannerRight);
+      pannerLeft.connect(gainNode);
+      pannerRight.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      // Start oscillators
+      leftOscillator.start();
+      rightOscillator.start();
+      
+      console.log(`Binaural beat created: Base ${baseFrequency}Hz, Beat ${beatFrequency}Hz`);
+    } catch (error) {
+      console.error('Error initializing audio:', error);
+      throw new Error('Failed to initialize audio context');
     }
   };
   
-  return sound;
-};
+  const cleanupAudio = () => {
+    if (!audioContext) return;
 
-/**
- * Generates a binaural beat audio
- * @param baseFreq The base frequency in Hz
- * @param beatFreq The beat frequency in Hz
- * @param volume Initial volume from 0 to 1
- * @returns Audio controller for the binaural beat
- */
-export const generateBinauralBeat = (baseFreq: number, beatFreq: number, volume: number = 0.5) => {
-  // In a real app, you would use Web Audio API to generate the binaural beat
-  // For this example, we'll simulate with an object similar to generateNatureSound
-  
-  const beat = {
-    baseFrequency: baseFreq,
-    beatFrequency: beatFreq,
-    volume,
-    isPlaying: false,
-    
-    play: function() {
-      this.isPlaying = true;
-      console.log(`Playing binaural beat: ${baseFreq}Hz + ${beatFreq}Hz at volume ${volume}`);
-      return Promise.resolve();
-    },
-    
-    pause: function() {
-      this.isPlaying = false;
-      console.log(`Paused binaural beat`);
-    },
-    
-    stop: function() {
-      this.isPlaying = false;
-      console.log(`Stopped binaural beat`);
-    },
-    
-    setVolume: function(newVolume: number) {
-      this.volume = newVolume;
-      console.log(`Set binaural beat volume to ${newVolume}`);
-    },
-    
-    setFrequencies: function(newBaseFreq: number, newBeatFreq: number) {
-      this.baseFrequency = newBaseFreq;
-      this.beatFrequency = newBeatFreq;
-      console.log(`Changed frequencies to: ${newBaseFreq}Hz + ${newBeatFreq}Hz`);
+    try {
+      if (leftOscillator) {
+        leftOscillator.stop();
+        leftOscillator.disconnect();
+      }
+      
+      if (rightOscillator) {
+        rightOscillator.stop();
+        rightOscillator.disconnect();
+      }
+      
+      if (pannerLeft) pannerLeft.disconnect();
+      if (pannerRight) pannerRight.disconnect();
+      if (gainNode) gainNode.disconnect();
+      
+      audioContext.close();
+      
+      audioContext = null;
+      leftOscillator = null;
+      rightOscillator = null;
+      gainNode = null;
+      pannerLeft = null;
+      pannerRight = null;
+      
+      console.log('Binaural beat audio cleaned up');
+    } catch (error) {
+      console.error('Error cleaning up audio:', error);
     }
   };
   
-  return beat;
-};
-
-/**
- * Plays a meditation sound with a gradual fade in
- * @param duration Duration in seconds
- * @param type Type of meditation sound
- * @param volume Initial volume
- * @returns Audio controller
- */
-export const playMeditationSound = (
-  duration: number, 
-  type: string = 'ambient', 
-  volume: number = 0.5
-) => {
-  const sound = generateNatureSound(type, 0);
-  
-  // Fade in over 5 seconds
-  let currentVolume = 0;
-  const fadeInterval = setInterval(() => {
-    currentVolume += 0.05;
-    if (currentVolume >= volume) {
-      currentVolume = volume;
-      clearInterval(fadeInterval);
+  return {
+    baseFrequency,
+    beatFrequency,
+    volume,
+    isPlaying,
+    
+    async play() {
+      if (isPlaying) return;
+      
+      setupAudio();
+      isPlaying = true;
+      console.log(`Playing binaural beat: ${baseFrequency}Hz + ${beatFrequency}Hz`);
+      return Promise.resolve();
+    },
+    
+    pause() {
+      if (!isPlaying) return;
+      
+      if (audioContext) {
+        audioContext.suspend();
+      }
+      
+      isPlaying = false;
+      console.log('Binaural beat paused');
+    },
+    
+    stop() {
+      if (!isPlaying && !audioContext) return;
+      
+      cleanupAudio();
+      isPlaying = false;
+      console.log('Binaural beat stopped');
+    },
+    
+    setVolume(newVolume: number) {
+      volume = newVolume;
+      
+      if (gainNode) {
+        gainNode.gain.value = newVolume;
+      }
+      
+      console.log(`Binaural beat volume set to ${newVolume}`);
+    },
+    
+    setFrequencies(newBaseFreq: number, newBeatFreq: number) {
+      baseFrequency = newBaseFreq;
+      beatFrequency = newBeatFreq;
+      
+      if (leftOscillator && rightOscillator) {
+        leftOscillator.frequency.value = newBaseFreq;
+        rightOscillator.frequency.value = newBaseFreq + newBeatFreq;
+      }
+      
+      console.log(`Binaural beat frequencies updated: Base ${newBaseFreq}Hz, Beat ${newBeatFreq}Hz`);
     }
-    sound.setVolume(currentVolume);
-  }, 250);
+  };
+}
+
+// Enhanced nature sound generator with actual audio functionality
+export function generateNatureSound(type: NatureSound | string, volume = 0.5): AudioInstance {
+  const soundMap: Record<string, string> = {
+    rain: '/sounds/rain.mp3',
+    ocean: '/sounds/ocean.mp3',
+    forest: '/sounds/forest.mp3',
+    fire: '/sounds/fire.mp3',
+    wind: '/sounds/wind.mp3',
+    thunder: '/sounds/thunder.mp3',
+    stream: '/sounds/stream.mp3',
+    whitenoise: '/sounds/whitenoise.mp3'
+  };
   
-  // Auto-stop after duration
-  if (duration > 0) {
-    setTimeout(() => {
-      // Fade out
-      const fadeOutInterval = setInterval(() => {
-        currentVolume -= 0.05;
-        if (currentVolume <= 0) {
-          currentVolume = 0;
-          clearInterval(fadeOutInterval);
-          sound.stop();
-        }
-        sound.setVolume(currentVolume);
-      }, 250);
-    }, (duration * 1000) - 5000); // Start fade 5 seconds before end
-  }
+  const soundUrl = soundMap[type] || soundMap.rain;
+  const audio = new Audio(soundUrl);
+  audio.loop = true;
+  audio.volume = volume;
+  let isPlaying = false;
   
-  sound.play();
-  return sound;
-};
+  return {
+    isPlaying,
+    volume,
+    
+    async play() {
+      try {
+        await audio.play();
+        isPlaying = true;
+        console.log(`Playing nature sound: ${type}`);
+        return Promise.resolve();
+      } catch (error) {
+        console.error(`Error playing nature sound: ${error}`);
+        throw error;
+      }
+    },
+    
+    pause() {
+      audio.pause();
+      isPlaying = false;
+      console.log(`Paused nature sound: ${type}`);
+    },
+    
+    stop() {
+      audio.pause();
+      audio.currentTime = 0;
+      isPlaying = false;
+      console.log(`Stopped nature sound: ${type}`);
+    },
+    
+    setVolume(newVolume: number) {
+      volume = newVolume;
+      audio.volume = newVolume;
+      console.log(`Nature sound volume set to ${newVolume}`);
+    }
+  };
+}

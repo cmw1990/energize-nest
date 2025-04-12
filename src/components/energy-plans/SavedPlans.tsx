@@ -7,6 +7,7 @@ import { useAuth } from "@/components/AuthProvider"
 import { Card, CardContent } from "@/components/ui/card"
 import { adaptDbPlanToAppPlan } from "@/types/energyPlans"
 import { typeSafeQueryFn, safeCast } from "@/utils/supabaseTypeUtils"
+import { useToast } from "@/hooks/use-toast"
 
 interface SavedPlansProps {
   progress?: ProgressRecord[]
@@ -14,8 +15,9 @@ interface SavedPlansProps {
 
 export const SavedPlans = ({ progress }: SavedPlansProps) => {
   const { session } = useAuth()
+  const { toast } = useToast()
 
-  const { data: savedPlans, isLoading: isLoadingSaved } = useQuery<Plan[]>({
+  const { data: savedPlans, isLoading: isLoadingSaved, error } = useQuery<Plan[]>({
     queryKey: ['energy-plans', 'saved', session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return []
@@ -31,6 +33,12 @@ export const SavedPlans = ({ progress }: SavedPlansProps) => {
             )
           `)
           .eq('user_id', session.user.id);
+      }, (err) => {
+        toast({
+          title: "Error loading saved plans",
+          description: "There was an issue loading your saved plans. Please try again.",
+          variant: "destructive"
+        });
       });
       
       if (!result || result.length === 0) return [];
@@ -45,11 +53,23 @@ export const SavedPlans = ({ progress }: SavedPlansProps) => {
     enabled: !!session?.user?.id
   })
 
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="text-center text-red-500">
+            Unable to load your saved plans. Please try again later.
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (!session?.user) {
     return (
       <Card>
         <CardContent className="pt-6">
-          <p>Please sign in to view saved plans</p>
+          <p className="text-center text-muted-foreground">Please sign in to view saved plans</p>
         </CardContent>
       </Card>
     )

@@ -1,78 +1,43 @@
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useToast } from './use-toast';
-import { generateNatureSound, NatureSound } from '@/utils/audio';
+import { generateNatureSound, generateBinauralBeat, NatureSound } from '@/utils/audio';
+import type { BinauralBeat, AudioGeneratorHook } from '@/types/audio';
 
-// Define the BinauralBeat structure explicitly since we're replacing the import
-interface BinauralBeat {
-  baseFrequency: number;
-  beatFrequency: number;
-  volume: number;
-  isPlaying: boolean;
-  play: () => Promise<void>;
-  pause: () => void;
-  stop: () => void;
-  setVolume: (newVolume: number) => void;
-  setFrequencies: (newBaseFreq: number, newBeatFreq: number) => void;
-}
-
-// Implement the generateBinauralBeat function since it seems to be missing
-function generateBinauralBeat(baseFreq: number, beatFreq: number, volume: number = 0.5): BinauralBeat {
-  console.log(`Creating binaural beat with base frequency ${baseFreq}Hz and beat frequency ${beatFreq}Hz`);
-  
-  return {
-    baseFrequency: baseFreq,
-    beatFrequency: beatFreq,
-    volume: volume,
-    isPlaying: false,
-    
-    play: function() {
-      this.isPlaying = true;
-      console.log(`Playing binaural beat: ${baseFreq}Hz + ${beatFreq}Hz at volume ${volume}`);
-      return Promise.resolve();
-    },
-    
-    pause: function() {
-      this.isPlaying = false;
-      console.log(`Paused binaural beat`);
-    },
-    
-    stop: function() {
-      this.isPlaying = false;
-      console.log(`Stopped binaural beat`);
-    },
-    
-    setVolume: function(newVolume: number) {
-      this.volume = newVolume;
-      console.log(`Set binaural beat volume to ${newVolume}`);
-    },
-    
-    setFrequencies: function(newBaseFreq: number, newBeatFreq: number) {
-      this.baseFrequency = newBaseFreq;
-      this.beatFrequency = newBeatFreq;
-      console.log(`Changed frequencies to: ${newBaseFreq}Hz + ${newBeatFreq}Hz`);
-    }
-  };
-}
-
-export const useAudioGenerator = () => {
+export const useAudioGenerator = (): AudioGeneratorHook => {
   const [binauralAudio, setBinauralAudio] = useState<BinauralBeat | null>(null);
   const [natureAudio, setNatureAudio] = useState<ReturnType<typeof generateNatureSound> | null>(null);
   const { toast } = useToast();
+  
+  // Clean up audio when component unmounts
+  useEffect(() => {
+    return () => {
+      stopAllAudio();
+    };
+  }, []);
 
-  const startBinauralBeat = (baseFreq: number, beatFreq: number, volume = 0.5) => {
+  const startBinauralBeat = (baseFreq: number, beatFreq: number, volume = 0.5): BinauralBeat | null => {
     stopBinauralBeat();
     
     try {
       const audio = generateBinauralBeat(baseFreq, beatFreq, volume);
-      audio.play();
-      setBinauralAudio(audio);
-      return audio;
+      audio.play()
+        .catch(error => {
+          console.error('Failed to start binaural beat:', error);
+          toast({
+            title: 'Audio Error',
+            description: 'Failed to start binaural beat. Please try again.',
+            variant: 'destructive'
+          });
+        });
+      
+      setBinauralAudio(audio as BinauralBeat);
+      return audio as BinauralBeat;
     } catch (error) {
-      console.error('Failed to start binaural beat:', error);
+      console.error('Failed to create binaural beat:', error);
       toast({
         title: 'Audio Error',
-        description: 'Failed to start binaural beat audio.',
+        description: 'Failed to create binaural beat audio.',
         variant: 'destructive'
       });
       return null;
@@ -91,7 +56,16 @@ export const useAudioGenerator = () => {
     
     try {
       const audio = generateNatureSound(type, volume);
-      audio.play();
+      audio.play()
+        .catch(error => {
+          console.error('Failed to play nature sound:', error);
+          toast({
+            title: 'Audio Error',
+            description: 'Failed to play nature sound. Please try again.',
+            variant: 'destructive'
+          });
+        });
+      
       setNatureAudio(audio);
       return audio;
     } catch (error) {
