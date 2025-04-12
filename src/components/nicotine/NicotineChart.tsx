@@ -13,7 +13,7 @@ import {
   Bar,
 } from "recharts";
 import { Button } from "@/components/ui/button";
-import { ChartType } from "lucide-react";
+import { BarChart3 } from "lucide-react";
 
 interface NicotineChartProps {
   data: {
@@ -75,7 +75,7 @@ export function NicotineChart({ data, isLoading }: NicotineChartProps) {
           size="icon"
           onClick={() => setChartType(chartType === "line" ? "bar" : "line")}
         >
-          <ChartType className="h-4 w-4" />
+          <BarChart3 className="h-4 w-4" />
         </Button>
       </div>
 
