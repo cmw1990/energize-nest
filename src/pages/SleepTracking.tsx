@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { TopNav } from "@/components/layout/TopNav";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -7,7 +6,22 @@ import { Button } from "@/components/ui/button";
 import { SleepMetrics } from "@/components/sleep/SleepMetrics";
 import { SleepScheduler } from "@/components/sleep/SleepScheduler";
 import { SleepTrackingForm } from "@/components/sleep/SleepTrackingForm";
-import { Moon, Clock, Calendar, Clipboard, AlarmClock, Bell, BarChart, BedDouble, Plus, ListChecks, Plus } from "lucide-react";
+import {
+  Activity,
+  AlarmClock,
+  ArrowRight,
+  BedDouble,
+  Calendar,
+  ChevronRight,
+  Clock,
+  Hourglass,
+  Moon,
+  Plus,
+  Settings,
+  Sunrise,
+  Sunset,
+  Zap
+} from "lucide-react";
 
 const SleepTracking = () => {
   const [activeTab, setActiveTab] = useState("dashboard");

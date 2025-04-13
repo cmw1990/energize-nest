@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useAudioGenerator } from "@/hooks/useAudioGenerator";
 import { Slider } from "@/components/ui/slider";
@@ -5,11 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Volume2, Volume1, VolumeX, Play, Pause } from "lucide-react";
+import { NoiseType, NatureSound } from "@/types/games";
 
 const WhiteNoise = () => {
   const { 
     playNoise,
-    playNatureSound,
+    playNature,
     stopAll,
     isPlaying,
     settings,
@@ -21,13 +23,17 @@ const WhiteNoise = () => {
   } = useAudioGenerator();
 
   const [volume, setVolume] = useState(settings.volume);
-  const [noiseType, setNoiseType] = useState(settings.noiseType);
-  const [natureSound, setNatureSound] = useState(settings.natureSound);
+  const [noiseType, setNoiseType] = useState<NoiseType>(settings.noiseType as NoiseType || 'white');
+  const [natureSound, setNatureSound] = useState<NatureSound>(settings.natureSound as NatureSound || 'none');
 
   useEffect(() => {
     setVolume(settings.volume);
-    setNoiseType(settings.noiseType);
-    setNatureSound(settings.natureSound);
+    if (settings.noiseType) {
+      setNoiseType(settings.noiseType as NoiseType);
+    }
+    if (settings.natureSound) {
+      setNatureSound(settings.natureSound as NatureSound);
+    }
   }, [settings]);
 
   const handleVolumeChange = (newVolume: number[]) => {
@@ -36,14 +42,19 @@ const WhiteNoise = () => {
     updateVolume(volumeValue);
   };
 
-  const handleNoiseTypeChange = (type: string) => {
+  const handleNoiseTypeChange = (type: NoiseType) => {
     setNoiseType(type);
     updateNoiseType(type);
   };
 
-  const handleNatureSoundChange = (sound: string | null) => {
-    setNatureSound(sound);
-    updateNatureSound(sound);
+  const handleNatureSoundChange = (sound: NatureSound | null) => {
+    if (sound) {
+      setNatureSound(sound);
+      updateNatureSound(sound);
+    } else {
+      setNatureSound('none');
+      updateNatureSound('none');
+    }
   };
 
   const togglePlay = () => {
@@ -108,18 +119,23 @@ const WhiteNoise = () => {
           <div className="space-y-2">
             <h3 className="text-lg font-medium">Nature Sounds</h3>
             <p>Select a nature sound to add to the background.</p>
-            <Button onClick={() => handleNatureSoundChange("rain")}>
-              Set Rain Sound
-            </Button>
-            <Button onClick={() => handleNatureSoundChange("forest")}>
-              Set Forest Sound
-            </Button>
-            <Button onClick={() => handleNatureSoundChange(null)}>
-              Remove Nature Sound
-            </Button>
+            <div className="flex flex-wrap gap-2 mt-2">
+              <Button onClick={() => handleNatureSoundChange("rain")}>
+                Rain Sound
+              </Button>
+              <Button onClick={() => handleNatureSoundChange("forest")}>
+                Forest Sound
+              </Button>
+              <Button onClick={() => handleNatureSoundChange("ocean")}>
+                Ocean Sound
+              </Button>
+              <Button variant="outline" onClick={() => handleNatureSoundChange(null)}>
+                No Nature Sound
+              </Button>
+            </div>
           </div>
 
-          <Button onClick={togglePlay}>
+          <Button onClick={togglePlay} className="w-full">
             {isPlaying ? (
               <>
                 <Pause className="mr-2 h-4 w-4" />

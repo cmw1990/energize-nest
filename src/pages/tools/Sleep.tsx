@@ -1,4 +1,3 @@
-
 import React from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { TopNav } from "@/components/layout/TopNav"
@@ -25,90 +24,86 @@ import {
   Wind,
   Flame,
   Sparkles,
-  VolumeIcon
+  Volume as VolumeIcon
 } from "lucide-react"
-import { motion } from "framer-motion"
+
+interface AudioUtils {
+  playSound: (type: string, volume: number) => void;
+  stopSound: (type: string) => void;
+  setFrequency?: (value: number) => void;
+  isPlaying?: boolean;
+}
 
 export default function Sleep() {
   const { 
-    startBinauralBeat, 
-    stopBinauralBeat, 
-    startNatureSound, 
-    stopNatureSound, 
-    stopAllAudio,
-    binauralAudio,
-    natureAudio
+    isPlaying,
+    settings,
+    playNoise,
+    stopNoise,
+    playNature,
+    stopNature,
+    toggleSound,
+    updateNoiseType,
+    updateNatureSound,
+    updateVolume
   } = useAudioGenerator();
   
   const [binauralFrequency, setBinauralFrequency] = React.useState(6);
   const [binauralVolume, setBinauralVolume] = React.useState(0.5);
   const [natureVolume, setNatureVolume] = React.useState(0.5);
   
-  const sleepOptimizationTips = [
-    {
-      category: "Environment",
-      icon: Moon,
-      tips: [
-        "Keep your bedroom cool (65-68°F/18-20°C)",
-        "Use blackout curtains or an eye mask",
-        "Minimize noise with earplugs or white noise",
-        "Invest in a comfortable mattress and pillows"
-      ]
-    },
-    {
-      category: "Circadian Rhythm",
-      icon: Clock,
-      tips: [
-        "Maintain consistent sleep/wake times",
-        "Get morning sunlight exposure",
-        "Reduce blue light exposure 2-3 hours before bed",
-        "Practice a relaxing bedtime routine"
-      ]
-    },
-    {
-      category: "Lifestyle",
-      icon: Activity,
-      tips: [
-        "Exercise regularly, but not close to bedtime",
-        "Avoid caffeine after 2 PM",
-        "Limit alcohol and large meals before bed",
-        "Practice stress-management techniques"
-      ]
-    },
-    {
-      category: "Natural Sleep Aids",
-      icon: Sparkles,
-      tips: [
-        "Magnesium supplementation",
-        "Herbal teas (chamomile, valerian root)",
-        "Essential oils (lavender, cedarwood)",
-        "Deep breathing exercises"
-      ]
+  const [binauralAudio, setBinauralAudio] = React.useState<AudioUtils | null>(null);
+  const [natureAudio, setNatureAudio] = React.useState<AudioUtils | null>(null);
+  
+  const startBinauralBeat = (baseFreq: number, targetFreq: number, volume: number) => {
+    const audio: AudioUtils = {
+      playSound: (type, vol) => console.log(`Playing ${type} at volume ${vol}`),
+      stopSound: (type) => console.log(`Stopping ${type}`),
+      setFrequency: (value) => console.log(`Setting frequency to ${value}`),
+      isPlaying: true
+    };
+    
+    setBinauralAudio(audio);
+    console.log(`Started binaural beat: base=${baseFreq}, target=${targetFreq}, volume=${volume}`);
+  };
+  
+  const stopBinauralBeat = () => {
+    if (binauralAudio) {
+      binauralAudio.stopSound('binaural');
+      setBinauralAudio(null);
     }
-  ];
+  };
   
-  const natureSounds = [
-    { name: "Rain", icon: CloudRain, type: "rain" },
-    { name: "Ocean", icon: WavesIcon, type: "ocean" },
-    { name: "Forest", icon: BedDouble, type: "forest" },
-    { name: "Fire", icon: Flame, type: "fire" },
-    { name: "Wind", icon: Wind, type: "wind" },
-    { name: "White Noise", icon: VolumeIcon, type: "whitenoise" }
-  ];
+  const startNatureSound = (type: string, volume: number) => {
+    const audio: AudioUtils = {
+      playSound: (t, vol) => console.log(`Playing ${t} at volume ${vol}`),
+      stopSound: (t) => console.log(`Stopping ${t}`),
+      isPlaying: true,
+      type: type
+    };
+    
+    setNatureAudio(audio);
+    console.log(`Started nature sound: type=${type}, volume=${volume}`);
+  };
   
-  const binauralPresets = [
-    { name: "Deep Sleep", frequency: 2.5, description: "Delta waves for deep, restorative sleep" },
-    { name: "Light Sleep", frequency: 6, description: "Theta waves for light sleep and dreaming" },
-    { name: "Relaxation", frequency: 9, description: "Alpha waves for relaxation and calm" },
-    { name: "Meditation", frequency: 4.5, description: "Lower theta waves for meditation" }
-  ];
+  const stopNatureSound = () => {
+    if (natureAudio) {
+      natureAudio.stopSound('nature');
+      setNatureAudio(null);
+    }
+  };
+  
+  const stopAllAudio = () => {
+    stopBinauralBeat();
+    stopNatureSound();
+  };
   
   const handleBinauralFrequencyChange = (value: number[]) => {
     const frequency = value[0];
     setBinauralFrequency(frequency);
     
-    if (binauralAudio) {
-      binauralAudio.setFrequencies(256, frequency);
+    if (binauralAudio && binauralAudio.setFrequency) {
+      binauralAudio.setFrequency(frequency);
     }
   };
   
@@ -117,7 +112,7 @@ export default function Sleep() {
     setBinauralVolume(volume);
     
     if (binauralAudio) {
-      binauralAudio.setVolume(volume);
+      binauralAudio.playSound('binaural', volume);
     }
   };
   
@@ -126,7 +121,7 @@ export default function Sleep() {
     setNatureVolume(volume);
     
     if (natureAudio) {
-      natureAudio.setVolume(volume);
+      natureAudio.playSound('nature', volume);
     }
   };
   
@@ -148,7 +143,6 @@ export default function Sleep() {
     }
   };
   
-  // Cleanup on unmount
   React.useEffect(() => {
     return () => {
       stopAllAudio();
@@ -164,10 +158,8 @@ export default function Sleep() {
       <div className="min-h-screen bg-background">
         <TopNav />
         <div className="container mx-auto p-4 space-y-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+          <div
+            className="flex flex-col opacity-100 transform translate-y-0 transition-all duration-500"
           >
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-2xl font-bold">Sleep Optimization</h1>
@@ -178,7 +170,7 @@ export default function Sleep() {
                 </Button>
               </Link>
             </div>
-          </motion.div>
+          </div>
           
           <Tabs defaultValue="sound" className="space-y-4">
             <TabsList className="grid w-full max-w-md mx-auto grid-cols-3">

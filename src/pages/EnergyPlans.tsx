@@ -16,7 +16,7 @@ import { PlanFilters } from '@/components/energy-plans/PlanFilters';
 import { SavedPlans } from '@/components/energy-plans/SavedPlans';
 import { PersonalPlans } from '@/components/energy-plans/PersonalPlans';
 import { LifeSituationDialog } from '@/components/energy-plans/LifeSituationDialog';
-import { Plan, LifeSituation } from '@/types/energyPlans';
+import { Plan, LifeSituation, PersonalPlansProps, PlanFiltersProps, PlanDiscoveryProps } from '@/types/games';
 import { safeArrayCast } from '@/utils/typeSafeUtils';
 import { Battery, Zap, Flame, BookOpen } from 'lucide-react';
 
@@ -26,6 +26,7 @@ const EnergyPlans: React.FC = () => {
   const [activeTab, setActiveTab] = useState('personal');
   const [lifeSituation, setLifeSituation] = useState<LifeSituation>("regular");
   const [showLifeSituationDialog, setShowLifeSituationDialog] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   // Fetch user's personal plans
   const { data: personalPlans, refetch: refetchPersonalPlans } = useQuery({
@@ -68,6 +69,16 @@ const EnergyPlans: React.FC = () => {
   // Function to handle plan creation
   const handlePlanCreated = () => {
     refetchPersonalPlans();
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+  };
+
+  const handleSavePlan = (plan: Plan) => {
+    // Implement save plan functionality
+    console.log('Saving plan:', plan);
+    // You could add API call here to save the plan
   };
 
   return (
@@ -117,7 +128,10 @@ const EnergyPlans: React.FC = () => {
               
               <TabsContent value="explore">
                 <div className="space-y-6">
-                  <PlanFilters />
+                  <PlanFilters 
+                    selectedCategory={selectedCategory}
+                    onCategoryChange={handleCategoryChange}
+                  />
                   
                   <div className="grid gap-6">
                     <Card>
@@ -146,7 +160,10 @@ const EnergyPlans: React.FC = () => {
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <PlanDiscovery />
+                        <PlanDiscovery 
+                          selectedCategory={selectedCategory}
+                          onSavePlan={handleSavePlan}
+                        />
                       </CardContent>
                     </Card>
                     
