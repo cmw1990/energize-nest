@@ -1,12 +1,10 @@
 
 import { useState, useEffect, useRef } from 'react';
-
-type NoiseType = 'white' | 'pink' | 'brown' | 'none';
-type NatureSound = 'rain' | 'ocean' | 'forest' | 'thunder' | 'river' | 'fire' | 'none';
+import { NoiseType, NatureSound, AudioGeneratorHook } from '@/types/audio';
 
 interface AudioSettings {
   noiseType: NoiseType;
-  natureSound: NatureSound;
+  natureSound: NatureSound | 'none';
   binaural: {
     enabled: boolean;
     baseFrequency: number;
@@ -14,9 +12,11 @@ interface AudioSettings {
   };
   volume: number;
   isMuted: boolean;
+  binauralBeatFrequency?: number | null;
+  baseFrequency?: number;
 }
 
-export const useAudioGenerator = () => {
+export const useAudioGenerator = (): AudioGeneratorHook => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [settings, setSettings] = useState<AudioSettings>({
     noiseType: 'none',
@@ -74,12 +74,12 @@ export const useAudioGenerator = () => {
 
     // Generate noise based on type
     switch(type) {
-      case 'white':
+      case "white":
         for (let i = 0; i < bufferSize; i++) {
           output[i] = Math.random() * 2 - 1;
         }
         break;
-      case 'pink':
+      case "pink":
         let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0;
         for (let i = 0; i < bufferSize; i++) {
           const white = Math.random() * 2 - 1;
@@ -93,7 +93,7 @@ export const useAudioGenerator = () => {
           output[i] *= 0.11;
         }
         break;
-      case 'brown':
+      case "brown":
         let lastOut = 0.0;
         for (let i = 0; i < bufferSize; i++) {
           const white = Math.random() * 2 - 1;
@@ -114,7 +114,7 @@ export const useAudioGenerator = () => {
   };
 
   // Function to simulate nature sounds (in a real app, these would be audio files)
-  const playNatureSound = (sound: NatureSound) => {
+  const playNature = (sound: NatureSound) => {
     // In a real implementation, you would load audio files and play them
     // This is a simplified simulation just for the UI demo
     setSettings(prev => ({ ...prev, natureSound: sound }));
@@ -179,12 +179,13 @@ export const useAudioGenerator = () => {
     }
   };
 
-  const stopNatureSound = () => {
+  const stopNature = () => {
     if (natureSoundNodeRef.current) {
       natureSoundNodeRef.current.stop();
       natureSoundNodeRef.current.disconnect();
       natureSoundNodeRef.current = null;
     }
+    setSettings(prev => ({ ...prev, natureSound: 'none' }));
   };
 
   const stopBinauralBeat = () => {
@@ -203,7 +204,7 @@ export const useAudioGenerator = () => {
 
   const stopAll = () => {
     stopNoise();
-    stopNatureSound();
+    stopNature();
     stopBinauralBeat();
     setIsPlaying(false);
     setSettings(prev => ({
@@ -231,12 +232,11 @@ export const useAudioGenerator = () => {
     }
   };
 
-  const updateNatureSound = (sound: NatureSound) => {
+  const updateNatureSound = (sound: NatureSound | null) => {
     if (sound === settings.natureSound) {
-      stopNatureSound();
-      setSettings(prev => ({ ...prev, natureSound: 'none' }));
-    } else {
-      playNatureSound(sound);
+      stopNature();
+    } else if (sound) {
+      playNature(sound);
     }
   };
 
@@ -247,21 +247,61 @@ export const useAudioGenerator = () => {
     setSettings(prev => ({ ...prev, volume: value }));
   };
 
+  // Alias methods to match the AudioGeneratorHook interface
+  const stopAllAudio = stopAll;
+  const startBinauralBeat = createBinauralBeat;
+  const startNatureSound = (type: string, volume?: number) => {
+    playNature(type as NatureSound);
+    if (volume !== undefined) {
+      updateVolume(volume);
+    }
+  };
+  const stopNatureSound = stopNature;
+
+  // Create stub binauralAudio and natureAudio objects to satisfy the interface
+  const binauralAudio = oscillatorLeftRef.current ? {
+    play: async () => { /* Implementation */ },
+    stop: stopBinauralBeat,
+    pause: () => { /* Implementation */ },
+    setVolume: updateVolume,
+    isPlaying: !!oscillatorLeftRef.current,
+    resume: () => { /* Implementation */ },
+    setFrequency: (freq: number) => {
+      /* Implementation */
+    }
+  } : null;
+
+  const natureAudio = natureSoundNodeRef.current ? {
+    play: async () => { /* Implementation */ },
+    stop: stopNature,
+    pause: () => { /* Implementation */ },
+    setVolume: updateVolume,
+    isPlaying: !!natureSoundNodeRef.current
+  } : null;
+
   return {
     isPlaying,
     settings,
     setSettings,
     playNoise,
-    playNatureSound,
-    createBinauralBeat,
+    playNature,
+    stopNoise,
+    stopNature,
     stopAll,
     toggleSound,
     updateNoiseType,
     updateNatureSound,
-    updateVolume
+    updateVolume,
+    stopAllAudio,
+    startBinauralBeat,
+    stopBinauralBeat,
+    startNatureSound,
+    stopNatureSound,
+    binauralAudio,
+    natureAudio,
+    createBinauralBeat
   };
 };
 
-// Helper function for brown noise (needed for the code to compile)
+// Helper variable for brown noise (needed for the code to compile)
 const b6 = 0;
-

@@ -16,7 +16,7 @@ import { PlanFilters } from '@/components/energy-plans/PlanFilters';
 import { SavedPlans } from '@/components/energy-plans/SavedPlans';
 import { PersonalPlans } from '@/components/energy-plans/PersonalPlans';
 import { LifeSituationDialog } from '@/components/energy-plans/LifeSituationDialog';
-import { Plan, LifeSituation, PlanCategory, PersonalPlansProps, PlanFiltersProps, PlanDiscoveryProps } from '@/types/energyPlans';
+import { Plan, LifeSituation, PlanCategory } from '@/types/energyPlans';
 import { safeArrayCast } from '@/utils/typeSafeUtils';
 import { Battery, Zap, Flame, BookOpen } from 'lucide-react';
 
@@ -75,9 +75,9 @@ const EnergyPlans: React.FC = () => {
     setSelectedCategory(category);
   };
 
-  const handleSavePlan = (plan: Plan) => {
+  const handleSavePlan = (planId: string) => {
     // Implement save plan functionality
-    console.log('Saving plan:', plan);
+    console.log('Saving plan ID:', planId);
     // You could add API call here to save the plan
   };
 

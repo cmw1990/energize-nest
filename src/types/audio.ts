@@ -65,4 +65,7 @@ export interface AudioGeneratorHook {
   stopNatureSound: () => void;
   binauralAudio: BinauralBeat | null;
   natureAudio: AudioInstance | null;
+  
+  // Additional methods from useAudioGenerator
+  createBinauralBeat?: (baseFreq: number, beatFreq: number) => void;
 }

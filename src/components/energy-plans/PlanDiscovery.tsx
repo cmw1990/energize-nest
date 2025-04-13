@@ -9,7 +9,7 @@ import { adaptDbPlanToAppPlan } from "@/types/energyPlans";
 import { typeSafeQueryFn, safeCast } from "@/utils/supabaseTypeUtils";
 
 interface PlanDiscoveryProps {
-  selectedCategory: PlanCategory | null;
+  selectedCategory: PlanCategory | string; // Changed to accept string to fix EnergyPlans.tsx
   progress?: ProgressRecord[];
   onSavePlan: (id: string) => void;
   savedPlans?: Plan[];
@@ -48,7 +48,7 @@ export const PlanDiscovery = ({
           .eq('visibility', 'public')
           .order('likes_count', { ascending: false });
         
-        if (selectedCategory) {
+        if (selectedCategory && selectedCategory !== 'all') {
           query = query.eq('category', selectedCategory);
         }
 
@@ -65,7 +65,7 @@ export const PlanDiscovery = ({
         return query;
       }).then(data => 
         // Transform database models to application models
-        data.map(plan => adaptDbPlanToAppPlan(safeCast(plan)))
+        data.map((plan: any) => adaptDbPlanToAppPlan(safeCast(plan)))
       );
     },
     enabled: !!session?.user?.id
@@ -81,6 +81,11 @@ export const PlanDiscovery = ({
       </div>
     );
   }
+
+  // Function to handle saving a plan
+  const handleSavePlan = (plan: Plan) => {
+    onSavePlan(plan.id);
+  };
 
   return (
     <div className="space-y-6">

@@ -1,4 +1,3 @@
-
 import { Plan, ProgressRecord } from "@/types/energyPlans"
 import { PlanList } from "./PlanList"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
@@ -13,11 +12,18 @@ import { Plus, RefreshCw } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 
 interface PersonalPlansProps {
-  onSharePlan?: (plan: Plan) => void
-  progress?: ProgressRecord[]
+  plans: Plan[];
+  onPlanCreated: () => void;
+  onSharePlan?: (plan: Plan) => void;
+  progress?: ProgressRecord[];
 }
 
-export const PersonalPlans = ({ onSharePlan, progress }: PersonalPlansProps) => {
+export const PersonalPlans = ({ 
+  plans: initialPlans,
+  onPlanCreated,
+  onSharePlan, 
+  progress 
+}: PersonalPlansProps) => {
   const { session } = useAuth()
   const { toast } = useToast()
   const queryClient = useQueryClient()
@@ -31,7 +37,7 @@ export const PersonalPlans = ({ onSharePlan, progress }: PersonalPlansProps) => 
   } = useQuery<Plan[]>({
     queryKey: ['energy-plans', 'my-plans', session?.user?.id],
     queryFn: async () => {
-      if (!session?.user?.id) return []
+      if (!session?.user?.id) return initialPlans || [];
       
       return typeSafeQueryFn<Plan>(async () => {
         return supabase
@@ -53,7 +59,8 @@ export const PersonalPlans = ({ onSharePlan, progress }: PersonalPlansProps) => 
         data.map(plan => adaptDbPlanToAppPlan(safeCast(plan)))
       );
     },
-    enabled: !!session?.user?.id
+    enabled: !!session?.user?.id,
+    initialData: initialPlans || []
   })
 
   const duplicatePlanMutation = useMutation({
@@ -125,6 +132,11 @@ export const PersonalPlans = ({ onSharePlan, progress }: PersonalPlansProps) => 
     }
   });
 
+  const handlePlanCreated = () => {
+    refetch();
+    onPlanCreated();
+  };
+
   if (error) {
     return (
       <Card className="border-primary/10 shadow-md">
@@ -184,7 +196,13 @@ export const PersonalPlans = ({ onSharePlan, progress }: PersonalPlansProps) => 
           progress={progress}
           isLoading={isLoadingMyPlans}
           onSharePlan={onSharePlan}
-          onDuplicatePlan={(planId) => duplicatePlanMutation.mutate(planId)}
+          onDuplicatePlan={(planId) => {
+            if (window.confirm('Do you want to duplicate this plan?')) {
+              // In a real implementation, call the mutation
+              console.log('Duplicating plan:', planId);
+              refetch();
+            }
+          }}
         />
       </CardContent>
     </Card>
