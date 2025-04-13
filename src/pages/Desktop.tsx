@@ -1,12 +1,12 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { PendingTasks } from '@/components/tasks/PendingTasks';
-import { RecentActivity } from '@/components/activity/RecentActivity';
-import { FocusTimer } from '@/components/focus/FocusTimer';
+import { Progress } from '@/components/ui/progress';
 import EisenhowerMatrix from '@/components/focus/EisenhowerMatrix';
-import { Activity, Calendar, Layout, FileText, CheckSquare, BarChart2, Users, Zap } from 'lucide-react';
+import { TopNav } from '@/components/layout/TopNav';
+import { Activity, Calendar, Layout, FileText, CheckSquare, BarChart2, Users, Zap, Clock, ClipboardList } from 'lucide-react';
 
 export default function Desktop() {
   return (
@@ -39,7 +39,7 @@ export default function Desktop() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Tasks Completed</CardTitle>
-            <Clipboard className="h-4 w-4 text-muted-foreground" />
+            <ClipboardList className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">12</div>

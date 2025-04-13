@@ -1,3 +1,4 @@
+
 export interface AudioSettings {
   volume: number;
   noiseType: string;
@@ -15,6 +16,7 @@ export interface AudioInstance {
   isPlaying: boolean;
   resume?: () => void;
   gainNode?: GainNode;
+  type?: string;
 }
 
 export interface BinauralBeat extends AudioInstance {
@@ -49,11 +51,12 @@ export interface AudioGeneratorHook {
   updateNatureSound: (sound: string | null) => void;
   updateVolume: (volume: number) => void;
   
-  startBinauralBeat?: (baseFreq: number, beatFreq: number, volume?: number) => void;
-  stopBinauralBeat?: () => void;
-  startNatureSound?: (type: string, volume?: number) => void;
-  stopNatureSound?: () => void;
-  stopAllAudio?: () => void;
-  binauralAudio?: BinauralBeat | null;
-  natureAudio?: AudioInstance | null;
+  // Add these properties to fix Sleep.tsx errors
+  startBinauralBeat: (baseFreq: number, beatFreq: number, volume?: number) => void;
+  stopBinauralBeat: () => void;
+  startNatureSound: (type: string, volume?: number) => void;
+  stopNatureSound: () => void;
+  stopAllAudio: () => void;
+  binauralAudio: BinauralBeat | null;
+  natureAudio: AudioInstance | null;
 }

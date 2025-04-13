@@ -22,7 +22,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Clock, Moon, Sun, Bed, Activity } from "lucide-react";
 import { format, subDays } from "date-fns";
 
-export const formatValue = (value: any, precision: number = 1): string => {
+export type ValueType = string | number | undefined;
+
+export const formatValue = (value: ValueType, precision: number = 1): string => {
   if (typeof value === 'number') {
     return value.toFixed(precision);
   } else if (typeof value === 'string') {
@@ -173,7 +175,7 @@ const SleepMetrics = ({ sleepData: propsSleepData }: SleepMetricsProps) => {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metrics.avgDuration.toFixed(1)}h</div>
+            <div className="text-2xl font-bold">{typeof metrics.avgDuration === 'number' ? metrics.avgDuration.toFixed(1) : '0'}h</div>
             <div className="text-xs text-muted-foreground text-center">
               Average: {formatValue(metrics.avgDuration, 1)}
             </div>
@@ -186,7 +188,7 @@ const SleepMetrics = ({ sleepData: propsSleepData }: SleepMetricsProps) => {
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{(metrics.avgQuality * 10).toFixed(0)}%</div>
+            <div className="text-2xl font-bold">{typeof metrics.avgQuality === 'number' ? (metrics.avgQuality * 10).toFixed(0) : '0'}%</div>
             <div className="text-xs text-muted-foreground text-center">
               Average: {formatValue(metrics.avgQuality * 10, 0)}
             </div>

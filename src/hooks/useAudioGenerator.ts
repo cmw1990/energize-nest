@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { generateBinauralBeat } from "@/utils/audio/binauralBeatGenerator";
 import { createNoiseBuffer } from "@/utils/audio/createNoiseBuffer";
@@ -12,21 +13,7 @@ const initialSettings: AudioSettings = {
   baseFrequency: 100,
 };
 
-export interface AudioGeneratorHook {
-  playNoise: (type: string, volume?: number) => AudioInstance;
-  playNatureSound: (type: string, volume?: number) => AudioInstance;
-  createBinauralBeat: (baseFrequency: number, beatFrequency: number, volume?: number) => BinauralBeat;
-  stopAll: () => void;
-  isPlaying: boolean;
-  settings: AudioSettings;
-  setSettings: (newSettings: Partial<AudioSettings>) => void;
-  toggleSound: () => void;
-  updateNoiseType: (type: string) => void;
-  updateNatureSound: (sound: string | null) => void;
-  updateVolume: (volume: number) => void;
-}
-
-export const useAudioGenerator = (): AudioGeneratorHook => {
+export const useAudioGenerator = () => {
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
   const [noiseBuffer, setNoiseBuffer] = useState<AudioBuffer | null>(null);
   const [noiseSource, setNoiseSource] = useState<AudioBufferSourceNode | null>(null);
@@ -200,23 +187,29 @@ export const useAudioGenerator = (): AudioGeneratorHook => {
         setNoiseSource(null);
       },
       pause: () => {
-        gainNode.gain.value = 0;
+        if (source.gainNode) {
+          source.gainNode.gain.value = 0;
+        }
         setIsPlaying(false);
       },
       setVolume: (newVolume: number) => {
-        gainNode.gain.value = newVolume;
+        if (source.gainNode) {
+          source.gainNode.gain.value = newVolume;
+        }
         setSettingsWrapper({ volume: newVolume });
       },
       isPlaying: false,
       resume: () => {
-        gainNode.gain.value = settings.volume;
+        if (source.gainNode) {
+          source.gainNode.gain.value = settings.volume;
+        }
         setIsPlaying(true);
       }
     };
   };
 
   const playNoise = useCallback(
-    (type: string, volume = 0.5) => {
+    (type: string, volume = 0.5): AudioInstance => {
       stopAll();
       if (!audioContext || !noiseBuffer) {
         throw new Error("Audio context or noise buffer not initialized.");
@@ -225,12 +218,13 @@ export const useAudioGenerator = (): AudioGeneratorHook => {
       const noise = createNoiseGenerator(type, volume);
       noise.play();
       setIsPlaying(true);
+      return noise;
     },
     [audioContext, noiseBuffer, stopAll]
   );
 
   const playNatureSound = useCallback(
-    (type: string, volume = 0.5) => {
+    (type: string, volume = 0.5): AudioInstance => {
       stopAll();
       const audio = new Audio(`/sounds/nature/${type}.mp3`);
       audio.volume = volume;
@@ -238,9 +232,62 @@ export const useAudioGenerator = (): AudioGeneratorHook => {
       audio.play();
       setIsPlaying(true);
       setNatureSource(audio);
+      
+      return {
+        play: async () => {
+          audio.play();
+          setIsPlaying(true);
+        },
+        stop: () => {
+          audio.pause();
+          audio.currentTime = 0;
+          setIsPlaying(false);
+        },
+        pause: () => {
+          audio.pause();
+          setIsPlaying(false);
+        },
+        setVolume: (newVolume: number) => {
+          audio.volume = newVolume;
+          setSettingsWrapper({ volume: newVolume });
+        },
+        isPlaying: !audio.paused,
+        type
+      };
     },
     [stopAll]
   );
+
+  // Add these methods to fix Sleep.tsx errors
+  const startBinauralBeat = (baseFreq: number, beatFreq: number, volume = 0.5) => {
+    const beat = createBinauralBeat(baseFreq, beatFreq, volume);
+    beat.play();
+    setBinauralBeat(beat);
+  };
+
+  const stopBinauralBeat = () => {
+    if (binauralBeat) {
+      binauralBeat.stop();
+      setBinauralBeat(null);
+    }
+  };
+
+  const startNatureSound = (type: string, volume = 0.5) => {
+    const sound = playNatureSound(type, volume);
+    setNatureSource(sound as unknown as HTMLAudioElement);
+  };
+
+  const stopNatureSound = () => {
+    if (natureSource) {
+      natureSource.pause();
+      natureSource.currentTime = 0;
+      setNatureSource(null);
+    }
+  };
+
+  const stopAllAudio = () => {
+    stopAll();
+  };
 
   return {
     playNoise,
@@ -253,6 +300,14 @@ export const useAudioGenerator = (): AudioGeneratorHook => {
     toggleSound,
     updateNoiseType,
     updateNatureSound,
-    updateVolume
+    updateVolume,
+    // Add these properties to fix Sleep.tsx errors
+    startBinauralBeat,
+    stopBinauralBeat,
+    startNatureSound,
+    stopNatureSound,
+    stopAllAudio,
+    binauralAudio: binauralBeat,
+    natureAudio: natureSource as unknown as AudioInstance
   };
 };

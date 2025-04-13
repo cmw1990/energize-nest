@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -145,7 +146,7 @@ export function TherapyDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {insuranceInfo?.insurance_provider?.name || 'Not Set'}
+              {insuranceInfo?.insurance_provider ? insuranceInfo.insurance_provider.name : 'Not Set'}
             </div>
             <p className="text-xs text-muted-foreground">
               {insuranceInfo?.insurance_eligibility_checks?.[0]?.status === 'verified' 
