@@ -1,229 +1,216 @@
 
-let audioContextInstance: AudioContext | null = null;
+// Audio generator utilities for binaural beats and nature sounds
 
-const getAudioContext = () => {
-  if (!audioContextInstance) {
-    audioContextInstance = new AudioContext();
-  }
-  return audioContextInstance;
-};
+export interface AudioPlayer {
+  play: () => Promise<void>;
+  stop: () => void;
+  pause: () => void;
+  resume: () => void;
+  setVolume: (volume: number) => void;
+  isPlaying: boolean;
+}
 
-export const generateBinauralBeat = (baseFreq: number, beatFreq: number, volume = 0.5) => {
-  const context = getAudioContext();
-  const masterGain = context.createGain();
-  masterGain.gain.value = volume;
-  masterGain.connect(context.destination);
-
-  // Create two oscillators slightly detuned
-  const osc1 = context.createOscillator();
-  const osc2 = context.createOscillator();
-  
-  // Pan oscillators left and right
-  const panLeft = context.createStereoPanner();
-  const panRight = context.createStereoPanner();
-  
-  panLeft.pan.value = -1;
-  panRight.pan.value = 1;
-
-  osc1.frequency.value = baseFreq;
-  osc2.frequency.value = baseFreq + beatFreq;
-
-  osc1.connect(panLeft);
-  osc2.connect(panRight);
-  panLeft.connect(masterGain);
-  panRight.connect(masterGain);
-
-  osc1.start();
-  osc2.start();
-
-  // Dynamic frequency adjustment
-  const setFrequencies = (base: number, beat: number) => {
-    osc1.frequency.setValueAtTime(base, context.currentTime);
-    osc2.frequency.setValueAtTime(base + beat, context.currentTime);
-  };
-
-  // We need to keep track of these oscillators to replace them
-  let currentOsc1 = osc1;
-  let currentOsc2 = osc2;
-
-  return {
-    play: async () => Promise.resolve(), // Already started on creation
-    stop: () => {
-      currentOsc1.stop();
-      currentOsc2.stop();
-      masterGain.disconnect();
-    },
-    setVolume: (newVolume: number) => {
-      masterGain.gain.value = newVolume;
-    },
-    pause: () => {
-      currentOsc1.stop();
-      currentOsc2.stop();
-    },
-    resume: () => {
-      // Create new oscillators since old ones can't be restarted
-      const newOsc1 = context.createOscillator();
-      const newOsc2 = context.createOscillator();
-      newOsc1.frequency.value = currentOsc1.frequency.value;
-      newOsc2.frequency.value = currentOsc2.frequency.value;
-      newOsc1.connect(panLeft);
-      newOsc2.connect(panRight);
-      newOsc1.start();
-      newOsc2.start();
-      
-      // Update references to new oscillators
-      currentOsc1 = newOsc1;
-      currentOsc2 = newOsc2;
-    },
-    setFrequencies,
-    isPlaying: true,
-    type: 'binaural',
-    gainNode: masterGain
-  };
-};
-
-// Generate advanced binaural beat patterns
-export const createBinauralSequence = (patterns: Array<{baseFreq: number, beatFreq: number, duration: number}>, volume = 0.5) => {
-  let currentBeat = generateBinauralBeat(patterns[0].baseFreq, patterns[0].beatFreq, volume);
-  let isPlaying = true;
-  let currentIndex = 0;
-  let intervalId: number | null = null;
-  
-  const playSequence = () => {
-    if (intervalId) clearInterval(intervalId);
-    
-    const advancePattern = () => {
-      if (!isPlaying) return;
-      
-      currentIndex = (currentIndex + 1) % patterns.length;
-      currentBeat.stop();
-      currentBeat = generateBinauralBeat(
-        patterns[currentIndex].baseFreq, 
-        patterns[currentIndex].beatFreq,
-        volume
-      );
-    };
-    
-    intervalId = window.setInterval(advancePattern, patterns[currentIndex].duration * 1000);
-  };
-  
-  return {
-    play: async () => {
-      isPlaying = true;
-      playSequence();
-      return Promise.resolve();
-    },
-    stop: () => {
-      isPlaying = false;
-      if (intervalId) clearInterval(intervalId);
-      currentBeat.stop();
-    },
-    pause: () => {
-      isPlaying = false;
-      if (intervalId) clearInterval(intervalId);
-      currentBeat.pause();
-    },
-    resume: () => {
-      isPlaying = true;
-      currentBeat.resume();
-      playSequence();
-    },
-    setVolume: (newVolume: number) => {
-      volume = newVolume;
-      currentBeat.setVolume(newVolume);
-    },
-    isPlaying: true,
-    type: 'binaural-sequence'
-  };
-};
-
-// Enhanced nature sound player with spatial effects
-export const createNatureSoundPlayer = async (soundUrl: string, volume = 0.5) => {
-  const context = getAudioContext();
-  const response = await fetch(soundUrl);
-  const arrayBuffer = await response.arrayBuffer();
-  const audioBuffer = await context.decodeAudioData(arrayBuffer);
-  
-  let source: AudioBufferSourceNode | null = null;
+/**
+ * Creates a binaural beat generator with the specified base and beat frequencies
+ */
+export function generateBinauralBeat(baseFreq: number, beatFreq: number, volume = 0.5) {
+  let audioContext: AudioContext | null = null;
+  let leftOscillator: OscillatorNode | null = null;
+  let rightOscillator: OscillatorNode | null = null;
   let gainNode: GainNode | null = null;
+  let pannerLeft: StereoPannerNode | null = null;
+  let pannerRight: StereoPannerNode | null = null;
   let isPlaying = false;
-  let startTime = 0;
-  let pauseTime = 0;
+  let baseFrequency = baseFreq;
+  let beatFrequency = beatFreq;
   
-  // Create spatial effects
-  const createSpatialEffect = () => {
-    const panner = context.createPanner();
-    panner.panningModel = 'equalpower';
-    panner.distanceModel = 'inverse';
-    panner.refDistance = 1;
-    panner.maxDistance = 10000;
-    panner.rolloffFactor = 1;
-    panner.coneInnerAngle = 360;
-    panner.coneOuterAngle = 360;
-    panner.coneOuterGain = 0;
-    
-    // Place sound in a specific location
-    panner.positionX.value = Math.random() * 2 - 1; // Random position
-    panner.positionY.value = Math.random() * 2 - 1;
-    panner.positionZ.value = Math.random() * -3 - 2; // Some distance away
-    
-    return panner;
+  const setupAudio = () => {
+    try {
+      audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      
+      // Create oscillators for each ear
+      leftOscillator = audioContext.createOscillator();
+      rightOscillator = audioContext.createOscillator();
+      
+      // Create gain node for volume control
+      gainNode = audioContext.createGain();
+      gainNode.gain.value = volume;
+      
+      // Create stereo panner nodes
+      pannerLeft = audioContext.createStereoPanner();
+      pannerRight = audioContext.createStereoPanner();
+      
+      // Set panning (left = -1, right = 1)
+      pannerLeft.pan.value = -1;
+      pannerRight.pan.value = 1;
+      
+      // Set frequencies
+      leftOscillator.frequency.value = baseFrequency;
+      rightOscillator.frequency.value = baseFrequency + beatFrequency;
+      
+      // Connect nodes
+      leftOscillator.connect(pannerLeft);
+      rightOscillator.connect(pannerRight);
+      pannerLeft.connect(gainNode);
+      pannerRight.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      // Start oscillators
+      leftOscillator.start();
+      rightOscillator.start();
+      
+      console.log(`Binaural beat created: Base ${baseFrequency}Hz, Beat ${beatFrequency}Hz`);
+    } catch (error) {
+      console.error('Error initializing audio:', error);
+      throw new Error('Failed to initialize audio context');
+    }
   };
   
-  const setupSource = () => {
-    source = context.createBufferSource();
-    source.buffer = audioBuffer;
-    source.loop = true;
-    
-    gainNode = context.createGain();
-    gainNode.gain.value = volume;
-    
-    const spatialEffect = createSpatialEffect();
-    
-    source.connect(spatialEffect);
-    spatialEffect.connect(gainNode);
-    gainNode.connect(context.destination);
+  const cleanupAudio = () => {
+    if (!audioContext) return;
+
+    try {
+      if (leftOscillator) {
+        leftOscillator.stop();
+        leftOscillator.disconnect();
+      }
+      
+      if (rightOscillator) {
+        rightOscillator.stop();
+        rightOscillator.disconnect();
+      }
+      
+      if (pannerLeft) pannerLeft.disconnect();
+      if (pannerRight) pannerRight.disconnect();
+      if (gainNode) gainNode.disconnect();
+      
+      audioContext.close();
+      
+      audioContext = null;
+      leftOscillator = null;
+      rightOscillator = null;
+      gainNode = null;
+      pannerLeft = null;
+      pannerRight = null;
+      
+      console.log('Binaural beat audio cleaned up');
+    } catch (error) {
+      console.error('Error cleaning up audio:', error);
+    }
   };
   
   return {
-    play: async () => {
-      if (isPlaying) return Promise.resolve();
+    baseFrequency,
+    beatFrequency,
+    volume,
+    isPlaying,
+    
+    async play() {
+      if (isPlaying) return;
       
-      setupSource();
-      if (source && gainNode) {
-        source.start(0, pauseTime);
-        startTime = context.currentTime - pauseTime;
-        isPlaying = true;
-      }
+      setupAudio();
+      isPlaying = true;
+      console.log(`Playing binaural beat: ${baseFrequency}Hz + ${beatFrequency}Hz`);
       return Promise.resolve();
     },
-    stop: () => {
+    
+    pause() {
       if (!isPlaying) return;
       
-      if (source) {
-        source.stop();
-        source = null;
+      if (audioContext) {
+        audioContext.suspend();
       }
-      pauseTime = 0;
-      isPlaying = false;
-    },
-    pause: () => {
-      if (!isPlaying) return;
       
-      if (source) {
-        source.stop();
-        source = null;
-      }
-      pauseTime = (context.currentTime - startTime) % audioBuffer.duration;
       isPlaying = false;
+      console.log('Binaural beat paused');
     },
-    setVolume: (newVolume: number) => {
+    
+    resume() {
+      if (isPlaying) return;
+      
+      if (audioContext) {
+        audioContext.resume();
+      }
+      
+      isPlaying = true;
+      console.log('Binaural beat resumed');
+    },
+    
+    stop() {
+      if (!isPlaying && !audioContext) return;
+      
+      cleanupAudio();
+      isPlaying = false;
+      console.log('Binaural beat stopped');
+    },
+    
+    setVolume(newVolume: number) {
       volume = newVolume;
+      
       if (gainNode) {
         gainNode.gain.value = newVolume;
       }
-    },
-    isPlaying,
-    type: 'nature'
+      
+      console.log(`Binaural beat volume set to ${newVolume}`);
+    }
   };
-};
+}
+
+/**
+ * Creates a nature sound player with the specified sound type and volume
+ */
+export async function createNatureSoundPlayer(soundUrl: string, volume = 0.5) {
+  const audio = new Audio(soundUrl);
+  audio.loop = true;
+  audio.volume = volume;
+  let isPlaying = false;
+  
+  // Preload the audio
+  await new Promise((resolve, reject) => {
+    audio.addEventListener('canplaythrough', resolve, { once: true });
+    audio.addEventListener('error', reject, { once: true });
+    audio.load();
+  });
+  
+  return {
+    isPlaying,
+    volume,
+    
+    async play() {
+      try {
+        await audio.play();
+        isPlaying = true;
+        console.log(`Playing nature sound: ${soundUrl}`);
+        return Promise.resolve();
+      } catch (error) {
+        console.error(`Error playing nature sound: ${error}`);
+        throw error;
+      }
+    },
+    
+    pause() {
+      audio.pause();
+      isPlaying = false;
+      console.log(`Paused nature sound: ${soundUrl}`);
+    },
+    
+    resume() {
+      audio.play().catch(err => console.error('Error resuming audio:', err));
+      isPlaying = true;
+      console.log(`Resumed nature sound: ${soundUrl}`);
+    },
+    
+    stop() {
+      audio.pause();
+      audio.currentTime = 0;
+      isPlaying = false;
+      console.log(`Stopped nature sound: ${soundUrl}`);
+    },
+    
+    setVolume(newVolume: number) {
+      volume = newVolume;
+      audio.volume = newVolume;
+      console.log(`Nature sound volume set to ${newVolume}`);
+    }
+  };
+}
