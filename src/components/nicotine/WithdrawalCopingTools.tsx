@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -299,7 +298,7 @@ export const WithdrawalCopingTools: React.FC<CopingToolsProps> = ({ substance })
     {
       id: 'delay-tactic',
       title: 'Delay Tactic',
-      description: 'When a craving hits, tell yourself you'll wait just 10 minutes before giving in. By then, the craving may pass.',
+      description: 'When a craving hits, tell yourself you\'ll wait just 10 minutes before giving in. By then, the craving may pass.',
       category: 'behavioral',
       icon: <Clock />,
       effectiveness: 80,
