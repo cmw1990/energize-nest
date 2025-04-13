@@ -1,331 +1,263 @@
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Slider } from "@/components/ui/slider";
-import { 
-  CircleIcon, 
-  MoveHorizontal, 
-  Square, 
-  RefreshCw, 
-  Pause, 
-  Play, 
-  Settings 
-} from 'lucide-react';
-import { 
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Wind, Play, Pause, RefreshCcw, ChevronRight, Clock, Heart, Zap } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 type BreathingPattern = {
+  id: string;
   name: string;
-  pattern: {
-    inhale: number;
-    hold1?: number;
-    exhale: number;
-    hold2?: number;
-  };
   description: string;
+  steps: {
+    action: 'inhale' | 'hold' | 'exhale';
+    duration: number;
+    instruction?: string;
+  }[];
+  benefits: string[];
+  category: 'calm' | 'energy' | 'balance';
+  icon: JSX.Element;
 };
 
 const breathingPatterns: BreathingPattern[] = [
   {
-    name: '4-7-8 Breathing',
-    pattern: { inhale: 4, hold1: 7, exhale: 8 },
-    description: 'Calming breath pattern to reduce anxiety and help with sleep'
-  },
-  {
+    id: 'box',
     name: 'Box Breathing',
-    pattern: { inhale: 4, hold1: 4, exhale: 4, hold2: 4 },
-    description: 'Square pattern to increase focus and reduce stress'
+    description: 'Equal inhale, hold, exhale, and hold for stress reduction',
+    steps: [
+      { action: 'inhale', duration: 4 },
+      { action: 'hold', duration: 4 },
+      { action: 'exhale', duration: 4 },
+      { action: 'hold', duration: 4 },
+    ],
+    benefits: ['Reduces stress', 'Improves concentration', 'Regulates blood pressure'],
+    category: 'calm',
+    icon: <Wind className="h-4 w-4" />
   },
   {
-    name: 'Resonant Breathing',
-    pattern: { inhale: 5, exhale: 5 },
-    description: 'Balance your nervous system with this 5-5 pattern'
+    id: '478',
+    name: '4-7-8 Breathing',
+    description: 'Deeply relaxing breath pattern for sleep and anxiety',
+    steps: [
+      { action: 'inhale', duration: 4 },
+      { action: 'hold', duration: 7 },
+      { action: 'exhale', duration: 8 },
+    ],
+    benefits: ['Promotes sleep', 'Reduces anxiety', 'Calms nervous system'],
+    category: 'calm',
+    icon: <Moon className="h-4 w-4" />
   },
   {
-    name: 'Deep Belly Breathing',
-    pattern: { inhale: 4, exhale: 6 },
-    description: 'Deep diaphragmatic breathing for relaxation'
-  },
-  {
+    id: 'energizing',
     name: 'Energizing Breath',
-    pattern: { inhale: 6, hold1: 0, exhale: 2 },
-    description: 'Stimulating pattern to increase alertness'
-  }
+    description: 'Quick, shallow breaths to increase alertness',
+    steps: [
+      { action: 'inhale', duration: 1, instruction: 'Quick, sharp inhale' },
+      { action: 'exhale', duration: 1, instruction: 'Quick, sharp exhale' },
+      { action: 'inhale', duration: 1, instruction: 'Quick, sharp inhale' },
+      { action: 'exhale', duration: 1, instruction: 'Quick, sharp exhale' },
+      { action: 'inhale', duration: 4, instruction: 'Deep, full inhale' },
+      { action: 'exhale', duration: 4, instruction: 'Complete exhale' },
+    ],
+    benefits: ['Increases energy', 'Improves alertness', 'Enhances focus'],
+    category: 'energy',
+    icon: <Zap className="h-4 w-4" />
+  },
+  {
+    id: 'coherence',
+    name: 'Heart Coherence',
+    description: 'Balanced breathing to synchronize heart and brain rhythms',
+    steps: [
+      { action: 'inhale', duration: 5, instruction: 'Breathe into your heart area' },
+      { action: 'exhale', duration: 5, instruction: 'Exhale completely' },
+    ],
+    benefits: ['Reduces stress', 'Improves heart rate variability', 'Enhances emotional regulation'],
+    category: 'balance',
+    icon: <Heart className="h-4 w-4" />
+  },
 ];
 
 export const BreathingExercises = () => {
-  const [selectedPattern, setSelectedPattern] = useState(breathingPatterns[0]);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [phase, setPhase] = useState<'inhale' | 'hold1' | 'exhale' | 'hold2'>('inhale');
+  const { toast } = useToast();
+  const [selectedPattern, setSelectedPattern] = useState<BreathingPattern>(breathingPatterns[0]);
+  const [isActive, setIsActive] = useState(false);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState(0);
-  const [cycleCount, setCycleCount] = useState(0);
-  const [duration, setDuration] = useState(100); // percentage
-  const [speed, setSpeed] = useState(1); // multiplier
+  const [cycles, setCycles] = useState(0);
   
+  // Reset timer when pattern changes
   useEffect(() => {
-    let timer: number | null = null;
+    setCurrentStepIndex(0);
+    setTimeRemaining(selectedPattern.steps[0].duration);
+    setCycles(0);
+  }, [selectedPattern]);
+  
+  // Timer logic
+  useEffect(() => {
+    if (!isActive) return;
     
-    if (isPlaying) {
-      const totalTime = selectedPattern.pattern[phase] || 0;
-      const adjustedTime = totalTime / speed;
-      
-      if (timeRemaining <= 0) {
-        // Move to next phase
-        switch (phase) {
-          case 'inhale':
-            setPhase(selectedPattern.pattern.hold1 ? 'hold1' : 'exhale');
-            setTimeRemaining(selectedPattern.pattern.hold1 ? (selectedPattern.pattern.hold1 / speed) : (selectedPattern.pattern.exhale / speed));
-            break;
-          case 'hold1':
-            setPhase('exhale');
-            setTimeRemaining(selectedPattern.pattern.exhale / speed);
-            break;
-          case 'exhale':
-            if (selectedPattern.pattern.hold2) {
-              setPhase('hold2');
-              setTimeRemaining(selectedPattern.pattern.hold2 / speed);
-            } else {
-              setPhase('inhale');
-              setTimeRemaining(selectedPattern.pattern.inhale / speed);
-              setCycleCount(count => count + 1);
-            }
-            break;
-          case 'hold2':
-            setPhase('inhale');
-            setTimeRemaining(selectedPattern.pattern.inhale / speed);
-            setCycleCount(count => count + 1);
-            break;
+    const timer = setInterval(() => {
+      setTimeRemaining(prev => {
+        if (prev <= 1) {
+          // Move to next step
+          const nextIndex = (currentStepIndex + 1) % selectedPattern.steps.length;
+          setCurrentStepIndex(nextIndex);
+          
+          // Increment cycle count if we've completed a full cycle
+          if (nextIndex === 0) {
+            setCycles(prev => prev + 1);
+          }
+          
+          // Return the duration of the next step
+          return selectedPattern.steps[nextIndex].duration;
         }
-      } else {
-        timer = window.setTimeout(() => {
-          setTimeRemaining(prev => prev - 0.1);
-        }, 100);
-      }
-    }
+        return prev - 1;
+      });
+    }, 1000);
     
-    return () => {
-      if (timer) clearTimeout(timer);
-    };
-  }, [isPlaying, phase, timeRemaining, selectedPattern.pattern, speed]);
+    return () => clearInterval(timer);
+  }, [isActive, currentStepIndex, selectedPattern]);
   
-  // Reset when pattern changes
-  useEffect(() => {
-    setPhase('inhale');
-    setTimeRemaining(selectedPattern.pattern.inhale / speed);
-    setCycleCount(0);
-  }, [selectedPattern, speed]);
+  const currentStep = selectedPattern.steps[currentStepIndex];
   
-  const handlePatternSelect = (value: string) => {
-    const pattern = breathingPatterns.find(p => p.name === value) || breathingPatterns[0];
-    setSelectedPattern(pattern);
-    setIsPlaying(false);
-  };
-  
-  const handleSpeedChange = (value: number[]) => {
-    setSpeed(value[0] / 100);
-  };
-  
-  const togglePlay = () => {
-    setIsPlaying(!isPlaying);
-    if (!isPlaying && timeRemaining <= 0) {
-      setTimeRemaining(selectedPattern.pattern.inhale / speed);
+  const toggleActive = () => {
+    if (!isActive) {
+      setTimeRemaining(currentStep.duration);
+      toast({
+        title: "Breathing Exercise Started",
+        description: `Starting ${selectedPattern.name}`,
+      });
     }
+    setIsActive(!isActive);
   };
   
   const resetExercise = () => {
-    setIsPlaying(false);
-    setPhase('inhale');
-    setTimeRemaining(selectedPattern.pattern.inhale / speed);
-    setCycleCount(0);
+    setIsActive(false);
+    setCurrentStepIndex(0);
+    setTimeRemaining(selectedPattern.steps[0].duration);
+    setCycles(0);
   };
   
-  const getInstructions = () => {
-    switch (phase) {
-      case 'inhale':
-        return 'Breathe In';
-      case 'hold1':
-        return 'Hold';
-      case 'exhale':
-        return 'Breathe Out';
-      case 'hold2':
-        return 'Hold';
-      default:
-        return '';
+  const getActionColor = (action: string) => {
+    switch (action) {
+      case 'inhale': return 'text-blue-500';
+      case 'hold': return 'text-amber-500';
+      case 'exhale': return 'text-green-500';
+      default: return '';
     }
   };
   
-  const getProgressPercent = () => {
-    const total = selectedPattern.pattern[phase] || 1;
-    const current = timeRemaining;
-    return ((total - current) / total) * 100;
-  };
-  
-  const getPhaseIcon = () => {
-    switch (phase) {
-      case 'inhale':
-        return <CircleIcon className="h-5 w-5 text-blue-500" />;
-      case 'hold1':
-      case 'hold2':
-        return <Square className="h-5 w-5 text-indigo-500" />;
-      case 'exhale':
-        return <MoveHorizontal className="h-5 w-5 text-green-500" />;
-      default:
-        return null;
+  const getActionScale = () => {
+    switch (currentStep.action) {
+      case 'inhale': return `scale-[${1 + (1 - timeRemaining / currentStep.duration) * 0.5}]`;
+      case 'hold': return 'scale-150';
+      case 'exhale': return `scale-[${1.5 - (1 - timeRemaining / currentStep.duration) * 0.5}]`;
+      default: return 'scale-100';
     }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Select Breathing Pattern</label>
-        <Select 
-          value={selectedPattern.name} 
-          onValueChange={handlePatternSelect}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select a pattern" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              {breathingPatterns.map((pattern) => (
-                <SelectItem key={pattern.name} value={pattern.name}>
-                  {pattern.name}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-        <p className="text-sm text-muted-foreground">{selectedPattern.description}</p>
-      </div>
-      
-      <Card className="overflow-hidden">
-        <CardContent className="p-0">
-          <div className="relative h-64 flex flex-col items-center justify-center bg-gradient-to-b from-primary/5 to-background">
-            <div 
-              className="absolute inset-0 bg-primary/10 transition-all duration-200 ease-in-out"
-              style={{ 
-                transform: `scaleY(${phase === 'inhale' 
-                  ? getProgressPercent() / 100 
-                  : phase === 'exhale' 
-                    ? 1 - (getProgressPercent() / 100) 
-                    : phase === 'hold1' 
-                      ? 1 
-                      : 0
-                })` 
-              }}
-            />
-            
-            <div className="z-10 space-y-3 text-center">
-              <div className="flex items-center justify-center gap-2">
-                {getPhaseIcon()}
-                <span className="text-xl font-semibold">{getInstructions()}</span>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Wind className="h-5 w-5 text-primary" />
+          Breathing Exercises
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <Tabs defaultValue="calm">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="calm">Calming</TabsTrigger>
+            <TabsTrigger value="energy">Energizing</TabsTrigger>
+            <TabsTrigger value="balance">Balancing</TabsTrigger>
+          </TabsList>
+          
+          {['calm', 'energy', 'balance'].map((category) => (
+            <TabsContent key={category} value={category} className="space-y-4 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {breathingPatterns
+                  .filter(pattern => pattern.category === category)
+                  .map(pattern => (
+                    <Button
+                      key={pattern.id}
+                      variant={selectedPattern.id === pattern.id ? "default" : "outline"}
+                      className="h-auto py-3 justify-start"
+                      onClick={() => {
+                        setIsActive(false);
+                        setSelectedPattern(pattern);
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="bg-primary/10 p-2 rounded-full">
+                          {pattern.icon}
+                        </div>
+                        <div className="text-left">
+                          <p className="font-medium">{pattern.name}</p>
+                          <p className="text-xs text-muted-foreground">{pattern.description}</p>
+                        </div>
+                      </div>
+                    </Button>
+                  ))}
               </div>
-              
-              <div className="text-4xl font-bold">
-                {Math.ceil(timeRemaining)}
-              </div>
-              
-              <div className="text-sm text-muted-foreground">
-                Cycle: {cycleCount}
-              </div>
+            </TabsContent>
+          ))}
+        </Tabs>
+        
+        <div className="flex flex-col items-center py-8 space-y-6">
+          <div 
+            className={`w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center transition-transform duration-1000 ${isActive ? getActionScale() : 'scale-100'}`}
+          >
+            <div className="text-center">
+              <p className={`text-lg font-semibold capitalize ${getActionColor(currentStep.action)}`}>
+                {currentStep.action}
+              </p>
+              <p className="text-3xl font-mono">{timeRemaining}</p>
             </div>
           </div>
-        </CardContent>
-      </Card>
-      
-      <div className="flex justify-between gap-2">
-        <Button 
-          variant="outline" 
-          size="icon"
-          onClick={resetExercise}
-        >
-          <RefreshCw className="h-4 w-4" />
-        </Button>
-        
-        <Button 
-          onClick={togglePlay} 
-          className="flex-1"
-          variant={isPlaying ? "secondary" : "default"}
-        >
-          {isPlaying ? (
-            <>
-              <Pause className="h-4 w-4 mr-2" />
-              Pause
-            </>
-          ) : (
-            <>
-              <Play className="h-4 w-4 mr-2" />
-              Start
-            </>
-          )}
-        </Button>
-        
-        <Button 
-          variant="outline" 
-          size="icon"
-        >
-          <Settings className="h-4 w-4" />
-        </Button>
-      </div>
-      
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-medium">Speed</label>
-          <span className="text-sm text-muted-foreground">{speed.toFixed(1)}x</span>
-        </div>
-        <Slider
-          value={[speed * 100]}
-          min={50}
-          max={150}
-          step={10}
-          onValueChange={handleSpeedChange}
-        />
-        <div className="flex justify-between text-xs text-muted-foreground">
-          <span>Slower</span>
-          <span>Normal</span>
-          <span>Faster</span>
-        </div>
-      </div>
-      
-      <div className="bg-muted p-4 rounded-lg">
-        <h3 className="text-sm font-medium mb-2">Pattern Details</h3>
-        <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-          <div>Inhale:</div>
-          <div>{selectedPattern.pattern.inhale} seconds</div>
           
-          {selectedPattern.pattern.hold1 !== undefined && (
-            <>
-              <div>Hold after inhale:</div>
-              <div>{selectedPattern.pattern.hold1} seconds</div>
-            </>
+          <div className="flex gap-3">
+            <Button onClick={toggleActive} size="lg" className="w-32">
+              {isActive ? <Pause className="mr-2 h-4 w-4" /> : <Play className="mr-2 h-4 w-4" />}
+              {isActive ? "Pause" : "Start"}
+            </Button>
+            <Button onClick={resetExercise} variant="outline" size="icon">
+              <RefreshCcw className="h-4 w-4" />
+            </Button>
+          </div>
+          
+          {isActive && currentStep.instruction && (
+            <p className="text-center text-primary">{currentStep.instruction}</p>
           )}
           
-          <div>Exhale:</div>
-          <div>{selectedPattern.pattern.exhale} seconds</div>
-          
-          {selectedPattern.pattern.hold2 !== undefined && (
-            <>
-              <div>Hold after exhale:</div>
-              <div>{selectedPattern.pattern.hold2} seconds</div>
-            </>
-          )}
-          
-          <div>Total cycle:</div>
-          <div>
-            {selectedPattern.pattern.inhale + 
-             (selectedPattern.pattern.hold1 || 0) + 
-             selectedPattern.pattern.exhale + 
-             (selectedPattern.pattern.hold2 || 0)} seconds
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <Clock className="h-4 w-4" />
+              <span>Cycles: {cycles}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Heart className="h-4 w-4" />
+              <span>Pattern: {selectedPattern.name}</span>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+        
+        <div className="bg-muted/50 p-4 rounded-lg">
+          <h3 className="font-medium mb-2">Benefits:</h3>
+          <ul className="space-y-1">
+            {selectedPattern.benefits.map((benefit, index) => (
+              <li key={index} className="flex items-start gap-2 text-sm">
+                <ChevronRight className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <span>{benefit}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
+
+function Moon(props: any) {
+  return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+}
