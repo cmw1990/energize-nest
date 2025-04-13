@@ -1,8 +1,10 @@
+
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { BreathingTechniques, BreathingTechnique } from '@/components/breathing/BreathingTechniques';
+import { BreathingTechniques } from '@/components/breathing/BreathingTechniques';
+import { BreathingTechnique } from '@/types/breathing';
 import BalloonScene3D from './scenes/BalloonScene3D';
 import { Loader2 } from 'lucide-react';
 import { generateNatureSound } from '@/utils/audio';

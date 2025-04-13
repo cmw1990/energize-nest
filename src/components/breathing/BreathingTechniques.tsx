@@ -7,12 +7,14 @@ import {
   CloudRain, Leaf, Droplets, Clock, Shield
 } from "lucide-react";
 
-interface BreathingTechniquesProps {
+export interface BreathingTechniquesProps {
   onSelectTechnique: (technique: BreathingTechnique) => void;
+  className?: string;
 }
 
 export const BreathingTechniques: React.FC<BreathingTechniquesProps> = ({ 
-  onSelectTechnique 
+  onSelectTechnique,
+  className = ""
 }) => {
   const breathingTechniques: BreathingTechnique[] = [
     {
@@ -27,7 +29,13 @@ export const BreathingTechniques: React.FC<BreathingTechniquesProps> = ({
       category: "relaxation",
       difficulty: "beginner",
       benefits: ["Reduces stress", "Improves concentration", "Regulates blood pressure"],
-      icon: "square"
+      icon: "square",
+      pattern: {
+        inhale: 4,
+        hold: 4,
+        exhale: 4,
+        holdAfterExhale: 4
+      }
     },
     {
       id: "4-7-8",
@@ -40,7 +48,12 @@ export const BreathingTechniques: React.FC<BreathingTechniquesProps> = ({
       category: "sleep",
       difficulty: "beginner",
       benefits: ["Promotes sleep", "Reduces anxiety", "Manages cravings"],
-      icon: "moon"
+      icon: "moon",
+      pattern: {
+        inhale: 4,
+        hold: 7,
+        exhale: 8
+      }
     },
     {
       id: "diaphragmatic",
@@ -52,7 +65,11 @@ export const BreathingTechniques: React.FC<BreathingTechniquesProps> = ({
       category: "energy",
       difficulty: "beginner",
       benefits: ["Strengthens diaphragm", "Reduces oxygen demand", "Slows breathing rate"],
-      icon: "lungs"
+      icon: "lungs",
+      pattern: {
+        inhale: 5,
+        exhale: 5
+      }
     },
     {
       id: "wim-hof",
@@ -64,7 +81,11 @@ export const BreathingTechniques: React.FC<BreathingTechniquesProps> = ({
       category: "energy",
       difficulty: "advanced",
       benefits: ["Boosts energy", "Enhances immune response", "Increases focus"],
-      icon: "snow"
+      icon: "snow",
+      pattern: {
+        inhale: 2,
+        exhale: 2
+      }
     },
     {
       id: "coherent",
@@ -76,7 +97,11 @@ export const BreathingTechniques: React.FC<BreathingTechniquesProps> = ({
       category: "focus",
       difficulty: "intermediate",
       benefits: ["Improves heart-rate variability", "Balances autonomic nervous system"],
-      icon: "heart"
+      icon: "heart",
+      pattern: {
+        inhale: 5.5,
+        exhale: 5.5
+      }
     },
     {
       id: "alternate-nostril",
@@ -89,7 +114,12 @@ export const BreathingTechniques: React.FC<BreathingTechniquesProps> = ({
       category: "focus",
       difficulty: "intermediate",
       benefits: ["Balances brain hemispheres", "Improves focus", "Reduces anxiety"],
-      icon: "git-branch"
+      icon: "git-branch",
+      pattern: {
+        inhale: 4,
+        hold: 2,
+        exhale: 4
+      }
     }
   ];
 
@@ -119,7 +149,7 @@ export const BreathingTechniques: React.FC<BreathingTechniquesProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className={`space-y-4 ${className}`}>
       <div>
         <div className="grid grid-cols-2 gap-3">
           {breathingTechniques.map((technique) => (
@@ -156,3 +186,6 @@ export const BreathingTechniques: React.FC<BreathingTechniquesProps> = ({
     </div>
   );
 };
+
+// Re-export for convenience
+export { type BreathingTechnique } from "@/types/breathing";

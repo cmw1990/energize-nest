@@ -25,6 +25,8 @@ This document tracks implementation progress of features and functionality acros
 9. [🔄] Fix Recovery.tsx missing imports
 10. [✅] Fixed BrainMatch.tsx component props
 11. [✅] Fixed SleepMetrics and SupplementStats to use formatUtils
+12. [✅] Fixed BreathingTechniques component to include className prop and export BreathingTechnique type
+13. [✅] Fixed import errors in breathing game components
 
 ## Web Tools Enhancement (Visitor-Facing)
 1. [✅] Sleep Calculator and Tracker
@@ -115,6 +117,13 @@ This document tracks implementation progress of features and functionality acros
 
 5. Fix remaining TypeScript errors:
    - Recovery.tsx
-   - Game components
-   - Client dashboard components
+   - ClientDashboard.tsx and ClientConsultationDashboard.tsx
    - WhiteNoise.tsx and Sleep.tsx
+   - Misc. component TypeScript errors
+
+6. Breathing Features Enhancement:
+   - [✅] Updated BreathingTechnique type and export
+   - [✅] Fixed BreathingTechniques component prop issues
+   - [✅] Connected breathing games with proper types
+   - [🔄] Additional breathing visualization techniques
+   - [🔄] Guided breathing sessions
