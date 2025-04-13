@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { TopNav } from "@/components/layout/TopNav";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -16,11 +17,13 @@ import {
   Clock,
   Hourglass,
   Moon,
-  Plus,
+  Plus as PlusIcon,
   Settings,
   Sunrise,
   Sunset,
-  Zap
+  Zap,
+  BarChartHorizontal,
+  CheckSquare
 } from "lucide-react";
 
 const SleepTracking = () => {
@@ -39,7 +42,7 @@ const SleepTracking = () => {
           <div className="flex justify-between items-center">
             <TabsList className="grid grid-cols-4">
               <TabsTrigger value="dashboard" className="flex items-center gap-2">
-                <BarChart className="h-4 w-4" />
+                <BarChartHorizontal className="h-4 w-4" />
                 <span className="hidden sm:inline">Dashboard</span>
               </TabsTrigger>
               <TabsTrigger value="scheduler" className="flex items-center gap-2">
@@ -47,11 +50,11 @@ const SleepTracking = () => {
                 <span className="hidden sm:inline">Scheduler</span>
               </TabsTrigger>
               <TabsTrigger value="tracking" className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
+                <PlusIcon className="h-4 w-4" />
                 <span className="hidden sm:inline">Log Sleep</span>
               </TabsTrigger>
               <TabsTrigger value="hygiene" className="flex items-center gap-2">
-                <ListChecks className="h-4 w-4" />
+                <CheckSquare className="h-4 w-4" />
                 <span className="hidden sm:inline">Sleep Hygiene</span>
               </TabsTrigger>
             </TabsList>
@@ -73,7 +76,7 @@ const SleepTracking = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <ListChecks className="h-5 w-5 text-primary" />
+                  <CheckSquare className="h-5 w-5 text-primary" />
                   Sleep Hygiene Checklist
                 </CardTitle>
                 <CardDescription>

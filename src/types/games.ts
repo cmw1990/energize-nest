@@ -45,6 +45,7 @@ export interface AudioHookInterface {
   updateNoiseType: (type: NoiseType) => void;
   updateNatureSound: (type: NatureSound | null) => void;
   updateVolume: (value: number) => void;
+  stopAll: () => void;
   // Additional properties for expanded audio functionality
   startBinauralBeat?: (baseFreq: number, targetFreq: number, volume: number) => void;
   stopBinauralBeat?: () => void;
@@ -75,7 +76,7 @@ export type LifeSituation = 'regular' | 'high_stress' | 'low_energy' | 'recoveri
 
 // Component props interfaces
 export interface PersonalPlansProps {
-  plans?: Plan[];
+  plans: Plan[];
   onPlanCreated: () => void;
 }
 
@@ -92,6 +93,8 @@ export interface PlanDiscoveryProps {
 export interface LifeSituationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  currentSituation?: string;
   lifeSituation?: LifeSituation;
   onSelect: (situation: LifeSituation) => void;
+  onUpdateSituation?: (situation: string) => void;
 }

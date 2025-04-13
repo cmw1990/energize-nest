@@ -1,3 +1,4 @@
+
 import React from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { TopNav } from "@/components/layout/TopNav"
@@ -20,42 +21,48 @@ import {
   Brain, 
   BedDouble,
   CloudRain,
-  Waves as WavesIcon,
   Wind,
   Flame,
   Sparkles,
-  Volume as VolumeIcon
+  VolumeIcon,
+  DollarSign,
+  Smile,
+  ChevronRight,
+  Users
 } from "lucide-react"
-
-interface AudioUtils {
-  playSound: (type: string, volume: number) => void;
-  stopSound: (type: string) => void;
-  setFrequency?: (value: number) => void;
-  isPlaying?: boolean;
-}
+import { natureSounds, binauralPresets, sleepOptimizationTips } from "@/data/sleepSounds"
+import { AudioUtils } from "@/types/audio"
 
 export default function Sleep() {
+  // Extended hook to include all audio generator functions
   const { 
     isPlaying,
     settings,
     playNoise,
-    stopNoise,
-    playNature,
-    stopNature,
+    stopNoise = () => {},
+    playNature = () => {},
+    stopNature = () => {},
     toggleSound,
     updateNoiseType,
     updateNatureSound,
-    updateVolume
+    updateVolume,
+    stopAllAudio = () => {},
+    startBinauralBeat = () => {},
+    stopBinauralBeat = () => {},
+    startNatureSound = () => {},
+    stopNatureSound = () => {},
+    binauralAudio = null,
+    natureAudio = null
   } = useAudioGenerator();
   
   const [binauralFrequency, setBinauralFrequency] = React.useState(6);
   const [binauralVolume, setBinauralVolume] = React.useState(0.5);
   const [natureVolume, setNatureVolume] = React.useState(0.5);
   
-  const [binauralAudio, setBinauralAudio] = React.useState<AudioUtils | null>(null);
-  const [natureAudio, setNatureAudio] = React.useState<AudioUtils | null>(null);
+  const [customBinauralAudio, setCustomBinauralAudio] = React.useState<AudioUtils | null>(null);
+  const [customNatureAudio, setCustomNatureAudio] = React.useState<AudioUtils | null>(null);
   
-  const startBinauralBeat = (baseFreq: number, targetFreq: number, volume: number) => {
+  const handleStartBinauralBeat = (baseFreq: number, targetFreq: number, volume: number) => {
     const audio: AudioUtils = {
       playSound: (type, vol) => console.log(`Playing ${type} at volume ${vol}`),
       stopSound: (type) => console.log(`Stopping ${type}`),
@@ -63,18 +70,28 @@ export default function Sleep() {
       isPlaying: true
     };
     
-    setBinauralAudio(audio);
+    setCustomBinauralAudio(audio);
     console.log(`Started binaural beat: base=${baseFreq}, target=${targetFreq}, volume=${volume}`);
-  };
-  
-  const stopBinauralBeat = () => {
-    if (binauralAudio) {
-      binauralAudio.stopSound('binaural');
-      setBinauralAudio(null);
+    
+    // Use the hook's method if available
+    if (typeof startBinauralBeat === 'function') {
+      startBinauralBeat(baseFreq, targetFreq, volume);
     }
   };
   
-  const startNatureSound = (type: string, volume: number) => {
+  const handleStopBinauralBeat = () => {
+    if (customBinauralAudio) {
+      customBinauralAudio.stopSound('binaural');
+      setCustomBinauralAudio(null);
+    }
+    
+    // Use the hook's method if available
+    if (typeof stopBinauralBeat === 'function') {
+      stopBinauralBeat();
+    }
+  };
+  
+  const handleStartNatureSound = (type: string, volume: number) => {
     const audio: AudioUtils = {
       playSound: (t, vol) => console.log(`Playing ${t} at volume ${vol}`),
       stopSound: (t) => console.log(`Stopping ${t}`),
@@ -82,28 +99,43 @@ export default function Sleep() {
       type: type
     };
     
-    setNatureAudio(audio);
+    setCustomNatureAudio(audio);
     console.log(`Started nature sound: type=${type}, volume=${volume}`);
-  };
-  
-  const stopNatureSound = () => {
-    if (natureAudio) {
-      natureAudio.stopSound('nature');
-      setNatureAudio(null);
+    
+    // Use the hook's method if available
+    if (typeof startNatureSound === 'function') {
+      startNatureSound(type, volume);
     }
   };
   
-  const stopAllAudio = () => {
-    stopBinauralBeat();
-    stopNatureSound();
+  const handleStopNatureSound = () => {
+    if (customNatureAudio) {
+      customNatureAudio.stopSound('nature');
+      setCustomNatureAudio(null);
+    }
+    
+    // Use the hook's method if available
+    if (typeof stopNatureSound === 'function') {
+      stopNatureSound();
+    }
+  };
+  
+  const handleStopAllAudio = () => {
+    handleStopBinauralBeat();
+    handleStopNatureSound();
+    
+    // Use the hook's method if available
+    if (typeof stopAllAudio === 'function') {
+      stopAllAudio();
+    }
   };
   
   const handleBinauralFrequencyChange = (value: number[]) => {
     const frequency = value[0];
     setBinauralFrequency(frequency);
     
-    if (binauralAudio && binauralAudio.setFrequency) {
-      binauralAudio.setFrequency(frequency);
+    if (customBinauralAudio && customBinauralAudio.setFrequency) {
+      customBinauralAudio.setFrequency(frequency);
     }
   };
   
@@ -111,8 +143,8 @@ export default function Sleep() {
     const volume = value[0];
     setBinauralVolume(volume);
     
-    if (binauralAudio) {
-      binauralAudio.playSound('binaural', volume);
+    if (customBinauralAudio) {
+      customBinauralAudio.playSound('binaural', volume);
     }
   };
   
@@ -120,32 +152,30 @@ export default function Sleep() {
     const volume = value[0];
     setNatureVolume(volume);
     
-    if (natureAudio) {
-      natureAudio.playSound('nature', volume);
+    if (customNatureAudio) {
+      customNatureAudio.playSound('nature', volume);
     }
   };
   
   const toggleBinauralBeat = () => {
-    if (binauralAudio?.isPlaying) {
-      stopBinauralBeat();
+    if (customBinauralAudio?.isPlaying) {
+      handleStopBinauralBeat();
     } else {
-      startBinauralBeat(256, binauralFrequency, binauralVolume);
+      handleStartBinauralBeat(256, binauralFrequency, binauralVolume);
     }
   };
   
-  const playNatureSound = (type: string) => {
-    if (natureAudio?.isPlaying) {
-      stopNatureSound();
-    }
-    
-    if (!natureAudio?.isPlaying || type !== natureAudio.type) {
-      startNatureSound(type, natureVolume);
+  const playNatureSoundHandler = (type: string) => {
+    if (customNatureAudio?.isPlaying && customNatureAudio.type === type) {
+      handleStopNatureSound();
+    } else {
+      handleStartNatureSound(type, natureVolume);
     }
   };
   
   React.useEffect(() => {
     return () => {
-      stopAllAudio();
+      handleStopAllAudio();
     };
   }, []);
   
@@ -203,11 +233,11 @@ export default function Sleep() {
                       <Card 
                         key={sound.type}
                         className={`cursor-pointer transition-all hover:shadow-md ${
-                          natureAudio?.isPlaying && sound.type === natureAudio.type 
+                          customNatureAudio?.isPlaying && sound.type === customNatureAudio.type 
                             ? 'border-primary bg-primary/5' 
                             : ''
                         }`}
-                        onClick={() => playNatureSound(sound.type)}
+                        onClick={() => playNatureSoundHandler(sound.type)}
                       >
                         <CardContent className="p-4 flex flex-col items-center justify-center text-center space-y-2">
                           <sound.icon className="h-8 w-8 text-primary" />
@@ -221,10 +251,10 @@ export default function Sleep() {
                     <Button
                       variant="outline"
                       size="icon"
-                      disabled={!natureAudio?.isPlaying}
-                      onClick={() => stopNatureSound()}
+                      disabled={!customNatureAudio?.isPlaying}
+                      onClick={() => handleStopNatureSound()}
                     >
-                      {natureAudio?.isPlaying ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                      {customNatureAudio?.isPlaying ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
                     </Button>
                     
                     <div className="flex-1">
@@ -234,7 +264,7 @@ export default function Sleep() {
                         max={1}
                         step={0.01}
                         onValueChange={handleNatureVolumeChange}
-                        disabled={!natureAudio?.isPlaying}
+                        disabled={!customNatureAudio?.isPlaying}
                         className="w-full"
                       />
                     </div>
@@ -263,11 +293,11 @@ export default function Sleep() {
                     <div className="flex items-center space-x-2">
                       <Switch
                         id="binaural-toggle"
-                        checked={binauralAudio?.isPlaying || false}
+                        checked={customBinauralAudio?.isPlaying || false}
                         onCheckedChange={toggleBinauralBeat}
                       />
                       <Label htmlFor="binaural-toggle" className="font-medium">
-                        {binauralAudio?.isPlaying 
+                        {customBinauralAudio?.isPlaying 
                           ? 'Binaural beats playing' 
                           : 'Play binaural beats'}
                       </Label>
@@ -312,10 +342,10 @@ export default function Sleep() {
                         className="cursor-pointer hover:shadow-sm transition-all"
                         onClick={() => {
                           setBinauralFrequency(preset.frequency);
-                          if (binauralAudio?.isPlaying) {
-                            binauralAudio.setFrequencies(256, preset.frequency);
+                          if (customBinauralAudio?.isPlaying) {
+                            customBinauralAudio.setFrequency?.(preset.frequency);
                           } else {
-                            startBinauralBeat(256, preset.frequency, binauralVolume);
+                            handleStartBinauralBeat(256, preset.frequency, binauralVolume);
                           }
                         }}
                       >

@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Volume2, Volume1, VolumeX, Play, Pause } from "lucide-react";
-import { NoiseType, NatureSound } from "@/types/games";
+import { NoiseType, NatureSound } from "@/types/audio";
 
 const WhiteNoise = () => {
   const { 
     playNoise,
+    stopNoise,
     playNature,
+    stopNature,
     stopAll,
     isPlaying,
     settings,
@@ -120,13 +122,13 @@ const WhiteNoise = () => {
             <h3 className="text-lg font-medium">Nature Sounds</h3>
             <p>Select a nature sound to add to the background.</p>
             <div className="flex flex-wrap gap-2 mt-2">
-              <Button onClick={() => handleNatureSoundChange("rain")}>
+              <Button onClick={() => handleNatureSoundChange("rain" as NatureSound)}>
                 Rain Sound
               </Button>
-              <Button onClick={() => handleNatureSoundChange("forest")}>
+              <Button onClick={() => handleNatureSoundChange("forest" as NatureSound)}>
                 Forest Sound
               </Button>
-              <Button onClick={() => handleNatureSoundChange("ocean")}>
+              <Button onClick={() => handleNatureSoundChange("ocean" as NatureSound)}>
                 Ocean Sound
               </Button>
               <Button variant="outline" onClick={() => handleNatureSoundChange(null)}>

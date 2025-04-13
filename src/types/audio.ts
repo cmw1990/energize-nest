@@ -25,12 +25,8 @@ export interface BinauralBeat extends AudioInstance {
   setFrequencies?: (baseFreq: number, beatFreq: number) => void;
 }
 
-export type NatureSound = {
-  name: string;
-  type: string;
-  description: string;
-  category: string;
-};
+export type NatureSound = 'none' | 'ocean' | 'forest' | 'river' | 'rain' | 'thunder' | 'fire';
+export type NoiseType = 'none' | 'brown' | 'pink' | 'white';
 
 declare global {
   interface AudioBufferSourceNode {
@@ -38,20 +34,30 @@ declare global {
   }
 }
 
+export interface AudioUtils {
+  playSound: (type: string, volume: number) => void;
+  stopSound: (type: string) => void;
+  setFrequency?: (value: number) => void;
+  setFrequencies?: (baseFreq: number, beatFreq: number) => void;
+  isPlaying?: boolean;
+  type?: string;
+}
+
 export interface AudioGeneratorHook {
-  playNoise: (type: string, volume?: number) => AudioInstance;
-  playNatureSound: (type: string, volume?: number) => AudioInstance;
-  createBinauralBeat: (baseFrequency: number, beatFrequency: number, volume?: number) => BinauralBeat;
-  stopAll: () => void;
   isPlaying: boolean;
   settings: AudioSettings;
-  setSettings: (newSettings: Partial<AudioSettings>) => void;
+  setSettings: React.Dispatch<React.SetStateAction<AudioSettings>>;
+  playNoise: (type: NoiseType) => void;
+  playNature: (type: NatureSound) => void;
+  stopNoise: () => void;
+  stopNature: () => void;
+  stopAll: () => void;
   toggleSound: () => void;
-  updateNoiseType: (type: string) => void;
-  updateNatureSound: (sound: string | null) => void;
+  updateNoiseType: (type: NoiseType) => void;
+  updateNatureSound: (type: NatureSound | null) => void;
   updateVolume: (volume: number) => void;
   
-  // Add these properties to fix Sleep.tsx errors
+  // Additional properties for expanded audio functionality
   startBinauralBeat: (baseFreq: number, beatFreq: number, volume?: number) => void;
   stopBinauralBeat: () => void;
   startNatureSound: (type: string, volume?: number) => void;

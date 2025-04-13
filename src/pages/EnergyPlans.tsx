@@ -208,8 +208,8 @@ const EnergyPlans: React.FC = () => {
       <LifeSituationDialog 
         open={showLifeSituationDialog}
         onOpenChange={setShowLifeSituationDialog}
-        lifeSituation={lifeSituation}
-        onSelect={(situation) => setLifeSituation(situation as LifeSituation)}
+        currentSituation={lifeSituation}
+        onUpdateSituation={(situation) => setLifeSituation(situation as LifeSituation)}
       />
     </div>
   );
