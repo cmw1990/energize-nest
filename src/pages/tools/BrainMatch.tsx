@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { ToolAnalyticsWrapper } from "@/components/tools/ToolAnalyticsWrapper";
 import { LandingHeader } from "@/components/layout/LandingHeader";
 import { useToast } from "@/hooks/use-toast";
-import { Brain, Clock, Award, RotateCcw, Share2 } from "lucide-react";
-import { BrainMatchGame } from "@/components/games/brain-match/BrainMatchGame";
+import { Brain, Clock, Award, RotateCcw, Share2, Trophy } from "lucide-react";
+import BrainMatchGame from "@/components/games/brain-match/BrainMatchGame";
 
 const BrainMatch = () => {
   const [gameStarted, setGameStarted] = useState(false);
@@ -28,7 +28,7 @@ const BrainMatch = () => {
       toast({
         title: "New High Score!",
         description: `Congratulations! You've set a new personal best: ${score} points.`,
-        variant: "success",
+        variant: "default",
       });
     }
   }, [gameCompleted, score, bestScore, toast]);

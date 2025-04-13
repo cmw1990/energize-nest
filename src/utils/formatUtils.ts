@@ -26,5 +26,24 @@ export const formatValue = (value: any, decimals: number = 2, fallback: string =
   }
   
   // For any other type, convert to string
-  return String(value);
+  return String(value || '0');
+};
+
+/**
+ * Type-safe version of formatValue that ensures the value can be formatted with toFixed
+ * @param value Number or string that can be parsed as a number
+ * @param decimals Number of decimal places
+ * @returns Formatted string with fixed decimal places
+ */
+export const formatNumberValue = (value: number | string, decimals: number = 2): string => {
+  if (typeof value === 'number') {
+    return value.toFixed(decimals);
+  }
+  
+  const parsed = parseFloat(value);
+  if (!isNaN(parsed)) {
+    return parsed.toFixed(decimals);
+  }
+  
+  return '0';
 };
