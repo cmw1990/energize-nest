@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,10 @@ import { LandingHeader } from "@/components/layout/LandingHeader";
 import { useToast } from "@/hooks/use-toast";
 import { Brain, Clock, Award, RotateCcw, Share2, Trophy } from "lucide-react";
 import BrainMatchGame from "@/components/games/brain-match/BrainMatchGame";
+
+interface BrainMatchGameProps {
+  onGameComplete: (finalScore: number, time: number) => void;
+}
 
 const BrainMatch = () => {
   const [gameStarted, setGameStarted] = useState(false);

@@ -86,6 +86,12 @@ export function TherapyDashboard() {
     enabled: !!session?.user?.id
   });
 
+  const getProviderName = () => {
+    if (!insuranceInfo?.insurance_provider) return 'Not Set';
+    return typeof insuranceInfo.insurance_provider === 'object' ? 
+      insuranceInfo.insurance_provider.name : 'Not Set';
+  };
+
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -145,7 +151,7 @@ export function TherapyDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {insuranceInfo?.insurance_provider ? insuranceInfo.insurance_provider.name : 'Not Set'}
+              {getProviderName()}
             </div>
             <p className="text-xs text-muted-foreground">
               {insuranceInfo?.insurance_eligibility_checks?.[0]?.status === 'verified' 

@@ -7,6 +7,7 @@ import { useAudioGenerator } from "@/hooks/useAudioGenerator";
 import { BreathingAnimations } from "@/components/breathing/BreathingAnimations";
 import { BreathingTechniques } from "@/components/breathing/BreathingTechniques";
 import { Wind, Music, Headphones, MessageCircle, Heart, Clock } from "lucide-react";
+import { BreathingTechnique } from "@/types/breathing";
 
 // Temporarily create stub components until the real ones are implemented
 const GuidedMeditation = () => <div>Guided Meditation Component Coming Soon</div>;
@@ -14,7 +15,7 @@ const SoundScapes = () => <div>Sound Scapes Component Coming Soon</div>;
 const BinauralBeats = () => <div>Binaural Beats Component Coming Soon</div>;
 
 interface BreathingTechniquesProps {
-  onSelectTechnique: (technique: string) => void;
+  onSelectTechnique: (technique: BreathingTechnique) => void;
 }
 
 const Relax = () => {
@@ -32,9 +33,9 @@ const Relax = () => {
     updateNatureSound,
     updateVolume
   } = useAudioGenerator();
-  const [selectedTechnique, setSelectedTechnique] = useState("");
+  const [selectedTechnique, setSelectedTechnique] = useState<BreathingTechnique | null>(null);
 
-  const handleSelectTechnique = (technique: string) => {
+  const handleSelectTechnique = (technique: BreathingTechnique) => {
     setSelectedTechnique(technique);
   };
 
