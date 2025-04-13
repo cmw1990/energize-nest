@@ -1,6 +1,5 @@
-
 import { useState, useEffect, useRef } from 'react';
-import { NoiseType, NatureSound, AudioGeneratorHook } from '@/types/audio';
+import { NoiseType, NatureSound, AudioGeneratorHook, AudioSettings as AudioSettingsType } from '@/types/audio';
 
 interface AudioSettings {
   noiseType: NoiseType;
@@ -12,8 +11,8 @@ interface AudioSettings {
   };
   volume: number;
   isMuted: boolean;
-  binauralBeatFrequency?: number | null;
-  baseFrequency?: number;
+  binauralBeatFrequency: number | null;
+  baseFrequency: number;
 }
 
 export const useAudioGenerator = (): AudioGeneratorHook => {
@@ -27,7 +26,9 @@ export const useAudioGenerator = (): AudioGeneratorHook => {
       beatFrequency: 10
     },
     volume: 0.5,
-    isMuted: false
+    isMuted: false,
+    binauralBeatFrequency: null,
+    baseFrequency: 200
   });
 
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -49,7 +50,6 @@ export const useAudioGenerator = (): AudioGeneratorHook => {
 
   const initAudioContext = () => {
     if (!audioContextRef.current) {
-      // @ts-ignore - Some browsers might use webkitAudioContext
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       audioContextRef.current = new AudioContext();
       gainNodeRef.current = audioContextRef.current.createGain();
@@ -72,7 +72,6 @@ export const useAudioGenerator = (): AudioGeneratorHook => {
     const noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
     const output = noiseBuffer.getChannelData(0);
 
-    // Generate noise based on type
     switch(type) {
       case "white":
         for (let i = 0; i < bufferSize; i++) {
@@ -113,10 +112,7 @@ export const useAudioGenerator = (): AudioGeneratorHook => {
     setSettings(prev => ({ ...prev, noiseType: type }));
   };
 
-  // Function to simulate nature sounds (in a real app, these would be audio files)
   const playNature = (sound: NatureSound) => {
-    // In a real implementation, you would load audio files and play them
-    // This is a simplified simulation just for the UI demo
     setSettings(prev => ({ ...prev, natureSound: sound }));
   };
 
@@ -133,30 +129,24 @@ export const useAudioGenerator = (): AudioGeneratorHook => {
 
     const audioContext = initAudioContext();
     
-    // Create oscillators
     oscillatorLeftRef.current = audioContext.createOscillator();
     oscillatorRightRef.current = audioContext.createOscillator();
     
-    // Set frequencies
     oscillatorLeftRef.current.frequency.value = baseFreq;
     oscillatorRightRef.current.frequency.value = baseFreq + beatFreq;
     
-    // Create stereo panner for oscillators
     const pannerLeft = audioContext.createStereoPanner();
     const pannerRight = audioContext.createStereoPanner();
     
-    pannerLeft.pan.value = -1; // Left channel only
-    pannerRight.pan.value = 1; // Right channel only
+    pannerLeft.pan.value = -1;
+    pannerRight.pan.value = 1;
     
-    // Connect oscillators to panners
     oscillatorLeftRef.current.connect(pannerLeft);
     oscillatorRightRef.current.connect(pannerRight);
     
-    // Connect panners to gain node
     pannerLeft.connect(gainNodeRef.current!);
     pannerRight.connect(gainNodeRef.current!);
     
-    // Start oscillators
     oscillatorLeftRef.current.start();
     oscillatorRightRef.current.start();
     
@@ -167,7 +157,9 @@ export const useAudioGenerator = (): AudioGeneratorHook => {
         enabled: true, 
         baseFrequency: baseFreq, 
         beatFrequency: beatFreq 
-      } 
+      },
+      binauralBeatFrequency: beatFreq,
+      baseFrequency: baseFreq
     }));
   };
 
@@ -200,6 +192,12 @@ export const useAudioGenerator = (): AudioGeneratorHook => {
       oscillatorRightRef.current.disconnect();
       oscillatorRightRef.current = null;
     }
+    
+    setSettings(prev => ({
+      ...prev,
+      binaural: { ...prev.binaural, enabled: false },
+      binauralBeatFrequency: null
+    }));
   };
 
   const stopAll = () => {
@@ -211,7 +209,8 @@ export const useAudioGenerator = (): AudioGeneratorHook => {
       ...prev,
       noiseType: 'none',
       natureSound: 'none',
-      binaural: { ...prev.binaural, enabled: false }
+      binaural: { ...prev.binaural, enabled: false },
+      binauralBeatFrequency: null
     }));
   };
 
@@ -247,7 +246,6 @@ export const useAudioGenerator = (): AudioGeneratorHook => {
     setSettings(prev => ({ ...prev, volume: value }));
   };
 
-  // Alias methods to match the AudioGeneratorHook interface
   const stopAllAudio = stopAll;
   const startBinauralBeat = createBinauralBeat;
   const startNatureSound = (type: string, volume?: number) => {
@@ -258,7 +256,6 @@ export const useAudioGenerator = (): AudioGeneratorHook => {
   };
   const stopNatureSound = stopNature;
 
-  // Create stub binauralAudio and natureAudio objects to satisfy the interface
   const binauralAudio = oscillatorLeftRef.current ? {
     play: async () => { /* Implementation */ },
     stop: stopBinauralBeat,
@@ -281,8 +278,8 @@ export const useAudioGenerator = (): AudioGeneratorHook => {
 
   return {
     isPlaying,
-    settings,
-    setSettings,
+    settings: settings as unknown as AudioSettingsType,
+    setSettings: setSettings as unknown as React.Dispatch<React.SetStateAction<AudioSettingsType>>,
     playNoise,
     playNature,
     stopNoise,
@@ -303,5 +300,4 @@ export const useAudioGenerator = (): AudioGeneratorHook => {
   };
 };
 
-// Helper variable for brown noise (needed for the code to compile)
 const b6 = 0;

@@ -1,22 +1,35 @@
+
 import React from 'react';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/components/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   Activity, 
   Brain, 
   Calendar, 
+  ChevronRight,
   CircleOff, 
   Clock, 
+  DollarSign,
   Heart, 
   HeartPulse, 
+  Smile,
   Timer, 
   Trophy,
+  Users,
   Wind,
   Zap
 } from "lucide-react";
+import { TopNav } from "@/components/layout/TopNav";
 import { NicotineTracker } from "@/components/nicotine/NicotineTracker";
 import { HealthImprovements } from "@/components/sobriety/HealthImprovements";
 import { MoneySaved } from "@/components/sobriety/MoneySaved";
