@@ -1,5 +1,4 @@
 
-
 export interface ConsultationNote {
   id?: string;
   session_id: string;
@@ -67,4 +66,3 @@ export interface ClientGoal {
   created_at?: string;
   updated_at?: string;
 }
-

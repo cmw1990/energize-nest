@@ -1,198 +1,188 @@
 
-import { useState } from "react"
-import { useQueryClient } from "@tanstack/react-query"
-import { supabase } from "@/integrations/supabase/client"
-import { useToast } from "@/hooks/use-toast"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Plan, ProgressRecord } from "@/types/energyPlans"
-import { Brain, Coffee, Flower, Heart, Moon, Share2, Star, Sun, Timer, Target, Wind, Zap, CircleUser } from "lucide-react"
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Plan, ProgressRecord } from "@/types/energyPlans";
+import { getCategoryColor } from "@/utils/colorUtils";
+import { Clock, Calendar, Zap, Users, Copy, Share2, Award, Star, User, Tag, MessageCircle } from "lucide-react";
 
-const PlanTypeIcons: Record<string, any> = {
-  energizing_boost: Zap,
-  sustained_focus: Coffee,
-  mental_clarity: Brain,
-  physical_vitality: Target,
-  deep_relaxation: Flower,
-  stress_relief: Heart,
-  evening_winddown: Wind,
-  sleep_preparation: Moon,
-  meditation: Sun,
+export interface PlanCardProps {
+  plan: Plan;
+  progress?: ProgressRecord[];
+  onSave?: (planId: string) => void;
+  onShare?: (plan: Plan) => void;
+  onUnsave?: (planId: string) => void;
+  onDuplicate?: (planId: string) => void;
+  isSaved?: boolean;
 }
 
-const CategoryColors = {
-  charged: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-200",
-  recharged: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
-} as const
+export const PlanCard: React.FC<PlanCardProps> = ({
+  plan,
+  progress,
+  onSave,
+  onShare,
+  onUnsave,
+  onDuplicate,
+  isSaved = false,
+}) => {
+  // Calculate progress if available
+  const planProgress = () => {
+    if (!progress || !plan.energy_plan_components || plan.energy_plan_components.length === 0) {
+      return 0;
+    }
 
-interface PlanCardProps {
-  plan: Plan
-  progress?: ProgressRecord[]
-  onSave?: (planId: string) => void
-  onShare?: (plan: Plan) => void
-  isSaved?: boolean
-  showActions?: boolean
-}
+    const componentsCount = plan.energy_plan_components.length;
+    const completedCount = progress.filter(p => 
+      p.plan_id === plan.id && 
+      p.completed
+    ).length;
 
-export const PlanCard = ({ 
-  plan, 
-  progress, 
-  onSave, 
-  onShare, 
-  isSaved, 
-  showActions = true 
-}: PlanCardProps) => {
-  const Icon = PlanTypeIcons[plan.plan_type] || Brain
-  const { toast } = useToast()
-  const queryClient = useQueryClient()
+    return Math.round((completedCount / componentsCount) * 100);
+  };
 
-  const calculateProgress = () => {
-    if (!progress || !plan.energy_plan_components?.length) return 0
-    const completedSteps = progress.filter(p => p.plan_id === plan.id && p.completed).length
-    return (completedSteps / plan.energy_plan_components.length) * 100
-  }
+  // Function to truncate text
+  const truncate = (text: string, length: number) => {
+    if (text && text.length > length) {
+      return text.substring(0, length) + "...";
+    }
+    return text;
+  };
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 hover:border-primary/20">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
-              <Icon className="h-5 w-5 text-primary" />
-            </div>
-            <CardTitle className="text-xl">{plan.title}</CardTitle>
-          </div>
-          <div className="flex gap-2">
-            <Badge variant="secondary" 
-              className={`${CategoryColors[plan.category]} transition-colors`}
-            >
-              {plan.category === 'charged' ? 'Energy Boost' : 'Recovery & Rest'}
+    <Card className="border-primary/10 hover:shadow-md transition-shadow">
+      <CardHeader className="pb-2">
+        <div className="flex items-start justify-between">
+          <div>
+            <Badge variant="outline" className={`mb-2 ${getCategoryColor(plan.plan_type)}`}>
+              {plan.plan_type?.replace('_', ' ')}
             </Badge>
-            {plan.is_expert_plan && (
-              <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
-                Expert Plan
-              </Badge>
-            )}
-            {plan.celebrity_name && (
-              <Badge variant="outline" className="gap-1 py-1 bg-primary/5">
-                <CircleUser className="h-3 w-3" />
-                {plan.celebrity_name}
-              </Badge>
-            )}
+            <CardTitle className="line-clamp-1">{plan.title}</CardTitle>
           </div>
+          {plan.is_expert_plan && (
+            <Badge variant="secondary" className="bg-amber-100 text-amber-800 hover:bg-amber-200">
+              <Award className="h-3 w-3 mr-1" />
+              Expert
+            </Badge>
+          )}
+          {plan.celebrity_name && (
+            <Badge variant="secondary" className="bg-purple-100 text-purple-800 hover:bg-purple-200">
+              <Star className="h-3 w-3 mr-1" />
+              {plan.celebrity_name}
+            </Badge>
+          )}
         </div>
-        <CardDescription className="mt-2">{plan.description}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm line-clamp-2">
+            {truncate(plan.description, 120)}
+          </p>
+          
+          <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
-              <Timer className="h-4 w-4 flex-shrink-0" />
-              <span>{plan.estimated_duration_minutes} minutes</span>
+              <Clock className="h-4 w-4" />
+              <span>{plan.estimated_duration_minutes || 0} min</span>
             </div>
             <div className="flex items-center gap-1">
-              <Target className="h-4 w-4 flex-shrink-0" />
-              <span>Energy Level {plan.energy_level_required}/10</span>
+              <Zap className="h-4 w-4" />
+              <span>Level {plan.energy_level_required || 1}/10</span>
             </div>
           </div>
 
-          {(plan.recommended_time_of_day?.length || plan.suitable_contexts?.length) && (
+          {(plan.recommended_time_of_day?.length > 0 || plan.suitable_contexts?.length > 0) && (
             <div className="space-y-2">
-              {plan.recommended_time_of_day?.length ? (
-                <div className="space-y-1">
-                  <div className="text-sm text-muted-foreground">Best Times</div>
-                  <div className="flex flex-wrap gap-2">
-                    {plan.recommended_time_of_day.map(time => (
-                      <Badge key={time} variant="outline">{time}</Badge>
-                    ))}
-                  </div>
+              {plan.recommended_time_of_day && plan.recommended_time_of_day.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  <Calendar className="h-4 w-4 mt-1 mr-1" />
+                  {plan.recommended_time_of_day.slice(0, 3).map((time) => (
+                    <Badge key={time} variant="outline" className="text-xs">
+                      {time}
+                    </Badge>
+                  ))}
+                  {plan.recommended_time_of_day.length > 3 && (
+                    <Badge variant="outline" className="text-xs">+{plan.recommended_time_of_day.length - 3}</Badge>
+                  )}
                 </div>
-              ) : null}
-              
-              {plan.suitable_contexts?.length ? (
-                <div className="space-y-1">
-                  <div className="text-sm text-muted-foreground">Perfect For</div>
-                  <div className="flex flex-wrap gap-2">
-                    {plan.suitable_contexts.map(context => (
-                      <Badge key={context} variant="outline">{context}</Badge>
-                    ))}
-                  </div>
+              )}
+
+              {plan.suitable_contexts && plan.suitable_contexts.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  <Tag className="h-4 w-4 mt-1 mr-1" />
+                  {plan.suitable_contexts.slice(0, 3).map((context) => (
+                    <Badge key={context} variant="outline" className="text-xs">
+                      {context}
+                    </Badge>
+                  ))}
+                  {plan.suitable_contexts.length > 3 && (
+                    <Badge variant="outline" className="text-xs">+{plan.suitable_contexts.length - 3}</Badge>
+                  )}
                 </div>
-              ) : null}
+              )}
             </div>
           )}
-          
-          {plan.tags?.length > 0 && (
+
+          {progress && (
             <div className="space-y-1">
-              <div className="text-sm text-muted-foreground">Tags</div>
-              <div className="flex flex-wrap gap-2">
-                {plan.tags.map((tag) => (
-                  <Badge key={tag} variant="outline" className="bg-primary/5">
-                    {tag}
-                  </Badge>
-                ))}
+              <div className="flex justify-between text-sm">
+                <span>Progress</span>
+                <span>{planProgress()}%</span>
               </div>
+              <Progress value={planProgress()} />
             </div>
           )}
-          
-          {progress && progress.length > 0 && (
-            <div className="space-y-1">
-              <div className="text-sm text-muted-foreground">Progress</div>
-              <Progress value={calculateProgress()} className="h-2" />
-              <div className="text-xs text-muted-foreground text-right">
-                {Math.round(calculateProgress())}% Complete
+
+          <div className="flex items-center justify-between mt-2">
+            <div className="flex items-center gap-2 text-muted-foreground text-sm">
+              <div className="flex items-center gap-1">
+                <MessageCircle className="h-4 w-4" />
+                <span>{plan.likes_count || 0}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Users className="h-4 w-4" />
+                <span>{plan.saves_count || 0}</span>
               </div>
             </div>
-          )}
-          
-          {showActions && (
-            <div className="flex items-center justify-between pt-2">
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4" />
-                  {plan.likes_count} likes
-                </div>
-                <div className="flex items-center gap-1">
-                  <Share2 className="h-4 w-4" />
-                  {plan.saves_count} saves
-                </div>
-              </div>
-              
-              <div className="flex gap-2">
-                {!isSaved && onSave && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onSave(plan.id)}
-                    className="gap-2"
-                  >
-                    <Star className="h-4 w-4" />
-                    Save Plan
-                  </Button>
-                )}
-                
-                {onShare && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onShare(plan)}
-                    className="gap-2"
-                  >
-                    <Share2 className="h-4 w-4" />
-                    Share
-                  </Button>
-                )}
-                
-                <Button size="sm" className="gap-2">
-                  View Details
+
+            <div className="flex items-center gap-2">
+              {isSaved ? (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => onUnsave?.(plan.id)}
+                >
+                  Unsave
                 </Button>
-              </div>
+              ) : (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => onSave?.(plan.id)}
+                >
+                  Save
+                </Button>
+              )}
+              
+              <Button 
+                variant="outline" 
+                size="icon" 
+                onClick={() => onShare?.(plan)}
+              >
+                <Share2 className="h-4 w-4" />
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="icon" 
+                onClick={() => onDuplicate?.(plan.id)}
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
             </div>
-          )}
+          </div>
         </div>
       </CardContent>
     </Card>
-  )
-}
+  );
+};

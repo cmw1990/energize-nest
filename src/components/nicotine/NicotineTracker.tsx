@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
@@ -17,6 +18,20 @@ import { cn } from "@/lib/utils";
 import { Cigarette, Clock, Calendar as CalendarIcon, BarChart, Battery, Zap } from "lucide-react";
 import { format } from "date-fns";
 
+// Define trigger types
+const triggerTypes = [
+  { value: "stress", label: "Stress" },
+  { value: "social", label: "Social Situation" },
+  { value: "routine", label: "Daily Routine" },
+  { value: "craving", label: "Strong Craving" },
+  { value: "food", label: "After Food" },
+  { value: "alcohol", label: "With Alcohol" },
+  { value: "boredom", label: "Boredom" },
+  { value: "emotional", label: "Emotional Trigger" },
+  { value: "work", label: "Work Break" },
+  { value: "other", label: "Other" }
+];
+
 export function NicotineTracker() {
   const { session } = useAuth();
   const { toast } = useToast();
@@ -32,7 +47,7 @@ export function NicotineTracker() {
   const [moodImpact, setMoodImpact] = useState<number>(5);
   const [notes, setNotes] = useState<string>("");
   
-  const { data: productTypes } = useQuery({
+  const { data: productTypes, isLoading: isLoadingProductTypes } = useQuery({
     queryKey: ['nicotine-product-types'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -42,13 +57,14 @@ export function NicotineTracker() {
       
       if (error) throw error;
       return data || [];
-    },
-    onSettled: (data) => {
-      if (data && data.length > 0) {
-        setProductType(data[0].type);
-      }
     }
   });
+  
+  useEffect(() => {
+    if (productTypes && productTypes.length > 0) {
+      setProductType(productTypes[0].value);
+    }
+  }, [productTypes]);
   
   const { data: existingLog, isLoading } = useQuery({
     queryKey: ['nicotine-log', format(date, 'yyyy-MM-dd')],
@@ -65,30 +81,31 @@ export function NicotineTracker() {
       if (error) throw error;
       return data;
     },
-    enabled: !!session?.user?.id,
-    onSuccess: (data) => {
-      if (data) {
-        setAmount(data.amount || 1);
-        setProductType(data.product_type || "cigarette");
-        setBrand(data.brand || "");
-        setTriggerType(data.trigger_type || "");
-        setLocation(data.location || "");
-        setEnergyImpact(data.energy_impact || 5);
-        setMoodImpact(data.mood_impact || 5);
-        setNotes(data.notes || "");
-      } else {
-        // Reset form for new entries
-        setAmount(1);
-        setProductType("cigarette");
-        setBrand("");
-        setTriggerType("");
-        setLocation("");
-        setEnergyImpact(5);
-        setMoodImpact(5);
-        setNotes("");
-      }
-    }
+    enabled: !!session?.user?.id
   });
+
+  useEffect(() => {
+    if (existingLog) {
+      setAmount(existingLog.amount || 1);
+      setProductType(existingLog.product_type || "cigarette");
+      setBrand(existingLog.brand || "");
+      setTriggerType(existingLog.trigger_type || "");
+      setLocation(existingLog.location || "");
+      setEnergyImpact(existingLog.energy_impact || 5);
+      setMoodImpact(existingLog.mood_impact || 5);
+      setNotes(existingLog.notes || "");
+    } else {
+      // Reset form for new entries
+      setAmount(1);
+      setProductType(productTypes && productTypes.length > 0 ? productTypes[0].value : "cigarette");
+      setBrand("");
+      setTriggerType("");
+      setLocation("");
+      setEnergyImpact(5);
+      setMoodImpact(5);
+      setNotes("");
+    }
+  }, [existingLog, productTypes]);
   
   const saveLog = useMutation({
     mutationFn: async () => {
@@ -200,7 +217,7 @@ export function NicotineTracker() {
                   <SelectValue placeholder="Select product type" />
                 </SelectTrigger>
                 <SelectContent>
-                  {productTypes.map((type) => (
+                  {productTypes?.map((type) => (
                     <SelectItem key={type.value} value={type.value}>
                       {type.label}
                     </SelectItem>

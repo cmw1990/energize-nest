@@ -1,16 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { TopNav } from "@/components/layout/TopNav";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import EisenhowerMatrix from "@/components/focus/EisenhowerMatrix";
-import { 
-  Calendar, List, CheckSquare, Clock, BarChart2, 
-  Activity, Zap, Brain, Award as Trophy
-} from "lucide-react";
+import { Clock, Calendar, Bell, List, Briefcase, Brain, Check, Timer, Flame, Ban, Flag, Trophy } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
 
 const Desktop = () => {
-  const [activeTab, setActiveTab] = React.useState("tasks");
+  const [activeTab, setActiveTab] = useState("tasks");
 
   return (
     <div className="min-h-screen bg-background">

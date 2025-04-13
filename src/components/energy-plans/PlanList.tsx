@@ -14,7 +14,7 @@ export interface PlanListProps {
   onUnsavePlan?: (planId: string) => void;
   onDuplicatePlan?: (planId: string) => void;
   isSavedList?: boolean;
-  savedPlans?: Plan[]; // Add this property to fix the error in PlanDiscovery
+  savedPlans?: Plan[]; // For checking if a plan is saved
 }
 
 export const PlanList: React.FC<PlanListProps> = ({
@@ -62,18 +62,22 @@ export const PlanList: React.FC<PlanListProps> = ({
 
   return (
     <div className="space-y-4">
-      {plans.map(plan => (
-        <PlanCard
-          key={plan.id}
-          plan={plan}
-          progress={progress}
-          onSave={onSavePlan}
-          onShare={onSharePlan}
-          onUnsave={onUnsavePlan}
-          onDuplicate={onDuplicatePlan}
-          isSaved={isSavedList}
-        />
-      ))}
+      {plans.map(plan => {
+        const isPlanSaved = savedPlans?.some(savedPlan => savedPlan.id === plan.id) || isSavedList;
+        
+        return (
+          <PlanCard
+            key={plan.id}
+            plan={plan}
+            progress={progress}
+            onSave={onSavePlan}
+            onShare={onSharePlan}
+            onUnsave={onUnsavePlan}
+            onDuplicate={onDuplicatePlan}
+            isSaved={isPlanSaved}
+          />
+        );
+      })}
     </div>
   )
 }

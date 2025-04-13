@@ -1,18 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
+import { TopNav } from "@/components/layout/TopNav";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import SleepMetrics from "@/components/sleep/SleepMetrics";
 import SleepRecommendations from "@/components/sleep/SleepRecommendations";
 import SleepGoals from "@/components/sleep/SleepGoals";
-// import { SleepRoutine } from "@/components/sleep/SleepRoutine";
-import { TopNav } from "@/components/layout/TopNav";
-import { 
-  Moon, BellRing, Clock as ClockIcon, BarChart2, Calendar, AlarmClock,
-  Smartphone, Brain as BrainIcon, Wine as WineIcon, Flower as FlowerIcon,
-  Cloud as CloudIcon, Sun as SunIcon
-} from "lucide-react";
+import { useAuth } from "@/components/AuthProvider";
+import { Badge } from "@/components/ui/badge";
+import { Bell, Moon, Clock, Calendar, Smartphone, Brain, Wine, Flower, Cloud, Sun, Target } from "lucide-react";
 
 const Sleep = () => {
   return (

@@ -1,14 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { TopNav } from "@/components/layout/TopNav";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import SleepMetrics from "@/components/sleep/SleepMetrics";
 import SleepLogEntry from "@/components/sleep/SleepLogEntry";
 import SleepRecommendations from "@/components/sleep/SleepRecommendations";
 import SleepAnalytics from "@/components/sleep/SleepAnalytics";
 import SleepGoals from "@/components/sleep/SleepGoals";
 import SleepHabits from "@/components/sleep/SleepHabits";
+import { Button } from "@/components/ui/button";
 import { Activity, Moon, ClipboardCheck, Bed, BarChart, Target, Calendar, Coffee } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
