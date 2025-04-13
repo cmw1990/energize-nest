@@ -1,4 +1,5 @@
 
+
 export interface ConsultationNote {
   id?: string;
   session_id: string;
@@ -39,3 +40,31 @@ export interface ExpertProfile {
     avatar_url: string;
   };
 }
+
+export interface ClientProgressTracking {
+  id?: string;
+  session_id: string;
+  client_id: string;
+  progress_rating?: number;
+  notes?: string;
+  homework?: string;
+  next_steps?: string;
+  milestone_achievements?: string[];
+  treatment_goals?: string[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ClientGoal {
+  id: string;
+  client_id: string;
+  professional_id?: string;
+  title: string;
+  description?: string;
+  target_date?: string;
+  status: 'not_started' | 'in_progress' | 'completed' | 'abandoned';
+  progress: number;
+  created_at?: string;
+  updated_at?: string;
+}
+

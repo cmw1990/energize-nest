@@ -1,6 +1,9 @@
+
 import React from "react";
 import { Plan, ProgressRecord } from "@/types/energyPlans";
 import { PlanCard } from "./PlanCard";
+import { Skeleton } from "@/components/ui/skeleton";
+import { CardDescription } from "@/components/ui/card";
 
 export interface PlanListProps {
   plans?: Plan[];
@@ -11,6 +14,7 @@ export interface PlanListProps {
   onUnsavePlan?: (planId: string) => void;
   onDuplicatePlan?: (planId: string) => void;
   isSavedList?: boolean;
+  savedPlans?: Plan[]; // Add this property to fix the error in PlanDiscovery
 }
 
 export const PlanList: React.FC<PlanListProps> = ({
@@ -21,7 +25,8 @@ export const PlanList: React.FC<PlanListProps> = ({
   onSavePlan,
   onUnsavePlan,
   onDuplicatePlan,
-  isSavedList = false
+  isSavedList = false,
+  savedPlans
 }) => {
   if (isLoading) {
     return (

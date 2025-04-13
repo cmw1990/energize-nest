@@ -1,10 +1,12 @@
+
 import React from "react";
 import { TopNav } from "@/components/layout/TopNav";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import EisenhowerMatrix from "@/components/focus/EisenhowerMatrix";
+
 // Temporarily create stub components until the real ones are implemented
+const EisenhowerMatrix = () => <div>Eisenhower Matrix Component Coming Soon</div>;
 const TaskAnalytics = () => <div>TaskAnalytics Component Coming Soon</div>;
 const TaskAutomation = () => <div>TaskAutomation Component Coming Soon</div>;
 const TaskReminders = () => <div>TaskReminders Component Coming Soon</div>;
