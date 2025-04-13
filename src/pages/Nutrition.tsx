@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,7 +16,7 @@ import {
   FileSpreadsheet, 
   ListChecks,
   Coffee,
-  Water 
+  Droplet 
 } from "lucide-react";
 
 const Nutrition = () => {
@@ -147,7 +146,7 @@ const Nutrition = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Water className="h-5 w-5 text-blue-500" />
+              <Droplet className="h-5 w-5 text-blue-500" />
               Water Intake
             </CardTitle>
             <CardDescription>

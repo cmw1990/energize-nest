@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { TopNav } from "@/components/layout/TopNav";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -19,7 +18,7 @@ const Relax = () => {
   const [activeTab, setActiveTab] = useState("breathing");
   const { 
     playNoise, 
-    playNatureSound, 
+    startNatureSound, 
     createBinauralBeat, 
     stopAll, 
     isPlaying,
