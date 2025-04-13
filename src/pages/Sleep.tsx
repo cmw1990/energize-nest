@@ -1,13 +1,18 @@
-import React, { useState } from "react";
+
+import React from "react";
 import { TopNav } from "@/components/layout/TopNav";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import SleepMetrics from "@/components/sleep/SleepMetrics";
 import SleepRecommendations from "@/components/sleep/SleepRecommendations";
 import SleepGoals from "@/components/sleep/SleepGoals";
 import { useAuth } from "@/components/AuthProvider";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Moon, Clock, Calendar, Smartphone, Brain, Wine, Flower, Cloud, Sun, Target } from "lucide-react";
+import { 
+  Bell, Moon, Clock, Calendar, Smartphone, Brain, Wine, Flower, 
+  Cloud, Sun, Target, AlarmClock, BarChart2 as BarChart2Icon 
+} from "lucide-react";
 
 const Sleep = () => {
   return (
@@ -28,7 +33,7 @@ const Sleep = () => {
         <Card className="border-primary/10">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
-              <BellRing className="h-4 w-4 text-primary" />
+              <Bell className="h-4 w-4 text-primary" />
               Your Sleep Sanctuary
             </CardTitle>
             <CardDescription>
@@ -39,11 +44,11 @@ const Sleep = () => {
             <Tabs defaultValue="metrics" className="space-y-6">
               <TabsList className="grid grid-cols-2 md:grid-cols-4">
                 <TabsTrigger value="metrics" className="flex items-center gap-2">
-                  <BarChart2 className="h-4 w-4" />
+                  <BarChart2Icon className="h-4 w-4" />
                   Metrics
                 </TabsTrigger>
                 <TabsTrigger value="recommendations" className="flex items-center gap-2">
-                  <ClockIcon className="h-4 w-4" />
+                  <Clock className="h-4 w-4" />
                   Recommendations
                 </TabsTrigger>
                 <TabsTrigger value="goals" className="flex items-center gap-2">
@@ -92,7 +97,7 @@ const Sleep = () => {
           <Card className="bg-muted/50">
             <CardContent className="pt-6">
               <div className="text-center space-y-4">
-                <BrainIcon className="h-10 w-10 mx-auto text-green-500" />
+                <Brain className="h-10 w-10 mx-auto text-green-500" />
                 <h2 className="text-xl font-medium">Mindfulness</h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
                   Practice meditation or deep breathing for relaxation.
@@ -105,7 +110,7 @@ const Sleep = () => {
           <Card className="bg-muted/50">
             <CardContent className="pt-6">
               <div className="text-center space-y-4">
-                <WineIcon className="h-10 w-10 mx-auto text-red-500" />
+                <Wine className="h-10 w-10 mx-auto text-red-500" />
                 <h2 className="text-xl font-medium">Limit Alcohol</h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
                   Avoid alcohol close to bedtime to prevent sleep disruption.
@@ -118,7 +123,7 @@ const Sleep = () => {
           <Card className="bg-muted/50">
             <CardContent className="pt-6">
               <div className="text-center space-y-4">
-                <FlowerIcon className="h-10 w-10 mx-auto text-purple-500" />
+                <Flower className="h-10 w-10 mx-auto text-purple-500" />
                 <h2 className="text-xl font-medium">Create a Routine</h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
                   Establish a relaxing pre-sleep routine.
@@ -131,7 +136,7 @@ const Sleep = () => {
           <Card className="bg-muted/50">
             <CardContent className="pt-6">
               <div className="text-center space-y-4">
-                <CloudIcon className="h-10 w-10 mx-auto text-gray-500" />
+                <Cloud className="h-10 w-10 mx-auto text-gray-500" />
                 <h2 className="text-xl font-medium">Optimize Environment</h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
                   Ensure your bedroom is dark, quiet, and cool.
@@ -144,7 +149,7 @@ const Sleep = () => {
           <Card className="bg-muted/50">
             <CardContent className="pt-6">
               <div className="text-center space-y-4">
-                <SunIcon className="h-10 w-10 mx-auto text-yellow-500" />
+                <Sun className="h-10 w-10 mx-auto text-yellow-500" />
                 <h2 className="text-xl font-medium">Morning Sunlight</h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
                   Get sunlight in the morning to regulate your circadian rhythm.

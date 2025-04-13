@@ -1,190 +1,144 @@
-import React, { useState } from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-} from "recharts";
-import { Button } from "@/components/ui/button";
-import { BarChart3, LineChart as LineChartIcon, Filter } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { format } from "date-fns";
 
-interface CaffeineChartProps {
-  data: {
-    date: string;
-    amount: number;
-    energy: number;
-  }[];
-  isLoading: boolean;
+import React from 'react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Bar, BarChart } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { InfoIcon } from "lucide-react";
+
+interface NicotineChartProps {
+  data: any[];
+  isLoading?: boolean;
 }
 
-export function CaffeineChart({ data, isLoading }: CaffeineChartProps) {
-  const [chartType, setChartType] = useState<"line" | "bar">("line");
-  const [dataPoint, setDataPoint] = useState<"all" | "caffeine" | "energy">("all");
+export const NicotineChart: React.FC<NicotineChartProps> = ({ data, isLoading = false }) => {
+  const [activeTab, setActiveTab] = React.useState('amount');
 
   if (isLoading) {
-    return <div className="h-64 flex items-center justify-center">Loading chart data...</div>;
-  }
-
-  if (!data || data.length === 0) {
     return (
-      <div className="h-64 flex flex-col items-center justify-center">
-        <p className="text-muted-foreground">Not enough data to display chart.</p>
-        <p className="text-sm text-muted-foreground mt-2">
-          Log your caffeine intake to see trends over time.
-        </p>
+      <div className="h-[300px] w-full flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
 
-  const formatDate = (dateStr: string) => {
-    try {
-      return format(new Date(dateStr), 'MMM dd, yyyy');
-    } catch (error) {
-      console.error("Error formatting date:", error);
-      return dateStr;
-    }
-  };
-
-  const getLabel = () => {
-    if (dataPoint === "caffeine") return "mg";
-    if (dataPoint === "energy") return "";
-    return "mg";
-  };
-
   return (
-    <div className="h-[400px]">
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex space-x-2">
-          <Select 
-            value={dataPoint} 
-            onValueChange={(value) => setDataPoint(value as "all" | "caffeine" | "energy")}
-          >
-            <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="Select data" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Data Points</SelectItem>
-              <SelectItem value="caffeine">Caffeine Only</SelectItem>
-              <SelectItem value="energy">Energy Impact</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex space-x-2">
-          <Button
-            variant={chartType === "line" ? "default" : "outline"}
-            size="icon"
-            onClick={() => setChartType("line")}
-            title="Line Chart"
-          >
-            <LineChartIcon className="h-4 w-4" />
-          </Button>
-          <Button
-            variant={chartType === "bar" ? "default" : "outline"}
-            size="icon"
-            onClick={() => setChartType("bar")}
-            title="Bar Chart"
-          >
-            <BarChart3 className="h-4 w-4" />
-          </Button>
-        </div>
+    <div className="space-y-4">
+      <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid grid-cols-4">
+          <TabsTrigger value="amount">Nicotine</TabsTrigger>
+          <TabsTrigger value="energy">Energy Impact</TabsTrigger>
+          <TabsTrigger value="mood">Mood Impact</TabsTrigger>
+          <TabsTrigger value="craving">Cravings</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="amount" className="pt-4">
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
+                data={data}
+                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis 
+                  label={{ value: 'mg', angle: -90, position: 'insideLeft' }} 
+                  domain={[0, 'dataMax + 5']}
+                />
+                <Tooltip formatter={(value) => [`${value} mg`, 'Nicotine']} />
+                <Area 
+                  type="monotone" 
+                  dataKey="amount" 
+                  stroke="#ff6b6b" 
+                  fill="#ff6b6b" 
+                  fillOpacity={0.3}
+                  activeDot={{ r: 8 }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="energy" className="pt-4">
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={data}
+                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis 
+                  label={{ value: 'Impact (1-10)', angle: -90, position: 'insideLeft' }} 
+                  domain={[0, 10]}
+                />
+                <Tooltip formatter={(value) => [`${value}/10`, 'Energy Impact']} />
+                <Bar 
+                  dataKey="energy" 
+                  fill="#4dabf7" 
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="mood" className="pt-4">
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={data}
+                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis 
+                  label={{ value: 'Impact (1-10)', angle: -90, position: 'insideLeft' }} 
+                  domain={[0, 10]}
+                />
+                <Tooltip formatter={(value) => [`${value}/10`, 'Mood Impact']} />
+                <Bar 
+                  dataKey="mood" 
+                  fill="#63e6be" 
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="craving" className="pt-4">
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
+                data={data}
+                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis 
+                  label={{ value: 'Level (1-10)', angle: -90, position: 'insideLeft' }} 
+                  domain={[0, 10]}
+                />
+                <Tooltip formatter={(value) => [`${value}/10`, 'Craving Level']} />
+                <Area 
+                  type="monotone" 
+                  dataKey="craving" 
+                  stroke="#ffa94d" 
+                  fill="#ffa94d" 
+                  fillOpacity={0.3}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </TabsContent>
+      </Tabs>
+      
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <InfoIcon className="h-4 w-4" />
+        <p>
+          Charts show the relationship between nicotine consumption and its effects on energy, mood, and cravings over time.
+        </p>
       </div>
-
-      <ResponsiveContainer width="100%" height="90%">
-        {chartType === "line" ? (
-          <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis yAxisId="left" orientation="left" />
-            <YAxis yAxisId="right" orientation="right" domain={[0, 10]} />
-            <Tooltip 
-              content={
-                <div className="p-2 bg-white border rounded shadow-md">
-                  {data.length > 0 && data[0].date && (
-                    <>
-                      <p className="font-semibold">{formatDate(data[0]?.date)}</p>
-                      {dataPoint === "all" || dataPoint === "caffeine" ? (
-                        <p>Amount: {data[0]?.amount} {getLabel()}</p>
-                      ) : null}
-                      {dataPoint === "all" || dataPoint === "energy" ? (
-                        <p>Energy: {data[0]?.energy}</p>
-                      ) : null}
-                    </>
-                  )}
-                </div>
-              }
-            />
-            <Legend />
-            {(dataPoint === "all" || dataPoint === "caffeine") && (
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="amount"
-                stroke="#8884d8"
-                activeDot={{ r: 8 }}
-                name="Caffeine (mg)"
-              />
-            )}
-            {(dataPoint === "all" || dataPoint === "energy") && (
-              <Line
-                yAxisId="right"
-                type="monotone"
-                dataKey="energy"
-                stroke="#82ca9d"
-                name="Energy Impact (1-10)"
-              />
-            )}
-          </LineChart>
-        ) : (
-          <BarChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis yAxisId="left" orientation="left" />
-            <YAxis yAxisId="right" orientation="right" domain={[0, 10]} />
-            <Tooltip 
-              content={
-                <div className="p-2 bg-white border rounded shadow-md">
-                  {data.length > 0 && data[0].date && (
-                    <>
-                      <p className="font-semibold">{formatDate(data[0]?.date)}</p>
-                      {dataPoint === "all" || dataPoint === "caffeine" ? (
-                        <p>Amount: {data[0]?.amount} {getLabel()}</p>
-                      ) : null}
-                      {dataPoint === "all" || dataPoint === "energy" ? (
-                        <p>Energy: {data[0]?.energy}</p>
-                      ) : null}
-                    </>
-                  )}
-                </div>
-              }
-            />
-            <Legend />
-            {(dataPoint === "all" || dataPoint === "caffeine") && (
-              <Bar
-                yAxisId="left"
-                dataKey="amount"
-                fill="#8884d8"
-                name="Caffeine (mg)"
-              />
-            )}
-            {(dataPoint === "all" || dataPoint === "energy") && (
-              <Bar
-                yAxisId="right"
-                dataKey="energy"
-                fill="#82ca9d"
-                name="Energy Impact (1-10)"
-              />
-            )}
-          </BarChart>
-        )}
-      </ResponsiveContainer>
     </div>
   );
-}
+};

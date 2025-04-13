@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -71,7 +70,7 @@ export function TherapyDashboard() {
         .from('client_insurance')
         .select(`
           id,
-          insurance_providers (
+          insurance_providers:insurance_provider_id (
             name,
             verification_method
           ),
@@ -157,7 +156,6 @@ export function TherapyDashboard() {
         </Card>
       </div>
 
-      {/* Insurance Manager Integration */}
       {session?.user?.id && upcomingSessions?.[0] && insuranceInfo && (
         <InsuranceManager
           sessionId={upcomingSessions[0].id}

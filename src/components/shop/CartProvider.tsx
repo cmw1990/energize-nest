@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useAuth } from "@/components/AuthProvider"
 import { supabase } from "@/integrations/supabase/client"
@@ -54,7 +53,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         .eq('user_id', session.user.id)
 
       if (error) throw error
-      setItems(data || [])
+      setItems(mapCartItems(data || []))
     } catch (error) {
       console.error('Error fetching cart:', error)
       toast({
@@ -159,6 +158,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false)
     }
   }
+
+  const mapCartItems = (items: any[]): CartItem[] => {
+    return items.map(item => ({
+      id: item.id,
+      product_id: item.product_id,
+      quantity: item.quantity,
+      product: {
+        name: item.product[0]?.name || '',
+        price: item.product[0]?.price || 0,
+        image_url: item.product[0]?.image_url,
+        vendor_id: item.product[0]?.vendor_id || ''
+      }
+    }));
+  };
 
   const total = items.reduce((sum, item) => {
     return sum + (item.product.price * item.quantity)

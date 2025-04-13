@@ -391,3 +391,14 @@ const SleepMetrics = () => {
 };
 
 export default SleepMetrics;
+
+const formatValue = (value: any): string => {
+  if (typeof value === 'number') {
+    return value.toFixed(1);
+  }
+  if (typeof value === 'string') {
+    const parsedValue = parseFloat(value);
+    return isNaN(parsedValue) ? value : parsedValue.toFixed(1);
+  }
+  return String(value);
+};

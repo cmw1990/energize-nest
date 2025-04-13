@@ -1,353 +1,247 @@
 
-import { useState, useEffect } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
-import { Cigarette, Clock, Calendar as CalendarIcon, BarChart, Battery, Zap } from "lucide-react";
-import { format } from "date-fns";
 
-// Define trigger types
-const triggerTypes = [
-  { value: "stress", label: "Stress" },
-  { value: "social", label: "Social Situation" },
-  { value: "routine", label: "Daily Routine" },
-  { value: "craving", label: "Strong Craving" },
-  { value: "food", label: "After Food" },
-  { value: "alcohol", label: "With Alcohol" },
-  { value: "boredom", label: "Boredom" },
-  { value: "emotional", label: "Emotional Trigger" },
-  { value: "work", label: "Work Break" },
-  { value: "other", label: "Other" }
+// Define the trigger types for nicotine usage
+const TRIGGER_TYPES = [
+  "Stress", 
+  "Boredom", 
+  "Social situation", 
+  "After meal", 
+  "Emotional", 
+  "Craving", 
+  "Habit", 
+  "Work break"
 ];
 
-export function NicotineTracker() {
+export const NicotineTracker = () => {
   const { session } = useAuth();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  
-  const [date, setDate] = useState<Date>(new Date());
-  const [amount, setAmount] = useState<number>(1);
-  const [productType, setProductType] = useState<string>("cigarette");
-  const [brand, setBrand] = useState<string>("");
-  const [triggerType, setTriggerType] = useState<string>("");
-  const [location, setLocation] = useState<string>("");
-  const [energyImpact, setEnergyImpact] = useState<number>(5);
-  const [moodImpact, setMoodImpact] = useState<number>(5);
-  const [notes, setNotes] = useState<string>("");
-  
-  const { data: productTypes, isLoading: isLoadingProductTypes } = useQuery({
+  const [amount, setAmount] = useState("");
+  const [productType, setProductType] = useState("cigarette");
+  const [moodImpact, setMoodImpact] = useState(5);
+  const [energyImpact, setEnergyImpact] = useState(5);
+  const [trigger, setTrigger] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch nicotine product types
+  const { data: productTypes } = useQuery({
     queryKey: ['nicotine-product-types'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('nicotine_product_types')
         .select('*')
-        .order('created_at', { ascending: true });
+        .order('name', { ascending: true });
       
       if (error) throw error;
       return data || [];
     }
   });
-  
-  useEffect(() => {
-    if (productTypes && productTypes.length > 0) {
-      setProductType(productTypes[0].value);
-    }
-  }, [productTypes]);
-  
-  const { data: existingLog, isLoading } = useQuery({
-    queryKey: ['nicotine-log', format(date, 'yyyy-MM-dd')],
+
+  // Fetch user's recent products for quick selection
+  const { data: recentProducts } = useQuery({
+    queryKey: ['recent-nicotine-products', session?.user?.id],
     queryFn: async () => {
-      if (!session?.user?.id) return null;
+      if (!session?.user?.id) return [];
       
       const { data, error } = await supabase
         .from('nicotine_logs')
-        .select('*')
+        .select('product_type, amount, energy_impact, mood_impact')
         .eq('user_id', session.user.id)
-        .eq('date', format(date, 'yyyy-MM-dd'))
-        .maybeSingle();
+        .order('created_at', { ascending: false })
+        .limit(5);
       
       if (error) throw error;
-      return data;
+      return data || [];
     },
     enabled: !!session?.user?.id
   });
 
-  useEffect(() => {
-    if (existingLog) {
-      setAmount(existingLog.amount || 1);
-      setProductType(existingLog.product_type || "cigarette");
-      setBrand(existingLog.brand || "");
-      setTriggerType(existingLog.trigger_type || "");
-      setLocation(existingLog.location || "");
-      setEnergyImpact(existingLog.energy_impact || 5);
-      setMoodImpact(existingLog.mood_impact || 5);
-      setNotes(existingLog.notes || "");
-    } else {
-      // Reset form for new entries
-      setAmount(1);
-      setProductType(productTypes && productTypes.length > 0 ? productTypes[0].value : "cigarette");
-      setBrand("");
-      setTriggerType("");
-      setLocation("");
-      setEnergyImpact(5);
-      setMoodImpact(5);
-      setNotes("");
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!session?.user?.id) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to track nicotine usage",
+        variant: "destructive"
+      });
+      return;
     }
-  }, [existingLog, productTypes]);
-  
-  const saveLog = useMutation({
-    mutationFn: async () => {
-      if (!session?.user?.id) return;
-      
-      const logData = {
+    
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid nicotine amount",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      const { error } = await supabase.from('nicotine_logs').insert({
         user_id: session.user.id,
-        date: format(date, 'yyyy-MM-dd'),
-        amount,
+        amount: Number(amount),
         product_type: productType,
-        brand: brand || null,
-        trigger_type: triggerType || null,
-        location: location || null,
-        energy_impact: energyImpact,
         mood_impact: moodImpact,
-        notes: notes || null,
-        created_at: new Date().toISOString(),
-      };
+        energy_impact: energyImpact,
+        trigger_type: trigger || null
+      });
       
-      if (existingLog) {
-        const { error } = await supabase
-          .from('nicotine_logs')
-          .update(logData)
-          .eq('id', existingLog.id);
-        
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('nicotine_logs')
-          .insert([logData]);
-        
-        if (error) throw error;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['nicotine-log'] });
-      queryClient.invalidateQueries({ queryKey: ['nicotine-chart-data'] });
+      if (error) throw error;
+      
       toast({
-        title: existingLog ? "Log Updated" : "Log Saved",
-        description: "Your nicotine usage has been recorded.",
+        title: "Success",
+        description: "Nicotine usage logged successfully",
       });
-    },
-    onError: (error) => {
+      
+      // Reset form
+      setAmount("");
+      setMoodImpact(5);
+      setEnergyImpact(5);
+      setTrigger("");
+    } catch (error) {
+      console.error("Error logging nicotine usage:", error);
       toast({
-        title: "Error saving log",
-        description: error.message,
-        variant: "destructive",
+        title: "Error",
+        description: "Failed to log nicotine usage",
+        variant: "destructive"
       });
-    }
-  });
-  
-  const getProductIcon = () => {
-    switch (productType) {
-      case "cigarette":
-        return <Cigarette className="h-5 w-5 text-red-500" />;
-      case "vape":
-        return <Battery className="h-5 w-5 text-blue-500" />;
-      case "pouch":
-        return <Zap className="h-5 w-5 text-purple-500" />;
-      default:
-        return <Cigarette className="h-5 w-5 text-red-500" />;
+    } finally {
+      setIsSubmitting(false);
     }
   };
   
+  const quickLog = (product: any) => {
+    setAmount(product.amount.toString());
+    setProductType(product.product_type);
+    setMoodImpact(product.mood_impact || 5);
+    setEnergyImpact(product.energy_impact || 5);
+  };
+
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          {getProductIcon()}
-          Nicotine Usage Tracker
-        </CardTitle>
-        <CardDescription>
-          Log your nicotine use to identify patterns and track progress
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !date && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "PPP") : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={(date) => date && setDate(date)}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Product Type</Label>
-              <Select value={productType} onValueChange={setProductType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select product type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {productTypes?.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
-                      {type.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Amount ({productType === "cigarette" ? "cigarettes" : "uses"})</Label>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setAmount(Math.max(1, amount - 1))}
-                  disabled={amount <= 1}
-                >
-                  -
-                </Button>
-                <Input
-                  type="number"
-                  min="1"
-                  value={amount}
-                  onChange={(e) => setAmount(parseInt(e.target.value) || 1)}
-                  className="text-center"
-                />
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setAmount(amount + 1)}
-                >
-                  +
-                </Button>
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Brand/Product Name (Optional)</Label>
-              <Input
-                placeholder="e.g., Marlboro, Juul"
-                value={brand}
-                onChange={(e) => setBrand(e.target.value)}
-              />
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label>What triggered this use?</Label>
-            <Select value={triggerType} onValueChange={setTriggerType}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a trigger" />
-              </SelectTrigger>
-              <SelectContent>
-                {triggerTypes.map((type) => (
-                  <SelectItem key={type.value} value={type.value}>
-                    {type.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="space-y-2">
-            <Label>Location (Optional)</Label>
-            <Input
-              placeholder="e.g., Home, Work, Bar"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>Energy Impact</Label>
-              <span className="text-sm font-medium">{energyImpact}/10</span>
-            </div>
-            <Slider
-              value={[energyImpact]}
-              onValueChange={([value]) => setEnergyImpact(value)}
-              min={1}
-              max={10}
-              step={1}
-            />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Depleted</span>
-              <span>Neutral</span>
-              <span>Energized</span>
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>Mood Impact</Label>
-              <span className="text-sm font-medium">{moodImpact}/10</span>
-            </div>
-            <Slider
-              value={[moodImpact]}
-              onValueChange={([value]) => setMoodImpact(value)}
-              min={1}
-              max={10}
-              step={1}
-            />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Negative</span>
-              <span>Neutral</span>
-              <span>Positive</span>
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label>Notes (Optional)</Label>
-            <Textarea
-              placeholder="Any additional thoughts or observations..."
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={3}
-            />
-          </div>
-          
-          <Button
-            onClick={() => saveLog.mutate()}
-            disabled={saveLog.isPending}
-            className="w-full"
-          >
-            {existingLog ? "Update" : "Save"} Log
-          </Button>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="amount" className="block text-sm font-medium mb-1">
+            Amount (mg)
+          </label>
+          <Input
+            id="amount"
+            type="number"
+            step="0.1"
+            min="0"
+            placeholder="Nicotine amount"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
         </div>
-      </CardContent>
-    </Card>
+        
+        <div>
+          <label htmlFor="product-type" className="block text-sm font-medium mb-1">
+            Product Type
+          </label>
+          <Select value={productType} onValueChange={setProductType}>
+            <SelectTrigger id="product-type">
+              <SelectValue placeholder="Select type" />
+            </SelectTrigger>
+            <SelectContent>
+              {productTypes?.map((type) => (
+                <SelectItem key={type.id} value={type.name}>
+                  {type.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      
+      <div>
+        <label htmlFor="trigger" className="block text-sm font-medium mb-1">
+          Trigger
+        </label>
+        <Select value={trigger} onValueChange={setTrigger}>
+          <SelectTrigger id="trigger">
+            <SelectValue placeholder="What triggered usage?" />
+          </SelectTrigger>
+          <SelectContent>
+            {TRIGGER_TYPES.map((type) => (
+              <SelectItem key={type} value={type}>
+                {type}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          Energy Impact (1-10)
+        </label>
+        <Slider
+          value={[energyImpact]}
+          min={1}
+          max={10}
+          step={1}
+          onValueChange={(value) => setEnergyImpact(value[0])}
+        />
+        <div className="flex justify-between text-xs text-muted-foreground mt-1">
+          <span>Low Energy</span>
+          <span>High Energy</span>
+        </div>
+      </div>
+      
+      <div>
+        <label className="block text-sm font-medium mb-1">
+          Mood Impact (1-10)
+        </label>
+        <Slider
+          value={[moodImpact]}
+          min={1}
+          max={10}
+          step={1}
+          onValueChange={(value) => setMoodImpact(value[0])}
+        />
+        <div className="flex justify-between text-xs text-muted-foreground mt-1">
+          <span>Negative</span>
+          <span>Positive</span>
+        </div>
+      </div>
+      
+      {recentProducts && recentProducts.length > 0 && (
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Quick Log
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {recentProducts.map((product, index) => (
+              <Button
+                key={index}
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => quickLog(product)}
+              >
+                {product.product_type} ({product.amount}mg)
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      <Button type="submit" className="w-full" disabled={isSubmitting}>
+        {isSubmitting ? "Logging..." : "Log Nicotine Usage"}
+      </Button>
+    </form>
   );
-}
+};

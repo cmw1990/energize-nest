@@ -1,15 +1,12 @@
 import React, { useState } from "react";
 import { TopNav } from "@/components/layout/TopNav";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useAudioGenerator } from "@/hooks/useAudioGenerator";
 import { BreathingAnimations } from "@/components/breathing/BreathingAnimations";
 import { BreathingTechniques } from "@/components/breathing/BreathingTechniques";
-import { 
-  Wind, Music, Headphones, MessageCircle, Heart, 
-  Clock as ClockIcon, Sun, Moon 
-} from "lucide-react";
+import { Wind, Music, Headphones, MessageCircle, Heart, Clock } from "lucide-react";
 
 // Temporarily create stub components until the real ones are implemented
 const GuidedMeditation = () => <div>Guided Meditation Component Coming Soon</div>;

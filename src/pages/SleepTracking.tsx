@@ -1,297 +1,222 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import { TopNav } from "@/components/layout/TopNav";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import SleepMetrics from "@/components/sleep/SleepMetrics";
 import SleepLogEntry from "@/components/sleep/SleepLogEntry";
 import SleepRecommendations from "@/components/sleep/SleepRecommendations";
 import SleepAnalytics from "@/components/sleep/SleepAnalytics";
 import SleepGoals from "@/components/sleep/SleepGoals";
 import SleepHabits from "@/components/sleep/SleepHabits";
-import { Button } from "@/components/ui/button";
-import { Activity, Moon, ClipboardCheck, Bed, BarChart, Target, Calendar, Coffee } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Moon, BarChart2, Calendar, Clock, Brain, Activity } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
-import { motion } from "framer-motion";
 
 const SleepTracking = () => {
-  const navigate = useNavigate();
   const { session } = useAuth();
-  const [selectedTab, setSelectedTab] = useState('track');
+  const [activeTab, setActiveTab] = useState("log");
+  const [sleepData, setSleepData] = useState({
+    date: new Date().toISOString().split('T')[0],
+    bedTime: '22:30',
+    wakeTime: '06:30',
+    duration: 480,
+    quality: 4,
+    notes: 'Slept well, minimal interruptions.'
+  });
 
-  const { data: sleepStats } = useQuery({
-    queryKey: ['sleepStats', session?.user?.id],
+  const { data: sleepLogs, isLoading } = useQuery({
+    queryKey: ['sleep-logs', session?.user?.id],
     queryFn: async () => {
+      if (!session?.user?.id) return [];
+      
       const { data, error } = await supabase
         .from('sleep_logs')
-        .select('sleep_duration, sleep_quality')
-        .eq('user_id', session?.user?.id)
-        .order('created_at', { ascending: false })
+        .select('*')
+        .eq('user_id', session.user.id)
+        .order('date', { ascending: false })
         .limit(7);
       
       if (error) throw error;
-      
-      if (!data?.length) return null;
-      
-      const avgDuration = data.reduce((sum, log) => sum + (log.sleep_duration || 0), 0) / data.length;
-      const avgQuality = data.reduce((sum, log) => sum + (log.sleep_quality || 0), 0) / data.length;
-      
-      return {
-        averageDuration: avgDuration.toFixed(1),
-        averageQuality: (avgQuality / 10 * 100).toFixed(0),
-        logsCount: data.length
-      };
+      return data || [];
     },
     enabled: !!session?.user?.id
   });
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-  
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
+  const { data: sleepStats } = useQuery({
+    queryKey: ['sleep-stats', session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
+      
+      const { data, error } = await supabase
+        .from('sleep_statistics')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') throw error;
+      return data;
+    },
+    enabled: !!session?.user?.id
+  });
+
+  const handleEditLog = () => {
+    // Implement edit functionality
+    console.log("Edit log clicked");
   };
 
   return (
     <div className="min-h-screen bg-background">
       <TopNav />
-      <motion.div 
-        className="container mx-auto p-4 space-y-6"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <motion.div variants={itemVariants}>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <Moon className="h-7 w-7 text-primary" />
-              Sleep Tracking
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Track, analyze and optimize your sleep patterns for better health
-            </p>
-          </motion.div>
-
-          {sleepStats && (
-            <motion.div 
-              variants={itemVariants}
-              className="flex flex-wrap items-center gap-4"
-            >
-              <div className="bg-primary/10 rounded-full px-4 py-2 flex items-center gap-2">
-                <Bed className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">{sleepStats.averageDuration}h avg</span>
-              </div>
-              <div className="bg-primary/10 rounded-full px-4 py-2 flex items-center gap-2">
-                <Activity className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">{sleepStats.averageQuality}% quality</span>
-              </div>
-            </motion.div>
-          )}
+      <div className="container mx-auto p-4 space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Moon className="h-6 w-6 text-primary" />
+            <h1 className="text-3xl font-bold">Sleep Tracking</h1>
+          </div>
+          <Button>
+            <Clock className="mr-2 h-4 w-4" />
+            Log Sleep
+          </Button>
         </div>
-        
-        <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 hover:shadow-md transition-shadow">
-            <CardContent className="pt-6">
-              <div className="flex flex-col items-center text-center">
-                <div className="rounded-full bg-indigo-100 dark:bg-indigo-900/30 p-3 mb-3">
-                  <ClipboardCheck className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                </div>
-                <h3 className="font-medium mb-1">Log Sleep</h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Track your sleep duration and quality
-                </p>
-                <Button
-                  size="sm"
-                  onClick={() => setSelectedTab('track')}
-                  className="mt-auto"
-                  variant={selectedTab === 'track' ? 'default' : 'outline'}
-                >
-                  Log Sleep
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 hover:shadow-md transition-shadow">
-            <CardContent className="pt-6">
-              <div className="flex flex-col items-center text-center">
-                <div className="rounded-full bg-blue-100 dark:bg-blue-900/30 p-3 mb-3">
-                  <BarChart className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <h3 className="font-medium mb-1">Sleep Analytics</h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  View detailed sleep metrics and patterns
-                </p>
-                <Button
-                  size="sm"
-                  variant={selectedTab === 'metrics' ? 'default' : 'outline'}
-                  onClick={() => setSelectedTab('metrics')}
-                  className="mt-auto"
-                >
-                  View Analytics
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-gradient-to-br from-cyan-50 to-teal-50 dark:from-cyan-900/20 dark:to-teal-900/20 hover:shadow-md transition-shadow">
-            <CardContent className="pt-6">
-              <div className="flex flex-col items-center text-center">
-                <div className="rounded-full bg-teal-100 dark:bg-teal-900/30 p-3 mb-3">
-                  <Target className="h-5 w-5 text-teal-600 dark:text-teal-400" />
-                </div>
-                <h3 className="font-medium mb-1">Sleep Goals</h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Set and track your sleep improvement goals
-                </p>
-                <Button
-                  size="sm"
-                  variant={selectedTab === 'goals' ? 'default' : 'outline'}
-                  onClick={() => setSelectedTab('goals')}
-                  className="mt-auto"
-                >
-                  Manage Goals
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-        
-        <motion.div variants={itemVariants}>
-          <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-md mx-auto grid-cols-4">
-              <TabsTrigger value="track" className="flex items-center gap-2">
-                <ClipboardCheck className="h-4 w-4" />
-                <span className="hidden sm:inline">Log</span>
-              </TabsTrigger>
-              <TabsTrigger value="metrics" className="flex items-center gap-2">
-                <BarChart className="h-4 w-4" />
-                <span className="hidden sm:inline">Metrics</span>
-              </TabsTrigger>
-              <TabsTrigger value="habits" className="flex items-center gap-2">
-                <Coffee className="h-4 w-4" />
-                <span className="hidden sm:inline">Habits</span>
-              </TabsTrigger>
-              <TabsTrigger value="goals" className="flex items-center gap-2">
-                <Target className="h-4 w-4" />
-                <span className="hidden sm:inline">Goals</span>
-              </TabsTrigger>
-            </TabsList>
 
-            <TabsContent value="track">
-              <Card className="border-primary/10 shadow-md">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <ClipboardCheck className="h-5 w-5 text-primary" />
-                    Sleep Log
-                  </CardTitle>
-                  <CardDescription>
-                    Record your sleep duration, quality, and factors that affected your sleep
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <SleepLogEntry />
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="metrics">
-              <Card className="border-primary/10 shadow-md">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BarChart className="h-5 w-5 text-primary" />
-                    Sleep Metrics
-                  </CardTitle>
-                  <CardDescription>
-                    Detailed analysis of your sleep patterns and trends
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <SleepMetrics />
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="habits">
-              <Card className="border-primary/10 shadow-md">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Coffee className="h-5 w-5 text-primary" />
-                    Sleep Habits
-                  </CardTitle>
-                  <CardDescription>
-                    Track and improve your sleep habits and routines
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
+        <Card className="border-primary/10">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">Sleep Dashboard</CardTitle>
+            <CardDescription>
+              Track, analyze, and improve your sleep patterns
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid grid-cols-2 md:grid-cols-4">
+                <TabsTrigger value="log" className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Sleep Log
+                </TabsTrigger>
+                <TabsTrigger value="metrics" className="flex items-center gap-2">
+                  <BarChart2 className="h-4 w-4" />
+                  Metrics
+                </TabsTrigger>
+                <TabsTrigger value="habits" className="flex items-center gap-2">
+                  <Activity className="h-4 w-4" />
+                  Habits
+                </TabsTrigger>
+                <TabsTrigger value="goals" className="flex items-center gap-2">
+                  <Brain className="h-4 w-4" />
+                  Goals
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="log" className="space-y-4 mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <SleepLogEntry sleepData={sleepData} onEdit={handleEditLog} />
+                  
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg">Recent Sleep</CardTitle>
+                      <CardDescription>
+                        Your sleep patterns over the past week
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {isLoading ? (
+                        <div className="flex justify-center p-6">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                        </div>
+                      ) : sleepLogs && sleepLogs.length > 0 ? (
+                        <div className="space-y-4">
+                          {sleepLogs.slice(0, 3).map((log: any) => (
+                            <div key={log.id} className="flex justify-between items-center border-b pb-2">
+                              <div>
+                                <div className="font-medium">{new Date(log.date).toLocaleDateString()}</div>
+                                <div className="text-sm text-muted-foreground">
+                                  {log.duration ? `${Math.floor(log.duration / 60)}h ${log.duration % 60}m` : 'N/A'}
+                                </div>
+                              </div>
+                              <div className="flex">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <Moon 
+                                    key={i}
+                                    className={`h-4 w-4 ${i < (log.quality || 0) ? 'text-primary' : 'text-muted-foreground opacity-30'}`}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center p-6 text-muted-foreground">
+                          No sleep logs found. Start tracking your sleep!
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+                
+                <SleepAnalytics />
+              </TabsContent>
+              
+              <TabsContent value="metrics" className="space-y-4 mt-6">
+                <SleepMetrics />
+              </TabsContent>
+              
+              <TabsContent value="habits" className="space-y-4 mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <SleepHabits />
-                </CardContent>
-              </Card>
-            </TabsContent>
+                  <SleepRecommendations />
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="goals" className="space-y-4 mt-6">
+                <SleepGoals />
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
 
-            <TabsContent value="goals">
-              <Card className="border-primary/10 shadow-md">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Target className="h-5 w-5 text-primary" />
-                    Sleep Goals
-                  </CardTitle>
-                  <CardDescription>
-                    Set and track your sleep improvement goals
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <SleepGoals />
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </motion.div>
-        
-        <motion.div variants={itemVariants}>
-          <Card className="border-primary/10 shadow-md">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bed className="h-5 w-5 text-primary" />
-                Personalized Sleep Recommendations
-              </CardTitle>
-              <CardDescription>
-                Tailored suggestions to improve your sleep based on your data
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <SleepRecommendations />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="bg-muted/50">
+            <CardContent className="pt-6">
+              <div className="text-center space-y-4">
+                <Clock className="h-10 w-10 mx-auto text-blue-500" />
+                <h2 className="text-xl font-medium">Sleep Schedule</h2>
+                <p className="text-muted-foreground max-w-2xl mx-auto">
+                  Maintain a consistent sleep schedule, even on weekends.
+                </p>
+                <Button variant="outline">Set Schedule</Button>
+              </div>
             </CardContent>
           </Card>
-        </motion.div>
-        
-        <motion.div variants={itemVariants}>
-          <Card className="border-primary/10 shadow-md">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-primary" />
-                Sleep Analytics
-              </CardTitle>
-              <CardDescription>
-                In-depth analysis of your sleep patterns and trends
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <SleepAnalytics />
+          
+          <Card className="bg-muted/50">
+            <CardContent className="pt-6">
+              <div className="text-center space-y-4">
+                <Brain className="h-10 w-10 mx-auto text-purple-500" />
+                <h2 className="text-xl font-medium">Sleep Quality</h2>
+                <p className="text-muted-foreground max-w-2xl mx-auto">
+                  Improve your sleep quality with personalized recommendations.
+                </p>
+                <Button variant="outline">View Tips</Button>
+              </div>
             </CardContent>
           </Card>
-        </motion.div>
-      </motion.div>
+          
+          <Card className="bg-muted/50">
+            <CardContent className="pt-6">
+              <div className="text-center space-y-4">
+                <Activity className="h-10 w-10 mx-auto text-green-500" />
+                <h2 className="text-xl font-medium">Sleep Analytics</h2>
+                <p className="text-muted-foreground max-w-2xl mx-auto">
+                  Analyze your sleep patterns to identify areas for improvement.
+                </p>
+                <Button variant="outline">View Analytics</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };
