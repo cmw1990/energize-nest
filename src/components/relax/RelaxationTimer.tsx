@@ -1,194 +1,192 @@
 
-import { useState, useEffect, useRef } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { Clock, Play, Pause, RotateCcw, Volume2 } from "lucide-react";
 import { useAudioGenerator } from "@/hooks/useAudioGenerator";
+import { useToast } from "@/hooks/use-toast";
+import { Timer, Bell, Clock, Play, Pause, RefreshCcw } from 'lucide-react';
 
 export const RelaxationTimer = () => {
-  const [duration, setDuration] = useState(10);
-  const [timeLeft, setTimeLeft] = useState(duration * 60);
-  const [isActive, setIsActive] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const [showEndSound, setShowEndSound] = useState(false);
-  const [endSoundVolume, setEndSoundVolume] = useState(50);
-
-  const countdownRef = useRef<number | null>(null);
+  const { stopAll } = useAudioGenerator();
   const { toast } = useToast();
-  const { settings, updateVolume } = useAudioGenerator();
-
-  // Sound effects
-  const bellSoundRef = useRef<HTMLAudioElement | null>(null);
-
+  
+  const [duration, setDuration] = useState(10);
+  const [remainingTime, setRemainingTime] = useState(duration * 60);
+  const [isActive, setIsActive] = useState(false);
+  const [shouldStopSounds, setShouldStopSounds] = useState(true);
+  
   useEffect(() => {
-    // Create audio element for bell sound
-    bellSoundRef.current = new Audio("/sounds/bell.mp3");
-    bellSoundRef.current.volume = endSoundVolume / 100;
+    let interval: number | null = null;
     
-    return () => {
-      if (bellSoundRef.current) {
-        bellSoundRef.current.pause();
-        bellSoundRef.current.src = "";
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (bellSoundRef.current) {
-      bellSoundRef.current.volume = endSoundVolume / 100;
-    }
-  }, [endSoundVolume]);
-
-  useEffect(() => {
-    setTimeLeft(duration * 60);
-  }, [duration]);
-
-  useEffect(() => {
-    if (isActive && !isPaused) {
-      countdownRef.current = window.setInterval(() => {
-        setTimeLeft((prevTime) => {
-          if (prevTime <= 1) {
-            clearInterval(countdownRef.current!);
-            setIsActive(false);
-            playEndSound();
-            
-            // Show notification
-            toast({
-              title: "Relaxation session complete",
-              description: `Your ${duration} minute relaxation session has ended.`,
-            });
-            
-            return 0;
-          }
-          return prevTime - 1;
-        });
+    if (isActive && remainingTime > 0) {
+      interval = window.setInterval(() => {
+        setRemainingTime(prevTime => prevTime - 1);
       }, 1000);
-    } else if (countdownRef.current) {
-      clearInterval(countdownRef.current);
+    } else if (isActive && remainingTime === 0) {
+      setIsActive(false);
+      if (shouldStopSounds) {
+        stopAll();
+      }
+      
+      // Play notification sound
+      const audio = new Audio('/sounds/bell.mp3');
+      audio.play();
+      
+      toast({
+        title: "Relaxation Session Complete",
+        description: "Your timed session has finished.",
+      });
     }
     
     return () => {
-      if (countdownRef.current) {
-        clearInterval(countdownRef.current);
-      }
+      if (interval) clearInterval(interval);
     };
-  }, [isActive, isPaused, duration, toast]);
-
-  const startTimer = () => {
-    setIsActive(true);
-    setIsPaused(false);
-  };
-
-  const pauseTimer = () => {
-    setIsPaused(true);
-  };
-
-  const resumeTimer = () => {
-    setIsPaused(false);
-  };
-
-  const resetTimer = () => {
-    setIsActive(false);
-    setIsPaused(false);
-    setTimeLeft(duration * 60);
-  };
-
-  const playEndSound = () => {
-    if (bellSoundRef.current) {
-      bellSoundRef.current.currentTime = 0;
-      bellSoundRef.current.play();
-    }
-  };
-
+  }, [isActive, remainingTime, shouldStopSounds, stopAll, toast]);
+  
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
+  
+  const startTimer = () => {
+    if (!isActive) {
+      setRemainingTime(duration * 60);
+      setIsActive(true);
+    }
+  };
+  
+  const pauseTimer = () => {
+    setIsActive(false);
+  };
+  
+  const resetTimer = () => {
+    setIsActive(false);
+    setRemainingTime(duration * 60);
+  };
+  
+  const handleDurationChange = (value: number[]) => {
+    const newDuration = value[0];
+    setDuration(newDuration);
+    if (!isActive) {
+      setRemainingTime(newDuration * 60);
+    }
+  };
+  
+  const progress = ((duration * 60 - remainingTime) / (duration * 60)) * 100;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-primary" />
-            <span>Relaxation Timer</span>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShowEndSound(!showEndSound)}
-          >
-            <Volume2 className="h-4 w-4" />
-          </Button>
-        </CardTitle>
+        <CardTitle>Relaxation Timer</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         <div className="flex justify-center">
-          <div className="text-5xl font-bold text-primary">{formatTime(timeLeft)}</div>
-        </div>
-        
-        {showEndSound && (
-          <div className="space-y-2 p-3 bg-muted/50 rounded-lg">
-            <Label>End Sound Volume</Label>
-            <Slider
-              value={[endSoundVolume]}
-              min={0}
-              max={100}
-              step={1}
-              onValueChange={(value) => setEndSoundVolume(value[0])}
-            />
-            <div className="text-xs text-muted-foreground text-center">
-              A bell will play when your session ends
+          <div className="relative w-56 h-56">
+            <svg className="w-full h-full" viewBox="0 0 100 100">
+              <circle 
+                className="text-muted stroke-current" 
+                strokeWidth="4" 
+                fill="transparent" 
+                r="45" 
+                cx="50" 
+                cy="50" 
+              />
+              <circle 
+                className="text-primary stroke-current transition-all" 
+                strokeWidth="4" 
+                strokeLinecap="round" 
+                fill="transparent" 
+                r="45" 
+                cx="50" 
+                cy="50" 
+                strokeDasharray="282.7"
+                strokeDashoffset={282.7 - (282.7 * progress) / 100}
+                transform="rotate(-90 50 50)"
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-4xl font-bold">{formatTime(remainingTime)}</span>
+              <span className="text-sm text-muted-foreground">
+                {isActive ? 'Session in progress' : 'Ready to begin'}
+              </span>
             </div>
           </div>
-        )}
-
+        </div>
+        
         <div className="space-y-2">
-          <Label>Session Duration: {duration} minutes</Label>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium flex items-center gap-2">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              Duration
+            </span>
+            <span className="text-sm text-muted-foreground">{duration} minutes</span>
+          </div>
           <Slider
             value={[duration]}
             min={1}
             max={60}
             step={1}
-            onValueChange={(value) => {
-              setDuration(value[0]);
-              setTimeLeft(value[0] * 60);
-            }}
+            onValueChange={handleDurationChange}
             disabled={isActive}
+            className="w-full"
           />
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>1m</span>
+            <span>15m</span>
+            <span>30m</span>
+            <span>45m</span>
+            <span>60m</span>
+          </div>
         </div>
         
-        <div className="flex justify-center space-x-3">
+        <div className="flex justify-center space-x-4">
           {!isActive ? (
-            <Button onClick={startTimer} className="w-full">
+            <Button onClick={startTimer} className="w-32">
               <Play className="mr-2 h-4 w-4" />
-              Start Session
-            </Button>
-          ) : isPaused ? (
-            <Button onClick={resumeTimer} className="w-full">
-              <Play className="mr-2 h-4 w-4" />
-              Resume
+              Start
             </Button>
           ) : (
-            <Button onClick={pauseTimer} className="w-full">
+            <Button onClick={pauseTimer} variant="outline" className="w-32">
               <Pause className="mr-2 h-4 w-4" />
               Pause
             </Button>
           )}
           <Button 
-            variant="outline" 
             onClick={resetTimer} 
-            disabled={!isActive && timeLeft === duration * 60}
-            className="w-full"
+            variant="outline"
+            disabled={!isActive && remainingTime === duration * 60}
           >
-            <RotateCcw className="mr-2 h-4 w-4" />
+            <RefreshCcw className="mr-2 h-4 w-4" />
             Reset
           </Button>
         </div>
+        
+        <div className="flex items-center justify-between pt-4 border-t">
+          <div className="flex items-center gap-2">
+            <Bell className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm">Stop sounds when timer ends</span>
+          </div>
+          <div className="flex items-center">
+            <input 
+              type="checkbox" 
+              id="stop-sounds" 
+              checked={shouldStopSounds} 
+              onChange={() => setShouldStopSounds(!shouldStopSounds)}
+              className="rounded border-gray-300 text-primary focus:ring-primary"
+            />
+          </div>
+        </div>
+        
+        <Card className="bg-muted/50">
+          <CardContent className="p-4">
+            <p className="text-sm text-muted-foreground">
+              Use this timer for meditation, breathing exercises, or any relaxation technique.
+              A gentle sound will play when your session is complete.
+            </p>
+          </CardContent>
+        </Card>
       </CardContent>
     </Card>
   );

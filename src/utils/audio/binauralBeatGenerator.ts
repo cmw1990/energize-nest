@@ -1,4 +1,3 @@
-
 let audioContextInstance: AudioContext | null = null;
 
 const getAudioContext = () => {
@@ -42,31 +41,37 @@ export const generateBinauralBeat = (baseFreq: number, beatFreq: number, volume 
     osc2.frequency.setValueAtTime(base + beat, context.currentTime);
   };
 
+  // We need to keep track of these oscillators to replace them
+  let currentOsc1 = osc1;
+  let currentOsc2 = osc2;
+
   return {
     play: async () => Promise.resolve(), // Already started on creation
     stop: () => {
-      osc1.stop();
-      osc2.stop();
+      currentOsc1.stop();
+      currentOsc2.stop();
       masterGain.disconnect();
     },
     setVolume: (newVolume: number) => {
       masterGain.gain.value = newVolume;
     },
     pause: () => {
-      osc1.stop();
-      osc2.stop();
+      currentOsc1.stop();
+      currentOsc2.stop();
     },
     resume: () => {
       const newOsc1 = context.createOscillator();
       const newOsc2 = context.createOscillator();
-      newOsc1.frequency.value = osc1.frequency.value;
-      newOsc2.frequency.value = osc2.frequency.value;
+      newOsc1.frequency.value = currentOsc1.frequency.value;
+      newOsc2.frequency.value = currentOsc2.frequency.value;
       newOsc1.connect(panLeft);
       newOsc2.connect(panRight);
       newOsc1.start();
       newOsc2.start();
-      osc1 = newOsc1;
-      osc2 = newOsc2;
+      
+      // Update references to new oscillators
+      currentOsc1 = newOsc1;
+      currentOsc2 = newOsc2;
     },
     setFrequencies,
     isPlaying: true,
