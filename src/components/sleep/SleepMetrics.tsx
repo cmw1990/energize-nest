@@ -33,7 +33,7 @@ export const formatValue = (value: ValueType, precision: number = 1): string => 
       return parsed.toFixed(precision);
     }
   }
-  return String(value);
+  return String(value || '0');
 };
 
 interface SleepMetricsProps {
@@ -175,7 +175,7 @@ const SleepMetrics = ({ sleepData: propsSleepData }: SleepMetricsProps) => {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{typeof metrics.avgDuration === 'number' ? metrics.avgDuration.toFixed(1) : '0'}h</div>
+            <div className="text-2xl font-bold">{formatValue(metrics.avgDuration, 1)}h</div>
             <div className="text-xs text-muted-foreground text-center">
               Average: {formatValue(metrics.avgDuration, 1)}
             </div>
@@ -188,7 +188,7 @@ const SleepMetrics = ({ sleepData: propsSleepData }: SleepMetricsProps) => {
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{typeof metrics.avgQuality === 'number' ? (metrics.avgQuality * 10).toFixed(0) : '0'}%</div>
+            <div className="text-2xl font-bold">{formatValue(metrics.avgQuality * 10, 0)}%</div>
             <div className="text-xs text-muted-foreground text-center">
               Average: {formatValue(metrics.avgQuality * 10, 0)}
             </div>
@@ -201,7 +201,7 @@ const SleepMetrics = ({ sleepData: propsSleepData }: SleepMetricsProps) => {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metrics.consistency.toFixed(0)}%</div>
+            <div className="text-2xl font-bold">{formatValue(metrics.consistency, 0)}%</div>
             <div className="text-xs text-muted-foreground text-center">
               Average: {formatValue(metrics.consistency, 0)}
             </div>
@@ -214,7 +214,7 @@ const SleepMetrics = ({ sleepData: propsSleepData }: SleepMetricsProps) => {
             <Moon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metrics.avgDeep.toFixed(0)}%</div>
+            <div className="text-2xl font-bold">{formatValue(metrics.avgDeep, 0)}%</div>
             <div className="text-xs text-muted-foreground text-center">
               Average: {formatValue(metrics.avgDeep, 0)}
             </div>

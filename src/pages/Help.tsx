@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -91,6 +90,13 @@ export default function Help() {
     }));
   };
 
+  const clickElement = (selector: string) => {
+    const element = document.querySelector(selector);
+    if (element instanceof HTMLElement) {
+      element.click();
+    }
+  };
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Help & Support</h1>
@@ -159,7 +165,7 @@ export default function Help() {
                 <p className="text-muted-foreground mb-2">Still have questions?</p>
                 <Button 
                   variant="outline" 
-                  onClick={() => document.querySelector('button[value="contact"]').click()}
+                  onClick={() => clickElement('button[value="contact"]')}
                 >
                   Contact Support
                 </Button>
@@ -427,7 +433,7 @@ export default function Help() {
                     <Button 
                       variant="link" 
                       className="p-0" 
-                      onClick={() => document.querySelector('button[value="faq"]').click()}
+                      onClick={() => clickElement('button[value="faq"]')}
                     >
                       View FAQs
                     </Button>

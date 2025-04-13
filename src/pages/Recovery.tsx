@@ -13,7 +13,6 @@ import {
   Calendar,
   Heart,
   DollarSign,
-  Lungs,
   Activity,
   Brain,
   Zap,
@@ -22,7 +21,9 @@ import {
   Users,
   Smile,
   ChevronRight,
-  Wind
+  Wind,
+  Battery,
+  Droplets
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";

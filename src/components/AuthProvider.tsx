@@ -11,12 +11,14 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   userRole: string | null;
+  signOut: () => Promise<void>; // Add signOut method to the context type
 }
 
 const AuthContext = createContext<AuthContextType>({ 
   session: null, 
   loading: true,
-  userRole: null 
+  userRole: null,
+  signOut: async () => {} // Provide a default implementation
 });
 
 export const useAuth = () => {
@@ -71,6 +73,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     } catch (e) {
       console.error('Error initializing user settings:', e);
+    }
+  };
+
+  // Implement sign out functionality
+  const signOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      navigate('/auth');
+      toast({
+        title: "Signed out",
+        description: "You have been signed out successfully",
+      });
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast({
+        title: "Sign out failed",
+        description: "There was a problem signing out",
+        variant: "destructive",
+      });
     }
   };
 
@@ -165,7 +186,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <>
-      <AuthContext.Provider value={{ session, loading, userRole }}>
+      <AuthContext.Provider value={{ session, loading, userRole, signOut }}>
         {children}
       </AuthContext.Provider>
       <Toaster />
