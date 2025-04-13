@@ -1,272 +1,275 @@
 
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/components/AuthProvider";
-import { Brain, Calendar, ClipboardCheck, Activity, MessageCircle, FileText, Target, Trophy, Shield } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
-import { InsuranceManager } from "../insurance/InsuranceManager";
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Calendar, Clock, MessageSquare, CreditCard, Users } from 'lucide-react';
+import { useAuth } from '@/components/AuthProvider';
+import { assertType } from '@/utils/typeSafeUtils';
 
-export function TherapyDashboard() {
+type TherapyAppointment = {
+  id: string;
+  user_id: string;
+  provider_id: string;
+  appointment_date: string;
+  status: 'scheduled' | 'completed' | 'cancelled';
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  providers: {
+    name: string;
+    specialty: string;
+    verification_method: string;
+  } | null;
+};
+
+export const TherapyDashboard = () => {
   const { session } = useAuth();
+  const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
 
-  const { data: upcomingSessions } = useQuery({
-    queryKey: ['upcoming-sessions', session?.user?.id],
+  const { data: appointments, isLoading: loadingAppointments } = useQuery({
+    queryKey: ['therapy_appointments', session?.user?.id],
     queryFn: async () => {
-      const { data } = await supabase
-        .from('consultation_sessions')
+      if (!session?.user?.id) return [];
+      
+      const { data, error } = await supabase
+        .from('therapy_appointments')
         .select(`
           *,
-          mental_health_professionals (
-            full_name,
-            title
-          )
-        `)
-        .eq('client_id', session?.user?.id)
-        .gte('session_date', new Date().toISOString())
-        .order('session_date')
-        .limit(3);
-      return data;
-    },
-    enabled: !!session?.user?.id
-  });
-
-  const { data: progress } = useQuery({
-    queryKey: ['client-progress', session?.user?.id],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('client_progress_tracking')
-        .select('*')
-        .eq('client_id', session?.user?.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      return data;
-    },
-    enabled: !!session?.user?.id
-  });
-
-  const { data: latestMessages } = useQuery({
-    queryKey: ['latest-messages', session?.user?.id],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('consultation_messages')
-        .select(`
-          *,
-          sender:sender_id(full_name)
-        `)
-        .or(`sender_id.eq.${session?.user?.id},receiver_id.eq.${session?.user?.id}`)
-        .order('created_at', { ascending: false })
-        .limit(5);
-      return data;
-    },
-    enabled: !!session?.user?.id
-  });
-
-  const { data: insuranceInfo } = useQuery({
-    queryKey: ['client-insurance', session?.user?.id],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('client_insurance')
-        .select(`
-          id,
-          insurance_provider:insurance_provider_id (
+          providers (
             name,
+            specialty,
             verification_method
-          ),
-          insurance_eligibility_checks (
-            status,
-            verification_date
           )
         `)
-        .eq('client_id', session?.user?.id)
-        .maybeSingle();
-      return data;
+        .eq('user_id', session.user.id)
+        .order('appointment_date', { ascending: true });
+      
+      if (error) {
+        console.error('Error fetching therapy appointments:', error);
+        return [];
+      }
+      
+      return assertType<TherapyAppointment[]>(data || []);
     },
-    enabled: !!session?.user?.id
+    enabled: !!session?.user?.id,
   });
 
-  const getProviderName = () => {
-    if (!insuranceInfo?.insurance_provider) return 'Not Set';
-    return typeof insuranceInfo.insurance_provider === 'object' ? 
-      // Access the name property from the object, not the array
-      insuranceInfo.insurance_provider.name : 'Not Set';
+  const upcomingAppointments = appointments?.filter(
+    app => new Date(app.appointment_date) > new Date() && app.status === 'scheduled'
+  ) || [];
+  
+  const pastAppointments = appointments?.filter(
+    app => new Date(app.appointment_date) <= new Date() || app.status !== 'scheduled'
+  ) || [];
+
+  const formatAppointmentDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'long',
+      month: 'long', 
+      day: 'numeric',
+      year: 'numeric'
+    });
   };
+
+  const formatAppointmentTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('en-US', { 
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
+  const getNextAppointment = () => {
+    if (!upcomingAppointments || upcomingAppointments.length === 0) return null;
+    return upcomingAppointments[0];
+  };
+
+  const nextAppointment = getNextAppointment();
 
   return (
     <div className="space-y-6">
+      <div className="space-y-0.5">
+        <h2 className="text-2xl font-bold tracking-tight">Therapy Dashboard</h2>
+        <p className="text-muted-foreground">
+          View and manage your therapy appointments
+        </p>
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Next Session</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">
+              Total Appointments
+            </CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {upcomingSessions?.[0] ? (
-              <div>
-                <div className="text-2xl font-bold">
-                  {new Date(upcomingSessions[0].session_date).toLocaleDateString()}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {new Date(upcomingSessions[0].session_date).toLocaleTimeString()}
-                </p>
-              </div>
-            ) : (
-              <div className="text-sm text-muted-foreground">No upcoming sessions</div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Progress</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {progress?.milestone_achievements?.length || 0} Goals
-            </div>
-            <Progress 
-              value={progress?.milestone_achievements?.length ? 
-                (progress.milestone_achievements.length / (progress.treatment_goals?.length || 1)) * 100 : 0} 
-              className="mt-2"
-            />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Messages</CardTitle>
-            <MessageCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{latestMessages?.length || 0}</div>
-            <p className="text-xs text-muted-foreground">Unread messages</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Insurance</CardTitle>
-            <Shield className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {getProviderName()}
-            </div>
+            <div className="text-2xl font-bold">{appointments?.length || 0}</div>
             <p className="text-xs text-muted-foreground">
-              {insuranceInfo?.insurance_eligibility_checks?.[0]?.status === 'verified' 
-                ? 'Coverage Verified' 
-                : 'Verification Needed'}
+              {upcomingAppointments.length} upcoming
             </p>
           </CardContent>
         </Card>
-      </div>
-
-      {session?.user?.id && upcomingSessions?.[0] && insuranceInfo && (
-        <InsuranceManager
-          sessionId={upcomingSessions[0].id}
-          clientId={session.user.id}
-          professionalId={upcomingSessions[0].professional_id}
-          clientInsuranceId={insuranceInfo.id}
-        />
-      )}
-
-      <div className="grid gap-6 md:grid-cols-2">
+        
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              Upcoming Sessions
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Recent Sessions
             </CardTitle>
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent className="space-y-4">
-            {upcomingSessions?.length ? (
-              upcomingSessions.map((session) => (
-                <div key={session.id} className="flex justify-between items-center">
-                  <div>
-                    <p className="font-medium">
-                      {session.mental_health_professionals?.full_name}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(session.session_date).toLocaleString()}
-                    </p>
-                  </div>
-                  <Button variant="outline" size="sm">
-                    Join
-                  </Button>
-                </div>
-              ))
-            ) : (
-              <p className="text-muted-foreground">No upcoming sessions</p>
-            )}
+          <CardContent>
+            <div className="text-2xl font-bold">{pastAppointments.length}</div>
+            <p className="text-xs text-muted-foreground">
+              Over all time
+            </p>
           </CardContent>
         </Card>
-
+        
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5" />
-              Treatment Goals
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Next Appointment
             </CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent className="space-y-4">
-            {progress?.treatment_goals?.length ? (
-              progress.treatment_goals.map((goal, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <input 
-                      type="checkbox" 
-                      checked={progress.milestone_achievements?.includes(goal)}
-                      readOnly
-                      className="h-4 w-4 rounded border-gray-300"
-                    />
-                    <span className={progress.milestone_achievements?.includes(goal) ? 
-                      "line-through text-muted-foreground" : ""}>
-                      {goal}
-                    </span>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-muted-foreground">No goals set</p>
-            )}
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {nextAppointment ? formatAppointmentDate(nextAppointment.appointment_date) : 'None scheduled'}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {nextAppointment ? formatAppointmentTime(nextAppointment.appointment_date) : 'Book an appointment'}
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Provider
+            </CardTitle>
+            <CreditCard className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {nextAppointment && nextAppointment.providers ? nextAppointment.providers.name : 'N/A'}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {nextAppointment && nextAppointment.providers ? nextAppointment.providers.specialty : 'No current provider'}
+            </p>
           </CardContent>
         </Card>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageCircle className="h-5 w-5" />
-            Recent Messages
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Appointments</CardTitle>
+            <div className="flex space-x-2">
+              <Button 
+                variant={activeTab === 'upcoming' ? 'default' : 'outline'} 
+                size="sm"
+                onClick={() => setActiveTab('upcoming')}
+              >
+                Upcoming
+              </Button>
+              <Button 
+                variant={activeTab === 'past' ? 'default' : 'outline'} 
+                size="sm"
+                onClick={() => setActiveTab('past')}
+              >
+                Past
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {latestMessages?.map((message) => (
-              <div key={message.id} className="flex gap-4 items-start">
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  {message.sender?.full_name?.[0] || '?'}
-                </div>
-                <div className="flex-1">
-                  <div className="flex justify-between">
-                    <p className="font-medium">{message.sender?.full_name}</p>
-                    <span className="text-sm text-muted-foreground">
-                      {new Date(message.created_at).toLocaleString()}
-                    </span>
+          {loadingAppointments ? (
+            <p>Loading appointments...</p>
+          ) : activeTab === 'upcoming' ? (
+            upcomingAppointments.length > 0 ? (
+              <div className="space-y-4">
+                {upcomingAppointments.map((appointment) => (
+                  <div key={appointment.id} className="flex justify-between p-4 border rounded-lg">
+                    <div className="space-y-1">
+                      <div className="font-medium">
+                        {appointment.providers ? appointment.providers.name : 'Unknown Provider'}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {appointment.providers ? appointment.providers.specialty : 'Unknown Specialty'}
+                      </div>
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Calendar className="mr-1 h-3 w-3" />
+                        {formatAppointmentDate(appointment.appointment_date)}
+                      </div>
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Clock className="mr-1 h-3 w-3" />
+                        {formatAppointmentTime(appointment.appointment_date)}
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <Button variant="outline" size="sm">Reschedule</Button>
+                    </div>
                   </div>
-                  <p className="text-sm text-muted-foreground">{message.message_text}</p>
-                </div>
+                ))}
               </div>
-            ))}
-            {!latestMessages?.length && (
-              <p className="text-muted-foreground">No messages</p>
-            )}
-          </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground mb-4">No upcoming appointments</p>
+                <Button>Book an Appointment</Button>
+              </div>
+            )
+          ) : (
+            pastAppointments.length > 0 ? (
+              <div className="space-y-4">
+                {pastAppointments.map((appointment) => (
+                  <div 
+                    key={appointment.id} 
+                    className={`flex justify-between p-4 border rounded-lg ${
+                      appointment.status === 'cancelled' ? 'bg-muted/50' : ''
+                    }`}
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center">
+                        <span className="font-medium">
+                          {appointment.providers ? appointment.providers.name : 'Unknown Provider'}
+                        </span>
+                        {appointment.status === 'cancelled' && (
+                          <span className="ml-2 text-xs bg-destructive/10 text-destructive px-2 py-0.5 rounded">
+                            Cancelled
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {appointment.providers ? appointment.providers.specialty : 'Unknown Specialty'}
+                      </div>
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Calendar className="mr-1 h-3 w-3" />
+                        {formatAppointmentDate(appointment.appointment_date)}
+                      </div>
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Clock className="mr-1 h-3 w-3" />
+                        {formatAppointmentTime(appointment.appointment_date)}
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <Button variant="outline" size="sm">Notes</Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground py-8">No past appointments</p>
+            )
+          )}
         </CardContent>
       </Card>
     </div>
   );
-}
+};
+
+export default TherapyDashboard;

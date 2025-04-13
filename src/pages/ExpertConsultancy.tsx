@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Award, Star } from "lucide-react"
+import { assertType } from "@/utils/typeSafeUtils"
 
 type ExpertProfile = {
   id: string
@@ -42,8 +43,7 @@ const ExpertConsultancy = () => {
         .eq('verification_status', 'approved')
       
       if (error) throw error
-      // Properly cast the data to ExpertProfile array
-      return (data as unknown) as ExpertProfile[]
+      return assertType<ExpertProfile[]>(data || [])
     }
   })
 

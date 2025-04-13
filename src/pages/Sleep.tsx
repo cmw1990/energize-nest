@@ -4,7 +4,7 @@ import { TopNav } from "@/components/layout/TopNav";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import SleepMetrics from "@/components/sleep/SleepMetrics";
+import { SleepMetrics } from "@/components/sleep/SleepMetrics";
 import SleepRecommendations from "@/components/sleep/SleepRecommendations";
 import SleepGoals from "@/components/sleep/SleepGoals";
 import { useAuth } from "@/components/AuthProvider";

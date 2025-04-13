@@ -40,11 +40,3 @@ export const formatPercentage = (value: ValueType, decimals: number = 1): string
 export const formatCurrency = (value: ValueType, currency: string = '$', decimals: number = 2): string => {
   return `${currency}${formatValue(value, decimals)}`;
 };
-
-/**
- * Assert a type for TypeScript
- * Useful when working with data from external sources
- */
-export function assertType<T>(value: unknown): T {
-  return value as T;
-}

@@ -43,3 +43,25 @@ export function safeGet<T>(obj: any, path: string): T | undefined {
 export function isDefined<T>(value: T | null | undefined): value is T {
   return value !== null && value !== undefined;
 }
+
+/**
+ * Safely cast an array to a specific type
+ * 
+ * @param array - The array to cast
+ * @returns The array cast to the specified type
+ */
+export function safeArrayCast<T>(array: unknown): T[] {
+  if (!Array.isArray(array)) return [];
+  return array as T[];
+}
+
+/**
+ * Adapt an array from Supabase with any types to a specific model
+ * 
+ * @param array - The array to adapt
+ * @returns The array adapted to the specified model
+ */
+export function adaptArrayModel<T>(array: any[] | null): T[] {
+  if (!array) return [];
+  return array.map(item => item as unknown as T);
+}
