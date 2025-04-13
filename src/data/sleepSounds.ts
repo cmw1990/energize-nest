@@ -242,7 +242,7 @@ export const sleepOptimizationTips: SleepTip[] = [
       'Practice a relaxing bedtime ritual (reading, meditation)',
       'Use breathing techniques to calm the mind',
       'Write down worries and to-dos before bed to clear your mind',
-      'If you can't sleep after 20 minutes, get up and do something relaxing'
+      'If you can\'t sleep after 20 minutes, get up and do something relaxing'
     ]
   }
 ];
