@@ -1,4 +1,3 @@
-
 export interface AudioSettings {
   volume: number;
   noiseType: string;
@@ -6,6 +5,11 @@ export interface AudioSettings {
   isMuted: boolean;
   binauralBeatFrequency: number | null;
   baseFrequency: number;
+  binaural?: {
+    enabled: boolean;
+    baseFrequency: number;
+    beatFrequency: number;
+  };
 }
 
 export interface AudioInstance {
@@ -57,7 +61,6 @@ export interface AudioGeneratorHook {
   updateNatureSound: (type: NatureSound | null) => void;
   updateVolume: (volume: number) => void;
   
-  // Adding the missing properties that are being used
   stopAllAudio: () => void;
   startBinauralBeat: (baseFreq: number, beatFreq: number, volume?: number) => void;
   stopBinauralBeat: () => void;
@@ -66,6 +69,5 @@ export interface AudioGeneratorHook {
   binauralAudio: BinauralBeat | null;
   natureAudio: AudioInstance | null;
   
-  // Additional methods from useAudioGenerator
   createBinauralBeat?: (baseFreq: number, beatFreq: number) => void;
 }

@@ -34,17 +34,17 @@ export const BinauralBeats = () => {
 
   useEffect(() => {
     // Check if binaural beat is already playing
-    if (settings.binaural.enabled) {
+    if (settings.binaural?.enabled) {
       // Try to find matching preset
       const matchingPreset = presets.find(
-        p => p.baseFrequency === settings.binaural.baseFrequency && 
-             p.beatFrequency === settings.binaural.beatFrequency
+        p => p.baseFrequency === settings.binaural?.baseFrequency && 
+             p.beatFrequency === settings.binaural?.beatFrequency
       );
       if (matchingPreset) {
         setActivePreset(matchingPreset.id);
       } else {
-        setCustomBase(settings.binaural.baseFrequency);
-        setCustomBeat(settings.binaural.beatFrequency);
+        setCustomBase(settings.binaural?.baseFrequency || 200);
+        setCustomBeat(settings.binaural?.beatFrequency || 10);
         setActivePreset('custom');
       }
     }

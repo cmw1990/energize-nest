@@ -1,5 +1,4 @@
-
-import { CloudRain, Waves, Wind, Flame, Sparkles, Moon, CloudSnow, Music, Cloudy, Sunrise, Bird, Leaf, Coffee, Home, Trees as Forest } from "lucide-react";
+import { CloudRain, Waves, Wind, Flame, Sparkles, Moon, CloudSnow, Music, Cloudy, Sunrise, Bird, Leaf, Coffee, Home } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export interface NatureSound {
@@ -31,7 +30,7 @@ export const natureSounds: NatureSound[] = [
   {
     name: "Forest",
     type: "forest",
-    icon: Trees,
+    icon: Leaf,
     description: "Forest ambience with birds",
     categories: ["focus", "relaxation", "meditation"],
     popularity: 7
