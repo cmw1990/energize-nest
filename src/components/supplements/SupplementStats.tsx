@@ -40,6 +40,7 @@ import { Button } from "@/components/ui/button";
 import { format, subDays } from "date-fns";
 import { motion } from "framer-motion";
 import { formatValue, ValueType } from '../sleep/SleepMetrics';
+import { formatValue } from "@/utils/formatUtils";
 
 export const SupplementStats = () => {
   const { session } = useAuth();

@@ -1,49 +1,50 @@
 
 /**
- * Safely formats a value to a specified number of decimal places
- * Works with numbers, strings that can be parsed as numbers, and null/undefined
- * 
- * @param value The value to format
- * @param decimals Number of decimal places (default: 2)
- * @param fallback Fallback value if formatting fails (default: '0')
- * @returns Formatted string
+ * Utility functions for formatting values
  */
-export const formatValue = (value: any, decimals: number = 2, fallback: string = '0'): string => {
-  if (value === null || value === undefined) return fallback;
-  
-  if (typeof value === 'number') {
-    return value.toFixed(decimals);
+
+// ValueType can be string, number, or null
+export type ValueType = string | number | null;
+
+/**
+ * Format a value to a fixed number of decimal places
+ * Safely handles string values by converting them to numbers first
+ */
+export const formatValue = (value: ValueType, decimals: number = 2): string => {
+  if (value === null || value === undefined) {
+    return '0';
   }
   
-  if (typeof value === 'string') {
-    // Try to parse the string as a number
-    const parsed = parseFloat(value);
-    if (!isNaN(parsed)) {
-      return parsed.toFixed(decimals);
-    }
-    // If it's not a number, return the original string
-    return value;
+  // Convert string to number if needed
+  const numValue = typeof value === 'string' ? parseFloat(value) : value;
+  
+  // Check if it's a valid number
+  if (isNaN(numValue)) {
+    return '0';
   }
   
-  // For any other type, convert to string
-  return String(value || '0');
+  // Format the number
+  return numValue.toFixed(decimals);
 };
 
 /**
- * Type-safe version of formatValue that ensures the value can be formatted with toFixed
- * @param value Number or string that can be parsed as a number
- * @param decimals Number of decimal places
- * @returns Formatted string with fixed decimal places
+ * Format a percentage value
  */
-export const formatNumberValue = (value: number | string, decimals: number = 2): string => {
-  if (typeof value === 'number') {
-    return value.toFixed(decimals);
-  }
-  
-  const parsed = parseFloat(value);
-  if (!isNaN(parsed)) {
-    return parsed.toFixed(decimals);
-  }
-  
-  return '0';
+export const formatPercentage = (value: ValueType, decimals: number = 1): string => {
+  return `${formatValue(value, decimals)}%`;
 };
+
+/**
+ * Format a currency value
+ */
+export const formatCurrency = (value: ValueType, currency: string = '$', decimals: number = 2): string => {
+  return `${currency}${formatValue(value, decimals)}`;
+};
+
+/**
+ * Assert a type for TypeScript
+ * Useful when working with data from external sources
+ */
+export function assertType<T>(value: unknown): T {
+  return value as T;
+}

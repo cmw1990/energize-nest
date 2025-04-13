@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -89,6 +90,7 @@ export function TherapyDashboard() {
   const getProviderName = () => {
     if (!insuranceInfo?.insurance_provider) return 'Not Set';
     return typeof insuranceInfo.insurance_provider === 'object' ? 
+      // Access the name property from the object, not the array
       insuranceInfo.insurance_provider.name : 'Not Set';
   };
 

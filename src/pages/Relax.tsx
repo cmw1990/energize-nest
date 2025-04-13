@@ -14,10 +14,6 @@ const GuidedMeditation = () => <div>Guided Meditation Component Coming Soon</div
 const SoundScapes = () => <div>Sound Scapes Component Coming Soon</div>;
 const BinauralBeats = () => <div>Binaural Beats Component Coming Soon</div>;
 
-interface BreathingTechniquesProps {
-  onSelectTechnique: (technique: BreathingTechnique) => void;
-}
-
 const Relax = () => {
   const [activeTab, setActiveTab] = useState("breathing");
   const { 

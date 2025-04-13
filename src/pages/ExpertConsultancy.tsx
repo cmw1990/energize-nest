@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -41,6 +42,7 @@ const ExpertConsultancy = () => {
         .eq('verification_status', 'approved')
       
       if (error) throw error
+      // Properly cast the data to ExpertProfile array
       return (data as unknown) as ExpertProfile[]
     }
   })
