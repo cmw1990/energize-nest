@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Wind, Flower2, Cloud, Zap, Clock, MountainSnow, Waves, Brain, Heart } from "lucide-react";
-import BreathingTechniques from "@/components/breathing/BreathingTechniques";
+import { BreathingTechniques } from "@/components/breathing/BreathingTechniques";
 import { BreathingVisualizer } from "@/components/breathing/BreathingVisualizer";
 import { useNavigate } from "react-router-dom";
 

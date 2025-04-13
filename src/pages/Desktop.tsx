@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Clock, Calendar, Clipboard, CheckSquare, BarChart2, Activity, Zap } from "lucide-react";
-import { EisenhowerMatrix } from "@/components/focus/EisenhowerMatrix";
+import EisenhowerMatrix from "@/components/focus/EisenhowerMatrix";
 
 export default function Desktop() {
   return (

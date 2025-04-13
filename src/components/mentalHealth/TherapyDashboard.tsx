@@ -70,7 +70,7 @@ export function TherapyDashboard() {
         .from('client_insurance')
         .select(`
           id,
-          insurance_providers:insurance_provider_id (
+          insurance_provider:insurance_provider_id (
             name,
             verification_method
           ),
@@ -145,7 +145,7 @@ export function TherapyDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {insuranceInfo?.insurance_providers?.name || 'Not Set'}
+              {insuranceInfo?.insurance_provider?.name || 'Not Set'}
             </div>
             <p className="text-xs text-muted-foreground">
               {insuranceInfo?.insurance_eligibility_checks?.[0]?.status === 'verified' 

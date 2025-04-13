@@ -47,33 +47,29 @@ const SleepMetrics = () => {
     enabled: !!session?.user?.id
   });
   
-  // Sleep duration data for charts
   const getDurationData = () => {
     if (!sleepData?.length) return [];
     
     return sleepData.slice(0, 14).map(entry => ({
       date: format(new Date(entry.created_at), "MMM dd"),
       hours: entry.sleep_duration || 0,
-      target: entry.target_duration || 8 // Default target of 8 hours
+      target: entry.target_duration || 8
     })).reverse();
   };
   
-  // Sleep quality data for charts
   const getQualityData = () => {
     if (!sleepData?.length) return [];
     
     return sleepData.slice(0, 14).map(entry => ({
       date: format(new Date(entry.created_at), "MMM dd"),
       quality: entry.sleep_quality || 0,
-      target: 8 // Assuming 8/10 is the target quality
+      target: 8
     })).reverse();
   };
   
-  // Sleep composition data for pie chart
   const getCompositionData = () => {
     if (!sleepData?.length) return [];
     
-    // Average the most recent 7 entries
     const recentData = sleepData.slice(0, 7);
     
     const avgDeep = recentData.reduce((sum, entry) => sum + (entry.deep_percentage || 0), 0) / recentData.length;
@@ -89,12 +85,10 @@ const SleepMetrics = () => {
     ];
   };
   
-  // Sleep timing data (bedtime and wake time)
   const getTimingData = () => {
     if (!sleepData?.length) return [];
     
     return sleepData.slice(0, 14).map(entry => {
-      // Convert HH:MM time strings to decimal hours for visualization
       const bedtimeHours = entry.bedtime ? 
         parseTimeStringToDecimal(entry.bedtime) : null;
       
@@ -109,13 +103,11 @@ const SleepMetrics = () => {
     }).reverse();
   };
   
-  // Helper to parse time string (HH:MM) to decimal hours
   const parseTimeStringToDecimal = (timeString: string) => {
     const [hours, minutes] = timeString.split(':').map(Number);
     return hours + (minutes / 60);
   };
   
-  // Function to calculate sleep metrics
   const calculateMetrics = () => {
     if (!sleepData || sleepData.length === 0) {
       return { avgDuration: 0, avgQuality: 0, consistency: 0, avgDeep: 0 };
@@ -125,23 +117,16 @@ const SleepMetrics = () => {
     const qualityValues = sleepData.map(entry => entry.sleep_quality || 0);
     const deepSleepValues = sleepData.map(entry => entry.deep_percentage || 0);
     
-    // Average sleep duration
     const avgDuration = durationValues.reduce((sum, val) => sum + val, 0) / durationValues.length;
-    
-    // Average sleep quality
     const avgQuality = qualityValues.reduce((sum, val) => sum + val, 0) / qualityValues.length;
-    
-    // Average deep sleep percentage
     const avgDeep = deepSleepValues.reduce((sum, val) => sum + val, 0) / deepSleepValues.length;
     
-    // Sleep consistency (standard deviation of sleep duration - lower is better)
     const durationVariance = durationValues.reduce((sum, val) => {
       const diff = val - avgDuration;
       return sum + (diff * diff);
     }, 0) / durationValues.length;
     
     const durationStdDev = Math.sqrt(durationVariance);
-    // Convert to a 0-100 consistency score (0 = highly inconsistent, 100 = very consistent)
     const consistency = Math.max(0, 100 - (durationStdDev * 20));
     
     return { avgDuration, avgQuality, consistency, avgDeep };
@@ -163,7 +148,6 @@ const SleepMetrics = () => {
   
   return (
     <div className="space-y-6">
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -210,7 +194,6 @@ const SleepMetrics = () => {
         </Card>
       </div>
       
-      {/* Charts */}
       <Tabs defaultValue="duration" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="duration" className="flex items-center gap-2">
@@ -390,8 +373,6 @@ const SleepMetrics = () => {
   );
 };
 
-export default SleepMetrics;
-
 const formatValue = (value: any): string => {
   if (typeof value === 'number') {
     return value.toFixed(1);
@@ -402,3 +383,5 @@ const formatValue = (value: any): string => {
   }
   return String(value);
 };
+
+export default SleepMetrics;

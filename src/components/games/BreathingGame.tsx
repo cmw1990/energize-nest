@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import BreathingTechniques, { BreathingTechnique } from '@/components/breathing/BreathingTechniques';
+import { BreathingTechniques, BreathingTechnique } from '@/components/breathing/BreathingTechniques';
 import PufferfishScene3D from './scenes/PufferfishScene3D';
 import { Loader2 } from 'lucide-react';
 import { generateNatureSound } from '@/utils/audio';
