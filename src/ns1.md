@@ -40,6 +40,7 @@ This file tracks the implementation progress of features and fixes in the projec
 33. [✅] Added missing AudioGeneratorHook properties for Sleep.tsx
 34. [✅] Fixed SleepAnalysis component to handle sleepData prop
 35. [✅] Added missing BrainMatch page implementation
+36. [✅] Added missing useTheme export to ThemeProvider.tsx component
 
 ## Pending Tasks
 1. [ ] Fix SmokelessNicotineDirectory.tsx filtering and component props

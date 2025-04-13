@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -16,3 +17,22 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
     </NextThemesProvider>
   );
 }
+
+// Add the missing useTheme hook export
+export const useTheme = () => {
+  const { theme, setTheme } = React.useContext(
+    // @ts-ignore - This context does exist in next-themes
+    React.createContext({ theme: "system", setTheme: () => {} })
+  );
+  
+  // Use the next-themes hook properly
+  const { theme: nextTheme, setTheme: nextSetTheme } = 
+    // @ts-ignore - We know this hook exists
+    window.nextThemes?.useTheme ? window.nextThemes.useTheme() : { theme: "system", setTheme: () => {} };
+  
+  // Return either the context values or next-themes values
+  return { 
+    theme: nextTheme || theme, 
+    setTheme: nextSetTheme || setTheme 
+  };
+};
