@@ -6,7 +6,8 @@
 - ✅ Implemented BinauralBeatPlayer component with frequency control
 - ✅ Updated Relax page to include new sound & binaural beat player components
 - ✅ Added comprehensive BreathingExercises component with multiple patterns
-- ✅ Created dedicated Breathing page with technique guides
+- ✅ Created dedicated Breathing page with technique guides and interactive player
+- ✅ Built BreathingPatternLibrary component with different breathing techniques
 
 ## Current Issues
 - ⚠️ TypeScript errors in useAudioGenerator.ts - temporarily ignoring as directed

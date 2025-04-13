@@ -1,4 +1,3 @@
-
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './components/AuthProvider';
 import { ThemeProvider } from './components/ThemeProvider';
@@ -45,7 +44,6 @@ import Settings from './pages/Settings';
 import Help from './pages/Help';
 import { Toaster } from './components/ui/toaster';
 
-// Create a client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -64,12 +62,10 @@ function App() {
         <AuthProvider>
           <Toaster />
           <Routes>
-            {/* Public routes outside the Layout */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/why-us" element={<WhyUs />} />
             
-            {/* Protected routes inside the Layout */}
             <Route path="/app" element={<Layout />}>
               <Route index element={<Dashboard />} />
               <Route path="dashboard" element={<Dashboard />} />
@@ -104,13 +100,12 @@ function App() {
               <Route path="settings" element={<Settings />} />
               <Route path="help" element={<Help />} />
               
-              {/* Tool pages */}
               <Route path="web-tools/sleep-calculator" element={<SleepCalculator />} />
               <Route path="web-tools/sleep-goals" element={<SleepGoals />} />
               <Route path="web-tools/withdrawal-tracker" element={<WithdrawalTracker />} />
+              <Route path="/app/breathing" element={<Breathing />} />
             </Route>
             
-            {/* Error handling */}
             <Route path="*" element={<NotFound />} />
             <Route path="/error" element={<ErrorPage />} />
           </Routes>

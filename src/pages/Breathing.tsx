@@ -1,204 +1,205 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { BreathingExercises } from "@/components/relax/BreathingExercises";
-import { SmartBreakSuggestions } from "@/components/focus/SmartBreakSuggestions";
-import { Wind, Brain, Activity, Lungs, Flower2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BreathingExercisePlayer } from "@/components/breathing/BreathingExercisePlayer";
+import { BreathingPatternLibrary } from "@/components/breathing/BreathingPatternLibrary";
+import { BreathingBenefits } from "@/components/breathing/BreathingBenefits"; 
+import { Wind, Brain, Heart, Zap, RefreshCw, CloudFog } from 'lucide-react';
 
 const Breathing = () => {
-  const navigate = useNavigate();
+  const [selectedPattern, setSelectedPattern] = useState<string | null>(null);
   
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Breathing Techniques</h1>
-        <div className="flex items-center gap-2 text-primary">
-          <Wind className="h-5 w-5" />
-          <span className="font-medium">Breath Control</span>
-        </div>
+    <div className="container mx-auto p-4 space-y-6">
+      <div className="flex items-center gap-2 mb-4">
+        <Wind className="h-7 w-7 text-primary" />
+        <h1 className="text-3xl font-bold">Breathing Exercises</h1>
       </div>
       
-      {/* Quick Tools */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 hover:shadow-md transition-shadow">
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center text-center space-y-3">
-              <div className="bg-white/80 dark:bg-white/10 rounded-full p-3">
-                <Wind className="h-5 w-5 text-blue-500" />
-              </div>
-              <h3 className="font-medium">Calm Breathing</h3>
-              <p className="text-sm text-muted-foreground">
-                Techniques to reduce stress and anxiety
-              </p>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => document.getElementById('breathing-exercises')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                Start Practice
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 hover:shadow-md transition-shadow">
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center text-center space-y-3">
-              <div className="bg-white/80 dark:bg-white/10 rounded-full p-3">
-                <Brain className="h-5 w-5 text-emerald-500" />
-              </div>
-              <h3 className="font-medium">Focus Breathing</h3>
-              <p className="text-sm text-muted-foreground">
-                Breath patterns for enhanced concentration
-              </p>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => document.getElementById('breathing-exercises')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                Begin Session
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 hover:shadow-md transition-shadow">
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center text-center space-y-3">
-              <div className="bg-white/80 dark:bg-white/10 rounded-full p-3">
-                <Activity className="h-5 w-5 text-amber-500" />
-              </div>
-              <h3 className="font-medium">Energy Breathing</h3>
-              <p className="text-sm text-muted-foreground">
-                Techniques to boost energy and alertness
-              </p>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => document.getElementById('breathing-exercises')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                Energize
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-0 shadow-md">
+        <CardHeader>
+          <CardTitle className="text-xl">Breathe Better, Feel Better</CardTitle>
+          <CardDescription>
+            Proper breathing techniques can reduce stress, improve focus, increase energy, and enhance overall well-being
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col md:flex-row gap-6 p-6">
+          <div className="w-full md:w-2/3">
+            <BreathingExercisePlayer selectedPattern={selectedPattern} />
+          </div>
+          <div className="w-full md:w-1/3 space-y-4">
+            <Card className="bg-white/50 dark:bg-background/50">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <RefreshCw className="h-4 w-4 text-primary" />
+                  Breathing Patterns
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <BreathingPatternLibrary 
+                  onSelectPattern={(patternId) => setSelectedPattern(patternId)} 
+                  selectedPattern={selectedPattern}
+                />
+              </CardContent>
+            </Card>
+          </div>
+        </CardContent>
+      </Card>
       
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="space-y-6">
-          <Card id="breathing-exercises" className="border border-primary/10 scroll-mt-6">
+      <Tabs defaultValue="techniques" className="space-y-4">
+        <TabsList className="grid grid-cols-3 w-full max-w-md mx-auto">
+          <TabsTrigger value="techniques">
+            <Wind className="h-4 w-4 mr-2" />
+            Techniques
+          </TabsTrigger>
+          <TabsTrigger value="benefits">
+            <Heart className="h-4 w-4 mr-2" />
+            Benefits
+          </TabsTrigger>
+          <TabsTrigger value="science">
+            <Brain className="h-4 w-4 mr-2" />
+            Science
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="techniques" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <CloudFog className="h-4 w-4 text-blue-500" />
+                  For Relaxation
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary font-medium">4-7-8 Breathing:</span>
+                    <span className="text-sm text-muted-foreground">Inhale for 4, hold for 7, exhale for 8</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary font-medium">Box Breathing:</span>
+                    <span className="text-sm text-muted-foreground">Equal counts of inhale, hold, exhale, hold</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary font-medium">Alternate Nostril:</span>
+                    <span className="text-sm text-muted-foreground">Balance your nervous system</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Zap className="h-4 w-4 text-amber-500" />
+                  For Energy
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary font-medium">Bellows Breath:</span>
+                    <span className="text-sm text-muted-foreground">Rapid inhales and exhales through nose</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary font-medium">Stimulating Breath:</span>
+                    <span className="text-sm text-muted-foreground">Quick, forceful exhales with relaxed inhales</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary font-medium">Breath of Fire:</span>
+                    <span className="text-sm text-muted-foreground">Rhythmic breathing with active exhales</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Brain className="h-4 w-4 text-violet-500" />
+                  For Focus
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary font-medium">Coherent Breathing:</span>
+                    <span className="text-sm text-muted-foreground">5-6 breaths per minute</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary font-medium">5-5-5 Breathing:</span>
+                    <span className="text-sm text-muted-foreground">Equal inhale, hold, and exhale for 5 counts</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary font-medium">4-4 Breathing:</span>
+                    <span className="text-sm text-muted-foreground">Equal inhale and exhale for 4 counts</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="benefits">
+          <BreathingBenefits />
+        </TabsContent>
+
+        <TabsContent value="science">
+          <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Lungs className="h-5 w-5 text-primary" />
-                Breathing Exercises
-              </CardTitle>
-              <CardDescription>
-                Control your breath to reduce stress and improve focus
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <BreathingExercises />
-            </CardContent>
-          </Card>
-        </div>
-        
-        <div className="space-y-6">
-          <Card className="border border-primary/10">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5 text-primary" />
-                Breathing Benefits
-              </CardTitle>
-              <CardDescription>
-                The science behind controlled breathing techniques
-              </CardDescription>
+              <CardTitle>The Science Behind Breathing</CardTitle>
+              <CardDescription>How conscious breathing affects your body and mind</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4">
-                <div className="flex items-start gap-3">
-                  <div className="bg-primary/10 p-2 rounded-full shrink-0">
-                    <Brain className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">Stress Reduction</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Deep, slow breathing activates the parasympathetic nervous system, reducing stress hormones and promoting relaxation.
-                    </p>
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <h3 className="font-medium text-lg">Physiological Effects</h3>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li>• Activates parasympathetic nervous system (rest & digest)</li>
+                    <li>• Reduces cortisol and stress hormones</li>
+                    <li>• Improves oxygen exchange and blood circulation</li>
+                    <li>• Lowers blood pressure and heart rate</li>
+                    <li>• Enhances immune function</li>
+                    <li>• Optimizes respiratory mechanics</li>
+                  </ul>
                 </div>
                 
-                <div className="flex items-start gap-3">
-                  <div className="bg-primary/10 p-2 rounded-full shrink-0">
-                    <Activity className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">Improved Focus</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Controlled breathing increases oxygen to your brain, enhancing cognitive function and mental clarity.
+                <div className="space-y-2">
+                  <h3 className="font-medium text-lg">Psychological Effects</h3>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li>• Reduces anxiety and rumination</li>
+                    <li>• Improves attention and cognitive performance</li>
+                    <li>• Enhances emotional regulation</li>
+                    <li>• Promotes mindfulness and present-moment awareness</li>
+                    <li>• Helps manage stress responses</li>
+                    <li>• Supports sleep quality and relaxation</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div className="mt-4 pt-4 border-t">
+                <h3 className="font-medium text-lg">Research Highlights</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                  <div className="bg-muted/30 p-3 rounded-md">
+                    <p className="text-sm">
+                      <span className="font-medium">Journal of Neurophysiology (2018):</span> Controlled breathing synchronizes neural oscillations across cortical and subcortical networks.
                     </p>
                   </div>
-                </div>
-                
-                <div className="flex items-start gap-3">
-                  <div className="bg-primary/10 p-2 rounded-full shrink-0">
-                    <Lungs className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">Better Sleep</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Calming breathing exercises before bed can help quiet the mind and prepare the body for restful sleep.
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-3">
-                  <div className="bg-primary/10 p-2 rounded-full shrink-0">
-                    <Wind className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">Energy Regulation</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Different breathing patterns can either energize your body or calm it down, helping regulate energy levels throughout the day.
+                  <div className="bg-muted/30 p-3 rounded-md">
+                    <p className="text-sm">
+                      <span className="font-medium">Frontiers in Psychology (2019):</span> Regular breathing practice can reduce symptoms of stress, anxiety, and depression.
                     </p>
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
-          
-          <Card className="border border-primary/10">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Wind className="h-5 w-5 text-primary" />
-                Mindful Breaks
-              </CardTitle>
-              <CardDescription>
-                Take short breaks with guided breathing
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <SmartBreakSuggestions />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-      
-      <div className="flex justify-center">
-        <Button 
-          variant="outline" 
-          className="flex items-center gap-2"
-          onClick={() => navigate("/app/meditation")}
-        >
-          <Flower2 className="h-4 w-4" />
-          Explore Meditation
-        </Button>
-      </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
 
-function Lungs(props: any) {
-  return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.081 20C6.026 20 5.971 20 5.916 20c-1.28-.68-1.831-5.612-1.831-9.5C4.085 7 4 4.5 5.815 4.5c1.963 0 2.946 3.928 2.946 4.5"/><path d="M17.919 20c.055 0 .11 0 .165 0 1.28-.68 1.831-5.612 1.831-9.5C19.915 7 20 4.5 18.185 4.5c-1.963 0-2.946 3.928-2.946 4.5"/><path d="M11.753 18.579A2.895 2.895 0 0 0 15.349 20c1.675 0 2.248-.679 3.231-4.183"/><path d="M12.247 18.579A2.895 2.895 0 0 1 8.651 20c-1.675 0-2.248-.679-3.231-4.183"/><path d="M9 11.5c.5.323 2.267.613 3 .5"/><path d="M9.5 10c1.614.086 2.681 0 3.25-.5"/><path d="M15 11.5c-.5.323-2.267.613-3 .5"/><path d="M14.5 10c-1.614.086-2.681 0-3.25-.5"/><path d="M12 4v5.5"/></svg>
-}
+export default Breathing;
