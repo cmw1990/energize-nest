@@ -32,6 +32,7 @@ export default function Help() {
     subject: "",
     message: ""
   });
+  const [activeCategory, setActiveCategory] = useState("");
 
   const faqs = [
     {
@@ -88,6 +89,29 @@ export default function Help() {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleFAQClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const answer = target.querySelector('.faq-answer');
+    const icon = target.querySelector('.faq-icon');
+    
+    if (answer && icon) {
+      answer.classList.toggle('hidden');
+      icon.textContent = answer.classList.contains('hidden') ? '+' : '-';
+    }
+  };
+
+  const handleCategoryClick = (category: string) => {
+    setActiveCategory(category);
+    
+    // Use setTimeout to ensure the DOM is updated
+    setTimeout(() => {
+      const element = document.getElementById(`category-${category}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
   };
 
   const clickElement = (selector: string) => {

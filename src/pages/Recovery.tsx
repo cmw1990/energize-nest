@@ -1,34 +1,28 @@
 import React from 'react';
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/components/AuthProvider";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useNavigate } from "react-router-dom";
-import { TopNav } from "@/components/layout/TopNav";
-import {
-  Trophy,
-  Calendar,
-  Heart,
-  DollarSign,
-  Activity,
-  Brain,
-  Zap,
-  BarChart,
-  Clock,
-  Users,
-  Smile,
-  ChevronRight,
-  Wind,
-  Battery,
-  Droplets
-} from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
-import { motion } from "framer-motion";
+import { 
+  Activity, 
+  Brain, 
+  Calendar, 
+  CircleOff, 
+  Clock, 
+  Heart, 
+  HeartPulse, 
+  Timer, 
+  Trophy,
+  Wind,
+  Zap
+} from "lucide-react";
+import { NicotineTracker } from "@/components/nicotine/NicotineTracker";
+import { HealthImprovements } from "@/components/sobriety/HealthImprovements";
+import { MoneySaved } from "@/components/sobriety/MoneySaved";
+import { TriggerPatternAnalysis } from "@/components/sobriety/TriggerPatternAnalysis";
+import { WithdrawalTracker } from "@/components/sobriety/WithdrawalTracker";
+import { CravingTracker } from "@/components/sobriety/CravingTracker";
 
 export default function Recovery() {
   const navigate = useNavigate();
