@@ -34,10 +34,14 @@ export const formatValue = (value: any, precision: number = 1): string => {
   return String(value);
 };
 
-const SleepMetrics = ({ sleepData }: SleepMetricsProps) => {
+interface SleepMetricsProps {
+  sleepData?: any;
+}
+
+const SleepMetrics = ({ sleepData: propsSleepData }: SleepMetricsProps) => {
   const { session } = useAuth();
   
-  const { data: sleepData, isLoading } = useQuery({
+  const { data: querySleepData, isLoading } = useQuery({
     queryKey: ["sleep_metrics", session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return [];
@@ -58,6 +62,8 @@ const SleepMetrics = ({ sleepData }: SleepMetricsProps) => {
     },
     enabled: !!session?.user?.id
   });
+  
+  const sleepData = propsSleepData || querySleepData;
   
   const getDurationData = () => {
     if (!sleepData?.length) return [];
