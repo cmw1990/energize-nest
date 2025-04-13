@@ -25,7 +25,7 @@ export interface BinauralBeat extends AudioInstance {
   setFrequencies?: (baseFreq: number, beatFreq: number) => void;
 }
 
-export type NatureSound = 'none' | 'ocean' | 'forest' | 'river' | 'rain' | 'thunder' | 'fire';
+export type NatureSound = 'none' | 'ocean' | 'forest' | 'river' | 'rain' | 'thunder' | 'fire' | 'cafe' | 'birds' | 'night' | 'lullaby' | 'sunny' | 'tropical' | 'storm' | 'home' | 'snow' | 'wind';
 export type NoiseType = 'none' | 'brown' | 'pink' | 'white';
 
 declare global {
@@ -57,12 +57,12 @@ export interface AudioGeneratorHook {
   updateNatureSound: (type: NatureSound | null) => void;
   updateVolume: (volume: number) => void;
   
-  // Additional properties for expanded audio functionality
+  // Adding the missing properties that are being used
+  stopAllAudio: () => void;
   startBinauralBeat: (baseFreq: number, beatFreq: number, volume?: number) => void;
   stopBinauralBeat: () => void;
   startNatureSound: (type: string, volume?: number) => void;
   stopNatureSound: () => void;
-  stopAllAudio: () => void;
   binauralAudio: BinauralBeat | null;
   natureAudio: AudioInstance | null;
 }

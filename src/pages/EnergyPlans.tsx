@@ -16,7 +16,7 @@ import { PlanFilters } from '@/components/energy-plans/PlanFilters';
 import { SavedPlans } from '@/components/energy-plans/SavedPlans';
 import { PersonalPlans } from '@/components/energy-plans/PersonalPlans';
 import { LifeSituationDialog } from '@/components/energy-plans/LifeSituationDialog';
-import { Plan, LifeSituation, PersonalPlansProps, PlanFiltersProps, PlanDiscoveryProps } from '@/types/games';
+import { Plan, LifeSituation, PlanCategory, PersonalPlansProps, PlanFiltersProps, PlanDiscoveryProps } from '@/types/energyPlans';
 import { safeArrayCast } from '@/utils/typeSafeUtils';
 import { Battery, Zap, Flame, BookOpen } from 'lucide-react';
 
@@ -26,7 +26,7 @@ const EnergyPlans: React.FC = () => {
   const [activeTab, setActiveTab] = useState('personal');
   const [lifeSituation, setLifeSituation] = useState<LifeSituation>("regular");
   const [showLifeSituationDialog, setShowLifeSituationDialog] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState<PlanCategory>('all');
 
   // Fetch user's personal plans
   const { data: personalPlans, refetch: refetchPersonalPlans } = useQuery({
@@ -71,7 +71,7 @@ const EnergyPlans: React.FC = () => {
     refetchPersonalPlans();
   };
 
-  const handleCategoryChange = (category: string) => {
+  const handleCategoryChange = (category: PlanCategory) => {
     setSelectedCategory(category);
   };
 
