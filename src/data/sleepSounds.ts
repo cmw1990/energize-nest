@@ -1,240 +1,248 @@
 
-import { 
-  Cloud, 
-  Trees, 
-  Wind, 
-  Waves, 
-  Flame, 
-  CloudLightning, 
-  Droplets,
-  Activity,
-  Sparkles,
-  Snowflake,
-  Bird,
-  Sun,
-  Music,
-  Music2,
-  Home,
-  Coffee,
+import {
+  CloudRain,
+  Waves,
+  Wind,
+  Flame,
   Moon,
-  Leaf,
-  AlarmClock,
+  CloudSnow,
+  Music,
+  Coffee,
+  Birds,
+  Sun,
+  Palmtree,
+  CloudLightning,
+  Home,
+  Timer,
   Brain,
-  Bed,
-  Utensils,
-  Timer
-} from "lucide-react";
-import { NatureSound } from "@/types/audio";
+  Sparkles,
+  Thermometer,
+  Coffee as Cafe,
+  Clock,
+  DollarSign,
+  Smile,
+  Users,
+  LucideIcon
+} from 'lucide-react';
+import { NatureSound } from '@/types/audio';
 
-export interface SleepSound {
-  type: NatureSound;
+interface NatureSoundData {
+  type: string;
   name: string;
-  description?: string;
-  icon: any;
+  description: string;
+  icon: typeof CloudRain;
   categories?: string[];
 }
 
-export const natureSounds: SleepSound[] = [
+export const natureSounds: NatureSoundData[] = [
   {
-    type: "rain",
-    name: "Rainfall",
-    description: "Gentle rain falling on a rooftop",
-    icon: Cloud,
-    categories: ["water", "popular"]
+    type: 'rain',
+    name: 'Rain',
+    description: 'Gentle rainfall on a quiet day',
+    icon: CloudRain,
+    categories: ['water', 'sleep', 'popular']
   },
   {
-    type: "forest",
-    name: "Forest",
-    description: "Peaceful forest with bird songs",
-    icon: Leaf,
-    categories: ["nature", "popular"]
-  },
-  {
-    type: "ocean",
-    name: "Ocean Waves",
-    description: "Calming waves lapping at the shore",
+    type: 'ocean',
+    name: 'Ocean Waves',
+    description: 'Rhythmic waves on a peaceful shore',
     icon: Waves,
-    categories: ["water", "popular"]
+    categories: ['water', 'popular']
   },
   {
-    type: "fire",
-    name: "Campfire",
-    description: "Crackling sounds of a cozy campfire",
+    type: 'forest',
+    name: 'Forest',
+    description: 'Peaceful woodland atmosphere',
+    icon: Birds,
+    categories: ['nature', 'focus']
+  },
+  {
+    type: 'river',
+    name: 'River',
+    description: 'Flowing water and gentle currents',
+    icon: Waves,
+    categories: ['water', 'nature']
+  },
+  {
+    type: 'fire',
+    name: 'Fireplace',
+    description: 'Crackling fire and warm ambiance',
     icon: Flame,
-    categories: ["warmth", "popular"]
+    categories: ['sleep', 'focus']
   },
   {
-    type: "wind",
-    name: "Gentle Wind",
-    description: "Soft wind blowing through leaves",
-    icon: Wind,
-    categories: ["nature"]
-  },
-  {
-    type: "thunder",
-    name: "Distant Thunder",
-    description: "Rolling thunder in the distance",
+    type: 'thunder',
+    name: 'Thunder Storm',
+    description: 'Distant thunder and rainfall',
     icon: CloudLightning,
-    categories: ["water", "atmospheric"]
+    categories: ['water', 'sleep']
   },
   {
-    type: "stream",
-    name: "Babbling Brook",
-    description: "Water flowing over rocks",
-    icon: Droplets,
-    categories: ["water"]
+    type: 'wind',
+    name: 'Wind',
+    description: 'Gentle breeze through trees',
+    icon: Wind,
+    categories: ['nature']
   },
   {
-    type: "whitenoise",
-    name: "White Noise",
-    description: "Consistent background noise",
-    icon: Activity,
-    categories: ["noise", "focus"]
-  },
-  {
-    type: "night",
-    name: "Night Sounds",
-    description: "Crickets and night ambience",
-    icon: Moon,
-    categories: ["nature", "sleep"]
-  },
-  {
-    type: "birds",
-    name: "Bird Songs",
-    description: "Morning bird chorus",
-    icon: Bird,
-    categories: ["nature", "morning"]
-  },
-  {
-    type: "sunny",
-    name: "Summer Day",
-    description: "Bright summer day ambience",
-    icon: Sun,
-    categories: ["nature", "daytime"]
-  },
-  {
-    type: "lullaby",
-    name: "Lullaby",
-    description: "Soft music for sleep",
-    icon: Music,
-    categories: ["music", "sleep"]
-  },
-  {
-    type: "tropical",
-    name: "Tropical Island",
-    description: "Beach and jungle sounds",
-    icon: Sparkles,
-    categories: ["nature", "vacation"]
-  },
-  {
-    type: "snow",
-    name: "Snowfall",
-    description: "Soft snow crunching underfoot",
-    icon: Snowflake,
-    categories: ["winter"]
-  },
-  {
-    type: "cafe",
-    name: "Café Ambience",
-    description: "Distant chatter and coffee shop sounds",
+    type: 'cafe',
+    name: 'Coffee Shop',
+    description: 'Ambient conversation and clinking cups',
     icon: Coffee,
-    categories: ["urban", "focus"]
+    categories: ['focus']
   },
   {
-    type: "home",
-    name: "Home Comfort",
-    description: "Domestic sounds of home",
-    icon: Home,
-    categories: ["comfort"]
-  }
-];
-
-export const binauralPresets = [
-  {
-    name: "Delta (Deep Sleep)",
-    frequency: 2.0,
-    description: "0.5-4 Hz - Deep, dreamless sleep and healing",
-    icon: Bed
+    type: 'birds',
+    name: 'Bird Song',
+    description: 'Morning birds chirping in nature',
+    icon: Birds,
+    categories: ['nature']
   },
   {
-    name: "Theta (Light Sleep)",
-    frequency: 6.0,
-    description: "4-7 Hz - REM sleep, deep meditation, creativity",
-    icon: Moon
+    type: 'night',
+    name: 'Night',
+    description: 'Crickets and night sounds',
+    icon: Moon,
+    categories: ['sleep', 'nature']
   },
   {
-    name: "Alpha (Relaxed)",
-    frequency: 10.0,
-    description: "8-12 Hz - Relaxed but alert state, calmness",
-    icon: Brain
+    type: 'lullaby',
+    name: 'Lullaby',
+    description: 'Soft melody for relaxation',
+    icon: Music,
+    categories: ['sleep']
   },
   {
-    name: "Beta (Alert)",
-    frequency: 15.0,
-    description: "13-30 Hz - Active thinking, focus, problem solving",
-    icon: Activity
-  }
-];
-
-export const sleepOptimizationTips = [
-  {
-    category: "Environment",
-    icon: Home,
-    tips: [
-      "Keep your bedroom cool (65-68°F/18-20°C)",
-      "Ensure your room is completely dark or use an eye mask",
-      "Use white noise or earplugs to block disruptive sounds",
-      "Invest in a comfortable mattress and pillows"
-    ]
-  },
-  {
-    category: "Routine",
-    icon: AlarmClock,
-    tips: [
-      "Go to bed and wake up at the same time every day",
-      "Avoid naps after 3pm",
-      "Create a relaxing pre-sleep ritual",
-      "Allow yourself at least 7-9 hours in bed"
-    ]
-  },
-  {
-    category: "Lifestyle",
+    type: 'sunny',
+    name: 'Sunny Day',
+    description: 'Birds chirping on a bright day',
     icon: Sun,
+    categories: ['nature']
+  },
+  {
+    type: 'tropical',
+    name: 'Tropical',
+    description: 'Beach and jungle ambiance',
+    icon: Palmtree,
+    categories: ['nature']
+  },
+  {
+    type: 'storm',
+    name: 'Storm',
+    description: 'Heavy rain and wind',
+    icon: CloudLightning,
+    categories: ['water']
+  },
+  {
+    type: 'home',
+    name: 'Home',
+    description: 'Quiet household ambiance',
+    icon: Home,
+    categories: ['focus']
+  },
+  {
+    type: 'snow',
+    name: 'Snow',
+    description: 'Soft footsteps in fresh snow',
+    icon: CloudSnow,
+    categories: ['sleep']
+  }
+];
+
+export interface BinauralPreset {
+  name: string;
+  frequency: number;
+  description: string;
+}
+
+export const binauralPresets: BinauralPreset[] = [
+  {
+    name: 'Deep Sleep',
+    frequency: 2.0,
+    description: 'Delta waves for deep, restorative sleep'
+  },
+  {
+    name: 'Light Sleep',
+    frequency: 5.0,
+    description: 'Theta waves for light sleep and dreaming'
+  },
+  {
+    name: 'Deep Meditation',
+    frequency: 6.0,
+    description: 'Low theta waves for meditation and relaxation'
+  },
+  {
+    name: 'Creativity',
+    frequency: 8.0,
+    description: 'Alpha waves for creative thinking and flow'
+  },
+  {
+    name: 'Focus',
+    frequency: 10.0,
+    description: 'Mid-alpha waves for concentration'
+  },
+  {
+    name: 'Alertness',
+    frequency: 15.0,
+    description: 'Beta waves for mental alertness'
+  }
+];
+
+export interface SleepTip {
+  category: string;
+  icon: typeof Clock;
+  tips: string[];
+}
+
+export const sleepOptimizationTips: SleepTip[] = [
+  {
+    category: 'Timing',
+    icon: Clock,
     tips: [
-      "Get exposure to sunlight early in the day",
-      "Exercise regularly, but not within 2-3 hours of bedtime",
-      "Limit caffeine after noon and alcohol before bed",
-      "Avoid looking at screens 1-2 hours before sleep"
+      'Go to bed and wake up at the same time every day',
+      'Avoid sleeping in on weekends by more than an hour',
+      'Take only short naps (20-30 minutes) before 3pm',
+      'Give yourself 30-60 minutes to wind down before bed'
     ]
   },
   {
-    category: "Nutrition",
-    icon: Utensils,
+    category: 'Environment',
+    icon: Thermometer,
     tips: [
-      "Avoid heavy meals within 2-3 hours of bedtime",
-      "Try a light snack with tryptophan (milk, turkey, nuts)",
-      "Consider magnesium-rich foods (leafy greens, nuts, seeds)",
-      "Limit fluid intake before bed to prevent disruptions"
+      'Keep your bedroom cool (65-68°F/18-20°C)',
+      'Make your bedroom as dark as possible',
+      'Use white noise to mask disruptive sounds',
+      'Use comfortable mattress and pillows'
     ]
   },
   {
-    category: "Mind",
+    category: 'Lifestyle',
+    icon: Coffee,
+    tips: [
+      'Avoid caffeine 6 hours before bedtime',
+      'Avoid alcohol before bed, which disrupts sleep quality',
+      'Exercise regularly, but not within 2 hours of bedtime',
+      'Get regular exposure to natural light during the day'
+    ]
+  },
+  {
+    category: 'Technology',
+    icon: Sparkles,
+    tips: [
+      'Avoid screens 1 hour before bed (blue light blocks melatonin)',
+      'Use night mode or blue light filters on all devices',
+      'Keep electronics out of the bedroom',
+      'Try a sunrise alarm clock for more natural waking'
+    ]
+  },
+  {
+    category: 'Mindset',
     icon: Brain,
     tips: [
-      "Practice meditation or deep breathing before sleep",
-      "Write down worries or to-dos to clear your mind",
-      "Use progressive muscle relaxation to release tension",
-      "Try guided sleep meditations or sleep stories"
-    ]
-  },
-  {
-    category: "If You Can't Sleep",
-    icon: Timer,
-    tips: [
-      "Get out of bed if you can't sleep after 20 minutes",
-      "Do something relaxing in dim light until you feel sleepy",
-      "Avoid checking the time repeatedly",
-      "Try a breathing pattern like 4-7-8 (inhale 4, hold 7, exhale 8)"
+      'Practice a relaxing bedtime ritual (reading, meditation)',
+      'Use breathing techniques to calm the mind',
+      'Write down worries and to-dos before bed to clear your mind',
+      'If you can't sleep after 20 minutes, get up and do something relaxing'
     ]
   }
 ];
