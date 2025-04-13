@@ -15,7 +15,11 @@ import { AchievementWall } from "@/components/motivation/AchievementWall";
 import { MotivationJournal } from "@/components/motivation/MotivationJournal";
 import { VisionBoard } from "@/components/motivation/VisionBoard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sparkles, Lightbulb, Brain, Target, Rocket, ArrowUpRight, Trophy, ScrollText, ImagePlus, Star, Clock, Calendar, BookOpen, BadgeCheck } from "lucide-react";
+import { 
+  Sparkles, Lightbulb, Brain, Target, Rocket, ArrowUpRight, Trophy, 
+  ScrollText, ImagePlus, Star, Clock, Calendar, BookOpen, BadgeCheck,
+  Heart, Briefcase, DollarSign
+} from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";

@@ -1,25 +1,28 @@
-
-import { Plan, ProgressRecord } from "@/types/energyPlans"
-import { PlanCard } from "./PlanCard"
-import { Skeleton } from "@/components/ui/skeleton"
+import React from "react";
+import { Plan, ProgressRecord } from "@/types/energyPlans";
+import { PlanCard } from "./PlanCard";
 
 export interface PlanListProps {
-  plans?: Plan[]
-  progress?: ProgressRecord[]
-  isLoading?: boolean
-  onSavePlan?: (planId: string) => void
-  onSharePlan?: (plan: Plan) => void
-  savedPlans?: Plan[]
+  plans?: Plan[];
+  progress?: ProgressRecord[];
+  isLoading?: boolean;
+  onSharePlan?: (plan: Plan) => void;
+  onSavePlan?: (planId: string) => void;
+  onUnsavePlan?: (planId: string) => void;
+  onDuplicatePlan?: (planId: string) => void;
+  isSavedList?: boolean;
 }
 
-export const PlanList = ({ 
-  plans,
+export const PlanList: React.FC<PlanListProps> = ({
+  plans = [],
   progress,
-  isLoading,
-  onSavePlan,
+  isLoading = false,
   onSharePlan,
-  savedPlans
-}: PlanListProps) => {
+  onSavePlan,
+  onUnsavePlan,
+  onDuplicatePlan,
+  isSavedList = false
+}) => {
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -43,7 +46,7 @@ export const PlanList = ({
       <div className="text-center p-8 border rounded-lg">
         <h3 className="font-semibold mb-2">No Plans Found</h3>
         <p className="text-muted-foreground text-sm">
-          {savedPlans ? 
+          {isSavedList ? 
             "You haven't saved any plans yet. Browse the discover section to find plans!" :
             "No plans match your current filters. Try adjusting them or create your own plan!"
           }
@@ -61,7 +64,9 @@ export const PlanList = ({
           progress={progress}
           onSave={onSavePlan}
           onShare={onSharePlan}
-          isSaved={savedPlans?.some(saved => saved.id === plan.id)}
+          onUnsave={onUnsavePlan}
+          onDuplicate={onDuplicatePlan}
+          isSaved={isSavedList}
         />
       ))}
     </div>

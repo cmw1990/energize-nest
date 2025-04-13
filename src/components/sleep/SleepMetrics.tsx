@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -314,7 +313,7 @@ const SleepMetrics = () => {
                       outerRadius={120}
                       paddingAngle={2}
                       dataKey="value"
-                      label={({name, value}) => `${name}: ${value.toFixed(1)}%`}
+                      label={({name, value}) => `${name}: ${formatValue(value)}%`}
                     >
                       {getCompositionData().map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />

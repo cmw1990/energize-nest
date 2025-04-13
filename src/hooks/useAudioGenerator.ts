@@ -1,183 +1,258 @@
+import { useState, useEffect, useCallback } from "react";
+import { generateBinauralBeat } from "@/utils/audio/binauralBeatGenerator";
+import { createNoiseBuffer } from "@/utils/audio/createNoiseBuffer";
+import { NatureSound, AudioSettings, AudioInstance, BinauralBeat } from "@/types/audio";
 
-import { useState, useEffect, useRef } from 'react';
-import { useToast } from './use-toast';
-import { generateNatureSound, generateBinauralBeat, NatureSound } from '@/utils/audio';
-import type { BinauralBeat, AudioGeneratorHook } from '@/types/audio';
+const initialSettings: AudioSettings = {
+  volume: 0.5,
+  noiseType: "white",
+  natureSound: null,
+  isMuted: false,
+  binauralBeatFrequency: null,
+  baseFrequency: 100,
+};
+
+export interface AudioGeneratorHook {
+  playNoise: (type: string, volume?: number) => AudioInstance;
+  playNatureSound: (type: string, volume?: number) => AudioInstance;
+  createBinauralBeat: (baseFrequency: number, beatFrequency: number, volume?: number) => BinauralBeat;
+  stopAll: () => void;
+  isPlaying: boolean;
+  settings: AudioSettings;
+  setSettings: (newSettings: Partial<AudioSettings>) => void;
+  toggleSound: () => void;
+  updateNoiseType: (type: string) => void;
+  updateNatureSound: (sound: string | null) => void;
+  updateVolume: (volume: number) => void;
+}
 
 export const useAudioGenerator = (): AudioGeneratorHook => {
-  const [binauralAudio, setBinauralAudio] = useState<BinauralBeat | null>(null);
-  const [natureAudio, setNatureAudio] = useState<ReturnType<typeof generateNatureSound> | null>(null);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [volume, setVolume] = useState<number>(0.5);
-  const { toast } = useToast();
-  
-  // Store audio settings for resume functionality
-  const audioSettingsRef = useRef<{
-    binaural?: { baseFreq: number; beatFreq: number; volume: number };
-    nature?: { type: NatureSound | string; volume: number };
-  }>({});
-  
-  // Clean up audio when component unmounts
+  const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
+  const [noiseBuffer, setNoiseBuffer] = useState<AudioBuffer | null>(null);
+  const [noiseSource, setNoiseSource] = useState<AudioBufferSourceNode | null>(null);
+  const [natureSource, setNatureSource] = useState<HTMLAudioElement | null>(null);
+  const [binauralBeat, setBinauralBeat] = useState<BinauralBeat | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [settings, setSettings] = useState<AudioSettings>(initialSettings);
+
   useEffect(() => {
+    const initializeAudio = async () => {
+      const ctx = new AudioContext();
+      setAudioContext(ctx);
+
+      const buffer = createNoiseBuffer(ctx);
+      setNoiseBuffer(buffer);
+    };
+
+    initializeAudio();
+
     return () => {
-      stopAllAudio();
+      if (audioContext) {
+        audioContext.close();
+      }
     };
   }, []);
 
-  // Adjust the volume for all active audio
+  const stopAll = useCallback(() => {
+    if (noiseSource) {
+      noiseSource.stop();
+      setNoiseSource(null);
+    }
+    if (natureSource) {
+      natureSource.pause();
+      natureSource.currentTime = 0;
+      setNatureSource(null);
+    }
+    if (binauralBeat) {
+      binauralBeat.stop();
+      setBinauralBeat(null);
+    }
+    setIsPlaying(false);
+  }, [noiseSource, natureSource, binauralBeat]);
+
+  const setSettingsWrapper = (newSettings: Partial<AudioSettings>) => {
+    setSettings((prevSettings) => {
+      return {
+        ...prevSettings,
+        ...newSettings,
+      };
+    });
+  };
+
   useEffect(() => {
-    if (binauralAudio) {
-      binauralAudio.setVolume(volume);
+    if (settings.volume !== undefined) {
+      if (noiseSource) {
+        noiseSource.gainNode.gain.value = settings.volume;
+      }
+      if (natureSource) {
+        natureSource.volume = settings.volume;
+      }
+      if (binauralBeat) {
+        binauralBeat.setVolume(settings.volume);
+      }
     }
-    if (natureAudio) {
-      natureAudio.setVolume(volume);
-    }
-  }, [volume, binauralAudio, natureAudio]);
+  }, [settings.volume, noiseSource, natureSource, binauralBeat]);
 
-  const startBinauralBeat = (baseFreq: number, beatFreq: number, volume = 0.5): BinauralBeat | null => {
-    stopBinauralBeat();
-    
-    try {
-      const audio = generateBinauralBeat(baseFreq, beatFreq, volume);
-      audio.play()
-        .then(() => {
-          setIsPlaying(true);
-          // Store settings for resume
-          audioSettingsRef.current.binaural = { baseFreq, beatFreq, volume };
-        })
-        .catch(error => {
-          console.error('Failed to start binaural beat:', error);
-          toast({
-            title: 'Audio Error',
-            description: 'Failed to start binaural beat. Please try again.',
-            variant: 'destructive'
-          });
-        });
-      
-      setBinauralAudio(audio as BinauralBeat);
-      return audio as BinauralBeat;
-    } catch (error) {
-      console.error('Failed to create binaural beat:', error);
-      toast({
-        title: 'Audio Error',
-        description: 'Failed to create binaural beat audio.',
-        variant: 'destructive'
-      });
-      return null;
+  useEffect(() => {
+    if (settings.isMuted !== undefined) {
+      if (noiseSource) {
+        noiseSource.gainNode.gain.value = settings.isMuted ? 0 : settings.volume;
+      }
+      if (natureSource) {
+        natureSource.muted = settings.isMuted;
+      }
+      if (binauralBeat) {
+        binauralBeat.setVolume(settings.isMuted ? 0 : settings.volume);
+      }
+    }
+  }, [settings.isMuted, noiseSource, natureSource, binauralBeat, settings.volume]);
+
+  const toggleSound = () => {
+    if (isPlaying) {
+      stopAll();
+    } else {
+      if (settings.noiseType) {
+        playNoise(settings.noiseType, settings.volume);
+      }
     }
   };
 
-  const stopBinauralBeat = () => {
-    if (binauralAudio) {
-      binauralAudio.stop();
-      setBinauralAudio(null);
-      setIsPlaying(false);
+  const updateNoiseType = (type: string) => {
+    stopAll();
+    setSettingsWrapper({ noiseType: type });
+    playNoise(type, settings.volume);
+  };
+
+  const updateNatureSound = (sound: string | null) => {
+    stopAll();
+    setSettingsWrapper({ natureSound: sound });
+    if (sound) {
+      playNatureSound(sound, settings.volume);
     }
   };
 
-  const startNatureSound = (type: NatureSound | string, volume = 0.5) => {
-    stopNatureSound();
-    
-    try {
-      const audio = generateNatureSound(type, volume);
-      audio.play()
-        .then(() => {
-          setIsPlaying(true);
-          // Store settings for resume
-          audioSettingsRef.current.nature = { type, volume };
-        })
-        .catch(error => {
-          console.error('Failed to play nature sound:', error);
-          toast({
-            title: 'Audio Error',
-            description: 'Failed to play nature sound. Please try again.',
-            variant: 'destructive'
-          });
-        });
-      
-      setNatureAudio(audio);
-      return audio;
-    } catch (error) {
-      console.error('Failed to start nature sound:', error);
-      toast({
-        title: 'Audio Error',
-        description: 'Failed to start nature sound audio.',
-        variant: 'destructive'
-      });
-      return null;
-    }
+  const updateVolume = (volume: number) => {
+    setSettingsWrapper({ volume: volume });
   };
 
-  const stopNatureSound = () => {
-    if (natureAudio) {
-      natureAudio.stop();
-      setNatureAudio(null);
-      setIsPlaying(false);
+  const createBinauralBeat = (baseFrequency: number, beatFrequency: number, volume = 0.5): BinauralBeat => {
+    stopAll();
+    if (!audioContext) {
+      throw new Error("Audio context not initialized.");
     }
+
+    const binauralBeatInstance = generateBinauralBeat(baseFrequency, beatFrequency, volume);
+
+    const instance = {
+      play: async () => {
+        // No need to actually "play" anything, the oscillators are already running
+        setIsPlaying(true);
+      },
+      stop: () => {
+        binauralBeatInstance.stop();
+        setIsPlaying(false);
+      },
+      pause: () => {
+        binauralBeatInstance.setVolume(0);
+        setIsPlaying(false);
+      },
+      setVolume: (newVolume: number) => {
+        binauralBeatInstance.setVolume(newVolume);
+        setSettingsWrapper({ volume: newVolume });
+      },
+      isPlaying: false,
+      resume: () => {
+        binauralBeatInstance.setVolume(settings.volume);
+        setIsPlaying(true);
+      },
+      setFrequency: (newFreq: number) => {
+        // This is a placeholder, actual frequency setting might require re-initialization
+      }
+    } as BinauralBeat;
+
+    return instance;
   };
 
-  const stopAllAudio = () => {
-    stopBinauralBeat();
-    stopNatureSound();
-    setIsPlaying(false);
+  const createNoiseGenerator = (type: string, volume = 0.5): AudioInstance => {
+    if (!audioContext || !noiseBuffer) {
+      throw new Error("Audio context or noise buffer not initialized.");
+    }
+
+    const gainNode = audioContext.createGain();
+    gainNode.gain.value = volume;
+    gainNode.connect(audioContext.destination);
+
+    const source = audioContext.createBufferSource();
+    source.buffer = noiseBuffer;
+    source.loop = true;
+    source.connect(gainNode);
+    source.gainNode = gainNode;
+
+    return {
+      play: async () => {
+        source.start(0);
+        setIsPlaying(true);
+        setNoiseSource(source);
+      },
+      stop: () => {
+        source.stop(0);
+        setIsPlaying(false);
+        setNoiseSource(null);
+      },
+      pause: () => {
+        gainNode.gain.value = 0;
+        setIsPlaying(false);
+      },
+      setVolume: (newVolume: number) => {
+        gainNode.gain.value = newVolume;
+        setSettingsWrapper({ volume: newVolume });
+      },
+      isPlaying: false,
+      resume: () => {
+        gainNode.gain.value = settings.volume;
+        setIsPlaying(true);
+      }
+    };
   };
 
-  const pauseAllAudio = () => {
-    if (binauralAudio) {
-      binauralAudio.pause();
-    }
-    if (natureAudio) {
-      natureAudio.pause();
-    }
-    setIsPlaying(false);
-  };
+  const playNoise = useCallback(
+    (type: string, volume = 0.5) => {
+      stopAll();
+      if (!audioContext || !noiseBuffer) {
+        throw new Error("Audio context or noise buffer not initialized.");
+      }
 
-  const resumeAllAudio = () => {
-    if (binauralAudio) {
-      binauralAudio.resume();
+      const noise = createNoiseGenerator(type, volume);
+      noise.play();
       setIsPlaying(true);
-      return;
-    }
-    
-    if (natureAudio) {
-      natureAudio.resume();
-      setIsPlaying(true);
-      return;
-    }
-    
-    // If no active audio but we have settings stored, restart audio
-    const settings = audioSettingsRef.current;
-    if (settings.binaural) {
-      startBinauralBeat(
-        settings.binaural.baseFreq, 
-        settings.binaural.beatFreq, 
-        settings.binaural.volume
-      );
-    } else if (settings.nature) {
-      startNatureSound(
-        settings.nature.type, 
-        settings.nature.volume
-      );
-    }
-  };
+    },
+    [audioContext, noiseBuffer, stopAll]
+  );
 
-  const setGlobalVolume = (newVolume: number) => {
-    const clampedVolume = Math.min(1, Math.max(0, newVolume));
-    setVolume(clampedVolume);
-  };
+  const playNatureSound = useCallback(
+    (type: string, volume = 0.5) => {
+      stopAll();
+      const audio = new Audio(`/sounds/nature/${type}.mp3`);
+      audio.volume = volume;
+      audio.loop = true;
+      audio.play();
+      setIsPlaying(true);
+      setNatureSource(audio);
+    },
+    [stopAll]
+  );
 
   return {
-    startBinauralBeat,
-    stopBinauralBeat,
-    startNatureSound,
-    stopNatureSound,
-    stopAllAudio,
-    pauseAllAudio,
-    resumeAllAudio,
-    setVolume: setGlobalVolume,
+    playNoise,
+    playNatureSound,
+    createBinauralBeat,
+    stopAll,
     isPlaying,
-    volume,
-    binauralAudio,
-    natureAudio
+    settings,
+    setSettings: setSettingsWrapper,
+    toggleSound,
+    updateNoiseType,
+    updateNatureSound,
+    updateVolume
   };
 };

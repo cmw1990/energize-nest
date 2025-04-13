@@ -52,6 +52,37 @@ const fetchSmokelessProducts = async (): Promise<SmokelessProduct[]> => {
     }
 };
 
+const searchProducts = async (query, filters) => {
+  try {
+    const { data, error } = await supabase
+      .from('smokeless_nicotine_products')
+      .select('*')
+      .ilike('name', `%${query}%`);
+    
+    if (error) throw error;
+    
+    // Apply filters to the data
+    let filtered = data || [];
+    if (filters && Object.keys(filters).length > 0) {
+      filtered = filtered.filter(product => {
+        const matchesSearch = product.name.toLowerCase().includes(query.toLowerCase()) ||
+            product.brand.toLowerCase().includes(query.toLowerCase());
+        const matchesType = filters.productType === 'all' || product.product_type === filters.productType;
+        const matchesStrength = filters.strengthFilter === 'all' ||
+            (filters.strengthFilter === 'low' && product.nicotine_strength_mg <= 4) ||
+            (filters.strengthFilter === 'medium' && product.nicotine_strength_mg > 4 && product.nicotine_strength_mg <= 8) ||
+            (filters.strengthFilter === 'high' && product.nicotine_strength_mg > 8);
+        return matchesSearch && matchesType && matchesStrength;
+      });
+    }
+    
+    return filtered;
+  } catch (error) {
+    console.error('Error searching products:', error);
+    return [];
+  }
+};
+
 export default function SmokelessNicotineDirectory() {
     const [searchQuery, setSearchQuery] = useState('');
     const [productType, setProductType] = useState<string>('all');
@@ -117,7 +148,7 @@ export default function SmokelessNicotineDirectory() {
                         {/* Search and Filters */}
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="flex-1">
-                                <Input
+                                <SearchInput
                                     placeholder="Search products..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -250,3 +281,52 @@ export default function SmokelessNicotineDirectory() {
         </ToolAnalyticsWrapper>
     );
 }
+
+const SearchInput = ({ 
+  placeholder, 
+  value, 
+  onChange, 
+  className, 
+  icon 
+}: {
+  placeholder: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  className: string;
+  icon: React.ReactNode;
+}) => (
+  <div className="relative">
+    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+      {icon}
+    </div>
+    <input
+      type="text"
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      className={`pl-10 pr-4 py-2 border rounded-md w-full ${className}`}
+    />
+  </div>
+);
+
+const InfoCard = ({ 
+  title, 
+  description, 
+  icon 
+}: { 
+  title: string; 
+  description: string; 
+  icon: React.ReactNode;
+}) => (
+  <div className="bg-card p-4 rounded-lg border shadow-sm">
+    <div className="flex items-start gap-3">
+      <div className="rounded-full bg-primary/10 p-2">
+        {icon}
+      </div>
+      <div>
+        <h3 className="font-medium mb-1">{title}</h3>
+        <p className="text-sm text-muted-foreground">{description}</p>
+      </div>
+    </div>
+  </div>
+);

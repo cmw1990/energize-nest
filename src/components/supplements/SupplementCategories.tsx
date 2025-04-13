@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,7 +17,9 @@ import {
   Brain,
   Battery,
   Heart,
-  ZZZ,
+  Activity,
+  Moon as ZZZ,
+  Droplet,
   GanttChart,
   Dumbbell,
   Pill,
@@ -170,7 +171,6 @@ export function SupplementCategories() {
   const toggleUserCategoryMutation = useMutation({
     mutationFn: async ({ categoryId, isSelected }: { categoryId: string; isSelected: boolean }) => {
       if (isSelected) {
-        // Remove the mapping
         const { error } = await supabase
           .from('supplement_category_mappings')
           .delete()
@@ -179,7 +179,6 @@ export function SupplementCategories() {
         
         if (error) throw error;
       } else {
-        // Add the mapping
         const { error } = await supabase
           .from('supplement_category_mappings')
           .insert({

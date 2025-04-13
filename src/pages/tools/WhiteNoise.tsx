@@ -1,20 +1,16 @@
-
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Wind, Play, Pause, User } from "lucide-react";
-import { TopNav } from "@/components/layout/TopNav";
-import { NoiseControls } from "@/components/audio/NoiseControls";
-import { NatureSoundControls } from "@/components/audio/NatureSoundControls";
-import { BinauralControls } from "@/components/audio/BinauralControls";
+import React, { useState, useEffect } from "react";
 import { useAudioGenerator } from "@/hooks/useAudioGenerator";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { Link } from "react-router-dom";
-import type { Json } from "@/integrations/supabase/types";
+import { Slider } from "@/components/ui/slider";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Volume2, Volume1, VolumeX, Play, Pause } from "lucide-react";
 
 const WhiteNoise = () => {
-  const {
+  const { 
+    playNoise,
+    playNatureSound,
+    stopAll,
     isPlaying,
     settings,
     setSettings,
@@ -23,130 +19,121 @@ const WhiteNoise = () => {
     updateNatureSound,
     updateVolume
   } = useAudioGenerator();
-  
-  const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
-  const [user, setUser] = useState(null);
-  const { toast } = useToast();
+
+  const [volume, setVolume] = useState(settings.volume);
+  const [noiseType, setNoiseType] = useState(settings.noiseType);
+  const [natureSound, setNatureSound] = useState(settings.natureSound);
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user || null);
-    };
-    checkUser();
+    setVolume(settings.volume);
+    setNoiseType(settings.noiseType);
+    setNatureSound(settings.natureSound);
+  }, [settings]);
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const logSession = async () => {
-    if (!user || !sessionStartTime) return;
-
-    try {
-      const sessionDuration = Math.round((Date.now() - sessionStartTime) / 1000);
-      const { error } = await supabase.from("tool_usage_logs").insert({
-        user_id: user.id,
-        tool_type: "audio",
-        tool_name: "noise_generator",
-        session_duration: sessionDuration,
-        audio_settings: settings as unknown as Json
-      });
-
-      if (error) throw error;
-    } catch (error) {
-      console.error("Error logging session:", error);
-      toast({
-        title: "Error Saving Session",
-        description: "There was a problem saving your session data.",
-        variant: "destructive",
-      });
-    }
+  const handleVolumeChange = (newVolume: number[]) => {
+    const volumeValue = newVolume[0] / 100;
+    setVolume(volumeValue);
+    updateVolume(volumeValue);
   };
 
-  const handleToggle = async () => {
-    const started = await toggleSound();
-    if (started) {
-      setSessionStartTime(Date.now());
-    } else {
-      if (sessionStartTime) {
-        await logSession();
-        setSessionStartTime(null);
-      }
-    }
+  const handleNoiseTypeChange = (type: string) => {
+    setNoiseType(type);
+    updateNoiseType(type);
+  };
+
+  const handleNatureSoundChange = (sound: string | null) => {
+    setNatureSound(sound);
+    updateNatureSound(sound);
+  };
+
+  const togglePlay = () => {
+    toggleSound();
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <TopNav />
-      
-      <div className="container mx-auto p-4 max-w-2xl">
-        <Card className="w-full">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Wind className="h-6 w-6 text-primary" />
-                <CardTitle>Advanced Noise Generator</CardTitle>
-              </div>
-              {!user && (
-                <Link to="/auth" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-                  <User className="h-4 w-4" />
-                  Sign in to track usage
-                </Link>
+    <div className="container mx-auto p-4">
+      <Card className="w-full max-w-3xl mx-auto">
+        <CardHeader>
+          <CardTitle>White Noise Generator</CardTitle>
+          <CardDescription>
+            Generate soothing sounds to help you relax, focus, or sleep.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <h3 className="text-lg font-medium">Volume</h3>
+            <div className="flex items-center space-x-2">
+              {volume === 0 ? (
+                <VolumeX className="h-5 w-5 text-muted-foreground" />
+              ) : volume < 0.5 ? (
+                <Volume1 className="h-5 w-5 text-muted-foreground" />
+              ) : (
+                <Volume2 className="h-5 w-5 text-muted-foreground" />
               )}
+              <Slider
+                defaultValue={[volume * 100]}
+                max={100}
+                step={1}
+                onValueChange={handleVolumeChange}
+              />
             </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex justify-center">
-              <Button
-                size="lg"
-                onClick={handleToggle}
-                className="w-24 h-24 rounded-full"
-              >
-                {isPlaying ? (
-                  <Pause className="h-12 w-12" />
-                ) : (
-                  <Play className="h-12 w-12" />
-                )}
+          </div>
+
+          <Tabs defaultValue={noiseType} className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="white">White Noise</TabsTrigger>
+              <TabsTrigger value="pink">Pink Noise</TabsTrigger>
+              <TabsTrigger value="brown">Brown Noise</TabsTrigger>
+            </TabsList>
+            <TabsContent value="white">
+              <p>White noise is a constant background noise that masks other sounds.</p>
+              <Button onClick={() => handleNoiseTypeChange("white")}>
+                Set White Noise
               </Button>
-            </div>
+            </TabsContent>
+            <TabsContent value="pink">
+              <p>Pink noise is similar to white noise but with lower frequencies emphasized.</p>
+              <Button onClick={() => handleNoiseTypeChange("pink")}>
+                Set Pink Noise
+              </Button>
+            </TabsContent>
+            <TabsContent value="brown">
+              <p>Brown noise has even stronger emphasis on lower frequencies, creating a deeper sound.</p>
+              <Button onClick={() => handleNoiseTypeChange("brown")}>
+                Set Brown Noise
+              </Button>
+            </TabsContent>
+          </Tabs>
 
-            <div className="space-y-4">
-              <NoiseControls
-                noiseType={settings.noiseType}
-                noiseVolume={settings.noiseVolume}
-                onNoiseTypeChange={updateNoiseType}
-                onVolumeChange={(v) => updateVolume('noise', v)}
-              />
+          <div className="space-y-2">
+            <h3 className="text-lg font-medium">Nature Sounds</h3>
+            <p>Select a nature sound to add to the background.</p>
+            <Button onClick={() => handleNatureSoundChange("rain")}>
+              Set Rain Sound
+            </Button>
+            <Button onClick={() => handleNatureSoundChange("forest")}>
+              Set Forest Sound
+            </Button>
+            <Button onClick={() => handleNatureSoundChange(null)}>
+              Remove Nature Sound
+            </Button>
+          </div>
 
-              <NatureSoundControls
-                natureSoundType={settings.natureSoundType}
-                natureSoundVolume={settings.natureSoundVolume}
-                onNatureSoundChange={updateNatureSound}
-                onVolumeChange={(v) => updateVolume('nature', v)}
-              />
-
-              <BinauralControls
-                binauralFrequency={settings.binauralFrequency}
-                binauralVolume={settings.binauralVolume}
-                onFrequencyChange={(freq) => setSettings(prev => ({ ...prev, binauralFrequency: freq }))}
-                onVolumeChange={(v) => updateVolume('binaural', v)}
-              />
-            </div>
-
-            <div className="text-sm text-muted-foreground text-center">
-              Mix different types of noise with nature sounds and binaural beats for a personalized ambient soundscape.
-              {user && isPlaying && (
-                <div className="mt-2 text-primary">
-                  Session in progress - your settings are being tracked
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          <Button onClick={togglePlay}>
+            {isPlaying ? (
+              <>
+                <Pause className="mr-2 h-4 w-4" />
+                Pause
+              </>
+            ) : (
+              <>
+                <Play className="mr-2 h-4 w-4" />
+                Play
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 };

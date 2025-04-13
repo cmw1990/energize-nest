@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import {
   LineChart,
@@ -32,6 +31,7 @@ import {
   TrendingUp,
   BadgeCheck,
   AlertCircle,
+  Info as InfoCircle
 } from "lucide-react";
 import { format, subDays } from "date-fns";
 import { motion } from "framer-motion";
@@ -59,7 +59,6 @@ export function NicotineChart({ data, isLoading }: NicotineChartProps) {
     moodTrend: number;
   }>({ amountTrend: 0, energyTrend: 0, moodTrend: 0 });
 
-  // Apply time range filter to data
   useEffect(() => {
     const daysAgo = parseInt(timeRange);
     const cutoffDate = subDays(new Date(), daysAgo).getTime();
@@ -71,7 +70,6 @@ export function NicotineChart({ data, isLoading }: NicotineChartProps) {
     
     setFilteredData(filtered);
     
-    // Calculate trends
     if (filtered.length > 1) {
       const calculateTrend = (property: 'amount' | 'energy' | 'mood') => {
         const values = filtered.map(item => item[property]);
@@ -93,7 +91,7 @@ export function NicotineChart({ data, isLoading }: NicotineChartProps) {
   }, [data, timeRange]);
 
   const getTrendIcon = (trend: number, positive: boolean) => {
-    if (Math.abs(trend) < 5) return null; // No significant trend
+    if (Math.abs(trend) < 5) return null;
     
     if (trend > 0) {
       return positive ? (
@@ -173,7 +171,6 @@ export function NicotineChart({ data, isLoading }: NicotineChartProps) {
     );
   }
   
-  // Colors for the chart
   const colors = {
     amount: "#8884d8",
     energy: "#82ca9d",
@@ -182,7 +179,6 @@ export function NicotineChart({ data, isLoading }: NicotineChartProps) {
     withdrawal: "#ff3333"
   };
 
-  // Dynamic chart configuration based on active series
   const getActiveSeries = () => {
     switch (activeSeries) {
       case "amount":

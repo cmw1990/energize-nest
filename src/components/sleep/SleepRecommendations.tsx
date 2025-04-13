@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { 
   Moon, Sun, Coffee, Utensils, Dumbbell, Tv, Wine, 
   Clock, Calendar, Zap, BedDouble, Heart, Brain, 
-  Bell, ThumbsUp, Snowflake 
+  Bell, ThumbsUp, Snowflake, Info 
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
@@ -61,7 +61,7 @@ const SleepRecommendations = () => {
       return data.map(item => item.recommendation_id);
     },
     enabled: !!session?.user?.id,
-    onSuccess: (data) => {
+    onSettled: (data) => {
       if (data) setSavedRecommendations(data);
     }
   });
@@ -398,6 +398,16 @@ const SleepRecommendations = () => {
           </Card>
         </motion.div>
       ))}
+      
+      <div className="mt-6 p-4 bg-muted/10 rounded-lg border text-sm">
+        <h4 className="font-medium mb-2 flex items-center gap-2">
+          <Info className="h-4 w-4 text-primary" />
+          Chart Insights
+        </h4>
+        <p className="text-muted-foreground mb-2">
+          This chart shows your sleep patterns and their impact on your energy levels. Track consistently to identify patterns and improve your wellness journey.
+        </p>
+      </div>
     </div>
   );
 };

@@ -1,16 +1,15 @@
-
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import React from "react";
 import { TopNav } from "@/components/layout/TopNav";
-import { SleepMetrics } from "@/components/sleep/SleepMetrics";
-import { SleepLogEntry } from "@/components/sleep/SleepLogEntry";
-import { SleepRecommendations } from "@/components/sleep/SleepRecommendations";
-import { SleepAnalytics } from "@/components/sleep/SleepAnalytics";
-import { SleepGoals } from "@/components/sleep/SleepGoals";
-import { SleepHabits } from "@/components/sleep/SleepHabits";
-import { Activity, Moon, ClipboardCheck, Bed, BarChart, Target, Calendar, Coffee } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import SleepMetrics from "@/components/sleep/SleepMetrics";
+import SleepLogEntry from "@/components/sleep/SleepLogEntry";
+import SleepRecommendations from "@/components/sleep/SleepRecommendations";
+import SleepAnalytics from "@/components/sleep/SleepAnalytics";
+import SleepGoals from "@/components/sleep/SleepGoals";
+import SleepHabits from "@/components/sleep/SleepHabits";
+import { Activity, Moon, ClipboardCheck, Bed, BarChart, Target, Calendar, Coffee } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,7 +33,6 @@ const SleepTracking = () => {
       
       if (error) throw error;
       
-      // Calculate average sleep duration and quality
       if (!data?.length) return null;
       
       const avgDuration = data.reduce((sum, log) => sum + (log.sleep_duration || 0), 0) / data.length;

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,25 +32,23 @@ export function NicotineTracker() {
   const [moodImpact, setMoodImpact] = useState<number>(5);
   const [notes, setNotes] = useState<string>("");
   
-  const productTypes = [
-    { value: "cigarette", label: "Cigarette" },
-    { value: "vape", label: "Vape" },
-    { value: "pouch", label: "Nicotine Pouch" },
-    { value: "gum", label: "Nicotine Gum" },
-    { value: "lozenge", label: "Nicotine Lozenge" },
-    { value: "patch", label: "Nicotine Patch" },
-    { value: "cigar", label: "Cigar" },
-  ];
-  
-  const triggerTypes = [
-    { value: "stress", label: "Stress / Anxiety" },
-    { value: "social", label: "Social Situation" },
-    { value: "habit", label: "Routine / Habit" },
-    { value: "craving", label: "Strong Craving" },
-    { value: "boredom", label: "Boredom" },
-    { value: "mood", label: "Mood Enhancement" },
-    { value: "focus", label: "Concentration Aid" },
-  ];
+  const { data: productTypes } = useQuery({
+    queryKey: ['nicotine-product-types'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('nicotine_product_types')
+        .select('*')
+        .order('created_at', { ascending: true });
+      
+      if (error) throw error;
+      return data || [];
+    },
+    onSettled: (data) => {
+      if (data && data.length > 0) {
+        setProductType(data[0].type);
+      }
+    }
+  });
   
   const { data: existingLog, isLoading } = useQuery({
     queryKey: ['nicotine-log', format(date, 'yyyy-MM-dd')],

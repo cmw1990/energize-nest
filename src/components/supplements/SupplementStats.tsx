@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -263,6 +262,13 @@ export function SupplementStats() {
     if (name === 'rating') return [value.toFixed(1) + '/10', 'Effectiveness'];
     if (name === 'cost') return ['$' + value.toFixed(2), 'Cost'];
     return [value, name];
+  };
+
+  const formatValue = (value) => {
+    if (typeof value === 'number') {
+      return value.toFixed(1);
+    }
+    return value;
   };
 
   return (
