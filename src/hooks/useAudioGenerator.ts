@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, createContext, useContext } from 'react';
 import { NoiseType, NatureSound, AudioGeneratorHook, AudioSettings as AudioSettingsType } from '@/types/audio';
 import { generateBinauralBeat, createNatureSoundPlayer } from '@/utils/audio/binauralBeatGenerator';
@@ -52,7 +51,6 @@ const useAudioGeneratorInternal = (): AudioGeneratorHook => {
     baseFrequency: 200
   });
 
-  // Track active audio sources
   const [activeBinauralBeat, setActiveBinauralBeat] = useState<ReturnType<typeof generateBinauralBeat> | null>(null);
   const [activeNatureSound, setActiveNatureSound] = useState<ReturnType<typeof createNatureSoundPlayer> | null>(null);
 
@@ -147,7 +145,6 @@ const useAudioGeneratorInternal = (): AudioGeneratorHook => {
     stopNature();
     
     try {
-      // Create a new nature sound player
       const player = await createNatureSoundPlayer(`/sounds/${sound}.mp3`, settings.volume);
       setActiveNatureSound(player);
       await player.play();
@@ -171,7 +168,6 @@ const useAudioGeneratorInternal = (): AudioGeneratorHook => {
     }
 
     try {
-      // Create new binaural beat
       const beat = generateBinauralBeat(baseFreq, beatFreq, settings.volume);
       setActiveBinauralBeat(beat);
       beat.play();
@@ -286,7 +282,6 @@ const useAudioGeneratorInternal = (): AudioGeneratorHook => {
       gainNodeRef.current.gain.value = value;
     }
     
-    // Update volume for active sources
     if (activeBinauralBeat) {
       activeBinauralBeat.setVolume(value);
     }

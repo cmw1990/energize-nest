@@ -1,3 +1,4 @@
+
 let audioContextInstance: AudioContext | null = null;
 
 const getAudioContext = () => {
@@ -60,6 +61,7 @@ export const generateBinauralBeat = (baseFreq: number, beatFreq: number, volume 
       currentOsc2.stop();
     },
     resume: () => {
+      // Create new oscillators since old ones can't be restarted
       const newOsc1 = context.createOscillator();
       const newOsc2 = context.createOscillator();
       newOsc1.frequency.value = currentOsc1.frequency.value;
