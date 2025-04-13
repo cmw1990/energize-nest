@@ -5,7 +5,7 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useAudioGenerator } from "@/hooks/useAudioGenerator";
-import { Wind, Cloud, CloudRain, CloudSnow, CloudLightning, Waves, Tree, Music } from "lucide-react";
+import { Wind, Cloud, CloudRain, CloudSnow, CloudLightning, Waves, Music, Leaf } from "lucide-react";
 
 type SoundOption = {
   id: string;
@@ -93,7 +93,7 @@ export const SoundScapes = () => {
     { id: 'rain', name: 'Rain', icon: <CloudRain className="h-5 w-5" /> },
     { id: 'thunder', name: 'Thunder', icon: <CloudLightning className="h-5 w-5" /> },
     { id: 'ocean', name: 'Ocean', icon: <Waves className="h-5 w-5" /> },
-    { id: 'forest', name: 'Forest', icon: <Tree className="h-5 w-5" /> },
+    { id: 'forest', name: 'Forest', icon: <Leaf className="h-5 w-5" /> },
     { id: 'snow', name: 'Snow', icon: <CloudSnow className="h-5 w-5" /> },
   ];
 

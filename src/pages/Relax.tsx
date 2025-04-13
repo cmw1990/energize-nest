@@ -10,7 +10,7 @@ import { BreathingTechniques } from "@/components/breathing/BreathingTechniques"
 import { SoundScapes } from "@/components/relax/SoundScapes";
 import { BinauralBeats } from "@/components/relax/BinauralBeats";
 import { GuidedMeditation } from "@/components/relax/GuidedMeditation";
-import { Wind, Music, Headphones, MessageCircle, Heart, Clock, Brain, Moon } from "lucide-react";
+import { Wind, Music, Headphones, MessageCircle, Heart, Clock, Brain, Moon, Leaf } from "lucide-react";
 import { BreathingTechnique } from "@/types/breathing";
 import { MetricCard } from "@/components/ui/metric-card";
 import { useQuery } from "@tanstack/react-query";
