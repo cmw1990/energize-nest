@@ -27,8 +27,7 @@ import {
   ThumbsUp,
   Flame,
   Plus,
-  Brain,
-  LucideIcon
+  Brain
 } from 'lucide-react';
 
 interface CopingStrategy {
@@ -377,7 +376,7 @@ export const WithdrawalCopingTools: React.FC<CopingToolsProps> = ({ substance })
       icon: <BrainCircuit />,
       effectiveness: 85,
       timeToImplement: 'long',
-    },
+    }
   ];
 
   // Filter strategies based on category and other filters
