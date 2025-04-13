@@ -357,7 +357,7 @@ export const SleepMetrics: React.FC = () => {
               <Zap className="h-9 w-9 text-primary/60" />
             </div>
             <div className="flex items-center mt-2 text-xs">
-              <span className="text-muted-foreground">Target: >90%</span>
+              <span className="text-muted-foreground">Target: &gt;90%</span>
             </div>
           </CardContent>
         </Card>
