@@ -15,8 +15,8 @@ export const generateBinauralBeat = (baseFreq: number, beatFreq: number, volume 
   masterGain.connect(context.destination);
 
   // Create two oscillators slightly detuned
-  const osc1 = context.createOscillator();
-  const osc2 = context.createOscillator();
+  let osc1 = context.createOscillator();
+  let osc2 = context.createOscillator();
   
   // Pan oscillators left and right
   const panLeft = context.createStereoPanner();

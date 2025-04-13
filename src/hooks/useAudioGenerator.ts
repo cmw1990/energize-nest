@@ -1,11 +1,10 @@
-
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, createContext, useContext } from 'react';
 import { NoiseType, NatureSound, AudioGeneratorHook, AudioSettings as AudioSettingsType } from '@/types/audio';
 
 interface AudioSettings {
   noiseType: NoiseType;
-  natureSound: NatureSound | 'none';
-  binaural: {
+  natureSound: NatureSound | null;
+  binaural?: {
     enabled: boolean;
     baseFrequency: number;
     beatFrequency: number;
@@ -16,7 +15,26 @@ interface AudioSettings {
   baseFrequency: number;
 }
 
+const AudioGeneratorContext = createContext<AudioGeneratorHook | null>(null);
+
+export const AudioGeneratorProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const audioUtils = useAudioGeneratorInternal();
+  return (
+    <AudioGeneratorContext.Provider value={audioUtils}>
+      {children}
+    </AudioGeneratorContext.Provider>
+  );
+};
+
 export const useAudioGenerator = (): AudioGeneratorHook => {
+  const context = useContext(AudioGeneratorContext);
+  if (!context) {
+    throw new Error('useAudioGenerator must be used within an AudioGeneratorProvider');
+  }
+  return context;
+};
+
+const useAudioGeneratorInternal = (): AudioGeneratorHook => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [settings, setSettings] = useState<AudioSettings>({
     noiseType: 'none',
@@ -51,7 +69,6 @@ export const useAudioGenerator = (): AudioGeneratorHook => {
 
   const initAudioContext = () => {
     if (!audioContextRef.current) {
-      // Fix the AudioContext type issue
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
       audioContextRef.current = new AudioContext();
       gainNodeRef.current = audioContextRef.current.createGain();
