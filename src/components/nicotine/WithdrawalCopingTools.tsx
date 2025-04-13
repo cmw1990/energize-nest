@@ -276,7 +276,7 @@ export const WithdrawalCopingTools: React.FC<CopingToolsProps> = ({ substance })
       category: 'mental',
       icon: <Brain />,
       effectiveness: 85,
-      timeToImplement: 'immediate',
+      timeToImplement: 'immediate'
     },
     {
       id: 'stay-hydrated',
@@ -285,7 +285,7 @@ export const WithdrawalCopingTools: React.FC<CopingToolsProps> = ({ substance })
       category: 'physical',
       icon: <Utensils />,
       effectiveness: 75,
-      timeToImplement: 'short',
+      timeToImplement: 'short'
     },
     {
       id: 'exercise',
@@ -294,7 +294,7 @@ export const WithdrawalCopingTools: React.FC<CopingToolsProps> = ({ substance })
       category: 'physical',
       icon: <Dumbbell />,
       effectiveness: 90,
-      timeToImplement: 'immediate',
+      timeToImplement: 'immediate'
     },
     {
       id: 'delay-tactic',
@@ -303,7 +303,7 @@ export const WithdrawalCopingTools: React.FC<CopingToolsProps> = ({ substance })
       category: 'behavioral',
       icon: <Clock />,
       effectiveness: 80,
-      timeToImplement: 'immediate',
+      timeToImplement: 'immediate'
     },
     {
       id: 'avoid-triggers',
@@ -312,7 +312,7 @@ export const WithdrawalCopingTools: React.FC<CopingToolsProps> = ({ substance })
       category: 'behavioral',
       icon: <Shield />,
       effectiveness: 85,
-      timeToImplement: 'short',
+      timeToImplement: 'short'
     },
     {
       id: 'oral-substitutes',
@@ -321,7 +321,7 @@ export const WithdrawalCopingTools: React.FC<CopingToolsProps> = ({ substance })
       category: 'substitute',
       icon: <Utensils />,
       effectiveness: 75,
-      timeToImplement: 'immediate',
+      timeToImplement: 'immediate'
     },
     {
       id: 'nrt',
@@ -330,7 +330,7 @@ export const WithdrawalCopingTools: React.FC<CopingToolsProps> = ({ substance })
       category: 'substitute',
       icon: <Syringe />,
       effectiveness: 85,
-      timeToImplement: 'short',
+      timeToImplement: 'short'
     },
     {
       id: 'meditation',
@@ -339,7 +339,7 @@ export const WithdrawalCopingTools: React.FC<CopingToolsProps> = ({ substance })
       category: 'mental',
       icon: <BrainCircuit />,
       effectiveness: 80,
-      timeToImplement: 'long',
+      timeToImplement: 'long'
     },
     {
       id: 'support-group',
@@ -348,7 +348,7 @@ export const WithdrawalCopingTools: React.FC<CopingToolsProps> = ({ substance })
       category: 'social',
       icon: <GraduationCap />,
       effectiveness: 90,
-      timeToImplement: 'long',
+      timeToImplement: 'long'
     },
     {
       id: 'reward-system',
@@ -357,7 +357,7 @@ export const WithdrawalCopingTools: React.FC<CopingToolsProps> = ({ substance })
       category: 'behavioral',
       icon: <ThumbsUp />,
       effectiveness: 75,
-      timeToImplement: 'long',
+      timeToImplement: 'long'
     },
     {
       id: 'craving-log',
@@ -366,7 +366,7 @@ export const WithdrawalCopingTools: React.FC<CopingToolsProps> = ({ substance })
       category: 'mental',
       icon: <BadgeInfo />,
       effectiveness: 70,
-      timeToImplement: 'long',
+      timeToImplement: 'long'
     },
     {
       id: 'stress-management',
@@ -375,7 +375,7 @@ export const WithdrawalCopingTools: React.FC<CopingToolsProps> = ({ substance })
       category: 'mental',
       icon: <BrainCircuit />,
       effectiveness: 85,
-      timeToImplement: 'long',
+      timeToImplement: 'long'
     }
   ];
 
