@@ -36,3 +36,26 @@ export interface PlanDiscoveryProps {
   selectedCategory: string;
   onSavePlan: (plan: Plan) => void;
 }
+
+/**
+ * Adapts a database plan model to the application Plan model
+ * This function handles converting database-specific formats to the application format
+ */
+export const adaptDbPlanToAppPlan = (dbPlan: any): Plan => {
+  return {
+    id: dbPlan.id,
+    user_id: dbPlan.user_id || dbPlan.created_by,
+    plan_name: dbPlan.plan_name || dbPlan.title || "Unnamed Plan",
+    plan_type: (dbPlan.plan_type as PlanType) || "standard",
+    category: (dbPlan.category as PlanCategory) || undefined,
+    duration_minutes: dbPlan.duration_minutes || 0,
+    activities: dbPlan.activities || {},
+    created_at: dbPlan.created_at,
+    is_expert_plan: dbPlan.is_expert_plan || false,
+    rating: dbPlan.rating || dbPlan.effectiveness_rating,
+    is_favorite: dbPlan.is_favorite || false,
+    description: dbPlan.description,
+    image_url: dbPlan.image_url,
+    author: dbPlan.author || dbPlan.created_by_name
+  };
+};
