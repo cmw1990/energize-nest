@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,8 +39,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { format, subDays } from "date-fns";
 import { motion } from "framer-motion";
+import { formatValue } from '@/components/sleep/SleepMetrics';
 
-export function SupplementStats() {
+export const SupplementStats = () => {
   const { session } = useAuth();
   const [timeRange, setTimeRange] = useState("30"); // days
   const [chartType, setChartType] = useState("frequency");
@@ -576,4 +578,4 @@ export function SupplementStats() {
       </div>
     </div>
   );
-}
+};

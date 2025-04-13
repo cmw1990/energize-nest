@@ -1,15 +1,20 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Wind, Flower2, Cloud, Zap, Clock, MountainSnow, Waves, Brain, Heart } from "lucide-react";
-import { BreathingTechniques } from "@/components/breathing/BreathingTechniques";
+import { BreathingTechniques, BreathingTechnique } from "@/components/breathing/BreathingTechniques";
 import { BreathingVisualizer } from "@/components/breathing/BreathingVisualizer";
 import { useNavigate } from "react-router-dom";
 
 const Breathing = () => {
   const navigate = useNavigate();
+  const [selectedTechnique, setSelectedTechnique] = useState<BreathingTechnique | null>(null);
+  
+  const handleSelectTechnique = (technique: BreathingTechnique) => {
+    setSelectedTechnique(technique);
+    // You can add additional handling here if needed
+  };
   
   const ambienceOptions = [
     { id: 'forest', name: 'Forest Sounds', icon: MountainSnow, color: 'text-green-500' },
@@ -64,7 +69,7 @@ const Breathing = () => {
         </TabsList>
         
         <TabsContent value="techniques" className="space-y-6">
-          <BreathingTechniques />
+          <BreathingTechniques onSelectTechnique={handleSelectTechnique} />
         </TabsContent>
         
         <TabsContent value="visualizer" className="space-y-6">

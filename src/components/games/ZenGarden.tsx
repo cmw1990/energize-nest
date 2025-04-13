@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Canvas } from '@react-three/fiber';
@@ -67,11 +68,18 @@ function ZenScene() {
 
 const ZenGarden = () => {
   const [selectedTechnique, setSelectedTechnique] = useState<BreathingTechnique | null>(null);
+  
+  const handleSelectTechnique = (technique: BreathingTechnique) => {
+    setSelectedTechnique(technique);
+  };
 
   return (
     <Card className="p-6">
       <div className="space-y-4">
         <ZenScene />
+        {!selectedTechnique && (
+          <BreathingTechniques onSelectTechnique={handleSelectTechnique} />
+        )}
       </div>
     </Card>
   );

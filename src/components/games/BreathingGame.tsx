@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,6 +15,10 @@ const BreathingGame = () => {
   const [selectedTechnique, setSelectedTechnique] = useState<BreathingTechnique | null>(null);
   const [ambientSound, setAmbientSound] = useState<ReturnType<typeof generateNatureSound> | null>(null);
   const { toast } = useToast();
+
+  const handleSelectTechnique = (technique: BreathingTechnique) => {
+    setSelectedTechnique(technique);
+  };
 
   useEffect(() => {
     if (!isPlaying) return;
@@ -102,7 +105,7 @@ const BreathingGame = () => {
       <div className="flex flex-col items-center gap-4">
         {!isPlaying && (
           <BreathingTechniques
-            onSelectTechnique={setSelectedTechnique}
+            onSelectTechnique={handleSelectTechnique}
             className="mb-4"
           />
         )}

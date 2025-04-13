@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
@@ -22,7 +22,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Clock, Moon, Sun, Bed, Activity } from "lucide-react";
 import { format, subDays } from "date-fns";
 
-const SleepMetrics = () => {
+export const formatValue = (value: any, precision: number = 1): string => {
+  if (typeof value === 'number') {
+    return value.toFixed(precision);
+  } else if (typeof value === 'string') {
+    const parsed = parseFloat(value);
+    if (!isNaN(parsed)) {
+      return parsed.toFixed(precision);
+    }
+  }
+  return String(value);
+};
+
+const SleepMetrics = ({ sleepData }: SleepMetricsProps) => {
   const { session } = useAuth();
   
   const { data: sleepData, isLoading } = useQuery({
@@ -156,7 +168,9 @@ const SleepMetrics = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metrics.avgDuration.toFixed(1)}h</div>
-            <p className="text-xs text-muted-foreground">Average over last {sleepData.length} days</p>
+            <div className="text-xs text-muted-foreground text-center">
+              Average: {formatValue(metrics.avgDuration, 1)}
+            </div>
           </CardContent>
         </Card>
         
@@ -167,7 +181,9 @@ const SleepMetrics = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{(metrics.avgQuality * 10).toFixed(0)}%</div>
-            <p className="text-xs text-muted-foreground">Average quality rating</p>
+            <div className="text-xs text-muted-foreground text-center">
+              Average: {formatValue(metrics.avgQuality * 10, 0)}
+            </div>
           </CardContent>
         </Card>
         
@@ -178,7 +194,9 @@ const SleepMetrics = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metrics.consistency.toFixed(0)}%</div>
-            <p className="text-xs text-muted-foreground">Based on duration consistency</p>
+            <div className="text-xs text-muted-foreground text-center">
+              Average: {formatValue(metrics.consistency, 0)}
+            </div>
           </CardContent>
         </Card>
         
@@ -189,7 +207,9 @@ const SleepMetrics = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metrics.avgDeep.toFixed(0)}%</div>
-            <p className="text-xs text-muted-foreground">Average deep sleep percentage</p>
+            <div className="text-xs text-muted-foreground text-center">
+              Average: {formatValue(metrics.avgDeep, 0)}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -371,17 +391,6 @@ const SleepMetrics = () => {
       </Tabs>
     </div>
   );
-};
-
-const formatValue = (value: any): string => {
-  if (typeof value === 'number') {
-    return value.toFixed(1);
-  }
-  if (typeof value === 'string') {
-    const parsedValue = parseFloat(value);
-    return isNaN(parsedValue) ? value : parsedValue.toFixed(1);
-  }
-  return String(value);
 };
 
 export default SleepMetrics;

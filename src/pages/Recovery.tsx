@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,7 +34,6 @@ export default function Recovery() {
   const { session } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
 
-  // Fetch user's current quit attempt details
   const { data: quitAttempt, isLoading: isLoadingQuitAttempt } = useQuery({
     queryKey: ['current-quit-attempt', session?.user?.id],
     queryFn: async () => {
@@ -51,7 +51,6 @@ export default function Recovery() {
     enabled: !!session?.user?.id,
   });
 
-  // Fetch the user's recovery milestones
   const { data: milestones, isLoading: isLoadingMilestones } = useQuery({
     queryKey: ['recovery-milestones', session?.user?.id],
     queryFn: async () => {
@@ -67,7 +66,6 @@ export default function Recovery() {
     enabled: !!session?.user?.id,
   });
 
-  // Fetch the user's health metrics over time
   const { data: healthMetrics, isLoading: isLoadingMetrics } = useQuery({
     queryKey: ['recovery-health-metrics', session?.user?.id],
     queryFn: async () => {
@@ -83,7 +81,6 @@ export default function Recovery() {
     enabled: !!session?.user?.id,
   });
 
-  // Fetch community support data
   const { data: communityStats, isLoading: isLoadingCommunity } = useQuery({
     queryKey: ['recovery-community-stats'],
     queryFn: async () => {
@@ -100,7 +97,6 @@ export default function Recovery() {
 
   const isLoading = isLoadingQuitAttempt || isLoadingMilestones || isLoadingMetrics || isLoadingCommunity;
 
-  // Calculate various metrics
   const daysSince = quitAttempt
     ? Math.floor((new Date().getTime() - new Date(quitAttempt.start_date).getTime()) / (1000 * 60 * 60 * 24))
     : 0;
@@ -113,10 +109,8 @@ export default function Recovery() {
     ? (daysSince * (quitAttempt.daily_cost || 10)).toFixed(2)
     : "0.00";
 
-  // Calculate health score based on days since quitting (capped at 100%)
   const healthScore = Math.min(100, Math.floor(daysSince * 1.5));
 
-  // Functions to get different milestone categories
   const getPhysicalMilestones = () => 
     milestones?.filter(m => m.milestone_category === 'physical') || [];
   
@@ -256,7 +250,7 @@ export default function Recovery() {
                 <span className="sm:hidden">Overview</span>
               </TabsTrigger>
               <TabsTrigger value="physical" className="flex items-center gap-1">
-                <Lungs className="h-4 w-4" />
+                <Wind className="h-4 w-4" />
                 <span className="hidden sm:inline">Physical</span>
                 <span className="sm:hidden">Physical</span>
               </TabsTrigger>
@@ -350,7 +344,7 @@ export default function Recovery() {
                 <Card className="border-primary/10 shadow-md">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                      <Lungs className="h-5 w-5 text-primary" />
+                      <Wind className="h-5 w-5 text-primary" />
                       Health Improvements
                     </CardTitle>
                     <CardDescription>
@@ -371,7 +365,7 @@ export default function Recovery() {
                       
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2">
-                          <Lungs className="h-4 w-4 text-blue-500" />
+                          <Wind className="h-4 w-4 text-blue-500" />
                           <span className="text-sm font-medium">Lung Function</span>
                         </div>
                         <div className="w-1/2">
@@ -460,7 +454,7 @@ export default function Recovery() {
               <Card className="border-primary/10 shadow-md">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Lungs className="h-5 w-5 text-primary" />
+                    <Wind className="h-5 w-5 text-primary" />
                     Physical Recovery Milestones
                   </CardTitle>
                   <CardDescription>
@@ -485,7 +479,7 @@ export default function Recovery() {
                         <div key={milestone.id} className="flex items-start gap-4">
                           <div className="flex-shrink-0">
                             <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                              <Lungs className="h-5 w-5 text-primary" />
+                              <Wind className="h-5 w-5 text-primary" />
                             </div>
                           </div>
                           <div className="flex-1">
@@ -505,7 +499,7 @@ export default function Recovery() {
                       ))
                     ) : (
                       <div className="flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
-                        <Lungs className="h-12 w-12 text-muted-foreground mb-3 opacity-50" />
+                        <Wind className="h-12 w-12 text-muted-foreground mb-3 opacity-50" />
                         <h3 className="font-medium mb-1">No physical milestones yet</h3>
                         <p className="text-sm max-w-md">
                           Your body is already starting to heal! Physical improvements will become noticeable soon.

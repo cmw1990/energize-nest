@@ -1,5 +1,3 @@
-
-
 export interface AudioSettings {
   volume: number;
   noiseType: string;
@@ -32,13 +30,25 @@ export type NatureSound = {
   category: string;
 };
 
+declare global {
+  interface AudioBufferSourceNode {
+    gainNode?: GainNode;
+  }
+}
+
 export interface AudioGeneratorHook {
-  createWhiteNoise: (volume?: number) => AudioInstance;
-  createPinkNoise: (volume?: number) => AudioInstance;
-  createBrownNoise: (volume?: number) => AudioInstance;
-  createBinauralBeat: (baseFreq: number, beatFreq: number, volume?: number) => BinauralBeat;
-  createNatureSound: (type: string, volume?: number) => AudioInstance;
-  // Additional methods for Sleep.tsx
+  playNoise: (type: string, volume?: number) => AudioInstance;
+  playNatureSound: (type: string, volume?: number) => AudioInstance;
+  createBinauralBeat: (baseFrequency: number, beatFrequency: number, volume?: number) => BinauralBeat;
+  stopAll: () => void;
+  isPlaying: boolean;
+  settings: AudioSettings;
+  setSettings: (newSettings: Partial<AudioSettings>) => void;
+  toggleSound: () => void;
+  updateNoiseType: (type: string) => void;
+  updateNatureSound: (sound: string | null) => void;
+  updateVolume: (volume: number) => void;
+  
   startBinauralBeat?: (baseFreq: number, beatFreq: number, volume?: number) => void;
   stopBinauralBeat?: () => void;
   startNatureSound?: (type: string, volume?: number) => void;
@@ -46,12 +56,4 @@ export interface AudioGeneratorHook {
   stopAllAudio?: () => void;
   binauralAudio?: BinauralBeat | null;
   natureAudio?: AudioInstance | null;
-  // Methods for WhiteNoise.tsx
-  settings?: AudioSettings;
-  setSettings?: (settings: AudioSettings) => void;
-  toggleSound?: () => void;
-  updateNoiseType?: (type: string) => void;
-  updateNatureSound?: (sound: string | null) => void;
-  updateVolume?: (volume: number) => void;
 }
-

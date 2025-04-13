@@ -15,15 +15,16 @@ export interface BreathingTechnique {
     holdAfterExhale?: number;
   };
   benefits: string[];
+  icon?: React.ReactNode;
 }
 
 export interface BreathingTechniquesProps {
-  onSelectTechnique: (technique: string | BreathingTechnique) => void;
+  onSelectTechnique: (technique: BreathingTechnique) => void;
   className?: string;
 }
 
 export const BreathingTechniques: React.FC<BreathingTechniquesProps> = ({ onSelectTechnique, className = '' }) => {
-  const techniques = [
+  const techniques: BreathingTechnique[] = [
     {
       id: 'box',
       name: 'Box Breathing',

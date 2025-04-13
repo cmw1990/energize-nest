@@ -1,11 +1,12 @@
-import React from "react";
-import { TopNav } from "@/components/layout/TopNav";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
-import { Clock, Calendar, Clipboard, CheckSquare, BarChart2, Activity, Zap } from "lucide-react";
-import EisenhowerMatrix from "@/components/focus/EisenhowerMatrix";
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { PendingTasks } from '@/components/tasks/PendingTasks';
+import { RecentActivity } from '@/components/activity/RecentActivity';
+import { FocusTimer } from '@/components/focus/FocusTimer';
+import EisenhowerMatrix from '@/components/focus/EisenhowerMatrix';
+import { Activity, Calendar, Layout, FileText, CheckSquare, BarChart2, Users, Zap } from 'lucide-react';
 
 export default function Desktop() {
   return (
