@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { TopNav } from "@/components/layout/TopNav";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -6,33 +7,81 @@ import { Button } from "@/components/ui/button";
 import { useAudioGenerator } from "@/hooks/useAudioGenerator";
 import { BreathingAnimations } from "@/components/breathing/BreathingAnimations";
 import { BreathingTechniques } from "@/components/breathing/BreathingTechniques";
-import { Wind, Music, Headphones, MessageCircle, Heart, Clock } from "lucide-react";
+import { SoundScapes } from "@/components/relax/SoundScapes";
+import { BinauralBeats } from "@/components/relax/BinauralBeats";
+import { GuidedMeditation } from "@/components/relax/GuidedMeditation";
+import { Wind, Music, Headphones, MessageCircle, Heart, Clock, Brain, Moon } from "lucide-react";
 import { BreathingTechnique } from "@/types/breathing";
-
-// Temporarily create stub components until the real ones are implemented
-const GuidedMeditation = () => <div>Guided Meditation Component Coming Soon</div>;
-const SoundScapes = () => <div>Sound Scapes Component Coming Soon</div>;
-const BinauralBeats = () => <div>Binaural Beats Component Coming Soon</div>;
+import { MetricCard } from "@/components/ui/metric-card";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/AuthProvider";
 
 const Relax = () => {
+  const { session } = useAuth();
   const [activeTab, setActiveTab] = useState("breathing");
   const { 
-    playNoise, 
-    startNatureSound, 
-    createBinauralBeat, 
     stopAll, 
     isPlaying,
-    settings,
-    setSettings,
-    toggleSound,
-    updateNoiseType,
-    updateNatureSound,
-    updateVolume
   } = useAudioGenerator();
   const [selectedTechnique, setSelectedTechnique] = useState<BreathingTechnique | null>(null);
 
   const handleSelectTechnique = (technique: BreathingTechnique) => {
     setSelectedTechnique(technique);
+  };
+
+  // Get relaxation stats
+  const { data: relaxStats } = useQuery({
+    queryKey: ["relaxation-stats", session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
+      try {
+        // Get meditation minutes
+        const { data: meditationData, error: meditationError } = await supabase
+          .from("meditation_logs")
+          .select("duration_minutes")
+          .eq("user_id", session.user.id);
+        
+        if (meditationError) throw meditationError;
+        
+        // Get breathing session count
+        const { data: breathingData, error: breathingError } = await supabase
+          .from("breathing_sessions")
+          .select("id")
+          .eq("user_id", session.user.id);
+        
+        if (breathingError) throw breathingError;
+        
+        // Calculate total meditation time
+        const totalMeditationMinutes = meditationData.reduce(
+          (sum, log) => sum + (log.duration_minutes || 0), 
+          0
+        );
+        
+        return {
+          totalMeditationMinutes,
+          breathingSessionCount: breathingData.length,
+          lastActivity: new Date().toISOString(),
+        };
+      } catch (error) {
+        console.error("Error fetching relaxation stats:", error);
+        // Return some reasonable defaults if there are no records yet
+        return {
+          totalMeditationMinutes: 0,
+          breathingSessionCount: 0,
+          lastActivity: null,
+        };
+      }
+    },
+    enabled: !!session?.user?.id,
+  });
+
+  // Clean up on tab change
+  const handleTabChange = (value: string) => {
+    if (value !== activeTab && isPlaying) {
+      stopAll();
+    }
+    setActiveTab(value);
   };
 
   return (
@@ -47,11 +96,43 @@ const Relax = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
+            {session?.user?.id && (
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <MetricCard
+                  icon={<Clock className="h-4 w-4" />}
+                  title="Meditation Time"
+                  value={`${relaxStats?.totalMeditationMinutes || 0} min`}
+                  description="Total minutes spent meditating"
+                />
+                <MetricCard
+                  icon={<Wind className="h-4 w-4" />}
+                  title="Breathing Sessions"
+                  value={relaxStats?.breathingSessionCount || 0}
+                  description="Completed breathing exercises"
+                />
+                <MetricCard
+                  icon={<Brain className="h-4 w-4" />}
+                  title="Last Activity"
+                  value={relaxStats?.lastActivity ? new Date(relaxStats.lastActivity).toLocaleDateString() : 'None'}
+                  description="Your most recent session"
+                />
+              </div>
+            )}
+            
+            <Tabs defaultValue={activeTab} onValueChange={handleTabChange}>
               <TabsList className="grid grid-cols-3">
-                <TabsTrigger value="breathing">Breathing</TabsTrigger>
-                <TabsTrigger value="meditation">Meditation</TabsTrigger>
-                <TabsTrigger value="sounds">Sounds</TabsTrigger>
+                <TabsTrigger value="breathing" className="flex items-center gap-2">
+                  <Wind className="h-4 w-4" />
+                  <span>Breathing</span>
+                </TabsTrigger>
+                <TabsTrigger value="meditation" className="flex items-center gap-2">
+                  <Moon className="h-4 w-4" />
+                  <span>Meditation</span>
+                </TabsTrigger>
+                <TabsTrigger value="sounds" className="flex items-center gap-2">
+                  <Music className="h-4 w-4" />
+                  <span>Sounds</span>
+                </TabsTrigger>
               </TabsList>
               
               <TabsContent value="breathing">
@@ -78,7 +159,13 @@ const Relax = () => {
               
               <TabsContent value="meditation">
                 <Card className="bg-muted/50">
-                  <CardContent className="p-6">
+                  <CardHeader>
+                    <CardTitle>Guided Meditation</CardTitle>
+                    <CardDescription>
+                      Find peace with guided meditation sessions
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-4">
                     <GuidedMeditation />
                   </CardContent>
                 </Card>
@@ -93,7 +180,7 @@ const Relax = () => {
                         Immerse yourself in calming soundscapes
                       </CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-4">
                       <SoundScapes />
                     </CardContent>
                   </Card>
@@ -105,7 +192,7 @@ const Relax = () => {
                         Experience the power of binaural beats
                       </CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-4">
                       <BinauralBeats />
                     </CardContent>
                   </Card>
