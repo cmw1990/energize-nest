@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { NoiseType, NatureSound, AudioGeneratorHook, AudioSettings as AudioSettingsType } from '@/types/audio';
 
@@ -50,7 +51,8 @@ export const useAudioGenerator = (): AudioGeneratorHook => {
 
   const initAudioContext = () => {
     if (!audioContextRef.current) {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      // Fix the AudioContext type issue
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
       audioContextRef.current = new AudioContext();
       gainNodeRef.current = audioContextRef.current.createGain();
       gainNodeRef.current.gain.value = settings.volume;

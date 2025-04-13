@@ -1,9 +1,9 @@
 
 import * as React from "react";
-import { Card, CardProps } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-export interface MetricCardProps extends CardProps {}
+export interface MetricCardProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export const MetricCard = React.forwardRef<
   HTMLDivElement,
