@@ -1,104 +1,121 @@
-import { useState, useEffect } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+
+import React, { useState } from "react";
+import { 
+  Card, CardContent, CardDescription, 
+  CardFooter, CardHeader, CardTitle 
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Music2, Play, Pause, Volume2, VolumeX } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { 
+  Volume2, Volume1, VolumeX, Play, Pause, Music, 
+  Wind, Radio, Waves, Cloud, TreePine, CloudLightning
+} from "lucide-react";
+
+interface AudioSetting {
+  id: string;
+  name: string;
+  icon: JSX.Element;
+}
 
 export const BackgroundMusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.3);
-  const [audio] = useState(new Audio());
+  const [volume, setVolume] = useState(50);
+  const [isMuted, setIsMuted] = useState(false);
+  const [selectedSound, setSelectedSound] = useState<string | null>(null);
 
-  const { data: focusMusic } = useQuery({
-    queryKey: ['focus-music'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('focus_music')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  useEffect(() => {
-    if (focusMusic?.length > 0) {
-      audio.src = focusMusic[0].audio_url;
-      audio.volume = volume;
-      audio.loop = true;
-    }
-    return () => {
-      audio.pause();
-      audio.currentTime = 0;
-    };
-  }, [focusMusic, audio]);
-
-  useEffect(() => {
-    audio.volume = volume;
-  }, [volume, audio]);
+  const sounds: AudioSetting[] = [
+    { id: "white-noise", name: "White Noise", icon: <Wind /> },
+    { id: "brown-noise", name: "Brown Noise", icon: <Radio /> },
+    { id: "ocean", name: "Ocean Waves", icon: <Waves /> },
+    { id: "rain", name: "Rainfall", icon: <Cloud /> },
+    { id: "forest", name: "Forest", icon: <TreePine /> },
+    { id: "storm", name: "Thunderstorm", icon: <CloudLightning /> },
+  ];
 
   const togglePlay = () => {
-    if (isPlaying) {
-      audio.pause();
-    } else {
-      audio.play();
+    if (!selectedSound && !isPlaying) {
+      // If no sound is selected, select the first one
+      setSelectedSound(sounds[0].id);
     }
     setIsPlaying(!isPlaying);
   };
 
   const toggleMute = () => {
-    if (volume > 0) {
-      setVolume(0);
+    setIsMuted(!isMuted);
+  };
+
+  const handleSoundSelect = (soundId: string) => {
+    if (selectedSound === soundId) {
+      setSelectedSound(null);
+      setIsPlaying(false);
     } else {
-      setVolume(0.3);
+      setSelectedSound(soundId);
+      setIsPlaying(true);
     }
   };
 
+  const VolumeIcon = () => {
+    if (isMuted || volume === 0) return <VolumeX />;
+    if (volume < 50) return <Volume1 />;
+    return <Volume2 />;
+  };
+
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Music2 className="h-5 w-5 text-primary" />
-          Background Music
+    <Card className="bg-background border">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Music className="h-4 w-4" />
+          Background Sounds
         </CardTitle>
+        <CardDescription>
+          Enhance your focus with ambient sounds
+        </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="flex items-center gap-4">
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-3 gap-2">
+          {sounds.map((sound) => (
+            <Button
+              key={sound.id}
+              variant={selectedSound === sound.id ? "default" : "outline"}
+              className="h-auto py-2 px-3 flex flex-col items-center gap-1"
+              onClick={() => handleSoundSelect(sound.id)}
+            >
+              {sound.icon}
+              <span className="text-xs mt-1">{sound.name}</span>
+            </Button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-3">
           <Button
             variant="outline"
             size="icon"
+            className="h-8 w-8"
             onClick={togglePlay}
-            className="h-10 w-10"
+            disabled={!selectedSound}
           >
-            {isPlaying ? (
-              <Pause className="h-4 w-4" />
-            ) : (
-              <Play className="h-4 w-4" />
-            )}
+            {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
           </Button>
+          
           <Button
-            variant="outline"
+            variant="ghost"
             size="icon"
+            className="h-8 w-8"
             onClick={toggleMute}
-            className="h-10 w-10"
+            disabled={!selectedSound}
           >
-            {volume === 0 ? (
-              <VolumeX className="h-4 w-4" />
-            ) : (
-              <Volume2 className="h-4 w-4" />
-            )}
+            <VolumeIcon />
           </Button>
-          <div className="w-full max-w-xs">
-            <Slider
-              value={[volume * 100]}
-              onValueChange={(value) => setVolume(value[0] / 100)}
-              max={100}
-              step={1}
-            />
-          </div>
+          
+          <Slider
+            value={[isMuted ? 0 : volume]}
+            min={0}
+            max={100}
+            step={1}
+            onValueChange={(value) => setVolume(value[0])}
+            className="flex-1"
+            disabled={!selectedSound}
+          />
         </div>
       </CardContent>
     </Card>

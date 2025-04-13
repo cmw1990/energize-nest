@@ -1,547 +1,469 @@
 
-import { useState } from "react";
-import { useAuth } from "@/components/AuthProvider";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
+import { useAuth } from "@/components/AuthProvider";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
 import { 
-  User, Shield, Bell, Moon, Monitor, Globe, 
-  PanelLeft, CircleDot, Languages, Smartphone
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from "@/components/ui/tabs";
+import { 
+  Moon,
+  Sun,
+  Globe,
+  Bell,
+  Volume2,
+  Sparkles,
+  Users,
+  Activity,
+  BarChart2,
+  Mail,
+  Smartphone,
+  Clock,
+  Download,
+  Save,
+  Lock,
+  Eye,
+  EyeOff
 } from "lucide-react";
+
+type SettingsState = {
+  appearance: {
+    theme: string;
+    language: string;
+    enableNotifications: boolean;
+    enableSounds: boolean;
+    enableAnimations: boolean;
+  };
+  privacy: {
+    showProfile: boolean;
+    shareActivity: boolean;
+    allowDataCollection: boolean;
+    showOnlineStatus: boolean;
+  };
+  notifications: {
+    emailNotifications: boolean;
+    pushNotifications: boolean;
+    reminderNotifications: boolean;
+    updateNotifications: boolean;
+  };
+  account: {
+    email: string;
+  };
+};
 
 export default function Settings() {
   const { session } = useAuth();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  
-  const [generalSettings, setGeneralSettings] = useState({
-    theme: "system",
-    language: "en",
-    enableNotifications: true,
-    enableSounds: true,
-    enableAnimations: true
+  const [loading, setLoading] = useState({
+    appearance: false,
+    privacy: false,
+    notifications: false,
+    account: false
   });
   
-  const [privacySettings, setPrivacySettings] = useState({
-    showProfile: true,
-    shareActivity: true,
-    allowDataCollection: true,
-    showOnlineStatus: true
-  });
-  
-  const [notificationSettings, setNotificationSettings] = useState({
-    emailNotifications: true,
-    pushNotifications: true,
-    reminderNotifications: true,
-    updateNotifications: true
-  });
-  
-  const [accountSettings, setAccountSettings] = useState({
-    email: session?.user?.email || ""
-  });
-
-  const updateGeneralSettings = useMutation({
-    mutationFn: async (settings) => {
-      if (!session?.user?.id) throw new Error("User not authenticated");
-      
-      const { data, error } = await supabase
-        .from('user_settings')
-        .upsert({
-          user_id: session.user.id,
-          general_settings: settings,
-          updated_at: new Date().toISOString()
-        })
-        .select();
-      
-      if (error) throw error;
-      return data;
+  const [settings, setSettings] = useState<SettingsState>({
+    appearance: {
+      theme: "system",
+      language: "en",
+      enableNotifications: true,
+      enableSounds: true,
+      enableAnimations: true
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-settings'] });
-      toast({
-        title: "Settings Updated",
-        description: "Your general settings have been updated."
-      });
+    privacy: {
+      showProfile: true,
+      shareActivity: true,
+      allowDataCollection: true,
+      showOnlineStatus: true
     },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to update settings. Please try again.",
-        variant: "destructive"
-      });
-      console.error("Settings update error:", error);
-    }
-  });
-  
-  const updatePrivacySettings = useMutation({
-    mutationFn: async (settings) => {
-      if (!session?.user?.id) throw new Error("User not authenticated");
-      
-      const { data, error } = await supabase
-        .from('user_settings')
-        .upsert({
-          user_id: session.user.id,
-          privacy_settings: settings,
-          updated_at: new Date().toISOString()
-        })
-        .select();
-      
-      if (error) throw error;
-      return data;
+    notifications: {
+      emailNotifications: true,
+      pushNotifications: true,
+      reminderNotifications: true,
+      updateNotifications: true
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-settings'] });
-      toast({
-        title: "Privacy Settings Updated",
-        description: "Your privacy settings have been updated."
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to update privacy settings. Please try again.",
-        variant: "destructive"
-      });
-      console.error("Privacy settings update error:", error);
-    }
-  });
-  
-  const updateNotificationSettings = useMutation({
-    mutationFn: async (settings) => {
-      if (!session?.user?.id) throw new Error("User not authenticated");
-      
-      const { data, error } = await supabase
-        .from('user_settings')
-        .upsert({
-          user_id: session.user.id,
-          notification_settings: settings,
-          updated_at: new Date().toISOString()
-        })
-        .select();
-      
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-settings'] });
-      toast({
-        title: "Notification Settings Updated",
-        description: "Your notification settings have been updated."
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to update notification settings. Please try again.",
-        variant: "destructive"
-      });
-      console.error("Notification settings update error:", error);
-    }
-  });
-  
-  const updateEmail = useMutation({
-    mutationFn: async ({ email }) => {
-      if (!session) throw new Error("User not authenticated");
-      
-      const { data, error } = await supabase.auth.updateUser({
-        email: email
-      });
-      
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      toast({
-        title: "Verification Email Sent",
-        description: "Please check your email to verify your new address."
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update email. Please try again.",
-        variant: "destructive"
-      });
-      console.error("Email update error:", error);
+    account: {
+      email: session?.user?.email || ""
     }
   });
 
-  const handleThemeChange = (value) => {
-    setGeneralSettings(prev => ({
-      ...prev,
-      theme: value
-    }));
+  useEffect(() => {
+    if (session?.user?.id) {
+      fetchSettings();
+    }
+  }, [session]);
+
+  const fetchSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("user_settings")
+        .select("*")
+        .eq("user_id", session?.user?.id)
+        .single();
+
+      if (error) {
+        if (error.code === "PGRST116") {
+          // Record not found, use defaults
+          return;
+        }
+        throw error;
+      }
+
+      if (data) {
+        setSettings({
+          appearance: {
+            theme: data.theme || "system",
+            language: data.language || "en",
+            enableNotifications: data.enable_notifications !== false,
+            enableSounds: data.enable_sounds !== false,
+            enableAnimations: data.enable_animations !== false
+          },
+          privacy: {
+            showProfile: data.show_profile !== false,
+            shareActivity: data.share_activity !== false,
+            allowDataCollection: data.allow_data_collection !== false,
+            showOnlineStatus: data.show_online_status !== false
+          },
+          notifications: {
+            emailNotifications: data.email_notifications !== false,
+            pushNotifications: data.push_notifications !== false,
+            reminderNotifications: data.reminder_notifications !== false,
+            updateNotifications: data.update_notifications !== false
+          },
+          account: {
+            email: session?.user?.email || ""
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching settings:", error);
+      toast({
+        title: "Error fetching settings",
+        description: "Failed to load your settings. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
-  
-  const handleLanguageChange = (value) => {
-    setGeneralSettings(prev => ({
-      ...prev,
-      language: value
-    }));
+
+  const saveAppearanceSettings = async () => {
+    try {
+      setLoading({...loading, appearance: true});
+      
+      const { error } = await supabase
+        .from("user_settings")
+        .upsert({
+          user_id: session?.user?.id,
+          theme: settings.appearance.theme,
+          language: settings.appearance.language,
+          enable_notifications: settings.appearance.enableNotifications,
+          enable_sounds: settings.appearance.enableSounds,
+          enable_animations: settings.appearance.enableAnimations,
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Settings saved",
+        description: "Your appearance settings have been updated.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error saving settings",
+        description: "Failed to save your appearance settings. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading({...loading, appearance: false});
+    }
   };
-  
-  const handleToggleChange = (setting, value, setFunction) => {
-    setFunction(prev => ({
-      ...prev,
-      [setting]: value
-    }));
+
+  const savePrivacySettings = async () => {
+    try {
+      setLoading({...loading, privacy: true});
+      
+      const { error } = await supabase
+        .from("user_settings")
+        .upsert({
+          user_id: session?.user?.id,
+          show_profile: settings.privacy.showProfile,
+          share_activity: settings.privacy.shareActivity,
+          allow_data_collection: settings.privacy.allowDataCollection,
+          show_online_status: settings.privacy.showOnlineStatus,
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Settings saved",
+        description: "Your privacy settings have been updated.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error saving settings",
+        description: "Failed to save your privacy settings. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading({...loading, privacy: false});
+    }
   };
-  
-  const handleSaveGeneralSettings = () => {
-    updateGeneralSettings.mutate(generalSettings);
+
+  const saveNotificationSettings = async () => {
+    try {
+      setLoading({...loading, notifications: true});
+      
+      const { error } = await supabase
+        .from("user_settings")
+        .upsert({
+          user_id: session?.user?.id,
+          email_notifications: settings.notifications.emailNotifications,
+          push_notifications: settings.notifications.pushNotifications,
+          reminder_notifications: settings.notifications.reminderNotifications,
+          update_notifications: settings.notifications.updateNotifications,
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Settings saved",
+        description: "Your notification preferences have been updated.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error saving settings",
+        description: "Failed to save your notification settings. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading({...loading, notifications: false});
+    }
   };
-  
-  const handleSavePrivacySettings = () => {
-    updatePrivacySettings.mutate(privacySettings);
+
+  const updateEmail = async () => {
+    try {
+      setLoading({...loading, account: true});
+      
+      const { error } = await supabase.auth.updateUser({
+        email: settings.account.email
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Verification email sent",
+        description: "Please check your email to confirm the change.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error updating email",
+        description: error.message || "Failed to update your email. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading({...loading, account: false});
+    }
   };
-  
-  const handleSaveNotificationSettings = () => {
-    updateNotificationSettings.mutate(notificationSettings);
+
+  const handleAppearanceChange = (field: string, value: any) => {
+    setSettings({
+      ...settings,
+      appearance: {
+        ...settings.appearance,
+        [field]: value
+      }
+    });
   };
-  
-  const handleEmailUpdate = (e) => {
-    e.preventDefault();
-    updateEmail.mutate({ email: accountSettings.email });
+
+  const handlePrivacyChange = (field: string, value: any) => {
+    setSettings({
+      ...settings,
+      privacy: {
+        ...settings.privacy,
+        [field]: value
+      }
+    });
+  };
+
+  const handleNotificationsChange = (field: string, value: any) => {
+    setSettings({
+      ...settings,
+      notifications: {
+        ...settings.notifications,
+        [field]: value
+      }
+    });
+  };
+
+  const handleAccountChange = (field: string, value: any) => {
+    setSettings({
+      ...settings,
+      account: {
+        ...settings.account,
+        [field]: value
+      }
+    });
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Settings</h1>
+    <div className="container max-w-4xl mx-auto py-6 px-4">
+      <h1 className="text-3xl font-bold mb-6">Settings</h1>
       
-      <Tabs defaultValue="account">
-        <TabsList className="mb-4">
-          <TabsTrigger value="account">
-            <User className="mr-2 h-4 w-4" />
-            Account
+      <Tabs defaultValue="appearance" className="space-y-6">
+        <TabsList className="grid grid-cols-4">
+          <TabsTrigger value="appearance" className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4" />
+            <span className="hidden sm:inline">Appearance</span>
           </TabsTrigger>
-          <TabsTrigger value="appearance">
-            <Monitor className="mr-2 h-4 w-4" />
-            Appearance
+          <TabsTrigger value="privacy" className="flex items-center gap-2">
+            <Eye className="h-4 w-4" />
+            <span className="hidden sm:inline">Privacy</span>
           </TabsTrigger>
-          <TabsTrigger value="notifications">
-            <Bell className="mr-2 h-4 w-4" />
-            Notifications
+          <TabsTrigger value="notifications" className="flex items-center gap-2">
+            <Bell className="h-4 w-4" />
+            <span className="hidden sm:inline">Notifications</span>
           </TabsTrigger>
-          <TabsTrigger value="privacy">
-            <Shield className="mr-2 h-4 w-4" />
-            Privacy
+          <TabsTrigger value="account" className="flex items-center gap-2">
+            <Lock className="h-4 w-4" />
+            <span className="hidden sm:inline">Account</span>
           </TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="account">
-          <Card>
-            <CardHeader>
-              <CardTitle>Account Settings</CardTitle>
-              <CardDescription>
-                Manage your account information and preferences
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <h3 className="text-lg font-medium mb-4">Basic Information</h3>
-                <form onSubmit={handleEmailUpdate} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email Address</Label>
-                    <Input 
-                      id="email" 
-                      type="email" 
-                      value={accountSettings.email} 
-                      onChange={(e) => setAccountSettings(prev => ({ ...prev, email: e.target.value }))}
-                      required
-                    />
-                  </div>
-                  <Button type="submit" disabled={updateEmail.isPending}>
-                    {updateEmail.isPending ? "Updating..." : "Update Email"}
-                  </Button>
-                </form>
-              </div>
-              
-              <div>
-                <h3 className="text-lg font-medium mb-4">Change Password</h3>
-                <form className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="currentPassword">Current Password</Label>
-                    <Input id="currentPassword" type="password" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="newPassword">New Password</Label>
-                    <Input id="newPassword" type="password" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                    <Input id="confirmPassword" type="password" />
-                  </div>
-                  <Button>Change Password</Button>
-                </form>
-              </div>
-              
-              <div>
-                <h3 className="text-lg font-medium mb-4">Danger Zone</h3>
-                <div className="border border-destructive/20 rounded-md p-4 bg-destructive/5">
-                  <h4 className="font-medium text-destructive">Delete Account</h4>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Once you delete your account, there is no going back. This action cannot be undone.
-                  </p>
-                  <Button variant="destructive">Delete Account</Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
         
         <TabsContent value="appearance">
           <Card>
             <CardHeader>
-              <CardTitle>Appearance Settings</CardTitle>
+              <CardTitle>Appearance</CardTitle>
               <CardDescription>
-                Customize how the application looks and feels
+                Customize how the app looks and feels
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="theme">Theme</Label>
-                    <Select 
-                      value={generalSettings.theme} 
-                      onValueChange={handleThemeChange}
+                <div>
+                  <h3 className="text-lg font-medium mb-2">Theme</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div
+                      className={`border rounded-lg p-4 cursor-pointer hover:border-primary ${
+                        settings.appearance.theme === "light" ? "border-primary bg-primary/5" : ""
+                      }`}
+                      onClick={() => handleAppearanceChange("theme", "light")}
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select theme" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="light">
-                          <div className="flex items-center">
-                            <CircleDot className="mr-2 h-4 w-4" />
-                            Light
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="dark">
-                          <div className="flex items-center">
-                            <Moon className="mr-2 h-4 w-4" />
-                            Dark
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="system">
-                          <div className="flex items-center">
-                            <Monitor className="mr-2 h-4 w-4" />
-                            System
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                      <div className="flex justify-center mb-4">
+                        <Sun className="h-10 w-10 text-yellow-500" />
+                      </div>
+                      <p className="text-center font-medium">Light</p>
+                    </div>
+                    <div
+                      className={`border rounded-lg p-4 cursor-pointer hover:border-primary ${
+                        settings.appearance.theme === "dark" ? "border-primary bg-primary/5" : ""
+                      }`}
+                      onClick={() => handleAppearanceChange("theme", "dark")}
+                    >
+                      <div className="flex justify-center mb-4">
+                        <Moon className="h-10 w-10 text-indigo-500" />
+                      </div>
+                      <p className="text-center font-medium">Dark</p>
+                    </div>
+                    <div
+                      className={`border rounded-lg p-4 cursor-pointer hover:border-primary ${
+                        settings.appearance.theme === "system" ? "border-primary bg-primary/5" : ""
+                      }`}
+                      onClick={() => handleAppearanceChange("theme", "system")}
+                    >
+                      <div className="flex justify-center mb-4">
+                        <div className="flex gap-1">
+                          <Sun className="h-10 w-10 text-yellow-500" />
+                          <Moon className="h-10 w-10 text-indigo-500" />
+                        </div>
+                      </div>
+                      <p className="text-center font-medium">System</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-medium mb-2">Language</h3>
+                  <div className="flex items-center space-x-2">
+                    <Globe className="h-5 w-5 text-muted-foreground" />
+                    <select 
+                      className="flex h-10 w-full sm:w-[300px] rounded-md border border-input bg-background px-3 py-2"
+                      value={settings.appearance.language}
+                      onChange={(e) => handleAppearanceChange("language", e.target.value)}
+                    >
+                      <option value="en">English</option>
+                      <option value="es">Español</option>
+                      <option value="fr">Français</option>
+                      <option value="de">Deutsch</option>
+                      <option value="zh">中文</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div className="space-y-3 pt-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Bell className="h-5 w-5 text-muted-foreground" />
+                      <Label htmlFor="enableNotifications">Enable notifications</Label>
+                    </div>
+                    <Switch
+                      id="enableNotifications"
+                      checked={settings.appearance.enableNotifications}
+                      onCheckedChange={(value) => handleAppearanceChange("enableNotifications", value)}
+                    />
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="language">Language</Label>
-                    <Select 
-                      value={generalSettings.language} 
-                      onValueChange={handleLanguageChange}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select language" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="en">
-                          <div className="flex items-center">
-                            <Globe className="mr-2 h-4 w-4" />
-                            English
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="es">
-                          <div className="flex items-center">
-                            <Globe className="mr-2 h-4 w-4" />
-                            Español
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="fr">
-                          <div className="flex items-center">
-                            <Globe className="mr-2 h-4 w-4" />
-                            Français
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="de">
-                          <div className="flex items-center">
-                            <Globe className="mr-2 h-4 w-4" />
-                            Deutsch
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Volume2 className="h-5 w-5 text-muted-foreground" />
+                      <Label htmlFor="enableSounds">Enable sounds</Label>
+                    </div>
+                    <Switch
+                      id="enableSounds"
+                      checked={settings.appearance.enableSounds}
+                      onCheckedChange={(value) => handleAppearanceChange("enableSounds", value)}
+                    />
                   </div>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="enableAnimations">Enable Animations</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Show animations throughout the application
-                    </p>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Sparkles className="h-5 w-5 text-muted-foreground" />
+                      <Label htmlFor="enableAnimations">Enable animations</Label>
+                    </div>
+                    <Switch
+                      id="enableAnimations"
+                      checked={settings.appearance.enableAnimations}
+                      onCheckedChange={(value) => handleAppearanceChange("enableAnimations", value)}
+                    />
                   </div>
-                  <Switch 
-                    id="enableAnimations"
-                    checked={generalSettings.enableAnimations}
-                    onCheckedChange={(checked) => 
-                      handleToggleChange('enableAnimations', checked, setGeneralSettings)
-                    }
-                  />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="enableSounds">Enable Sounds</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Play sounds for notifications and interactions
-                    </p>
-                  </div>
-                  <Switch 
-                    id="enableSounds"
-                    checked={generalSettings.enableSounds}
-                    onCheckedChange={(checked) => 
-                      handleToggleChange('enableSounds', checked, setGeneralSettings)
-                    }
-                  />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="sidebarPosition">Sidebar Position</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Choose the position of the sidebar
-                    </p>
-                  </div>
-                  <Select defaultValue="left">
-                    <SelectTrigger className="w-40">
-                      <SelectValue placeholder="Select position" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="left">
-                        <div className="flex items-center">
-                          <PanelLeft className="mr-2 h-4 w-4" />
-                          Left
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="right">
-                        <div className="flex items-center">
-                          <PanelLeft className="mr-2 h-4 w-4 rotate-180" />
-                          Right
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
               </div>
-              
-              <Button onClick={handleSaveGeneralSettings}>
-                {updateGeneralSettings.isPending ? "Saving..." : "Save Changes"}
-              </Button>
             </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="notifications">
-          <Card>
-            <CardHeader>
-              <CardTitle>Notification Settings</CardTitle>
-              <CardDescription>
-                Customize how and when you receive notifications
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="emailNotifications">Email Notifications</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receive important updates via email
-                    </p>
-                  </div>
-                  <Switch 
-                    id="emailNotifications"
-                    checked={notificationSettings.emailNotifications}
-                    onCheckedChange={(checked) => 
-                      handleToggleChange('emailNotifications', checked, setNotificationSettings)
-                    }
-                  />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="pushNotifications">Push Notifications</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receive real-time notifications on your device
-                    </p>
-                  </div>
-                  <Switch 
-                    id="pushNotifications"
-                    checked={notificationSettings.pushNotifications}
-                    onCheckedChange={(checked) => 
-                      handleToggleChange('pushNotifications', checked, setNotificationSettings)
-                    }
-                  />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="reminderNotifications">Reminders</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Get reminded about your scheduled activities
-                    </p>
-                  </div>
-                  <Switch 
-                    id="reminderNotifications"
-                    checked={notificationSettings.reminderNotifications}
-                    onCheckedChange={(checked) => 
-                      handleToggleChange('reminderNotifications', checked, setNotificationSettings)
-                    }
-                  />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="updateNotifications">App Updates</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Get notified about new features and updates
-                    </p>
-                  </div>
-                  <Switch 
-                    id="updateNotifications"
-                    checked={notificationSettings.updateNotifications}
-                    onCheckedChange={(checked) => 
-                      handleToggleChange('updateNotifications', checked, setNotificationSettings)
-                    }
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Quiet Hours</Label>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Don't send notifications during these hours
-                </p>
-                <div className="flex items-center gap-4">
-                  <div className="space-y-2 flex-1">
-                    <Label htmlFor="quietHoursStart">Start Time</Label>
-                    <Input id="quietHoursStart" type="time" defaultValue="22:00" />
-                  </div>
-                  <div className="space-y-2 flex-1">
-                    <Label htmlFor="quietHoursEnd">End Time</Label>
-                    <Input id="quietHoursEnd" type="time" defaultValue="07:00" />
-                  </div>
-                </div>
-              </div>
-              
-              <Button onClick={handleSaveNotificationSettings}>
-                {updateNotificationSettings.isPending ? "Saving..." : "Save Changes"}
+            <CardFooter>
+              <Button 
+                onClick={saveAppearanceSettings} 
+                disabled={loading.appearance}
+                className="ml-auto"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                {loading.appearance ? "Saving..." : "Save Changes"}
               </Button>
-            </CardContent>
+            </CardFooter>
           </Card>
         </TabsContent>
         
@@ -550,93 +472,232 @@ export default function Settings() {
             <CardHeader>
               <CardTitle>Privacy Settings</CardTitle>
               <CardDescription>
-                Control who can see your information and how your data is used
+                Control what information is visible to others
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="showProfile">Profile Visibility</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Make your profile visible to other users
-                    </p>
+                  <div className="flex items-center space-x-2">
+                    <Users className="h-5 w-5 text-muted-foreground" />
+                    <Label htmlFor="showProfile">Show profile to other users</Label>
                   </div>
-                  <Switch 
+                  <Switch
                     id="showProfile"
-                    checked={privacySettings.showProfile}
-                    onCheckedChange={(checked) => 
-                      handleToggleChange('showProfile', checked, setPrivacySettings)
-                    }
+                    checked={settings.privacy.showProfile}
+                    onCheckedChange={(value) => handlePrivacyChange("showProfile", value)}
                   />
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="shareActivity">Activity Sharing</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Share your activity with the community
-                    </p>
+                  <div className="flex items-center space-x-2">
+                    <Activity className="h-5 w-5 text-muted-foreground" />
+                    <Label htmlFor="shareActivity">Share activity with friends</Label>
                   </div>
-                  <Switch 
+                  <Switch
                     id="shareActivity"
-                    checked={privacySettings.shareActivity}
-                    onCheckedChange={(checked) => 
-                      handleToggleChange('shareActivity', checked, setPrivacySettings)
-                    }
+                    checked={settings.privacy.shareActivity}
+                    onCheckedChange={(value) => handlePrivacyChange("shareActivity", value)}
                   />
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="allowDataCollection">Data Collection</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Allow us to collect anonymous usage data to improve the app
-                    </p>
+                  <div className="flex items-center space-x-2">
+                    <BarChart2 className="h-5 w-5 text-muted-foreground" />
+                    <Label htmlFor="allowDataCollection">
+                      Allow anonymous data collection for app improvement
+                    </Label>
                   </div>
-                  <Switch 
+                  <Switch
                     id="allowDataCollection"
-                    checked={privacySettings.allowDataCollection}
-                    onCheckedChange={(checked) => 
-                      handleToggleChange('allowDataCollection', checked, setPrivacySettings)
-                    }
+                    checked={settings.privacy.allowDataCollection}
+                    onCheckedChange={(value) => handlePrivacyChange("allowDataCollection", value)}
                   />
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="showOnlineStatus">Online Status</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Show when you're active in the app
-                    </p>
+                  <div className="flex items-center space-x-2">
+                    <Users className="h-5 w-5 text-muted-foreground" />
+                    <Label htmlFor="showOnlineStatus">Show online status</Label>
                   </div>
-                  <Switch 
+                  <Switch
                     id="showOnlineStatus"
-                    checked={privacySettings.showOnlineStatus}
-                    onCheckedChange={(checked) => 
-                      handleToggleChange('showOnlineStatus', checked, setPrivacySettings)
-                    }
+                    checked={settings.privacy.showOnlineStatus}
+                    onCheckedChange={(value) => handlePrivacyChange("showOnlineStatus", value)}
                   />
                 </div>
               </div>
               
-              <Button onClick={handleSavePrivacySettings}>
-                {updatePrivacySettings.isPending ? "Saving..." : "Save Changes"}
-              </Button>
-              
-              <div className="pt-4">
-                <h3 className="text-lg font-medium mb-2">Data Management</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Control and manage your personal data
-                </p>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <Button variant="outline">Download Your Data</Button>
-                  <Button variant="outline" className="text-orange-500 border-orange-500">
-                    Clear All Data
-                  </Button>
+              <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-700/30 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <EyeOff className="h-5 w-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium text-yellow-600 dark:text-yellow-400">Data Privacy</h4>
+                    <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                      Your privacy is important to us. We only collect data that's necessary to provide 
+                      and improve our services. You can request a copy of your data or delete your account 
+                      at any time.
+                    </p>
+                  </div>
                 </div>
               </div>
             </CardContent>
+            <CardFooter>
+              <Button 
+                onClick={savePrivacySettings} 
+                disabled={loading.privacy}
+                className="ml-auto"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                {loading.privacy ? "Saving..." : "Save Changes"}
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="notifications">
+          <Card>
+            <CardHeader>
+              <CardTitle>Notification Preferences</CardTitle>
+              <CardDescription>
+                Control how and when you receive notifications
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Mail className="h-5 w-5 text-muted-foreground" />
+                    <Label htmlFor="emailNotifications">Email notifications</Label>
+                  </div>
+                  <Switch
+                    id="emailNotifications"
+                    checked={settings.notifications.emailNotifications}
+                    onCheckedChange={(value) => handleNotificationsChange("emailNotifications", value)}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Smartphone className="h-5 w-5 text-muted-foreground" />
+                    <Label htmlFor="pushNotifications">Push notifications</Label>
+                  </div>
+                  <Switch
+                    id="pushNotifications"
+                    checked={settings.notifications.pushNotifications}
+                    onCheckedChange={(value) => handleNotificationsChange("pushNotifications", value)}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Clock className="h-5 w-5 text-muted-foreground" />
+                    <Label htmlFor="reminderNotifications">Reminder notifications</Label>
+                  </div>
+                  <Switch
+                    id="reminderNotifications"
+                    checked={settings.notifications.reminderNotifications}
+                    onCheckedChange={(value) => handleNotificationsChange("reminderNotifications", value)}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Download className="h-5 w-5 text-muted-foreground" />
+                    <Label htmlFor="updateNotifications">Product update notifications</Label>
+                  </div>
+                  <Switch
+                    id="updateNotifications"
+                    checked={settings.notifications.updateNotifications}
+                    onCheckedChange={(value) => handleNotificationsChange("updateNotifications", value)}
+                  />
+                </div>
+              </div>
+              
+              <div className="rounded-lg border p-4">
+                <h4 className="font-medium mb-2">When to send notifications</h4>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm text-muted-foreground">Quiet hours start</label>
+                    <Input type="time" value="22:00" disabled />
+                  </div>
+                  <div>
+                    <label className="text-sm text-muted-foreground">Quiet hours end</label>
+                    <Input type="time" value="07:00" disabled />
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Quiet hours functionality coming soon
+                </p>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                onClick={saveNotificationSettings} 
+                disabled={loading.notifications}
+                className="ml-auto"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                {loading.notifications ? "Saving..." : "Save Changes"}
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="account">
+          <Card>
+            <CardHeader>
+              <CardTitle>Account Settings</CardTitle>
+              <CardDescription>
+                Manage your account details and password
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <h3 className="text-lg font-medium mb-4">Email Address</h3>
+                <div className="max-w-md space-y-2">
+                  <Input 
+                    type="email"
+                    value={settings.account.email}
+                    onChange={(e) => handleAccountChange("email", e.target.value)}
+                    placeholder="Your email address"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Changing your email will require verification
+                  </p>
+                </div>
+              </div>
+              
+              <div className="pt-2">
+                <h3 className="text-lg font-medium mb-4">Change Password</h3>
+                <div className="max-w-md space-y-4">
+                  <Input type="password" placeholder="Current password" disabled />
+                  <Input type="password" placeholder="New password" disabled />
+                  <Input type="password" placeholder="Confirm new password" disabled />
+                  <p className="text-sm text-muted-foreground">
+                    Password change functionality coming soon
+                  </p>
+                </div>
+              </div>
+              
+              <div className="pt-2">
+                <h3 className="text-lg font-medium mb-4">Account Management</h3>
+                <div className="space-y-4">
+                  <Button variant="outline">Export My Data</Button>
+                  <Button variant="destructive">Delete Account</Button>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                onClick={updateEmail} 
+                disabled={loading.account || settings.account.email === session?.user?.email}
+                className="ml-auto"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                {loading.account ? "Updating..." : "Update Email"}
+              </Button>
+            </CardFooter>
           </Card>
         </TabsContent>
       </Tabs>

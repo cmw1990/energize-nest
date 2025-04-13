@@ -1,18 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Moon, Sun, Clock, Calendar, Zap, Battery, AlertTriangle } from 'lucide-react';
-import { useAuth } from '@/components/AuthProvider';
-import { formatValue, ValueType } from '@/utils/formatUtils';
-import { assertType } from '@/utils/typeSafeUtils';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-
+import React from 'react';
+import { Bar, Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -23,10 +11,14 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler
 } from 'chart.js';
-import { Line, Bar } from 'react-chartjs-2';
+import { formatValue, formatPercentage } from '@/utils/formatUtils';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Moon, Activity, Zap, Clock, ArrowUp, ArrowDown } from "lucide-react";
 
-// Register Chart.js components
+// Register ChartJS components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -35,103 +27,191 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
-export type SleepData = {
-  id: string;
+interface SleepData {
   date: string;
-  bedtime: string;
-  wake_time: string;
-  total_hours: number;
-  quality_rating: number;
-  deep_sleep_percentage: number;
-  rem_sleep_percentage: number;
-  light_sleep_percentage: number;
-  awake_percentage: number;
-  notes: string | null;
-};
+  sleepDuration: number;
+  deepSleepPercentage: number;
+  remSleepPercentage: number;
+  lightSleepPercentage: number;
+  sleepScore: number;
+  sleepOnset: number;
+  wakeups: number;
+  efficiency: number;
+}
 
-export const SleepMetrics = () => {
-  const { session } = useAuth();
-  const [view, setView] = useState<'day' | 'week' | 'month'>('week');
-  const [sleepMetric, setSleepMetric] = useState<'duration' | 'quality' | 'deep' | 'rem'>('duration');
-  
-  const { data: sleepData, isLoading } = useQuery({
-    queryKey: ['sleep_data', session?.user?.id, view],
-    queryFn: async () => {
-      if (!session?.user?.id) return [];
-      
-      const pastDate = new Date();
-      switch (view) {
-        case 'day':
-          pastDate.setDate(pastDate.getDate() - 1);
-          break;
-        case 'week':
-          pastDate.setDate(pastDate.getDate() - 7);
-          break;
-        case 'month':
-          pastDate.setDate(pastDate.getDate() - 30);
-          break;
-      }
-      
-      const { data, error } = await supabase
-        .from('sleep_tracking')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .gte('date', pastDate.toISOString().split('T')[0])
-        .order('date', { ascending: true });
-      
-      if (error) {
-        console.error('Error fetching sleep data:', error);
-        return [];
-      }
-      
-      return assertType<SleepData[]>(data || []);
+export const SleepMetrics: React.FC = () => {
+  // Sample data - in a real app, this would come from the database
+  const weekData: SleepData[] = [
+    {
+      date: 'Mon',
+      sleepDuration: 7.5,
+      deepSleepPercentage: 22,
+      remSleepPercentage: 18,
+      lightSleepPercentage: 60,
+      sleepScore: 83,
+      sleepOnset: 12,
+      wakeups: 2,
+      efficiency: 93
     },
-    enabled: !!session?.user?.id,
-  });
+    {
+      date: 'Tue',
+      sleepDuration: 6.8,
+      deepSleepPercentage: 20,
+      remSleepPercentage: 17,
+      lightSleepPercentage: 63,
+      sleepScore: 76,
+      sleepOnset: 18,
+      wakeups: 3,
+      efficiency: 89
+    },
+    {
+      date: 'Wed',
+      sleepDuration: 7.2,
+      deepSleepPercentage: 23,
+      remSleepPercentage: 19,
+      lightSleepPercentage: 58,
+      sleepScore: 80,
+      sleepOnset: 14,
+      wakeups: 1,
+      efficiency: 92
+    },
+    {
+      date: 'Thu',
+      sleepDuration: 8.1,
+      deepSleepPercentage: 25,
+      remSleepPercentage: 22,
+      lightSleepPercentage: 53,
+      sleepScore: 89,
+      sleepOnset: 10,
+      wakeups: 1,
+      efficiency: 96
+    },
+    {
+      date: 'Fri',
+      sleepDuration: 6.5,
+      deepSleepPercentage: 18,
+      remSleepPercentage: 15,
+      lightSleepPercentage: 67,
+      sleepScore: 72,
+      sleepOnset: 25,
+      wakeups: 4,
+      efficiency: 85
+    },
+    {
+      date: 'Sat',
+      sleepDuration: 8.5,
+      deepSleepPercentage: 26,
+      remSleepPercentage: 23,
+      lightSleepPercentage: 51,
+      sleepScore: 92,
+      sleepOnset: 8,
+      wakeups: 0,
+      efficiency: 97
+    },
+    {
+      date: 'Sun',
+      sleepDuration: 7.8,
+      deepSleepPercentage: 24,
+      remSleepPercentage: 21,
+      lightSleepPercentage: 55,
+      sleepScore: 86,
+      sleepOnset: 11,
+      wakeups: 1,
+      efficiency: 94
+    }
+  ];
 
-  const chartData = {
-    labels: sleepData?.map(item => {
-      const date = new Date(item.date);
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    }) || [],
+  // Calculate weekly averages
+  const avgSleepDuration = weekData.reduce((sum, day) => sum + day.sleepDuration, 0) / weekData.length;
+  const avgDeepSleep = weekData.reduce((sum, day) => sum + day.deepSleepPercentage, 0) / weekData.length;
+  const avgRemSleep = weekData.reduce((sum, day) => sum + day.remSleepPercentage, 0) / weekData.length;
+  const avgLightSleep = weekData.reduce((sum, day) => sum + day.lightSleepPercentage, 0) / weekData.length;
+  const avgSleepScore = weekData.reduce((sum, day) => sum + day.sleepScore, 0) / weekData.length;
+  const avgSleepOnset = weekData.reduce((sum, day) => sum + day.sleepOnset, 0) / weekData.length;
+  const avgWakeups = weekData.reduce((sum, day) => sum + day.wakeups, 0) / weekData.length;
+  const avgEfficiency = weekData.reduce((sum, day) => sum + day.efficiency, 0) / weekData.length;
+
+  // Sleep duration chart data
+  const sleepDurationData = {
+    labels: weekData.map(d => d.date),
     datasets: [
       {
-        label: sleepMetric === 'duration'
-          ? 'Sleep Duration (hrs)'
-          : sleepMetric === 'quality'
-          ? 'Sleep Quality (1-10)'
-          : sleepMetric === 'deep'
-          ? 'Deep Sleep %'
-          : 'REM Sleep %',
-        data: sleepData?.map(item => 
-          sleepMetric === 'duration'
-            ? item.total_hours
-            : sleepMetric === 'quality'
-            ? item.quality_rating
-            : sleepMetric === 'deep'
-            ? item.deep_sleep_percentage
-            : item.rem_sleep_percentage
-        ) || [],
-        borderColor: 'rgba(99, 102, 241, 1)',
-        backgroundColor: 'rgba(99, 102, 241, 0.2)',
-        fill: true,
-        tension: 0.4,
-      },
-    ],
+        label: 'Sleep Duration (hours)',
+        data: weekData.map(d => d.sleepDuration),
+        backgroundColor: 'rgba(147, 51, 234, 0.5)',
+        borderColor: 'rgba(147, 51, 234, 1)',
+        borderWidth: 2,
+        borderRadius: 5,
+      }
+    ]
   };
 
-  const chartOptions = {
+  // Sleep stages chart data
+  const sleepStagesData = {
+    labels: weekData.map(d => d.date),
+    datasets: [
+      {
+        label: 'Deep Sleep',
+        data: weekData.map(d => d.deepSleepPercentage),
+        backgroundColor: 'rgba(59, 130, 246, 0.7)',
+        borderColor: 'rgba(59, 130, 246, 1)',
+        borderWidth: 1,
+      },
+      {
+        label: 'REM Sleep',
+        data: weekData.map(d => d.remSleepPercentage),
+        backgroundColor: 'rgba(147, 51, 234, 0.7)',
+        borderColor: 'rgba(147, 51, 234, 1)',
+        borderWidth: 1,
+      },
+      {
+        label: 'Light Sleep',
+        data: weekData.map(d => d.lightSleepPercentage),
+        backgroundColor: 'rgba(99, 102, 241, 0.7)',
+        borderColor: 'rgba(99, 102, 241, 1)',
+        borderWidth: 1,
+      }
+    ]
+  };
+
+  // Sleep score chart data
+  const sleepScoreData = {
+    labels: weekData.map(d => d.date),
+    datasets: [
+      {
+        label: 'Sleep Score',
+        data: weekData.map(d => d.sleepScore),
+        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+        borderColor: 'rgba(99, 102, 241, 1)',
+        borderWidth: 2,
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: 'rgba(99, 102, 241, 1)',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+      }
+    ]
+  };
+
+  // Chart options
+  const barOptions = {
     responsive: true,
     maintainAspectRatio: false,
     scales: {
       y: {
-        min: sleepMetric === 'duration' ? 0 : sleepMetric === 'quality' ? 0 : 0,
-        max: sleepMetric === 'duration' ? 12 : sleepMetric === 'quality' ? 10 : 100,
-        ticks: {
-          stepSize: sleepMetric === 'duration' ? 2 : sleepMetric === 'quality' ? 1 : 20,
+        beginAtZero: true,
+        grid: {
+          display: true,
+          drawBorder: false,
+        },
+      },
+      x: {
+        grid: {
+          display: false,
         },
       },
     },
@@ -139,305 +219,234 @@ export const SleepMetrics = () => {
       legend: {
         display: false,
       },
-      tooltip: {
-        callbacks: {
-          label: function(context: any) {
-            let label = context.dataset.label || '';
-            if (label) {
-              label += ': ';
-            }
-            if (context.parsed.y !== null) {
-              label += sleepMetric === 'duration'
-                ? context.parsed.y + ' hrs'
-                : sleepMetric === 'quality'
-                ? context.parsed.y + '/10'
-                : context.parsed.y + '%';
-            }
-            return label;
-          }
-        }
-      }
     },
   };
 
-  const getAverageSleepDuration = () => {
-    if (!sleepData || sleepData.length === 0) return 0;
-    const total = sleepData.reduce((sum, item) => sum + item.total_hours, 0);
-    return total / sleepData.length;
+  const stackedBarOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        stacked: true,
+        beginAtZero: true,
+        max: 100,
+        grid: {
+          display: true,
+          drawBorder: false,
+        },
+      },
+      x: {
+        stacked: true,
+        grid: {
+          display: false,
+        },
+      },
+    },
+    plugins: {
+      legend: {
+        position: 'bottom' as const,
+      },
+    },
   };
 
-  const getAverageSleepQuality = () => {
-    if (!sleepData || sleepData.length === 0) return 0;
-    const total = sleepData.reduce((sum, item) => sum + item.quality_rating, 0);
-    return total / sleepData.length;
+  const lineOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: false,
+        min: 50,
+        max: 100,
+        grid: {
+          display: true,
+          drawBorder: false,
+        },
+      },
+      x: {
+        grid: {
+          display: false,
+        },
+      },
+    },
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
   };
 
-  const getAverageDeepSleep = () => {
-    if (!sleepData || sleepData.length === 0) return 0;
-    const total = sleepData.reduce((sum, item) => sum + item.deep_sleep_percentage, 0);
-    return total / sleepData.length;
-  };
+  // Find the best day
+  const bestDaySleep = [...weekData].sort((a, b) => b.sleepScore - a.sleepScore)[0];
 
-  const getAverageRemSleep = () => {
-    if (!sleepData || sleepData.length === 0) return 0;
-    const total = sleepData.reduce((sum, item) => sum + item.rem_sleep_percentage, 0);
-    return total / sleepData.length;
-  };
-
-  const getLatestBedtime = () => {
-    if (!sleepData || sleepData.length === 0) return 'N/A';
-    const latestData = [...sleepData].sort((a, b) => 
-      new Date(b.date).getTime() - new Date(a.date).getTime()
-    )[0];
-    return latestData.bedtime.substring(0, 5);
-  };
-
-  const getLatestWakeTime = () => {
-    if (!sleepData || sleepData.length === 0) return 'N/A';
-    const latestData = [...sleepData].sort((a, b) => 
-      new Date(b.date).getTime() - new Date(a.date).getTime()
-    )[0];
-    return latestData.wake_time.substring(0, 5);
-  };
-
-  const sleepTrend = () => {
-    if (!sleepData || sleepData.length < 3) return 'stable';
-    
-    const last = sleepData[sleepData.length - 1];
-    const secondLast = sleepData[sleepData.length - 2];
-    const thirdLast = sleepData[sleepData.length - 3];
-    
-    const metricValue = (data: SleepData) => 
-      sleepMetric === 'duration'
-        ? data.total_hours
-        : sleepMetric === 'quality'
-        ? data.quality_rating
-        : sleepMetric === 'deep'
-        ? data.deep_sleep_percentage
-        : data.rem_sleep_percentage;
-    
-    if (metricValue(last) > metricValue(secondLast) && metricValue(secondLast) > metricValue(thirdLast)) {
-      return 'improving';
-    } else if (metricValue(last) < metricValue(secondLast) && metricValue(secondLast) < metricValue(thirdLast)) {
-      return 'declining';
-    } else {
-      return 'stable';
-    }
-  };
+  // Trend metrics (simplified)
+  const sleepDurationTrend = weekData[6].sleepDuration - weekData[0].sleepDuration;
+  const sleepScoreTrend = weekData[6].sleepScore - weekData[0].sleepScore;
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div className="space-y-1">
-          <h2 className="text-2xl font-semibold tracking-tight">Sleep Metrics</h2>
-          <p className="text-sm text-muted-foreground">
-            Track and analyze your sleep patterns over time
-          </p>
-        </div>
-        
-        <div className="flex items-center">
-          <Tabs value={view} onValueChange={(v) => setView(v as 'day' | 'week' | 'month')}>
-            <TabsList>
-              <TabsTrigger value="day">Day</TabsTrigger>
-              <TabsTrigger value="week">Week</TabsTrigger>
-              <TabsTrigger value="month">Month</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {/* Key metrics cards */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Avg. Sleep Duration</p>
+                <p className="text-2xl font-bold">{formatValue(avgSleepDuration, 1)}h</p>
+              </div>
+              <Clock className="h-9 w-9 text-primary/60" />
+            </div>
+            <div className="flex items-center mt-2 text-xs">
+              {sleepDurationTrend >= 0 ? (
+                <ArrowUp className="h-3 w-3 text-green-500 mr-1" />
+              ) : (
+                <ArrowDown className="h-3 w-3 text-red-500 mr-1" />
+              )}
+              <span className={sleepDurationTrend >= 0 ? "text-green-500" : "text-red-500"}>
+                {formatValue(Math.abs(sleepDurationTrend), 1)}h
+              </span>
+              <span className="text-muted-foreground ml-1">vs last week</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Avg. Sleep Score</p>
+                <p className="text-2xl font-bold">{formatValue(avgSleepScore, 0)}</p>
+              </div>
+              <Activity className="h-9 w-9 text-primary/60" />
+            </div>
+            <div className="flex items-center mt-2 text-xs">
+              {sleepScoreTrend >= 0 ? (
+                <ArrowUp className="h-3 w-3 text-green-500 mr-1" />
+              ) : (
+                <ArrowDown className="h-3 w-3 text-red-500 mr-1" />
+              )}
+              <span className={sleepScoreTrend >= 0 ? "text-green-500" : "text-red-500"}>
+                {formatValue(Math.abs(sleepScoreTrend), 0)} pts
+              </span>
+              <span className="text-muted-foreground ml-1">vs last week</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Avg. Deep Sleep</p>
+                <p className="text-2xl font-bold">{formatPercentage(avgDeepSleep, 0)}</p>
+              </div>
+              <Moon className="h-9 w-9 text-primary/60" />
+            </div>
+            <div className="flex items-center mt-2 text-xs">
+              <span className="text-muted-foreground">Target: 20-25%</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Sleep Efficiency</p>
+                <p className="text-2xl font-bold">{formatPercentage(avgEfficiency, 0)}</p>
+              </div>
+              <Zap className="h-9 w-9 text-primary/60" />
+            </div>
+            <div className="flex items-center mt-2 text-xs">
+              <span className="text-muted-foreground">Target: >90%</span>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Sleep Duration Chart */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Avg Sleep Duration
-            </CardTitle>
+            <CardTitle className="text-base">Weekly Sleep Duration</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center">
-              <Clock className="h-5 w-5 text-muted-foreground mr-2" />
-              <span className="text-2xl font-bold">
-                {formatValue(getAverageSleepDuration(), 1)} hrs
-              </span>
+            <div className="h-[220px]">
+              <Bar data={sleepDurationData} options={barOptions} />
             </div>
           </CardContent>
         </Card>
-        
+
+        {/* Sleep Score Chart */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Avg Sleep Quality
-            </CardTitle>
+            <CardTitle className="text-base">Weekly Sleep Score</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center">
-              <Moon className="h-5 w-5 text-muted-foreground mr-2" />
-              <span className="text-2xl font-bold">
-                {formatValue(getAverageSleepQuality(), 1)}/10
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Sleep Cycle
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center">
-              <Zap className="h-5 w-5 text-muted-foreground mr-2" />
-              <span className="text-2xl font-bold">
-                {formatValue(getAverageDeepSleep(), 1)}% deep
-              </span>
+            <div className="h-[220px]">
+              <Line data={sleepScoreData} options={lineOptions} />
             </div>
           </CardContent>
         </Card>
       </div>
-      
+
+      {/* Sleep Stages Chart */}
       <Card>
         <CardHeader className="pb-2">
-          <div className="flex justify-between items-center">
-            <CardTitle>Sleep Trends</CardTitle>
-            <Tabs value={sleepMetric} onValueChange={(v) => setSleepMetric(v as any)}>
-              <TabsList>
-                <TabsTrigger value="duration">Duration</TabsTrigger>
-                <TabsTrigger value="quality">Quality</TabsTrigger>
-                <TabsTrigger value="deep">Deep Sleep</TabsTrigger>
-                <TabsTrigger value="rem">REM Sleep</TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
+          <CardTitle className="text-base">Sleep Stage Breakdown</CardTitle>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <div className="h-[300px] flex items-center justify-center">
-              <p>Loading data...</p>
-            </div>
-          ) : sleepData && sleepData.length > 0 ? (
-            <div className="h-[300px]">
-              <Line data={chartData} options={chartOptions} />
-            </div>
-          ) : (
-            <div className="h-[300px] flex items-center justify-center">
-              <div className="text-center">
-                <AlertTriangle className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
-                <p>No sleep data available for the selected period</p>
-                <Button className="mt-4" variant="outline">Log Sleep</Button>
-              </div>
-            </div>
-          )}
+          <div className="h-[260px]">
+            <Bar data={sleepStagesData} options={stackedBarOptions} />
+          </div>
         </CardContent>
       </Card>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Sleep Schedule</CardTitle>
-            <CardDescription>Your recent sleep and wake times</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <Moon className="h-5 w-5 text-muted-foreground mr-2" />
-                  <span>Bedtime</span>
-                </div>
-                <span className="font-medium">{getLatestBedtime()}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <Sun className="h-5 w-5 text-muted-foreground mr-2" />
-                  <span>Wake Time</span>
-                </div>
-                <span className="font-medium">{getLatestWakeTime()}</span>
-              </div>
-              <div className="flex justify-between items-center pt-2">
-                <div className="flex items-center">
-                  <Battery className="h-5 w-5 text-muted-foreground mr-2" />
-                  <span>Sleep Trend</span>
-                </div>
-                <span className={`font-medium ${
-                  sleepTrend() === 'improving' 
-                    ? 'text-green-600' 
-                    : sleepTrend() === 'declining' 
-                    ? 'text-red-600' 
-                    : ''
-                }`}>
-                  {sleepTrend() === 'improving' 
-                    ? 'Improving' 
-                    : sleepTrend() === 'declining' 
-                    ? 'Declining' 
-                    : 'Stable'}
-                </span>
-              </div>
+
+      {/* Sleep Insights */}
+      <Card className="bg-gradient-to-br from-primary/5 to-primary/10">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">Sleep Insights</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <div className="flex items-start space-x-4">
+            <div className="bg-primary/10 p-2 rounded-full">
+              <Moon className="h-5 w-5 text-primary" />
             </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Sleep Composition</CardTitle>
-            <CardDescription>Breakdown of your sleep cycles</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {sleepData && sleepData.length > 0 ? (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Deep Sleep</span>
-                    <span className="font-medium">{formatValue(getAverageDeepSleep(), 1)}%</span>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-indigo-600 rounded-full" 
-                      style={{ width: `${getAverageDeepSleep()}%` }}
-                    ></div>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>REM Sleep</span>
-                    <span className="font-medium">{formatValue(getAverageRemSleep(), 1)}%</span>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-purple-600 rounded-full" 
-                      style={{ width: `${getAverageRemSleep()}%` }}
-                    ></div>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Light Sleep</span>
-                    <span className="font-medium">
-                      {formatValue(
-                        100 - getAverageDeepSleep() - getAverageRemSleep(), 
-                        1
-                      )}%
-                    </span>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-blue-400 rounded-full" 
-                      style={{ 
-                        width: `${100 - getAverageDeepSleep() - getAverageRemSleep()}%` 
-                      }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-[120px]">
-                <p className="text-muted-foreground mb-2">No sleep data available</p>
-                <Button variant="outline" size="sm">Log Sleep</Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+            <div>
+              <h4 className="font-medium">Your best night</h4>
+              <p className="text-sm text-muted-foreground">
+                {bestDaySleep.date} - {formatValue(bestDaySleep.sleepDuration, 1)} hours with a sleep score of {bestDaySleep.sleepScore}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start space-x-4">
+            <div className="bg-primary/10 p-2 rounded-full">
+              <Clock className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h4 className="font-medium">Fall Asleep Time</h4>
+              <p className="text-sm text-muted-foreground">
+                It takes you an average of {formatValue(avgSleepOnset, 0)} minutes to fall asleep
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start space-x-4">
+            <div className="bg-primary/10 p-2 rounded-full">
+              <Activity className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h4 className="font-medium">Sleep Continuity</h4>
+              <p className="text-sm text-muted-foreground">
+                You wake up {formatValue(avgWakeups, 1)} times per night on average
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="flex justify-center">
+        <Button className="w-full sm:w-auto">View Detailed Sleep Analysis</Button>
       </div>
     </div>
   );
