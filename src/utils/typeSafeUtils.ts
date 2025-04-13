@@ -56,12 +56,32 @@ export function safeArrayCast<T>(array: unknown): T[] {
 }
 
 /**
- * Adapt an array from Supabase with any types to a specific model
+ * Adapt an array from any source to a specific model using a mapping function
  * 
  * @param array - The array to adapt
- * @returns The array adapted to the specified model
+ * @param mapFn - Optional mapping function to transform each item
+ * @returns The mapped array
  */
-export function adaptArrayModel<T>(array: any[] | null): T[] {
+export function adaptArrayModel<T, U = T>(
+  array: any[] | null, 
+  mapFn?: (item: any) => U
+): U[] {
   if (!array) return [];
-  return array.map(item => item as unknown as T);
+  
+  if (mapFn) {
+    return array.map(item => mapFn(item));
+  }
+  
+  return array as unknown as U[];
+}
+
+/**
+ * Safely transform database objects to application models
+ * 
+ * @param data - The data to transform
+ * @param defaultValue - Default value if data is invalid
+ */
+export function safeTransform<T>(data: any, defaultValue: T): T {
+  if (!data) return defaultValue;
+  return data as T;
 }

@@ -12,7 +12,7 @@ export interface BreathingTechnique {
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   benefits: string[];
   icon?: string;
-  pattern?: {
+  pattern: {
     inhale: number;
     hold?: number;
     exhale: number;

@@ -1,11 +1,10 @@
-
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { ConsultationSession } from "@/types/database";
 import { useToast } from "@/hooks/use-toast";
-import { adaptArrayModel } from "@/utils/typeSafeUtils";
+import { safeArrayCast } from "@/utils/typeSafeUtils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -38,7 +37,7 @@ export const ClientConsultationDashboard = () => {
 
       if (error) throw error;
 
-      return adaptArrayModel(data || [], (item) => ({
+      return data?.map(item => ({
         id: item.id,
         client_id: item.client_id,
         professional_id: item.professional_id,
@@ -56,7 +55,7 @@ export const ClientConsultationDashboard = () => {
           full_name: item.professional?.full_name || "Unknown Professional",
           avatar_url: item.professional?.avatar_url || "",
         },
-      }));
+      })) || [];
     },
     enabled: !!session?.user?.id,
   });
@@ -84,7 +83,6 @@ export const ClientConsultationDashboard = () => {
   const filteredConsultations = () => {
     if (!consultations) return [];
     
-    // Filter by tab selection
     let filtered = consultations;
     
     if (activeTab === "upcoming") {
@@ -103,7 +101,6 @@ export const ClientConsultationDashboard = () => {
       );
     }
     
-    // Filter by search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
@@ -114,7 +111,6 @@ export const ClientConsultationDashboard = () => {
       );
     }
     
-    // Filter by session type
     if (typeFilter !== "all") {
       filtered = filtered.filter(session => session.session_type === typeFilter);
     }
@@ -136,15 +132,12 @@ export const ClientConsultationDashboard = () => {
   };
 
   const submitFeedback = (sessionId: string) => {
-    // Navigate to feedback form
     toast({
       title: "Feedback form",
       description: "Opening feedback form for your session.",
     });
-    // Navigation logic would go here
   };
 
-  // Get unique session types for filter dropdown
   const sessionTypes = consultations 
     ? ["all", ...new Set(consultations.map(s => s.session_type).filter(Boolean))]
     : ["all"];

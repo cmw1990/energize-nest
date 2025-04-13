@@ -9,11 +9,12 @@ import PufferfishScene3D from './scenes/PufferfishScene3D';
 import { Loader2 } from 'lucide-react';
 import { generateNatureSound } from '@/utils/audio';
 import { useAudioGenerator } from '@/hooks/useAudioGenerator';
+import { BreathPhase } from '@/types/games';
 
 const BreathingGame = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [breathPhase, setBreathPhase] = useState<'inhale' | 'hold' | 'exhale' | 'rest'>('rest');
+  const [breathPhase, setBreathPhase] = useState<BreathPhase>('rest');
   const [selectedTechnique, setSelectedTechnique] = useState<BreathingTechnique | null>(null);
   const [ambientSound, setAmbientSound] = useState<ReturnType<typeof generateNatureSound> | null>(null);
   const { toast } = useToast();

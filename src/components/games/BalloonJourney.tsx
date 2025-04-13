@@ -9,11 +9,12 @@ import BalloonScene3D from './scenes/BalloonScene3D';
 import { Loader2 } from 'lucide-react';
 import { generateNatureSound } from '@/utils/audio';
 import { GameAssetsGenerator } from '@/components/GameAssetsGenerator';
+import { BreathPhase } from '@/types/games';
 
 const BalloonJourney = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [breathPhase, setBreathPhase] = useState<'inhale' | 'hold' | 'exhale' | 'rest'>('rest');
+  const [breathPhase, setBreathPhase] = useState<BreathPhase>('rest');
   const [selectedTechnique, setSelectedTechnique] = useState<BreathingTechnique | null>(null);
   const [ambientSound, setAmbientSound] = useState<ReturnType<typeof generateNatureSound> | null>(null);
   const { toast } = useToast();

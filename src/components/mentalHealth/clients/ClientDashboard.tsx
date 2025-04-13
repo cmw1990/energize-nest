@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { ConsultationSession } from "@/types/database";
 import { useToast } from "@/hooks/use-toast";
-import { adaptArrayModel } from "@/utils/typeSafeUtils";
+import { safeArrayCast } from "@/utils/typeSafeUtils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -34,7 +34,8 @@ export const ClientDashboard = () => {
 
       if (error) throw error;
 
-      return adaptArrayModel(data || [], (item) => ({
+      // Use safeArrayCast instead of adaptArrayModel
+      return data?.map(item => ({
         id: item.id,
         client_id: item.client_id,
         professional_id: item.professional_id,
@@ -52,7 +53,7 @@ export const ClientDashboard = () => {
           full_name: item.professional?.full_name || "Unknown Professional",
           avatar_url: item.professional?.avatar_url || "",
         },
-      }));
+      })) || [];
     },
     enabled: !!session?.user?.id,
   });
