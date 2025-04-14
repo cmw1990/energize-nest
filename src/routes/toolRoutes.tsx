@@ -1,3 +1,4 @@
+
 import { RouteObject } from "react-router-dom";
 import WordScramble from "@/pages/tools/WordScramble";
 import ColorMatch from "@/pages/tools/ColorMatch";
@@ -11,6 +12,9 @@ import PatternRecognition from "@/pages/tools/PatternRecognition";
 import SpeedMath from "@/pages/tools/SpeedMath";
 import Test from "@/pages/Test";
 import Tools from "@/pages/tools/Tools";
+import BlueLightBlockers from "@/pages/tools/BlueLightBlockers";
+import CaloriesNeededCalculator from "@/pages/tools/CaloriesNeededCalculator";
+import FastingTimer from "@/pages/tools/FastingTimer";
 
 export const toolRoutes: RouteObject[] = [
   {
@@ -63,6 +67,18 @@ export const toolRoutes: RouteObject[] = [
       {
         path: "speed-math",
         element: <SpeedMath />,
+      },
+      {
+        path: "blue-light-blockers",
+        element: <BlueLightBlockers />,
+      },
+      {
+        path: "calories-calculator",
+        element: <CaloriesNeededCalculator />,
+      },
+      {
+        path: "fasting-timer",
+        element: <FastingTimer />,
       }
     ],
   }

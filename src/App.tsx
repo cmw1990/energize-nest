@@ -42,10 +42,14 @@ import Breathing from './pages/Breathing';
 import CBT from './pages/CBT';
 import Cycle from './pages/Cycle';
 import Caffeine from './pages/Caffeine';
+import MentalHealth from './pages/MentalHealth';
 import SleepCalculator from './pages/tools/SleepCalculator';
 import SleepGoals from './pages/tools/SleepGoals';
 import WithdrawalTracker from './pages/tools/WithdrawalTracker';
 import WellnessProductDirectory from './pages/tools/WellnessProductDirectory';
+import CaloriesNeededCalculator from './pages/tools/CaloriesNeededCalculator';
+import FastingTimer from './pages/tools/FastingTimer';
+import BlueLightBlockers from './pages/tools/BlueLightBlockers';
 import Community from './pages/Community';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
@@ -68,6 +72,9 @@ function App() {
               <Route path="/tools/sleep-calculator" element={<SleepCalculator />} />
               <Route path="/tools/withdrawal-tracker" element={<WithdrawalTracker />} />
               <Route path="/tools/wellness-products" element={<WellnessProductDirectory />} />
+              <Route path="/tools/calories-calculator" element={<CaloriesNeededCalculator />} />
+              <Route path="/tools/fasting-timer" element={<FastingTimer />} />
+              <Route path="/tools/blue-light-blockers" element={<BlueLightBlockers />} />
               
               <Route path="/app" element={<Layout />}>
                 <Route index element={<Navigate to="/app/dashboard" replace />} />
@@ -81,6 +88,7 @@ function App() {
                 <Route path="health" element={<HealthDashboard />} />
                 <Route path="motivation" element={<Motivation />} />
                 <Route path="supplements" element={<Supplements />} />
+                <Route path="mental-health" element={<MentalHealth />} />
                 <Route path="nicotine" element={<Nicotine />} />
                 <Route path="recovery" element={<Recovery />} />
                 <Route path="sobriety" element={<Sobriety />} />
@@ -110,6 +118,9 @@ function App() {
                 <Route path="web-tools/sleep-goals" element={<SleepGoals />} />
                 <Route path="web-tools/withdrawal-tracker" element={<WithdrawalTracker />} />
                 <Route path="web-tools/wellness-products" element={<WellnessProductDirectory />} />
+                <Route path="web-tools/calories-calculator" element={<CaloriesNeededCalculator />} />
+                <Route path="web-tools/fasting-timer" element={<FastingTimer />} />
+                <Route path="web-tools/blue-light-blockers" element={<BlueLightBlockers />} />
               </Route>
               
               <Route path="*" element={<Navigate to="/" replace />} />
