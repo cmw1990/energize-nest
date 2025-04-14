@@ -6,7 +6,6 @@ import { queryClient } from "./lib/query-client";
 
 import { AuthProvider } from "./components/AuthProvider";
 import { Layout } from "./components/Layout";
-import { LandingPage } from "./LandingPage";
 
 import Weight from "./pages/Weight";
 import { BeveragesPage } from "./pages/Beverages";
@@ -52,17 +51,6 @@ import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import Help from './pages/Help';
 import { Toaster } from './components/ui/toaster';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 30, // 30 minutes (replaced cacheTime which is deprecated)
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
 
 function App() {
   return (
