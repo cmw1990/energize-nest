@@ -1,7 +1,15 @@
-import { Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './components/AuthProvider';
-import { ThemeProvider } from './components/ThemeProvider';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { ThemeProvider } from "./components/ThemeProvider";
+import { queryClient } from "./lib/query-client";
+
+import { AuthProvider } from "./components/AuthProvider";
+import { Layout } from "./components/Layout";
+import { LandingPage } from "./LandingPage";
+
+import Weight from "./pages/Weight";
+import { BeveragesPage } from "./pages/Beverages";
+
 import Dashboard from './pages/Dashboard';
 import Desktop from './pages/Desktop';
 import Tasks from './pages/Tasks';
@@ -24,7 +32,6 @@ import WhyUs from './pages/WhyUs';
 import Auth from './pages/Auth';
 import NotFound from './pages/NotFound';
 import ErrorPage from './pages/ErrorPage';
-import Layout from './components/Layout';
 import Focus from './pages/Focus';
 import Meditation from './pages/Meditation';
 import Sleep from './pages/Sleep';
@@ -57,61 +64,63 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light" storageKey="wellness-ui-theme">
-        <AuthProvider>
-          <Toaster />
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/why-us" element={<WhyUs />} />
-            
-            <Route path="/app" element={<Layout />}>
-              <Route index element={<Dashboard />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="desktop" element={<Desktop />} />
-              <Route path="tasks" element={<Tasks />} />
-              <Route path="energy-plans" element={<EnergyPlans />} />
-              <Route path="energy-plans/create" element={<CreateEnergyPlanPage />} />
-              <Route path="energy-plans/edit/:id" element={<EditEnergyPlanPage />} />
-              <Route path="energy-plans/:id" element={<EnergyPlanDetailsPage />} />
-              <Route path="health" element={<HealthDashboard />} />
-              <Route path="motivation" element={<Motivation />} />
-              <Route path="supplements" element={<Supplements />} />
-              <Route path="nicotine" element={<Nicotine />} />
-              <Route path="recovery" element={<Recovery />} />
-              <Route path="sobriety" element={<Sobriety />} />
-              <Route path="nutrition" element={<Nutrition />} />
-              <Route path="brain-games" element={<BrainGames />} />
-              <Route path="productivity" element={<ProductivityDashboard />} />
-              <Route path="web-tools/*" element={<WebTools />} />
-              <Route path="focus" element={<Focus />} />
-              <Route path="distraction-manager" element={<DistractionManager />} />
-              <Route path="sleep" element={<Sleep />} />
-              <Route path="sleep-tracking" element={<SleepTracking />} />
-              <Route path="meditation" element={<Meditation />} />
-              <Route path="breathing" element={<Breathing />} />
-              <Route path="relax" element={<Relax />} />
-              <Route path="cbt" element={<CBT />} />
-              <Route path="cycle" element={<Cycle />} />
-              <Route path="caffeine" element={<Caffeine />} />
-              <Route path="community" element={<Community />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="settings" element={<Settings />} />
-              <Route path="help" element={<Help />} />
+    <Router>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider defaultTheme="light" storageKey="wellness-ui-theme">
+          <AuthProvider>
+            <Toaster />
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/why-us" element={<WhyUs />} />
               
-              <Route path="web-tools/sleep-calculator" element={<SleepCalculator />} />
-              <Route path="web-tools/sleep-goals" element={<SleepGoals />} />
-              <Route path="web-tools/withdrawal-tracker" element={<WithdrawalTracker />} />
-              <Route path="/app/breathing" element={<Breathing />} />
-            </Route>
-            
-            <Route path="*" element={<NotFound />} />
-            <Route path="/error" element={<ErrorPage />} />
-          </Routes>
-        </AuthProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+              <Route path="/app" element={<Layout />}>
+                <Route index element={<Navigate to="/app/dashboard" replace />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="desktop" element={<Desktop />} />
+                <Route path="tasks" element={<Tasks />} />
+                <Route path="energy-plans" element={<EnergyPlans />} />
+                <Route path="energy-plans/create" element={<CreateEnergyPlanPage />} />
+                <Route path="energy-plans/edit/:id" element={<EditEnergyPlanPage />} />
+                <Route path="energy-plans/:id" element={<EnergyPlanDetailsPage />} />
+                <Route path="health" element={<HealthDashboard />} />
+                <Route path="motivation" element={<Motivation />} />
+                <Route path="supplements" element={<Supplements />} />
+                <Route path="nicotine" element={<Nicotine />} />
+                <Route path="recovery" element={<Recovery />} />
+                <Route path="sobriety" element={<Sobriety />} />
+                <Route path="nutrition" element={<Nutrition />} />
+                <Route path="brain-games" element={<BrainGames />} />
+                <Route path="productivity" element={<ProductivityDashboard />} />
+                <Route path="web-tools/*" element={<WebTools />} />
+                <Route path="focus" element={<Focus />} />
+                <Route path="distraction-manager" element={<DistractionManager />} />
+                <Route path="sleep" element={<Sleep />} />
+                <Route path="sleep-tracking" element={<SleepTracking />} />
+                <Route path="meditation" element={<Meditation />} />
+                <Route path="breathing" element={<Breathing />} />
+                <Route path="relax" element={<Relax />} />
+                <Route path="cbt" element={<CBT />} />
+                <Route path="cycle" element={<Cycle />} />
+                <Route path="caffeine" element={<Caffeine />} />
+                <Route path="community" element={<Community />} />
+                <Route path="profile" element={<Profile />} />
+                <Route path="settings" element={<Settings />} />
+                <Route path="help" element={<Help />} />
+                
+                <Route path="web-tools/sleep-calculator" element={<SleepCalculator />} />
+                <Route path="web-tools/sleep-goals" element={<SleepGoals />} />
+                <Route path="web-tools/withdrawal-tracker" element={<WithdrawalTracker />} />
+                <Route path="/app/breathing" element={<Breathing />} />
+              </Route>
+              
+              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="/error" element={<ErrorPage />} />
+            </Routes>
+          </AuthProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </Router>
   );
 }
 

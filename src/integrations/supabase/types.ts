@@ -40578,6 +40578,33 @@ export type Database = {
         }
         Relationships: []
       }
+      weight_logs: {
+        Row: {
+          created_at: string
+          id: string
+          log_date: string
+          notes: string | null
+          user_id: string
+          weight_kg: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          log_date?: string
+          notes?: string | null
+          user_id: string
+          weight_kg: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          log_date?: string
+          notes?: string | null
+          user_id?: string
+          weight_kg?: number
+        }
+        Relationships: []
+      }
       weight_logs8: {
         Row: {
           created_at: string | null
