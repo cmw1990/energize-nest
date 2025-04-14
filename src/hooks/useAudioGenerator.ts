@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef, createContext, useContext } from 'react';
 import { NoiseType, NatureSound, AudioGeneratorHook, AudioSettings as AudioSettingsType } from '@/types/audio';
 import { generateBinauralBeat, createNatureSoundPlayer } from '@/utils/audio/binauralBeatGenerator';
@@ -52,7 +53,7 @@ const useAudioGeneratorInternal = (): AudioGeneratorHook => {
   });
 
   const [activeBinauralBeat, setActiveBinauralBeat] = useState<ReturnType<typeof generateBinauralBeat> | null>(null);
-  const [activeNatureSound, setActiveNatureSound] = useState<ReturnType<typeof createNatureSoundPlayer> | null>(null);
+  const [activeNatureSound, setActiveNatureSound] = useState<Awaited<ReturnType<typeof createNatureSoundPlayer>> | null>(null);
 
   const audioContextRef = useRef<AudioContext | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
