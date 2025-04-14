@@ -1,3 +1,4 @@
+
 import { lazy } from 'react';
 import { RouteObject } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
@@ -21,6 +22,7 @@ const DistractionManager = lazy(() => import('@/pages/DistractionManager'));
 const Profile = lazy(() => import('@/pages/Profile'));
 const Settings = lazy(() => import('@/pages/Settings'));
 const WebTools = lazy(() => import('@/pages/WebTools')); 
+const Relax = lazy(() => import('@/pages/Relax'));
 
 export const mainRoutes: RouteObject[] = [
   {
@@ -44,7 +46,8 @@ export const mainRoutes: RouteObject[] = [
       { path: 'distraction-manager', element: <DistractionManager /> },
       { path: 'profile', element: <Profile /> },
       { path: 'settings', element: <Settings /> },
-      { path: 'web-tools', element: <WebTools /> }
+      { path: 'web-tools', element: <WebTools /> },
+      { path: 'relax', element: <Relax /> }
     ],
   },
 ];
