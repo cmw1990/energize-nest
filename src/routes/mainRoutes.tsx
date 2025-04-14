@@ -23,6 +23,8 @@ const Profile = lazy(() => import('@/pages/Profile'));
 const Settings = lazy(() => import('@/pages/Settings'));
 const WebTools = lazy(() => import('@/pages/WebTools')); 
 const Relax = lazy(() => import('@/pages/Relax'));
+const Auth = lazy(() => import('@/pages/Auth'));
+const Test = lazy(() => import('@/pages/Test'));
 
 export const mainRoutes: RouteObject[] = [
   {
@@ -47,9 +49,11 @@ export const mainRoutes: RouteObject[] = [
       { path: 'profile', element: <Profile /> },
       { path: 'settings', element: <Settings /> },
       { path: 'web-tools', element: <WebTools /> },
-      { path: 'relax', element: <Relax /> }
+      { path: 'relax', element: <Relax /> },
+      { path: 'test', element: <Test /> }
     ],
   },
+  { path: '/auth', element: <Auth /> },
 ];
 
 export default mainRoutes;

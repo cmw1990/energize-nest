@@ -15,16 +15,26 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Modified to prevent automatic redirects from the auth page
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      // Only redirect if there's an active session AND we came from a protected route
-      if (session && localStorage.getItem("redirectAfterAuth")) {
-        navigate(localStorage.getItem("redirectAfterAuth") || "/app");
-        localStorage.removeItem("redirectAfterAuth");
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Auth session check error:", error);
+          return;
+        }
+        
+        // Only redirect if there's an active session AND we came from a protected route
+        if (data.session && localStorage.getItem("redirectAfterAuth")) {
+          navigate(localStorage.getItem("redirectAfterAuth") || "/dashboard");
+          localStorage.removeItem("redirectAfterAuth");
+        }
+      } catch (e) {
+        console.error("Error checking auth:", e);
       }
     };
+    
     checkUser();
   }, [navigate]);
 
@@ -42,21 +52,23 @@ const Auth = () => {
     setLoading(true);
     
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
 
       if (error) throw error;
 
-      toast({
-        title: "Success!",
-        description: "Check your email for the confirmation link.",
-      });
-    } catch (error) {
+      if (data?.user) {
+        toast({
+          title: "Success!",
+          description: "Account created. Check your email for confirmation.",
+        });
+      }
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to sign up",
         variant: "destructive",
       });
     } finally {
@@ -78,21 +90,29 @@ const Auth = () => {
     setLoading(true);
     
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
       
-      // Get redirect target or default to app
-      const redirectTo = localStorage.getItem("redirectAfterAuth") || "/app";
+      console.log("Sign in successful:", data);
+      
+      // Get redirect target or default to dashboard
+      const redirectTo = localStorage.getItem("redirectAfterAuth") || "/dashboard";
       localStorage.removeItem("redirectAfterAuth");
       navigate(redirectTo);
-    } catch (error) {
+      
       toast({
-        title: "Error",
-        description: error.message,
+        title: "Welcome back!",
+        description: "You've successfully signed in",
+      });
+    } catch (error: any) {
+      console.error("Sign in error:", error);
+      toast({
+        title: "Sign In Failed",
+        description: error.message || "Incorrect email or password",
         variant: "destructive",
       });
     } finally {
@@ -132,7 +152,7 @@ const Auth = () => {
                   required
                 />
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Loading..." : "Sign In"}
+                  {loading ? "Signing In..." : "Sign In"}
                 </Button>
               </form>
             </TabsContent>
@@ -153,7 +173,7 @@ const Auth = () => {
                   required
                 />
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Loading..." : "Sign Up"}
+                  {loading ? "Creating Account..." : "Sign Up"}
                 </Button>
               </form>
             </TabsContent>

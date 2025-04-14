@@ -11,14 +11,14 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   userRole: string | null;
-  signOut: () => Promise<void>; // Add signOut method to the context type
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({ 
   session: null, 
   loading: true,
   userRole: null,
-  signOut: async () => {} // Provide a default implementation
+  signOut: async () => {} 
 });
 
 export const useAuth = () => {
@@ -52,7 +52,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .eq('user_id', session.user.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching user role:", error);
+        return null;
+      }
       return data;
     },
     enabled: !!session?.user?.id
@@ -111,62 +114,76 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     
     // Refresh token function
     const refreshToken = async () => {
-      const { data: { session: newSession }, error } = await supabase.auth.refreshSession();
-      if (error) {
-        console.error('Error refreshing token:', error);
+      try {
+        const { data, error } = await supabase.auth.refreshSession();
         
-        // Only redirect to auth if we're on a protected route
-        if (requiresAuth) {
-          toast({
-            title: "Session Error",
-            description: "Please sign in again",
-            variant: "destructive",
-          });
-          localStorage.setItem("redirectAfterAuth", location.pathname);
-          navigate("/auth");
+        if (error) {
+          console.error('Error refreshing token:', error);
+          
+          // Only redirect to auth if we're on a protected route
+          if (requiresAuth) {
+            toast({
+              title: "Session Error",
+              description: "Please sign in again",
+              variant: "destructive",
+            });
+            localStorage.setItem("redirectAfterAuth", location.pathname);
+            navigate("/auth");
+          }
+        } else if (data.session) {
+          setSession(data.session);
+          if (data.session?.user?.id) {
+            initializeUserSettings(data.session.user.id);
+          }
         }
-      } else if (newSession) {
-        setSession(newSession);
-        if (newSession.user?.id) {
-          initializeUserSettings(newSession.user.id);
-        }
+      } catch (e) {
+        console.error('Error in refreshToken:', e);
       }
     };
 
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session?.user?.id) {
-        initializeUserSettings(session.user.id);
-      }
-      setLoading(false);
-
-      // If no session and on a protected route, redirect to auth
-      if (!session && requiresAuth) {
-        localStorage.setItem("redirectAfterAuth", location.pathname);
-        navigate("/auth");
-      }
-
-      // Set up token refresh interval
-      const tokenRefreshInterval = setInterval(() => {
-        if (session) {
-          refreshToken();
+    const getInitialSession = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Error getting session:", error);
+          setLoading(false);
+          if (requiresAuth) {
+            toast({
+              title: "Authentication Error",
+              description: "Please try logging in again",
+              variant: "destructive",
+            });
+            navigate("/auth");
+          }
+          return;
         }
-      }, 3600000); // Refresh token every hour
-
-      return () => clearInterval(tokenRefreshInterval);
-    }).catch((error) => {
-      console.error("Error getting session:", error);
-      setLoading(false);
-      if (requiresAuth) {
-        toast({
-          title: "Authentication Error",
-          description: "Please try logging in again",
-          variant: "destructive",
-        });
-        navigate("/auth");
+        
+        setSession(data.session);
+        if (data.session?.user?.id) {
+          initializeUserSettings(data.session.user.id);
+        }
+        
+        // If no session and on a protected route, redirect to auth
+        if (!data.session && requiresAuth) {
+          localStorage.setItem("redirectAfterAuth", location.pathname);
+          navigate("/auth");
+        }
+        
+        setLoading(false);
+      } catch (e) {
+        console.error("Error in getInitialSession:", e);
+        setLoading(false);
       }
-    });
+    };
+    
+    getInitialSession();
+
+    // Set up token refresh interval
+    const tokenRefreshInterval = setInterval(() => {
+      refreshToken();
+    }, 3600000); // Refresh token every hour
 
     // Listen for auth changes
     const {
@@ -181,7 +198,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      clearInterval(tokenRefreshInterval);
+      subscription.unsubscribe();
+    };
   }, [navigate, toast, location.pathname]);
 
   return (
