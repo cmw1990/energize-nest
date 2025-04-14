@@ -4,6 +4,7 @@
 ## Recently Completed
 - ✅ Added SoundscapePlayer component for the Relax page
 - ✅ Implemented BinauralBeatPlayer component with frequency control
+- ✅ Added BinauralBeatSequencer for creating custom binaural beat patterns
 - ✅ Updated Relax page to include new sound & binaural beat player components
 - ✅ Added comprehensive BreathingExercises component with multiple patterns
 - ✅ Created dedicated Breathing page with technique guides and interactive player
@@ -35,6 +36,7 @@
    - ✅ Guided Meditation
    - ✅ Ambient Sounds
    - ✅ Binaural Beats
+   - ✅ Advanced Binaural Beat Sequencer
    - ✅ Breathing Exercises
    - ✅ Smart Breaks
 

@@ -1,170 +1,150 @@
 
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { GuidedMeditation } from "@/components/relax/GuidedMeditation";
-import { SoundscapePlayer } from "@/components/relax/SoundscapePlayer";
-import { BinauralBeatPlayer } from "@/components/relax/BinauralBeatPlayer";
-import { SmartBreakSuggestions } from "@/components/focus/SmartBreakSuggestions";
-import { Flower2, Wind, Brain, Cloud, Music, Timer } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { SoundscapePlayer } from "@/components/audio/SoundscapePlayer";
+import { BinauralBeatPlayer } from "@/components/audio/BinauralBeatPlayer";
+import { BinauralBeatSequencer } from "@/components/audio/BinauralBeatSequencer";
+import { BreathingExercise } from "@/components/breathing/BreathingExercise";
 import { useNavigate } from "react-router-dom";
+import { Wind, Waves, Brain, Leaf, Clock, LucideIcon, Sparkles } from "lucide-react";
+
+// Define relaxation categories with their respective icons
+const relaxationCategories = [
+  { name: "Ambient Sounds", icon: Waves, description: "Natural soundscapes to relax your mind", path: "sounds" },
+  { name: "Binaural Beats", icon: Brain, description: "Frequency-based audio for brain entrainment", path: "binaural" },
+  { name: "Breathing", icon: Wind, description: "Guided breathing exercises for relaxation", path: "breathing" },
+  { name: "Meditation", icon: Sparkles, description: "Guided meditation sessions", path: "/app/meditation" },
+  { name: "Quick Breaks", icon: Clock, description: "Short relaxation activities for busy schedules", path: "breaks" },
+];
 
 const Relax = () => {
   const navigate = useNavigate();
-  
+  const [activeTab, setActiveTab] = useState("sounds");
+
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Relax & Unwind</h1>
-        <div className="flex items-center gap-2 text-primary">
-          <Flower2 className="h-5 w-5" />
-          <span className="font-medium">Mindfulness Center</span>
-        </div>
+    <div className="container space-y-6">
+      <div className="flex flex-col space-y-2">
+        <h1 className="text-3xl font-bold">Relax & Unwind</h1>
+        <p className="text-muted-foreground">Tools to help you relax, reduce stress, and find calm</p>
       </div>
-      
-      {/* Quick Tools */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 hover:shadow-md transition-shadow">
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center text-center space-y-3">
-              <div className="bg-white/80 dark:bg-white/10 rounded-full p-3">
-                <Wind className="h-5 w-5 text-indigo-500" />
-              </div>
-              <h3 className="font-medium">Breathing Exercises</h3>
-              <p className="text-sm text-muted-foreground">
-                Guided breathing techniques for relaxation
-              </p>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => navigate("/app/breathing")}
-              >
-                Start Breathing
+
+      {/* Category Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        {relaxationCategories.map((category) => {
+          const Icon = category.icon;
+          return (
+            <Card 
+              key={category.name}
+              className={`cursor-pointer hover:shadow-md transition-shadow ${
+                activeTab === category.path ? "border-primary border-2" : ""
+              }`}
+              onClick={() => {
+                if (category.path.startsWith("/")) {
+                  navigate(category.path);
+                } else {
+                  setActiveTab(category.path);
+                }
+              }}
+            >
+              <CardContent className="pt-6">
+                <div className="flex flex-col items-center text-center space-y-2">
+                  <div className="bg-primary/10 rounded-full p-3">
+                    <Icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <h3 className="font-medium">{category.name}</h3>
+                  <p className="text-sm text-muted-foreground">{category.description}</p>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Content Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsContent value="sounds" className="space-y-4">
+          <SoundscapePlayer />
+        </TabsContent>
+
+        <TabsContent value="binaural" className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <BinauralBeatPlayer />
+            <BinauralBeatSequencer />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="breathing" className="space-y-4">
+          <BreathingExercise />
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Leaf className="h-5 w-5 text-primary" />
+                More Breathing Techniques
+              </CardTitle>
+              <CardDescription>
+                Explore our comprehensive library of breathing exercises
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={() => navigate("/app/breathing")}>
+                View Breathing Library
               </Button>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 hover:shadow-md transition-shadow">
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center text-center space-y-3">
-              <div className="bg-white/80 dark:bg-white/10 rounded-full p-3">
-                <Brain className="h-5 w-5 text-blue-500" />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="breaks" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Relaxation Breaks</CardTitle>
+              <CardDescription>
+                Short activities to reset your mind during a busy day
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <Card className="bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors">
+                  <CardContent className="pt-6">
+                    <h3 className="font-medium mb-2">2-Minute Mindfulness</h3>
+                    <p className="text-sm text-muted-foreground">
+                      A quick mindfulness exercise to center yourself
+                    </p>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors">
+                  <CardContent className="pt-6">
+                    <h3 className="font-medium mb-2">Desk Stretches</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Simple stretches you can do at your desk
+                    </p>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors">
+                  <CardContent className="pt-6">
+                    <h3 className="font-medium mb-2">Eye Rest</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Exercises to reduce eye strain from screen time
+                    </p>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors">
+                  <CardContent className="pt-6">
+                    <h3 className="font-medium mb-2">Quick Visualization</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Brief guided visualization for mental reset
+                    </p>
+                  </CardContent>
+                </Card>
               </div>
-              <h3 className="font-medium">Meditation</h3>
-              <p className="text-sm text-muted-foreground">
-                Guided sessions for mindfulness practice
-              </p>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => navigate("/app/meditation")}
-              >
-                Begin Session
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 hover:shadow-md transition-shadow">
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center text-center space-y-3">
-              <div className="bg-white/80 dark:bg-white/10 rounded-full p-3">
-                <Music className="h-5 w-5 text-green-500" />
-              </div>
-              <h3 className="font-medium">Nature Sounds</h3>
-              <p className="text-sm text-muted-foreground">
-                Ambient soundscapes to create calm
-              </p>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => document.getElementById('soundscape')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                Play Sounds
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="space-y-6">
-          <Card id="soundscape" className="border border-primary/10 scroll-mt-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Cloud className="h-5 w-5 text-primary" />
-                Ambient Sounds
-              </CardTitle>
-              <CardDescription>Create a custom blend of calming sounds</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <SoundscapePlayer />
             </CardContent>
           </Card>
-          
-          <Card id="binaural" className="border border-primary/10 scroll-mt-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Brain className="h-5 w-5 text-primary" />
-                Brain Entrainment
-              </CardTitle>
-              <CardDescription>Use binaural beats to influence brainwave states</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <BinauralBeatPlayer />
-            </CardContent>
-          </Card>
-        </div>
-        
-        <div className="space-y-6">
-          <Card id="meditation" className="border border-primary/10 scroll-mt-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Flower2 className="h-5 w-5 text-primary" />
-                Guided Sessions
-              </CardTitle>
-              <CardDescription>Follow guided meditations for mindfulness</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <GuidedMeditation />
-            </CardContent>
-          </Card>
-          
-          <Card id="breaks" className="border border-primary/10 scroll-mt-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Timer className="h-5 w-5 text-primary" />
-                Mindful Breaks
-              </CardTitle>
-              <CardDescription>Take strategic breaks to refresh your mind</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <SmartBreakSuggestions />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-      
-      <div className="flex justify-center gap-4">
-        <Button 
-          variant="outline" 
-          className="flex items-center gap-2"
-          onClick={() => navigate("/app/breathing")}
-        >
-          <Wind className="h-4 w-4" />
-          Breathing Techniques
-        </Button>
-        <Button 
-          variant="outline" 
-          className="flex items-center gap-2"
-          onClick={() => navigate("/app/meditation")}
-        >
-          <Flower2 className="h-4 w-4" />
-          Meditation Library
-        </Button>
-      </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
