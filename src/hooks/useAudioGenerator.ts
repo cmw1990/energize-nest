@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, createContext, useContext } from 'react';
 import { NoiseType, NatureSound, AudioGeneratorHook, AudioSettings as AudioSettingsType } from '@/types/audio';
 import { generateBinauralBeat, createNatureSoundPlayer } from '@/utils/audio/binauralBeatGenerator';
@@ -6,7 +5,7 @@ import { generateBinauralBeat, createNatureSoundPlayer } from '@/utils/audio/bin
 interface AudioSettings {
   noiseType: NoiseType;
   natureSound: NatureSound | null;
-  binaural?: {
+  binaural: {
     enabled: boolean;
     baseFrequency: number;
     beatFrequency: number;
