@@ -1,277 +1,348 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/components/AuthProvider';
+import { supabase } from '@/integrations/supabase/client';
+import { format } from 'date-fns';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { NutritionTracker } from "@/components/nutrition/NutritionTracker";
-import { MealPlanner } from "@/components/nutrition/MealPlanner";
-import { NutritionGoals } from "@/components/nutrition/NutritionGoals";
-import { NutritionAnalytics } from "@/components/nutrition/NutritionAnalytics";
-import { RecipeCalculator } from "@/components/nutrition/RecipeCalculator";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  Apple, 
-  Utensils, 
-  BarChart, 
-  Target, 
-  FileSpreadsheet, 
-  ListChecks,
-  Coffee,
-  Droplet 
-} from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { FoodLogForm } from '@/components/food/FoodLogForm';
+import { NutritionDashboard } from '@/components/nutrition/NutritionDashboard';
+import { NutritionAnalytics } from '@/components/nutrition/NutritionAnalytics';
+import { NutritionGoals } from '@/components/nutrition/NutritionGoals';
+import { WeightTracker } from '@/components/weight/WeightTracker';
+import { TodayFoodLogs } from '@/components/food/TodayFoodLogs';
+import { BarcodeScanner } from '@/components/food/BarcodeScanner';
+import { RecipeCalculator } from '@/components/nutrition/RecipeCalculator';
+import {
+  NutritionGoalRecord,
+  FoodLogEntry,
+  NutritionSummary,
+  WeightTrend
+} from '@/types/nutrition';
+import { cn } from "@/lib/utils";
+import {
+  ChartPie,
+  ShoppingBasket,
+  Scale,
+  Target,
+  BarChart3,
+  Calendar,
+  Clock,
+  Calculator,
+  Camera
+} from 'lucide-react';
 
-const Nutrition = () => {
-  const [activeTab, setActiveTab] = useState('tracker');
-  
+const NutritionPage = () => {
+  const { session } = useAuth();
+  const [activeGoal, setActiveGoal] = useState<NutritionGoalRecord | null>(null);
+  const [todaysFoodLogs, setTodaysFoodLogs] = useState<FoodLogEntry[]>([]);
+  const [nutritionSummary, setNutritionSummary] = useState<NutritionSummary | null>(null);
+  const [weightTrends, setWeightTrends] = useState<WeightTrend[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showScanner, setShowScanner] = useState(false);
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      loadNutritionData();
+    }
+  }, [session]);
+
+  const loadNutritionData = async () => {
+    if (!session?.user?.id) return;
+    setIsLoading(true);
+
+    try {
+      // Load active nutrition goal
+      const { data: goalData, error: goalError } = await supabase
+        .from('nutrition_goals')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (goalError) throw goalError;
+      setActiveGoal(goalData);
+
+      // Load today's food logs
+      const today = format(new Date(), 'yyyy-MM-dd');
+      const { data: logsData, error: logsError } = await supabase
+        .from('food_logs')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .eq('log_date', today)
+        .order('timestamp', { ascending: false });
+
+      if (logsError) throw logsError;
+      setTodaysFoodLogs(logsData || []);
+
+      // Calculate nutrition summary
+      if (logsData) {
+        const summary: NutritionSummary = {
+          total_calories: 0,
+          total_protein: 0,
+          total_carbs: 0,
+          total_fat: 0,
+          total_fiber: 0,
+          meals: {
+            breakfast: [],
+            lunch: [],
+            dinner: [],
+            snack: []
+          },
+          goal_progress: {
+            calories: 0,
+            protein: 0,
+            carbs: 0,
+            fat: 0,
+            fiber: 0
+          }
+        };
+
+        logsData.forEach(log => {
+          summary.total_calories += log.calories;
+          summary.total_protein += log.protein_grams;
+          summary.total_carbs += log.carbs_grams;
+          summary.total_fat += log.fat_grams;
+          summary.total_fiber += log.fiber_grams || 0;
+          if (log.meal_type) {
+            summary.meals[log.meal_type].push(log);
+          }
+        });
+
+        if (goalData) {
+          summary.goal_progress = {
+            calories: (summary.total_calories / (goalData.calories_goal || 1)) * 100,
+            protein: (summary.total_protein / (goalData.protein_goal_g || 1)) * 100,
+            carbs: (summary.total_carbs / (goalData.carbs_goal_g || 1)) * 100,
+            fat: (summary.total_fat / (goalData.fat_goal_g || 1)) * 100,
+            fiber: (summary.total_fiber / (goalData.fiber_goal_g || 1)) * 100
+          };
+        }
+
+        setNutritionSummary(summary);
+      }
+
+      // Load weight trends
+      const { data: weightData, error: weightError } = await supabase
+        .from('weight_logs')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .order('log_date', { ascending: true })
+        .limit(30);
+
+      if (weightError) throw weightError;
+      
+      const trends: WeightTrend[] = weightData?.map(log => ({
+        date: format(new Date(log.log_date), 'MMM d'),
+        weight: log.weight_kg,
+        bmi: log.height_m ? log.weight_kg / (log.height_m * log.height_m) : undefined,
+        goal_weight: goalData?.target_weight_kg,
+        notes: log.notes
+      })) || [];
+
+      setWeightTrends(trends);
+    } catch (err) {
+      console.error('Error loading nutrition data:', err);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load nutrition data"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteFoodLog = async (id: string) => {
+    if (!session?.user?.id) return;
+
+    try {
+      const { error } = await supabase
+        .from('food_logs')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', session.user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Food log deleted successfully"
+      });
+
+      loadNutritionData();
+    } catch (err) {
+      console.error('Error deleting food log:', err);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete food log"
+      });
+    }
+  };
+
+  const onFoodLogged = () => {
+    loadNutritionData();
+    toast({
+      title: "Success",
+      description: "Food logged successfully",
+    });
+  };
+
+  const onBarcodeScanned = (barcodeData: string) => {
+    setShowScanner(false);
+    // Handle barcode data
+    toast({
+      title: "Barcode Scanned",
+      description: `Processing barcode: ${barcodeData}`,
+    });
+  };
+
   return (
-    <div className="container mx-auto space-y-6 p-4">
+    <div className="container mx-auto px-4 py-8 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Nutrition & Diet</h1>
-        <div className="flex items-center gap-2">
-          <Apple className="h-5 w-5 text-primary" />
-          <span className="font-medium text-primary">Healthy Eating</span>
+        <h1 className="text-3xl font-bold tracking-tight">Nutrition Hub</h1>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => setShowScanner(true)}
+          >
+            <Camera className="h-4 w-4 mr-2" />
+            Scan Food
+          </Button>
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 hover:shadow-md transition-shadow">
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center text-center space-y-3">
-              <div className="bg-white/80 dark:bg-white/10 rounded-full p-3">
-                <Utensils className="h-5 w-5 text-green-500" />
-              </div>
-              <h3 className="font-medium">Food Logging</h3>
-              <p className="text-sm text-muted-foreground">
-                Track your daily food intake and nutrients
-              </p>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setActiveTab('tracker')}
-              >
-                Log Meals
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 hover:shadow-md transition-shadow">
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center text-center space-y-3">
-              <div className="bg-white/80 dark:bg-white/10 rounded-full p-3">
-                <ListChecks className="h-5 w-5 text-blue-500" />
-              </div>
-              <h3 className="font-medium">Meal Planning</h3>
-              <p className="text-sm text-muted-foreground">
-                Create meal plans and shopping lists
-              </p>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setActiveTab('planner')}
-              >
-                Plan Meals
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 hover:shadow-md transition-shadow">
-          <CardContent className="pt-6">
-            <div className="flex flex-col items-center text-center space-y-3">
-              <div className="bg-white/80 dark:bg-white/10 rounded-full p-3">
-                <FileSpreadsheet className="h-5 w-5 text-purple-500" />
-              </div>
-              <h3 className="font-medium">Recipe Calculator</h3>
-              <p className="text-sm text-muted-foreground">
-                Calculate nutrition for your recipes
-              </p>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setActiveTab('recipes')}
-              >
-                Calculate Recipes
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid grid-cols-5">
-          <TabsTrigger value="tracker" className="flex items-center gap-2">
-            <Utensils className="h-4 w-4" />
-            <span>Food Tracker</span>
+      <Tabs defaultValue="dashboard" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-5 lg:w-auto gap-4 p-1">
+          <TabsTrigger value="dashboard" className="flex items-center gap-2">
+            <ChartPie className="h-4 w-4" />
+            <span className="hidden sm:inline">Dashboard</span>
           </TabsTrigger>
-          <TabsTrigger value="planner" className="flex items-center gap-2">
-            <ListChecks className="h-4 w-4" />
-            <span>Meal Planner</span>
-          </TabsTrigger>
-          <TabsTrigger value="recipes" className="flex items-center gap-2">
-            <FileSpreadsheet className="h-4 w-4" />
-            <span>Recipe Calculator</span>
+          <TabsTrigger value="food-log" className="flex items-center gap-2">
+            <ShoppingBasket className="h-4 w-4" />
+            <span className="hidden sm:inline">Food Log</span>
           </TabsTrigger>
           <TabsTrigger value="goals" className="flex items-center gap-2">
             <Target className="h-4 w-4" />
-            <span>Nutrition Goals</span>
+            <span className="hidden sm:inline">Goals</span>
+          </TabsTrigger>
+          <TabsTrigger value="recipes" className="flex items-center gap-2">
+            <Calculator className="h-4 w-4" />
+            <span className="hidden sm:inline">Recipes</span>
           </TabsTrigger>
           <TabsTrigger value="analytics" className="flex items-center gap-2">
-            <BarChart className="h-4 w-4" />
-            <span>Analytics</span>
+            <BarChart3 className="h-4 w-4" />
+            <span className="hidden sm:inline">Analytics</span>
           </TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="tracker" className="space-y-4">
-          <NutritionTracker />
+
+        <TabsContent value="dashboard" className="space-y-6">
+          <NutritionDashboard
+            goal={activeGoal}
+            summary={nutritionSummary}
+            weightTrends={weightTrends}
+            isLoading={isLoading}
+          />
         </TabsContent>
-        
-        <TabsContent value="planner" className="space-y-4">
-          <MealPlanner />
+
+        <TabsContent value="food-log" className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Add Food Entry</CardTitle>
+                <CardDescription>Log your meals and snacks</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FoodLogForm onSuccess={onFoodLogged} />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Today's Logs</CardTitle>
+                <CardDescription>
+                  {format(new Date(), 'EEEE, MMMM d, yyyy')}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[400px] pr-4">
+                  {todaysFoodLogs.length > 0 ? (
+                    <TodayFoodLogs
+                      logs={todaysFoodLogs}
+                      onDelete={handleDeleteFoodLog}
+                    />
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <ShoppingBasket className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                      <p>No food logs yet today</p>
+                      <p className="text-sm">Start tracking your meals above</p>
+                    </div>
+                  )}
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
-        
-        <TabsContent value="recipes" className="space-y-4">
+
+        <TabsContent value="goals">
+          <NutritionGoals
+            currentGoal={activeGoal}
+            onGoalUpdated={loadNutritionData}
+          />
+        </TabsContent>
+
+        <TabsContent value="recipes">
           <RecipeCalculator />
         </TabsContent>
-        
-        <TabsContent value="goals" className="space-y-4">
-          <NutritionGoals />
-        </TabsContent>
-        
-        <TabsContent value="analytics" className="space-y-4">
-          <NutritionAnalytics />
+
+        <TabsContent value="analytics">
+          <NutritionAnalytics
+            goal={activeGoal}
+            summary={nutritionSummary}
+            weightTrends={weightTrends}
+          />
         </TabsContent>
       </Tabs>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Droplet className="h-5 w-5 text-blue-500" />
-              Water Intake
-            </CardTitle>
-            <CardDescription>
-              Track your daily hydration levels
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col items-center space-y-4">
-              <div className="relative w-48 h-48">
-                <div className="absolute inset-0 rounded-full border-4 border-blue-100 dark:border-blue-900/30"></div>
-                <div 
-                  className="absolute bottom-0 left-0 right-0 bg-blue-500/80 rounded-b-full transition-all duration-1000"
-                  style={{ height: '70%' }}
-                ></div>
-                <div className="absolute inset-0 flex items-center justify-center flex-col">
-                  <span className="text-3xl font-bold">70%</span>
-                  <span className="text-sm text-muted-foreground">1.4L / 2L</span>
+
+      {showScanner && (
+        <Card className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm">
+          <CardContent className="flex items-center justify-center min-h-screen p-4">
+            <Card className="w-full max-w-lg">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Scan Barcode</CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowScanner(false)}
+                  >
+                    ×
+                  </Button>
                 </div>
-              </div>
-              
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm">
-                  + 200ml
-                </Button>
-                <Button variant="outline" size="sm">
-                  + 500ml
-                </Button>
-                <Button variant="outline" size="sm">
-                  Custom
-                </Button>
-              </div>
-            </div>
+                <CardDescription>
+                  Point your camera at a food barcode
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <BarcodeScanner onScanned={onBarcodeScanned} />
+              </CardContent>
+            </Card>
           </CardContent>
         </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Coffee className="h-5 w-5 text-amber-700" />
-              Other Beverages
-            </CardTitle>
-            <CardDescription>
-              Track caffeine, alcohol, and other beverages
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-[200px]">
-              <div className="space-y-4">
-                <div className="p-3 border rounded-lg flex justify-between items-center">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-amber-100 dark:bg-amber-900/30 p-2 rounded-full">
-                      <Coffee className="h-4 w-4 text-amber-700" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Coffee</h4>
-                      <p className="text-xs text-muted-foreground">95mg caffeine</p>
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="sm">Add</Button>
-                </div>
-                
-                <div className="p-3 border rounded-lg flex justify-between items-center">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-full">
-                      <svg className="h-4 w-4 text-green-700" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 16C15.866 16 19 12.866 19 9C19 5.134 15.866 2 12 2C8.13401 2 5 5.134 5 9C5 12.866 8.13401 16 12 16Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M12 16V22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M8 22H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Green Tea</h4>
-                      <p className="text-xs text-muted-foreground">28mg caffeine</p>
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="sm">Add</Button>
-                </div>
-                
-                <div className="p-3 border rounded-lg flex justify-between items-center">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-red-100 dark:bg-red-900/30 p-2 rounded-full">
-                      <svg className="h-4 w-4 text-red-700" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M17 8L21 12M21 12L17 16M21 12H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Energy Drink</h4>
-                      <p className="text-xs text-muted-foreground">80mg caffeine</p>
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="sm">Add</Button>
-                </div>
-                
-                <div className="p-3 border rounded-lg flex justify-between items-center">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-amber-100 dark:bg-amber-900/30 p-2 rounded-full">
-                      <svg className="h-4 w-4 text-amber-700" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M8 22H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M7 10H17L16 22H8L7 10Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M12 15V18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M15 15L14.5 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M9 15L9.5 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M12 6C8.68629 6 6 3.31371 6 0H18C18 3.31371 15.3137 6 12 6Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M17 6L17 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M7 6L7 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Beer</h4>
-                      <p className="text-xs text-muted-foreground">5% alcohol, 150 calories</p>
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="sm">Add</Button>
-                </div>
-              </div>
-            </ScrollArea>
-            
-            <Button className="w-full mt-4">
-              Add Custom Beverage
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      )}
     </div>
   );
 };
 
-export default Nutrition;
+export default NutritionPage;

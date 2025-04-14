@@ -1,204 +1,52 @@
+import { lazy } from 'react';
+import { RouteObject } from 'react-router-dom';
+import { Layout } from '@/components/layout/Layout';
 
-import { RouteObject } from "react-router-dom";
-import CreateEnergyPlanPage from "@/pages/CreateEnergyPlanPage";
-import EnergyPlans from "@/pages/EnergyPlans";
-import Pregnancy from "@/pages/Pregnancy";
-import LandingPage from "@/pages/LandingPage";
-import Dashboard from "@/pages/Dashboard";
-import InsuranceDashboard from "@/pages/insurance/Dashboard";
-import { InsuranceClaimSubmission } from "@/pages/insurance/SubmitClaim";
-import { InsuranceCoverageVerification } from "@/pages/insurance/VerifyCoverage";
-import Tools from "@/pages/tools/Tools";
-import GamesHub from "@/pages/games/GamesHub";
-import Tasks from "@/pages/Tasks";
-import Calendar from "@/pages/Calendar";
-import Tracking from "@/pages/Tracking";
-import Focus from "@/pages/Focus";
-import Auth from "@/pages/Auth";
-import ErrorPage from "@/pages/ErrorPage";
-import PregnancyLog from "@/pages/PregnancyLog";
-import HealthDashboard from "@/pages/HealthDashboard";
-import Recovery from "@/pages/Recovery";
-import Sobriety from "@/pages/Sobriety";
-import Nutrition from "@/pages/Nutrition";
-import BMICalculator from "@/pages/tools/BMICalculator";
-import WordScramble from "@/pages/tools/WordScramble";
-import WithdrawalTracker from "@/pages/tools/WithdrawalTracker";
-import SleepGuideArticle from "@/pages/tools/SleepGuideArticle";
-import SleepTracking from "@/pages/tools/SleepTracking";
-import StressCheck from "@/pages/tools/StressCheck";
-import WhiteNoise from "@/pages/tools/WhiteNoise";
-import StroopTest from "@/pages/tools/StroopTest";
-import FocusTimer from "@/pages/tools/FocusTimer";
-import SpeedMath from "@/pages/tools/SpeedMath";
-import WaterIntakeCalculator from "@/pages/tools/WaterIntakeCalculator";
-import Motivation from "@/pages/Motivation";
-import Food from "@/pages/Food";
-import Nicotine from "@/pages/Nicotine";
-import Supplements from "@/pages/Supplements";
-import Desktop from "@/pages/Desktop";
-import DistractionManager from "@/pages/DistractionManager";
+// Lazy load pages
+const LandingPage = lazy(() => import('@/pages/LandingPage'));
+const Dashboard = lazy(() => import('@/pages/Dashboard'));
+const Sleep = lazy(() => import('@/pages/Sleep'));
+const BeveragesPage = lazy(() => import('@/pages/Beverages'));
+const Weight = lazy(() => import('@/pages/Weight'));
+const Food = lazy(() => import('@/pages/Food'));
+const Exercise = lazy(() => import('@/pages/Exercise'));
+const Nutrition = lazy(() => import('@/pages/Nutrition'));
+const MentalHealth = lazy(() => import('@/pages/MentalHealth'));
+const Motivation = lazy(() => import('@/pages/Motivation'));
+const Focus = lazy(() => import('@/pages/Focus'));
+const CBT = lazy(() => import('@/pages/CBT'));
+const Breathing = lazy(() => import('@/pages/Breathing'));
+const BrainGames = lazy(() => import('@/pages/BrainGames'));
+const DistractionManager = lazy(() => import('@/pages/DistractionManager'));
+const Profile = lazy(() => import('@/pages/Profile'));
+const Settings = lazy(() => import('@/pages/Settings'));
+const WebTools = lazy(() => import('@/pages/WebTools')); 
 
 export const mainRoutes: RouteObject[] = [
   {
-    path: "/",
+    path: '/',
+    element: <Layout />,
     children: [
-      {
-        index: true,
-        element: <LandingPage />,
-      },
-      {
-        path: "app",
-        element: <Dashboard />,
-      },
-      {
-        path: "app/dashboard",
-        element: <Dashboard />,
-      },
-      {
-        path: "desktop",
-        element: <Desktop />,
-      },
-      {
-        path: "energy-plans",
-        element: <EnergyPlans />,
-      },
-      {
-        path: "energy-plans/create",
-        element: <CreateEnergyPlanPage />,
-      },
-      {
-        path: "pregnancy",
-        element: <Pregnancy />,
-      },
-      {
-        path: "pregnancy/log",
-        element: <PregnancyLog />,
-      },
-      {
-        path: "insurance/dashboard",
-        element: <InsuranceDashboard />,
-      },
-      {
-        path: "insurance/submit-claim",
-        element: <InsuranceClaimSubmission />,
-      },
-      {
-        path: "insurance/verify-coverage",
-        element: <InsuranceCoverageVerification />,
-      },
-      {
-        path: "tools",
-        element: <Tools />,
-      },
-      {
-        path: "tools/bmi-calculator",
-        element: <BMICalculator />,
-      },
-      {
-        path: "tools/word-scramble",
-        element: <WordScramble />,
-      },
-      {
-        path: "tools/withdrawal-tracker",
-        element: <WithdrawalTracker />,
-      },
-      {
-        path: "tools/sleep-guide",
-        element: <SleepGuideArticle />,
-      },
-      {
-        path: "tools/sleep-tracking",
-        element: <SleepTracking />,
-      },
-      {
-        path: "tools/stress-check",
-        element: <StressCheck />,
-      },
-      {
-        path: "tools/white-noise",
-        element: <WhiteNoise />,
-      },
-      {
-        path: "tools/stroop-test",
-        element: <StroopTest />,
-      },
-      {
-        path: "tools/focus-timer",
-        element: <FocusTimer />,
-      },
-      {
-        path: "tools/speed-math",
-        element: <SpeedMath />,
-      },
-      {
-        path: "tools/water-intake-calculator",
-        element: <WaterIntakeCalculator />,
-      },
-      {
-        path: "games",
-        element: <GamesHub />,
-      },
-      {
-        path: "tasks",
-        element: <Tasks />,
-      },
-      {
-        path: "calendar",
-        element: <Calendar />,
-      },
-      {
-        path: "tracking",
-        element: <Tracking />,
-      },
-      {
-        path: "health",
-        element: <HealthDashboard />,
-      },
-      {
-        path: "nutrition",
-        element: <Nutrition />,
-      },
-      {
-        path: "food",
-        element: <Food />,
-      },
-      {
-        path: "motivation",
-        element: <Motivation />,
-      },
-      {
-        path: "supplements",
-        element: <Supplements />,
-      },
-      {
-        path: "distraction-manager",
-        element: <DistractionManager />,
-      },
-      {
-        path: "focus",
-        element: <Focus />,
-      },
-      {
-        path: "auth",
-        element: <Auth />,
-      },
-      {
-        path: "error",
-        element: <ErrorPage />,
-      },
-      {
-        path: "sobriety",
-        element: <Sobriety />,
-      },
-      {
-        path: "nicotine",
-        element: <Nicotine />,
-      },
-      {
-        path: "sobriety/recovery",
-        element: <Recovery />,
-      },
+      { path: '/', element: <LandingPage /> },
+      { path: 'dashboard', element: <Dashboard /> },
+      { path: 'sleep', element: <Sleep /> },
+      { path: 'beverages', element: <BeveragesPage /> },
+      { path: 'weight', element: <Weight /> },
+      { path: 'food', element: <Food /> },
+      { path: 'exercise', element: <Exercise /> },
+      { path: 'nutrition', element: <Nutrition /> },
+      { path: 'mental-health', element: <MentalHealth /> },
+      { path: 'motivation', element: <Motivation /> },
+      { path: 'focus', element: <Focus /> },
+      { path: 'cbt', element: <CBT /> },
+      { path: 'breathing', element: <Breathing /> },
+      { path: 'brain-games', element: <BrainGames /> },
+      { path: 'distraction-manager', element: <DistractionManager /> },
+      { path: 'profile', element: <Profile /> },
+      { path: 'settings', element: <Settings /> },
+      { path: 'web-tools', element: <WebTools /> }
     ],
-  }
+  },
 ];
+
+export default mainRoutes;

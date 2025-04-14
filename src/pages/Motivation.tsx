@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,11 +13,12 @@ import { MotivationStats } from "@/components/motivation/MotivationStats";
 import { AchievementWall } from "@/components/motivation/AchievementWall";
 import { MotivationJournal } from "@/components/motivation/MotivationJournal";
 import { VisionBoard } from "@/components/motivation/VisionBoard";
+import { Affirmations } from "@/components/motivation/Affirmations"; // Import Affirmations component
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Sparkles, Lightbulb, Brain, Target, Rocket, ArrowUpRight, Trophy, 
+import {
+  Sparkles, Lightbulb, Brain, Target, Rocket, ArrowUpRight, Trophy,
   ScrollText, ImagePlus, Star, Clock, Calendar, BookOpen, BadgeCheck,
-  Heart, Briefcase, DollarSign
+  Heart, Briefcase, DollarSign, Smile // Added Smile for Affirmations tab
 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
@@ -42,13 +42,13 @@ const Motivation = () => {
     queryKey: ['motivation-goals', session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return [];
-      
+
       const { data, error } = await supabase
         .from('motivation_goals')
         .select('*')
         .eq('user_id', session.user.id)
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
       return data;
     },
@@ -60,13 +60,13 @@ const Motivation = () => {
     queryKey: ['motivation-achievements', session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return [];
-      
+
       const { data, error } = await supabase
         .from('motivation_achievements')
         .select('*')
         .eq('user_id', session.user.id)
         .order('achieved_at', { ascending: false });
-      
+
       if (error) throw error;
       return data;
     },
@@ -111,7 +111,7 @@ const Motivation = () => {
           bgColor: "bg-emerald-50",
         },
       ];
-      
+
       return tips;
     }
   });
@@ -132,7 +132,7 @@ const Motivation = () => {
         })
         .select()
         .single();
-      
+
       if (error) throw error;
       return data;
     },
@@ -160,20 +160,20 @@ const Motivation = () => {
     mutationFn: async ({ goalId, progress }: { goalId: string; progress: number }) => {
       const { data, error } = await supabase
         .from('motivation_goals')
-        .update({ 
+        .update({
           progress,
           status: progress >= 100 ? 'completed' : 'active'
         })
         .eq('id', goalId)
         .select()
         .single();
-      
+
       if (error) throw error;
-      
+
       // If goal is completed, create an achievement
       if (progress >= 100) {
         const goal = goals?.find(g => g.id === goalId);
-        
+
         if (goal) {
           const { error: achievementError } = await supabase
             .from('motivation_achievements')
@@ -185,11 +185,11 @@ const Motivation = () => {
               category: goal.category,
               associated_goal_id: goalId
             });
-          
+
           if (achievementError) console.error("Error creating achievement:", achievementError);
         }
       }
-      
+
       return data;
     },
     onSuccess: () => {
@@ -219,7 +219,7 @@ const Motivation = () => {
       });
       return;
     }
-    
+
     addGoalMutation.mutate({
       title: newGoalTitle,
       description: newGoalDescription,
@@ -286,7 +286,7 @@ const Motivation = () => {
       }
     }
   };
-  
+
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 }
@@ -304,13 +304,13 @@ const Motivation = () => {
   return (
     <div className="min-h-screen bg-background">
       <TopNav />
-      <motion.div 
+      <motion.div
         className="container mx-auto p-4 space-y-8"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
-        <motion.div 
+        <motion.div
           variants={itemVariants}
           className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
         >
@@ -353,7 +353,7 @@ const Motivation = () => {
                       placeholder="What do you want to achieve?"
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Description (optional)</label>
                     <Textarea
@@ -363,7 +363,7 @@ const Motivation = () => {
                       rows={3}
                     />
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Category</label>
@@ -379,7 +379,7 @@ const Motivation = () => {
                         <option value="financial">Financial</option>
                       </select>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Deadline (optional)</label>
                       <Input
@@ -402,10 +402,10 @@ const Motivation = () => {
             </Dialog>
           </div>
         </motion.div>
-        
+
         <motion.div variants={itemVariants}>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid grid-cols-3 md:grid-cols-6 gap-2">
+            <TabsList className="grid grid-cols-4 md:grid-cols-7 gap-2"> {/* Adjusted grid columns */}
               <TabsTrigger value="dashboard" className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4" />
                 <span className="hidden md:inline">Dashboard</span>
@@ -420,6 +420,11 @@ const Motivation = () => {
                 <Trophy className="h-4 w-4" />
                 <span className="hidden md:inline">Achievements</span>
                 <span className="md:hidden">Achieve</span>
+              </TabsTrigger>
+              <TabsTrigger value="affirmations" className="flex items-center gap-2"> {/* Added Affirmations Trigger */}
+                <Smile className="h-4 w-4" />
+                <span className="hidden md:inline">Affirmations</span>
+                <span className="md:hidden">Affirm</span>
               </TabsTrigger>
               <TabsTrigger value="journal" className="flex items-center gap-2">
                 <ScrollText className="h-4 w-4" />
@@ -437,7 +442,7 @@ const Motivation = () => {
                 <span className="md:hidden">Tips</span>
               </TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="dashboard" className="space-y-6">
               <div className="grid gap-6 md:grid-cols-2">
                 <motion.div variants={itemVariants}>
@@ -611,7 +616,7 @@ const Motivation = () => {
                 </Card>
               </motion.div>
             </TabsContent>
-            
+
             <TabsContent value="goals" className="space-y-6">
               <Card className="border-primary/10 shadow-md">
                 <CardHeader>
@@ -636,7 +641,7 @@ const Motivation = () => {
                       <TabsTrigger value="completed">Completed</TabsTrigger>
                       <TabsTrigger value="all">All Goals</TabsTrigger>
                     </TabsList>
-                    
+
                     <TabsContent value="active" className="space-y-4">
                       {isLoadingGoals ? (
                         <div className="space-y-4">
@@ -734,7 +739,7 @@ const Motivation = () => {
                         </div>
                       )}
                     </TabsContent>
-                    
+
                     <TabsContent value="completed" className="space-y-4">
                       {isLoadingGoals ? (
                         <div className="space-y-4">
@@ -789,7 +794,7 @@ const Motivation = () => {
                         </div>
                       )}
                     </TabsContent>
-                    
+
                     <TabsContent value="all" className="space-y-4">
                       {isLoadingGoals ? (
                         <div className="space-y-4">
@@ -817,8 +822,8 @@ const Motivation = () => {
                       ) : (
                         <div className="space-y-4">
                           {filteredGoals?.map((goal) => (
-                            <div 
-                              key={goal.id} 
+                            <div
+                              key={goal.id}
                               className={`border rounded-lg p-4 ${
                                 goal.status === 'completed' ? 'bg-green-50/50' : 'hover:shadow-md transition-shadow'
                               }`}
@@ -853,8 +858,8 @@ const Motivation = () => {
                                   </span>
                                   <span>{goal.progress}%</span>
                                 </div>
-                                <Progress 
-                                  value={goal.progress} 
+                                <Progress
+                                  value={goal.progress}
                                   className={goal.status === 'completed' ? 'bg-green-200' : ''}
                                 />
                               </div>
@@ -888,19 +893,23 @@ const Motivation = () => {
                 </CardContent>
               </Card>
             </TabsContent>
-            
+
             <TabsContent value="achievements" className="space-y-6">
               <AchievementWall />
             </TabsContent>
-            
+
+            <TabsContent value="affirmations" className="space-y-6"> {/* Added Affirmations Content */}
+               <Affirmations />
+            </TabsContent>
+
             <TabsContent value="journal" className="space-y-6">
               <MotivationJournal />
             </TabsContent>
-            
+
             <TabsContent value="vision" className="space-y-6">
               <VisionBoard />
             </TabsContent>
-            
+
             <TabsContent value="tips" className="space-y-6">
               <Card className="border-primary/10 shadow-md">
                 <CardHeader>
@@ -922,8 +931,8 @@ const Motivation = () => {
                           <p className="text-sm text-muted-foreground mt-1">
                             {tip.description}
                           </p>
-                          <Button 
-                            variant="link" 
+                          <Button
+                            variant="link"
                             className={`p-0 h-auto mt-2 ${tip.color}`}
                             onClick={() => toast({
                               title: "Feature coming soon",
@@ -939,7 +948,7 @@ const Motivation = () => {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="border-primary/10 shadow-md bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -961,7 +970,7 @@ const Motivation = () => {
                         Specific, measurable, achievable, relevant, and time-bound (SMART) goals increase your chances of success by providing clear direction and milestones.
                       </p>
                     </div>
-                    
+
                     <div className="bg-white/70 rounded-lg p-4 shadow-sm">
                       <div className="flex items-center gap-2 mb-2">
                         <Trophy className="h-5 w-5 text-amber-500" />
@@ -971,7 +980,7 @@ const Motivation = () => {
                         Your brain responds to rewards by releasing dopamine, reinforcing behaviors. Creating a reward system for your goals leverages this natural mechanism.
                       </p>
                     </div>
-                    
+
                     <div className="bg-white/70 rounded-lg p-4 shadow-sm">
                       <div className="flex items-center gap-2 mb-2">
                         <Clock className="h-5 w-5 text-green-500" />

@@ -33,37 +33,42 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
-interface NutritionGoal {
-  id: string;
-  user_id: string;
-  calories_target: number;
-  protein_target: number;
-  carbs_target: number;
-  fat_target: number;
-  water_target: number;
-  is_active: boolean;
-  created_at: string;
-  goal_type: string;
-  goal_name: string;
-  adjustments: Record<string, any>;
-}
+import { NutritionGoal, NutritionGoalRecord } from '@/types/nutrition'; // Import shared type
+
+// Remove local NutritionGoal interface, use imported NutritionGoalRecord for DB interaction
+// and NutritionGoal for the structure (which includes defaults)
 
 export const NutritionGoals = () => {
   const { session } = useAuth();
   const { toast } = useToast();
-  const [goals, setGoals] = useState<NutritionGoal[]>([]);
-  const [activeGoal, setActiveGoal] = useState<NutritionGoal | null>(null);
+  const [goals, setGoals] = useState<NutritionGoalRecord[]>([]); // Use DB record type
+  const [activeGoal, setActiveGoal] = useState<NutritionGoalRecord | null>(null); // Use DB record type
   const [creatingGoal, setCreatingGoal] = useState(false);
   const [showMacroAdjustment, setShowMacroAdjustment] = useState(false);
   
   const [newGoal, setNewGoal] = useState({
-    goal_name: 'My Custom Goal',
-    goal_type: 'maintenance',
-    calories_target: 2000,
-    protein_target: 120,
-    carbs_target: 200,
-    fat_target: 65,
-    water_target: 3000,
+    goal_name: 'My Custom Goal', // Keep for naming the goal set
+    goal_type: 'maintenance', // Keep for calculator logic
+    // Use fields from shared NutritionGoal type
+    calories: 2000,
+    protein: 120,
+    carbs: 200,
+    fat: 65,
+    fiber: 25, // Add missing fields
+    sugar: 50,
+    sodium: 2300,
+    potassium: 3500,
+    calcium: 1000,
+    iron: 18,
+    vitaminA: 3000,
+    vitaminC: 90,
+    vitaminD: 600,
+    water_target: 3000, // Keep water target if separate
+    // Add new weight goal fields
+    target_weight_kg: null as number | null, // Explicitly type as number | null
+    target_date: null as string | null, // Explicitly type as string | null
+    weekly_weight_goal_kg: null as number | null, // e.g., -0.5 for loss, 0.25 for gain
+    start_weight_kg: null as number | null, // To track progress
     adjustments: {},
   });
   
@@ -83,11 +88,14 @@ export const NutritionGoals = () => {
   }, [session]);
   
   const fetchGoals = async () => {
+    if (!session?.user?.id) return;
     try {
+      // Select all fields corresponding to NutritionGoalRecord
+      const selectString = 'id, user_id, created_at, is_active, goal_name, goal_type, calories, protein, carbs, fat, fiber, sugar, sodium, potassium, calcium, iron, vitaminA, vitaminC, vitaminD, water_target, adjustments, target_weight_kg, target_date, weekly_weight_goal_kg, start_weight_kg';
       const { data, error } = await supabase
         .from('nutrition_goals')
-        .select('*')
-        .eq('user_id', session?.user?.id)
+        .select(selectString)
+        .eq('user_id', session.user.id)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -99,10 +107,20 @@ export const NutritionGoals = () => {
       if (active) {
         setActiveGoal(active);
       } else if (data && data.length > 0) {
-        setActiveGoal(data[0]);
+        // If no active goal, set the latest one as active (optional behavior)
+        // setActiveGoal(data[0]); 
+        // Or just leave it null
+        setActiveGoal(null); 
+      } else {
+        setActiveGoal(null);
       }
     } catch (error) {
       console.error('Error fetching nutrition goals:', error);
+      toast({
+        title: "Error",
+        description: "Could not fetch nutrition goals.",
+        variant: "destructive",
+      });
     }
   };
   
@@ -131,6 +149,13 @@ export const NutritionGoals = () => {
   const calculateGoalCalories = () => {
     const tdee = calculateTDEE();
     
+    // More precise calculation if weekly weight goal is set
+    if (newGoal.weekly_weight_goal_kg !== null) {
+        const calorieAdjustment = newGoal.weekly_weight_goal_kg * 7700 / 7; // 7700 kcal per kg approx.
+        return Math.round(tdee + calorieAdjustment);
+    }
+
+    // Fallback to percentage based on goal type
     switch (personalInfo.goal) {
       case 'weight_loss':
         return Math.round(tdee * 0.8); // 20% deficit
@@ -146,26 +171,19 @@ export const NutritionGoals = () => {
   const calculateMacros = (calories: number) => {
     let protein, carbs, fat;
     
-    switch (personalInfo.goal) {
-      case 'weight_loss':
-        protein = Math.round((calories * 0.35) / 4); // 35% of calories from protein
-        fat = Math.round((calories * 0.3) / 9); // 30% of calories from fat
-        carbs = Math.round((calories * 0.35) / 4); // 35% of calories from carbs
-        break;
-      case 'maintenance':
+    // Prioritize protein based on weight for muscle gain/loss
+    if (personalInfo.goal === 'muscle_gain' || personalInfo.goal === 'weight_loss') {
+        protein = Math.round(personalInfo.weight * 1.8); // 1.8g per kg bodyweight
+        const proteinCalories = protein * 4;
+        const remainingCalories = calories - proteinCalories;
+        // Split remaining calories (e.g., 50% carbs, 50% fat for loss; 60% carbs, 40% fat for gain)
+        const carbRatio = personalInfo.goal === 'muscle_gain' ? 0.60 : 0.50;
+        carbs = Math.round((remainingCalories * carbRatio) / 4);
+        fat = Math.round((remainingCalories * (1 - carbRatio)) / 9);
+    } else { // Maintenance or default
         protein = Math.round((calories * 0.3) / 4); // 30% of calories from protein
         fat = Math.round((calories * 0.3) / 9); // 30% of calories from fat
         carbs = Math.round((calories * 0.4) / 4); // 40% of calories from carbs
-        break;
-      case 'muscle_gain':
-        protein = Math.round((calories * 0.3) / 4); // 30% of calories from protein
-        fat = Math.round((calories * 0.25) / 9); // 25% of calories from fat
-        carbs = Math.round((calories * 0.45) / 4); // 45% of calories from carbs
-        break;
-      default:
-        protein = Math.round((calories * 0.3) / 4);
-        fat = Math.round((calories * 0.3) / 9);
-        carbs = Math.round((calories * 0.4) / 4);
     }
     
     return { protein, carbs, fat };
@@ -177,10 +195,14 @@ export const NutritionGoals = () => {
     
     setNewGoal({
       ...newGoal,
-      calories_target: calories,
-      protein_target: macros.protein,
-      carbs_target: macros.carbs,
-      fat_target: macros.fat,
+      // Update fields based on shared type
+      calories: calories,
+      protein: macros.protein,
+      carbs: macros.carbs,
+      fat: macros.fat, // Corrected field name
+      goal_type: personalInfo.goal, // Sync goal_type with calculator selection
+      // Set start weight if not already set
+      start_weight_kg: newGoal.start_weight_kg === null ? personalInfo.weight : newGoal.start_weight_kg,
     });
   };
   
@@ -188,35 +210,57 @@ export const NutritionGoals = () => {
     if (!session?.user?.id) return;
     
     try {
+      // Ensure start weight is set if a weight goal exists
+      const goalToSave = { ...newGoal };
+      if ((goalToSave.target_weight_kg !== null || goalToSave.weekly_weight_goal_kg !== null) && goalToSave.start_weight_kg === null) {
+          goalToSave.start_weight_kg = personalInfo.weight; // Use current weight from profile
+      }
+
       const { data, error } = await supabase
         .from('nutrition_goals')
         .insert({
           user_id: session.user.id,
-          goal_name: newGoal.goal_name,
-          goal_type: newGoal.goal_type,
-          calories_target: newGoal.calories_target,
-          protein_target: newGoal.protein_target,
-          carbs_target: newGoal.carbs_target,
-          fat_target: newGoal.fat_target,
-          water_target: newGoal.water_target,
-          is_active: true,
-          adjustments: newGoal.adjustments,
+          goal_name: goalToSave.goal_name,
+          goal_type: goalToSave.goal_type, 
+          // Use shared NutritionGoal fields
+          calories: goalToSave.calories,
+          protein: goalToSave.protein,
+          carbs: goalToSave.carbs,
+          fat: goalToSave.fat,
+          fiber: goalToSave.fiber,
+          sugar: goalToSave.sugar,
+          sodium: goalToSave.sodium,
+          potassium: goalToSave.potassium,
+          calcium: goalToSave.calcium,
+          iron: goalToSave.iron,
+          vitaminA: goalToSave.vitaminA,
+          vitaminC: goalToSave.vitaminC,
+          vitaminD: goalToSave.vitaminD,
+          water_target: goalToSave.water_target,
+          // Add new weight fields
+          target_weight_kg: goalToSave.target_weight_kg,
+          target_date: goalToSave.target_date,
+          weekly_weight_goal_kg: goalToSave.weekly_weight_goal_kg,
+          start_weight_kg: goalToSave.start_weight_kg, 
+          is_active: true, // New goals are always active initially
+          adjustments: goalToSave.adjustments,
         })
         .select()
         .single();
       
       if (error) throw error;
       
-      // Deactivate other goals
-      if (goals.some(g => g.is_active)) {
+      // Deactivate other goals if they exist
+      const otherGoals = goals.filter(g => g.id !== data.id && g.is_active);
+      if (otherGoals.length > 0) {
         await supabase
           .from('nutrition_goals')
           .update({ is_active: false })
           .eq('user_id', session.user.id)
-          .neq('id', data.id);
+          .neq('id', data.id); // Ensure we don't deactivate the new one
       }
       
-      await fetchGoals();
+      await fetchGoals(); // Refetch to update the list and active goal state
       setCreatingGoal(false);
       resetNewGoal();
       
@@ -228,22 +272,25 @@ export const NutritionGoals = () => {
       console.error('Error saving nutrition goal:', error);
       toast({
         title: "Error saving goal",
-        description: "There was a problem saving your nutrition goal",
+        description: (error as Error).message || "There was a problem saving your nutrition goal",
         variant: "destructive",
       });
     }
   };
   
-  const updateGoal = async (goalId: string, updates: Partial<NutritionGoal>) => {
+  // Update function signature to use Partial<NutritionGoalRecord>
+  const updateGoal = async (goalId: string, updates: Partial<NutritionGoalRecord>) => {
+    if (!session?.user?.id) return;
     try {
       const { error } = await supabase
         .from('nutrition_goals')
         .update(updates)
         .eq('id', goalId)
-        .eq('user_id', session?.user?.id);
+        .eq('user_id', session.user.id);
       
       if (error) throw error;
       
+      // Optimistically update local state
       setGoals(goals.map(goal => 
         goal.id === goalId ? { ...goal, ...updates } : goal
       ));
@@ -252,33 +299,41 @@ export const NutritionGoals = () => {
         setActiveGoal(prev => prev ? { ...prev, ...updates } : null);
       }
       
-      toast({
-        title: "Goal updated",
-        description: "Your nutrition goal has been updated",
-      });
+      // No toast on every minor adjustment, maybe only on explicit save?
+      // toast({
+      //   title: "Goal updated",
+      //   description: "Your nutrition goal has been updated",
+      // });
     } catch (error) {
       console.error('Error updating nutrition goal:', error);
+       toast({
+        title: "Error updating goal",
+        description: (error as Error).message || "Could not update goal.",
+        variant: "destructive",
+      });
     }
   };
   
   const activateGoal = async (goalId: string) => {
+     if (!session?.user?.id) return;
     try {
-      // Deactivate all goals
+      // Deactivate all other goals first
       await supabase
         .from('nutrition_goals')
         .update({ is_active: false })
-        .eq('user_id', session?.user?.id);
+        .eq('user_id', session.user.id)
+        .neq('id', goalId); // Don't deactivate the one we are activating
       
       // Activate selected goal
       const { error } = await supabase
         .from('nutrition_goals')
         .update({ is_active: true })
         .eq('id', goalId)
-        .eq('user_id', session?.user?.id);
+        .eq('user_id', session.user.id);
       
       if (error) throw error;
       
-      await fetchGoals();
+      await fetchGoals(); // Refetch to update UI
       
       toast({
         title: "Goal activated",
@@ -286,25 +341,39 @@ export const NutritionGoals = () => {
       });
     } catch (error) {
       console.error('Error activating goal:', error);
+       toast({
+        title: "Error activating goal",
+        description: (error as Error).message || "Could not activate goal.",
+        variant: "destructive",
+      });
     }
   };
   
   const deleteGoal = async (goalId: string) => {
     if (!confirm('Are you sure you want to delete this goal?')) return;
+    if (!session?.user?.id) return;
     
     try {
       const { error } = await supabase
         .from('nutrition_goals')
         .delete()
         .eq('id', goalId)
-        .eq('user_id', session?.user?.id);
+        .eq('user_id', session.user.id);
       
       if (error) throw error;
       
-      setGoals(goals.filter(goal => goal.id !== goalId));
+      // Update local state
+      const remainingGoals = goals.filter(goal => goal.id !== goalId);
+      setGoals(remainingGoals);
       
+      // If the deleted goal was active, try to activate the latest remaining one, or set to null
       if (activeGoal?.id === goalId) {
-        setActiveGoal(null);
+         const latestRemaining = remainingGoals.length > 0 ? remainingGoals[0] : null; // Assuming fetchGoals orders by date desc
+         if (latestRemaining) {
+            await activateGoal(latestRemaining.id); // Activate the next latest one
+         } else {
+            setActiveGoal(null); // No goals left
+         }
       }
       
       toast({
@@ -313,6 +382,11 @@ export const NutritionGoals = () => {
       });
     } catch (error) {
       console.error('Error deleting goal:', error);
+       toast({
+        title: "Error deleting goal",
+        description: (error as Error).message || "Could not delete goal.",
+        variant: "destructive",
+      });
     }
   };
   
@@ -320,21 +394,43 @@ export const NutritionGoals = () => {
     setNewGoal({
       goal_name: 'My Custom Goal',
       goal_type: 'maintenance',
-      calories_target: 2000,
-      protein_target: 120,
-      carbs_target: 200,
-      fat_target: 65,
+      // Reset using shared NutritionGoal fields
+      calories: 2000,
+      protein: 120,
+      carbs: 200,
+      fat: 65,
+      fiber: 25,
+      sugar: 50,
+      sodium: 2300,
+      potassium: 3500,
+      calcium: 1000,
+      iron: 18,
+      vitaminA: 3000,
+      vitaminC: 90,
+      vitaminD: 600,
       water_target: 3000,
+      // Reset new weight fields
+      target_weight_kg: null,
+      target_date: null,
+      weekly_weight_goal_kg: null,
+      start_weight_kg: null,
       adjustments: {},
     });
+     // Also reset personal info used by calculator? Optional.
+    // setPersonalInfo({ weight: 70, height: 175, age: 30, gender: 'male', activity_level: 'moderate', goal: 'maintenance' });
   };
   
-  const calculateMacroPercentages = (goal: NutritionGoal) => {
-    const proteinCalories = goal.protein_target * 4;
-    const carbsCalories = goal.carbs_target * 4;
-    const fatCalories = goal.fat_target * 9;
+  // Update function signature and field names
+  // Ensure goal is not null before accessing properties
+  const calculateMacroPercentages = (goal: NutritionGoal | NutritionGoalRecord | null) => {
+    if (!goal) return { protein: 0, carbs: 0, fat: 0 };
+    const proteinCalories = (goal.protein || 0) * 4;
+    const carbsCalories = (goal.carbs || 0) * 4;
+    const fatCalories = (goal.fat || 0) * 9;
     const totalCalories = proteinCalories + carbsCalories + fatCalories;
     
+    if (totalCalories === 0) return { protein: 33, carbs: 34, fat: 33 }; // Avoid division by zero, return rough thirds
+
     return {
       protein: Math.round((proteinCalories / totalCalories) * 100),
       carbs: Math.round((carbsCalories / totalCalories) * 100),
@@ -342,7 +438,10 @@ export const NutritionGoals = () => {
     };
   };
   
-  const getMacroTargetsDisplay = (goal: NutritionGoal) => {
+  // Update function signature
+  // Ensure goal is not null
+  const getMacroTargetsDisplay = (goal: NutritionGoal | NutritionGoalRecord | null) => {
+    if (!goal) return { protein: 0, carbs: 0, fat: 0 };
     // Ensure the percentages add up to 100%
     const rawPercentages = calculateMacroPercentages(goal);
     
@@ -350,10 +449,10 @@ export const NutritionGoals = () => {
     let { protein, carbs, fat } = rawPercentages;
     const total = protein + carbs + fat;
     
-    if (total !== 100) {
+    if (total !== 100 && total !== 0) { // Avoid adjusting if total is 0
       const diff = 100 - total;
-      // Distribute the difference proportionally
-      if (Math.abs(diff) <= 3) {
+      // Distribute the difference, prioritizing the largest component
+      if (Math.abs(diff) <= 3) { // Only adjust for small rounding errors
         if (protein >= carbs && protein >= fat) {
           protein += diff;
         } else if (carbs >= protein && carbs >= fat) {
@@ -361,13 +460,28 @@ export const NutritionGoals = () => {
         } else {
           fat += diff;
         }
+        // Ensure no negative percentages after adjustment
+        protein = Math.max(0, protein);
+        carbs = Math.max(0, carbs);
+        fat = Math.max(0, fat);
+        // Final check to ensure 100%
+        const finalTotal = protein + carbs + fat;
+        if (finalTotal !== 100) {
+            // If still not 100, add remainder to largest component again
+            const finalDiff = 100 - finalTotal;
+             if (protein >= carbs && protein >= fat) protein += finalDiff;
+             else if (carbs >= protein && carbs >= fat) carbs += finalDiff;
+             else fat += finalDiff;
+        }
+
       }
     }
     
     return { protein, carbs, fat };
   };
   
-  const renderGoalTypeLabel = (goalType: string) => {
+  const renderGoalTypeLabel = (goalType: string | null | undefined) => {
+    if (!goalType) return 'Custom';
     switch (goalType) {
       case 'weight_loss':
         return 'Weight Loss';
@@ -508,6 +622,18 @@ export const NutritionGoals = () => {
                     <option value="very_active">Extra Active (very hard exercise, physical job)</option>
                   </select>
                 </div>
+
+                {/* Add Weekly Weight Goal Input for Calculator */}
+                 <div className="space-y-2">
+                   <Label htmlFor="calc-weekly-goal">Desired Weekly Weight Change (kg)</Label>
+                   <Input 
+                     id="calc-weekly-goal" type="number" step="0.1"
+                     placeholder="e.g., -0.5 for loss, 0.25 for gain, 0 for maintenance"
+                     value={newGoal.weekly_weight_goal_kg ?? ''}
+                     onChange={(e) => setNewGoal({...newGoal, weekly_weight_goal_kg: parseFloat(e.target.value) || null})}
+                   />
+                   <p className="text-xs text-muted-foreground">Overrides the 'Goal Type' selection for calorie calculation.</p>
+                 </div>
                 
                 <div className="pt-4">
                   <Button 
@@ -553,8 +679,8 @@ export const NutritionGoals = () => {
                     type="number"
                     min="500"
                     max="10000"
-                    value={newGoal.calories_target}
-                    onChange={(e) => setNewGoal({...newGoal, calories_target: parseInt(e.target.value) || 2000})}
+                    value={newGoal.calories} 
+                    onChange={(e) => setNewGoal({...newGoal, calories: parseInt(e.target.value) || 2000})}
                   />
                 </div>
                 
@@ -565,8 +691,8 @@ export const NutritionGoals = () => {
                       id="protein"
                       type="number"
                       min="0"
-                      value={newGoal.protein_target}
-                      onChange={(e) => setNewGoal({...newGoal, protein_target: parseInt(e.target.value) || 0})}
+                      value={newGoal.protein} 
+                      onChange={(e) => setNewGoal({...newGoal, protein: parseInt(e.target.value) || 0})}
                     />
                   </div>
                   <div className="space-y-2">
@@ -575,8 +701,8 @@ export const NutritionGoals = () => {
                       id="carbs"
                       type="number"
                       min="0"
-                      value={newGoal.carbs_target}
-                      onChange={(e) => setNewGoal({...newGoal, carbs_target: parseInt(e.target.value) || 0})}
+                      value={newGoal.carbs} 
+                      onChange={(e) => setNewGoal({...newGoal, carbs: parseInt(e.target.value) || 0})}
                     />
                   </div>
                   <div className="space-y-2">
@@ -585,11 +711,40 @@ export const NutritionGoals = () => {
                       id="fat"
                       type="number"
                       min="0"
-                      value={newGoal.fat_target}
-                      onChange={(e) => setNewGoal({...newGoal, fat_target: parseInt(e.target.value) || 0})}
+                      value={newGoal.fat} 
+                      onChange={(e) => setNewGoal({...newGoal, fat: parseInt(e.target.value) || 0})}
                     />
                   </div>
                 </div>
+
+                 {/* Weight Goal Fields for Manual Entry */}
+                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t">
+                    <div className="space-y-2">
+                      <Label htmlFor="start-weight">Start Weight (kg)</Label>
+                      <Input 
+                        id="start-weight" type="number" step="0.1" min="0"
+                        value={newGoal.start_weight_kg ?? ''}
+                        onChange={(e) => setNewGoal({...newGoal, start_weight_kg: parseFloat(e.target.value) || null})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="target-weight">Target Weight (kg)</Label>
+                      <Input 
+                        id="target-weight" type="number" step="0.1" min="0"
+                        value={newGoal.target_weight_kg ?? ''}
+                        onChange={(e) => setNewGoal({...newGoal, target_weight_kg: parseFloat(e.target.value) || null})}
+                      />
+                    </div>
+                     <div className="space-y-2">
+                      <Label htmlFor="weekly-goal">Weekly Goal (kg)</Label>
+                      <Input 
+                        id="weekly-goal" type="number" step="0.1"
+                        placeholder="e.g., -0.5 or 0.25"
+                        value={newGoal.weekly_weight_goal_kg ?? ''}
+                        onChange={(e) => setNewGoal({...newGoal, weekly_weight_goal_kg: parseFloat(e.target.value) || null})}
+                      />
+                    </div>
+                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="water">Daily Water Target (ml)</Label>
@@ -598,8 +753,8 @@ export const NutritionGoals = () => {
                     type="number"
                     min="500"
                     max="10000"
-                    value={newGoal.water_target}
-                    onChange={(e) => setNewGoal({...newGoal, water_target: parseInt(e.target.value) || 3000})}
+                    value={newGoal.water_target || ''} 
+                    onChange={(e) => setNewGoal({...newGoal, water_target: parseInt(e.target.value) || 3000})} 
                   />
                 </div>
               </TabsContent>
@@ -616,9 +771,16 @@ export const NutritionGoals = () => {
                         <p className="text-sm text-muted-foreground">
                           {renderGoalTypeLabel(newGoal.goal_type)} Goal
                         </p>
+                         {/* Preview Weight Goal */}
+                         {newGoal.target_weight_kg && (
+                           <p className="text-xs text-muted-foreground mt-1">
+                             Weight: {newGoal.start_weight_kg || personalInfo.weight}kg → {newGoal.target_weight_kg}kg 
+                             {newGoal.weekly_weight_goal_kg ? ` (${newGoal.weekly_weight_goal_kg > 0 ? '+' : ''}${newGoal.weekly_weight_goal_kg} kg/week)` : ''}
+                           </p>
+                        )}
                       </div>
                       <div className="text-right">
-                        <h4 className="font-medium">{newGoal.calories_target}</h4>
+                        <h4 className="font-medium">{newGoal.calories}</h4>
                         <p className="text-sm text-muted-foreground">
                           Daily Calories
                         </p>
@@ -627,22 +789,22 @@ export const NutritionGoals = () => {
                     
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span>Protein: {newGoal.protein_target}g</span>
-                        <span>Carbs: {newGoal.carbs_target}g</span>
-                        <span>Fat: {newGoal.fat_target}g</span>
+                        <span>Protein: {newGoal.protein}g</span>
+                        <span>Carbs: {newGoal.carbs}g</span>
+                        <span>Fat: {newGoal.fat}g</span>
                       </div>
                       <div className="flex h-2 overflow-hidden rounded-full bg-muted">
                         <div 
                           className="bg-blue-400" 
-                          style={{ width: `${calculateMacroPercentages(newGoal as NutritionGoal).protein}%` }}
+                          style={{ width: `${calculateMacroPercentages(newGoal as NutritionGoalRecord).protein}%` }}
                         ></div>
                         <div 
                           className="bg-green-400" 
-                          style={{ width: `${calculateMacroPercentages(newGoal as NutritionGoal).carbs}%` }}
+                          style={{ width: `${calculateMacroPercentages(newGoal as NutritionGoalRecord).carbs}%` }}
                         ></div>
                         <div 
                           className="bg-red-400" 
-                          style={{ width: `${calculateMacroPercentages(newGoal as NutritionGoal).fat}%` }}
+                          style={{ width: `${calculateMacroPercentages(newGoal as NutritionGoalRecord).fat}%` }}
                         ></div>
                       </div>
                     </div>
@@ -686,23 +848,30 @@ export const NutritionGoals = () => {
                   <Target className="h-12 w-12 mx-auto mb-4 text-muted-foreground/40" />
                   <h3 className="text-lg font-medium mb-2">No Active Goal</h3>
                   <p className="text-muted-foreground mb-4">
-                    Create a nutrition goal to track your daily targets
+                    Create or activate a nutrition goal to track your daily targets.
                   </p>
                   <Button onClick={() => setCreatingGoal(true)}>
                     <ArrowRight className="h-4 w-4 mr-2" />
-                    Get Started
+                    Create Goal
                   </Button>
                 </div>
               ) : (
                 <div className="space-y-6">
                   <div className="flex flex-col md:flex-row gap-6">
                     <div className="bg-muted/60 rounded-lg p-4 flex-1">
-                      <div className="flex justify-between items-start">
+                      <div className="flex justify-between items-start mb-2">
                         <div>
                           <h3 className="font-medium text-lg">{activeGoal.goal_name}</h3>
                           <p className="text-sm text-muted-foreground">
                             {renderGoalTypeLabel(activeGoal.goal_type)} Goal
                           </p>
+                           {/* Display Weight Goal Info */}
+                           {activeGoal.target_weight_kg && (
+                             <p className="text-xs text-muted-foreground mt-1">
+                               Weight Goal: {activeGoal.start_weight_kg || 'N/A'}kg → {activeGoal.target_weight_kg}kg 
+                               {activeGoal.weekly_weight_goal_kg ? ` (${activeGoal.weekly_weight_goal_kg > 0 ? '+' : ''}${activeGoal.weekly_weight_goal_kg} kg/week)` : ''}
+                             </p>
+                          )}
                         </div>
                         <div className="flex items-center space-x-2">
                           <Label htmlFor="active-goal" className="text-sm">Active</Label>
@@ -710,29 +879,31 @@ export const NutritionGoals = () => {
                             id="active-goal" 
                             checked={activeGoal.is_active}
                             onCheckedChange={(checked) => {
-                              if (checked) {
+                              if (checked && !activeGoal.is_active) { // Only activate if not already active
                                 activateGoal(activeGoal.id);
                               }
+                              // Cannot deactivate the only active goal via switch, use delete or activate another
                             }}
+                            disabled={activeGoal.is_active && goals.length <= 1} // Disable if it's the only goal and active
                           />
                         </div>
                       </div>
                       
                       <div className="grid grid-cols-4 gap-4 mt-4">
                         <div className="text-center">
-                          <h4 className="text-xl font-bold">{activeGoal.calories_target}</h4>
+                          <h4 className="text-xl font-bold">{activeGoal.calories}</h4>
                           <p className="text-xs text-muted-foreground">Calories</p>
                         </div>
                         <div className="text-center">
-                          <h4 className="text-xl font-bold">{activeGoal.protein_target}g</h4>
+                          <h4 className="text-xl font-bold">{activeGoal.protein}g</h4>
                           <p className="text-xs text-muted-foreground">Protein</p>
                         </div>
                         <div className="text-center">
-                          <h4 className="text-xl font-bold">{activeGoal.carbs_target}g</h4>
+                          <h4 className="text-xl font-bold">{activeGoal.carbs}g</h4>
                           <p className="text-xs text-muted-foreground">Carbs</p>
                         </div>
                         <div className="text-center">
-                          <h4 className="text-xl font-bold">{activeGoal.fat_target}g</h4>
+                          <h4 className="text-xl font-bold">{activeGoal.fat}g</h4>
                           <p className="text-xs text-muted-foreground">Fat</p>
                         </div>
                       </div>
@@ -746,19 +917,19 @@ export const NutritionGoals = () => {
                             className="bg-blue-400 flex items-center justify-center text-xs text-white font-medium" 
                             style={{ width: `${getMacroTargetsDisplay(activeGoal).protein}%` }}
                           >
-                            {getMacroTargetsDisplay(activeGoal).protein}%
+                            {getMacroTargetsDisplay(activeGoal).protein > 5 ? `${getMacroTargetsDisplay(activeGoal).protein}%` : ''}
                           </div>
                           <div 
                             className="bg-green-400 flex items-center justify-center text-xs text-white font-medium" 
                             style={{ width: `${getMacroTargetsDisplay(activeGoal).carbs}%` }}
                           >
-                            {getMacroTargetsDisplay(activeGoal).carbs}%
+                             {getMacroTargetsDisplay(activeGoal).carbs > 5 ? `${getMacroTargetsDisplay(activeGoal).carbs}%` : ''}
                           </div>
                           <div 
                             className="bg-red-400 flex items-center justify-center text-xs text-white font-medium" 
                             style={{ width: `${getMacroTargetsDisplay(activeGoal).fat}%` }}
                           >
-                            {getMacroTargetsDisplay(activeGoal).fat}%
+                             {getMacroTargetsDisplay(activeGoal).fat > 5 ? `${getMacroTargetsDisplay(activeGoal).fat}%` : ''}
                           </div>
                         </div>
                       </div>
@@ -801,7 +972,7 @@ export const NutritionGoals = () => {
                         )}
                       </Button>
                     </CollapsibleTrigger>
-                    <CollapsibleContent className="mt-4 space-y-4">
+                    <CollapsibleContent className="mt-4 space-y-4 border p-4 rounded-md">
                       <div className="space-y-2">
                         <Label htmlFor="calories-target">Daily Calories Target</Label>
                         <div className="flex items-center gap-2">
@@ -810,8 +981,9 @@ export const NutritionGoals = () => {
                             type="number"
                             min="1000"
                             max="10000"
-                            value={activeGoal.calories_target}
-                            onChange={(e) => updateGoal(activeGoal.id, { calories_target: parseInt(e.target.value) || 2000 })}
+                            value={activeGoal.calories} 
+                            // Use debounce or onBlur for performance if needed
+                            onChange={(e) => updateGoal(activeGoal.id, { calories: parseInt(e.target.value) || 2000 })}
                           />
                           <span className="text-sm text-muted-foreground">calories</span>
                         </div>
@@ -825,8 +997,8 @@ export const NutritionGoals = () => {
                               id="protein-target"
                               type="number"
                               min="0"
-                              value={activeGoal.protein_target}
-                              onChange={(e) => updateGoal(activeGoal.id, { protein_target: parseInt(e.target.value) || 0 })}
+                              value={activeGoal.protein} 
+                              onChange={(e) => updateGoal(activeGoal.id, { protein: parseInt(e.target.value) || 0 })}
                             />
                             <span className="text-sm text-muted-foreground">g</span>
                           </div>
@@ -838,8 +1010,8 @@ export const NutritionGoals = () => {
                               id="carbs-target"
                               type="number"
                               min="0"
-                              value={activeGoal.carbs_target}
-                              onChange={(e) => updateGoal(activeGoal.id, { carbs_target: parseInt(e.target.value) || 0 })}
+                              value={activeGoal.carbs} 
+                              onChange={(e) => updateGoal(activeGoal.id, { carbs: parseInt(e.target.value) || 0 })}
                             />
                             <span className="text-sm text-muted-foreground">g</span>
                           </div>
@@ -851,13 +1023,42 @@ export const NutritionGoals = () => {
                               id="fat-target"
                               type="number"
                               min="0"
-                              value={activeGoal.fat_target}
-                              onChange={(e) => updateGoal(activeGoal.id, { fat_target: parseInt(e.target.value) || 0 })}
+                              value={activeGoal.fat} 
+                              onChange={(e) => updateGoal(activeGoal.id, { fat: parseInt(e.target.value) || 0 })}
                             />
                             <span className="text-sm text-muted-foreground">g</span>
                           </div>
                         </div>
                       </div>
+
+                       {/* Weight Goal Fields in Adjustment section */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t">
+                          <div className="space-y-2">
+                            <Label htmlFor="adj-start-weight">Start Weight (kg)</Label>
+                            <Input 
+                              id="adj-start-weight" type="number" step="0.1" min="0"
+                              value={activeGoal.start_weight_kg ?? ''}
+                              onChange={(e) => updateGoal(activeGoal.id, { start_weight_kg: parseFloat(e.target.value) || null})}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="adj-target-weight">Target Weight (kg)</Label>
+                            <Input 
+                              id="adj-target-weight" type="number" step="0.1" min="0"
+                              value={activeGoal.target_weight_kg ?? ''}
+                              onChange={(e) => updateGoal(activeGoal.id, { target_weight_kg: parseFloat(e.target.value) || null})}
+                            />
+                          </div>
+                           <div className="space-y-2">
+                            <Label htmlFor="adj-weekly-goal">Weekly Goal (kg)</Label>
+                            <Input 
+                              id="adj-weekly-goal" type="number" step="0.1"
+                              placeholder="e.g., -0.5 or 0.25"
+                              value={activeGoal.weekly_weight_goal_kg ?? ''}
+                              onChange={(e) => updateGoal(activeGoal.id, { weekly_weight_goal_kg: parseFloat(e.target.value) || null})}
+                            />
+                          </div>
+                        </div>
                       
                       <div className="space-y-2">
                         <Label htmlFor="water-target">Daily Water Target</Label>
@@ -866,8 +1067,8 @@ export const NutritionGoals = () => {
                             id="water-target"
                             type="number"
                             min="0"
-                            value={activeGoal.water_target}
-                            onChange={(e) => updateGoal(activeGoal.id, { water_target: parseInt(e.target.value) || 0 })}
+                            value={activeGoal.water_target || ''} 
+                            onChange={(e) => updateGoal(activeGoal.id, { water_target: parseInt(e.target.value) || 0 })} 
                           />
                           <span className="text-sm text-muted-foreground">ml</span>
                         </div>
@@ -877,12 +1078,14 @@ export const NutritionGoals = () => {
                 </div>
               )}
               
-              {goals.length > 1 && (
+              {goals.length > 0 && ( // Show "Other Goals" only if there are any goals
                 <div className="pt-6 border-t">
-                  <h3 className="font-medium mb-3">Other Goals</h3>
+                  <h3 className="font-medium mb-3">
+                    {activeGoal ? 'Other Goals' : 'Saved Goals'} {/* Adjust title */}
+                  </h3>
                   <div className="space-y-2">
                     {goals
-                      .filter(goal => !goal.is_active)
+                      .filter(goal => !goal.is_active) // Filter out the active goal
                       .map(goal => (
                         <div 
                           key={goal.id}
@@ -891,7 +1094,11 @@ export const NutritionGoals = () => {
                           <div>
                             <div className="font-medium">{goal.goal_name}</div>
                             <div className="text-sm text-muted-foreground">
-                              {goal.calories_target} cal • {renderGoalTypeLabel(goal.goal_type)}
+                              {goal.calories} cal • {renderGoalTypeLabel(goal.goal_type)}
+                               {/* Show weight goal summary if exists */}
+                               {goal.target_weight_kg && (
+                                 ` • ${goal.start_weight_kg || 'N/A'}kg → ${goal.target_weight_kg}kg`
+                               )}
                             </div>
                           </div>
                           <div className="flex gap-2">
@@ -906,19 +1113,23 @@ export const NutritionGoals = () => {
                               variant="ghost" 
                               size="icon"
                               onClick={() => deleteGoal(goal.id)}
-                              className="text-red-500"
+                              className="text-red-500 hover:bg-red-100"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
                         </div>
                       ))}
+                      {goals.filter(goal => !goal.is_active).length === 0 && activeGoal && (
+                         <p className="text-sm text-muted-foreground text-center py-4">No other goals saved.</p>
+                      )}
                   </div>
                 </div>
               )}
             </CardContent>
           </Card>
           
+          {/* Static Info Cards - Consider making these dynamic or removing if redundant */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card>
               <CardHeader className="pb-3">
@@ -928,32 +1139,14 @@ export const NutritionGoals = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center p-2 border-b">
-                    <span>Chicken Breast (100g)</span>
-                    <span className="font-medium">31g</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 border-b">
-                    <span>Greek Yogurt (1 cup)</span>
-                    <span className="font-medium">23g</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 border-b">
-                    <span>Salmon (100g)</span>
-                    <span className="font-medium">22g</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 border-b">
-                    <span>Eggs (2 large)</span>
-                    <span className="font-medium">12g</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 border-b">
-                    <span>Tofu (100g)</span>
-                    <span className="font-medium">8g</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2">
-                    <span>Lentils (1 cup cooked)</span>
-                    <span className="font-medium">18g</span>
-                  </div>
-                </div>
+                <ul className="space-y-1 text-sm">
+                  <li className="flex justify-between"><span>Chicken Breast (100g)</span> <span className="font-medium">31g</span></li>
+                  <li className="flex justify-between"><span>Greek Yogurt (1 cup)</span> <span className="font-medium">23g</span></li>
+                  <li className="flex justify-between"><span>Salmon (100g)</span> <span className="font-medium">22g</span></li>
+                  <li className="flex justify-between"><span>Eggs (2 large)</span> <span className="font-medium">12g</span></li>
+                  <li className="flex justify-between"><span>Tofu (100g)</span> <span className="font-medium">8g</span></li>
+                  <li className="flex justify-between"><span>Lentils (1 cup cooked)</span> <span className="font-medium">18g</span></li>
+                </ul>
               </CardContent>
             </Card>
             
@@ -965,69 +1158,33 @@ export const NutritionGoals = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center p-2 border-b">
-                    <span>Brown Rice (1 cup)</span>
-                    <span className="font-medium">45g</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 border-b">
-                    <span>Sweet Potato (1 medium)</span>
-                    <span className="font-medium">24g</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 border-b">
-                    <span>Oatmeal (1 cup)</span>
-                    <span className="font-medium">28g</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 border-b">
-                    <span>Quinoa (1 cup cooked)</span>
-                    <span className="font-medium">39g</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 border-b">
-                    <span>Banana (1 medium)</span>
-                    <span className="font-medium">27g</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2">
-                    <span>Whole Wheat Bread (2 slices)</span>
-                    <span className="font-medium">24g</span>
-                  </div>
-                </div>
+                 <ul className="space-y-1 text-sm">
+                  <li className="flex justify-between"><span>Brown Rice (1 cup)</span> <span className="font-medium">45g</span></li>
+                  <li className="flex justify-between"><span>Sweet Potato (1 medium)</span> <span className="font-medium">24g</span></li>
+                  <li className="flex justify-between"><span>Oatmeal (1 cup)</span> <span className="font-medium">28g</span></li>
+                  <li className="flex justify-between"><span>Quinoa (1 cup cooked)</span> <span className="font-medium">39g</span></li>
+                  <li className="flex justify-between"><span>Banana (1 medium)</span> <span className="font-medium">27g</span></li>
+                  <li className="flex justify-between"><span>Whole Wheat Bread (2 slices)</span> <span className="font-medium">24g</span></li>
+                </ul>
               </CardContent>
             </Card>
             
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <Heart className="h-5 w-5 text-red-500" />
+                  <Heart className="h-5 w-5 text-yellow-500" /> {/* Changed color */}
                   Healthy Fat Sources
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center p-2 border-b">
-                    <span>Avocado (1/2)</span>
-                    <span className="font-medium">15g</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 border-b">
-                    <span>Olive Oil (1 tbsp)</span>
-                    <span className="font-medium">14g</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 border-b">
-                    <span>Almonds (1 oz)</span>
-                    <span className="font-medium">14g</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 border-b">
-                    <span>Chia Seeds (2 tbsp)</span>
-                    <span className="font-medium">9g</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 border-b">
-                    <span>Salmon (100g)</span>
-                    <span className="font-medium">13g</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2">
-                    <span>Peanut Butter (2 tbsp)</span>
-                    <span className="font-medium">16g</span>
-                  </div>
-                </div>
+                 <ul className="space-y-1 text-sm">
+                  <li className="flex justify-between"><span>Avocado (1/2)</span> <span className="font-medium">15g</span></li>
+                  <li className="flex justify-between"><span>Olive Oil (1 tbsp)</span> <span className="font-medium">14g</span></li>
+                  <li className="flex justify-between"><span>Almonds (1 oz)</span> <span className="font-medium">14g</span></li>
+                  <li className="flex justify-between"><span>Chia Seeds (2 tbsp)</span> <span className="font-medium">9g</span></li>
+                  <li className="flex justify-between"><span>Salmon (100g)</span> <span className="font-medium">13g</span></li>
+                  <li className="flex justify-between"><span>Peanut Butter (2 tbsp)</span> <span className="font-medium">16g</span></li>
+                </ul>
               </CardContent>
             </Card>
           </div>

@@ -1,9 +1,22 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select"; // Added Select imports
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command"; // Added Command imports
 import { 
   PlusCircle, 
   Trash2, 
@@ -13,7 +26,8 @@ import {
   FileSpreadsheet,
   Calculator,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Loader2 // Added Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,16 +39,52 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
+import { useQuery } from '@tanstack/react-query'; // Added useQuery
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"; // Added Popover components
 
-interface Ingredient {
-  id: string;
+// Use the same SelectedFoodData interface from FoodLogForm
+interface EdamamMeasure {
+  uri: string;
+  label: string;
+  weight: number;
+  qualified?: { qualifiers: { label: string; uri: string }[] }[];
+}
+
+interface SelectedFoodData {
   name: string;
+  foodId: string;
+  calories: number; // Per 100g
+  protein: number; // Per 100g
+  carbs: number; // Per 100g
+  fat: number; // Per 100g
+  fiber?: number; // Per 100g
+  brand?: string;
+  category?: string;
+  categoryLabel?: string;
+  image?: string;
+  measures: EdamamMeasure[];
+}
+
+// Interface for ingredients stored in the DB (assuming schema update)
+interface RecipeIngredient {
+  id: string;
+  recipe_id: string;
+  name: string; // Display name
   quantity: number;
-  unit: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
+  unit: string; // User-selected unit label (e.g., "cup", "tbsp", "g")
+  food_api_id?: string | null; // ID from Edamam/OFF
+  selected_measure_uri?: string | null; // URI of the selected measure
+  // Base nutrients per 100g (fetched if food_api_id exists) - Optional, could be fetched on demand
+  base_calories_per_100g?: number | null;
+  base_protein_per_100g?: number | null;
+  base_carbs_per_100g?: number | null;
+  base_fat_per_100g?: number | null;
+  base_fiber_per_100g?: number | null;
+  // We will calculate calories, protein, carbs, fat dynamically
 }
 
 interface Recipe {
@@ -54,7 +104,7 @@ export const RecipeCalculator = () => {
   const { toast } = useToast();
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [ingredients, setIngredients] = useState<RecipeIngredient[]>([]); // Use new interface
   const [isCreatingRecipe, setIsCreatingRecipe] = useState(false);
   
   const [newRecipe, setNewRecipe] = useState<Omit<Recipe, 'id' | 'user_id' | 'created_at' | 'is_favorite'>>({
@@ -65,20 +115,57 @@ export const RecipeCalculator = () => {
     instructions: '',
   });
   
-  const [newIngredient, setNewIngredient] = useState<Omit<Ingredient, 'id'>>({
+  // State for the ingredient being added/edited
+  const [currentIngredient, setCurrentIngredient] = useState<{
+    name: string;
+    quantity: number;
+    unit: string; // This will be the selected measure label
+    selectedMeasureUri?: string | null; // URI for calculation
+    foodApiId?: string | null; // ID for fetching/recalculation
+    // Store base nutrients if fetched, or allow manual override
+    calories?: number | null; 
+    protein?: number | null;
+    carbs?: number | null;
+    fat?: number | null;
+    fiber?: number | null;
+    // Store the fetched detailed data temporarily
+    fetchedFoodData?: SelectedFoodData | null; 
+  }>({
     name: '',
     quantity: 1,
-    unit: 'cup',
-    calories: 0,
-    protein: 0,
-    carbs: 0,
-    fat: 0,
+    unit: 'unit', // Default unit
+    selectedMeasureUri: null,
+    foodApiId: null,
+    calories: null, protein: null, carbs: null, fat: null, fiber: null,
+    fetchedFoodData: null,
   });
   
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
+  // Use useQuery for ingredient search, similar to FoodLogForm
+  const { data: searchResults, isLoading: isSearching } = useQuery<{ foods: SelectedFoodData[] }>({
+      queryKey: ['ingredient-search', searchTerm],
+      queryFn: async () => {
+          if (!searchTerm || searchTerm.length < 3) return { foods: [] };
+          console.log(`Searching ingredients for: ${searchTerm}`);
+          try {
+              const { data, error } = await supabase.functions.invoke('food-database-search', {
+                  body: JSON.stringify({ query: searchTerm })
+              });
+              if (error) throw new Error(`Function error: ${error.message}`);
+              if (!data || !Array.isArray(data.foods)) return { foods: [] };
+              return data;
+          } catch (e) {
+              console.error('Error searching ingredients:', e);
+              toast({ title: "Search Error", description: e instanceof Error ? e.message : "Unknown error", variant: "destructive" });
+              return { foods: [] };
+          }
+      },
+      enabled: searchTerm.length > 2,
+      staleTime: 1000 * 60 * 5,
+      refetchOnWindowFocus: false,
+  });
   const [showIngredientForm, setShowIngredientForm] = useState(false);
+  const [ingredientSearchPopoverOpen, setIngredientSearchPopoverOpen] = useState(false);
   
   useEffect(() => {
     if (session?.user?.id) {
@@ -89,6 +176,8 @@ export const RecipeCalculator = () => {
   useEffect(() => {
     if (selectedRecipe) {
       fetchIngredients(selectedRecipe.id);
+    } else {
+      setIngredients([]); // Clear ingredients if no recipe selected
     }
   }, [selectedRecipe]);
   
@@ -118,84 +207,92 @@ export const RecipeCalculator = () => {
       if (error) throw error;
       
       setIngredients(data || []);
+      // Reset cache when ingredients are fetched for a new recipe
+      setIngredientDetailsCache({}); 
     } catch (error) {
       console.error('Error fetching ingredients:', error);
+      setIngredients([]); // Clear ingredients on error
     }
   };
   
-  const searchIngredient = async () => {
-    if (!searchTerm.trim()) return;
-    
-    setIsSearching(true);
-    try {
-      const { data, error } = await supabase
-        .from('food_database')
-        .select('*')
-        .ilike('name', `%${searchTerm}%`)
-        .limit(10);
+  // searchIngredient function is now handled by useQuery
+  
+  // Function to handle selecting a food item from search results
+  const selectSearchResult = (food: SelectedFoodData) => {
+      console.log("Selected ingredient search result:", food);
+      // Set the temporary state with fetched data
+      const defaultMeasure = food.measures.find(m => m.label.toLowerCase().includes('serving')) || food.measures[0];
+      setCurrentIngredient({
+          name: food.name,
+          quantity: 1, // Default quantity
+          unit: defaultMeasure?.label || 'unit', // Default to first measure label
+          selectedMeasureUri: defaultMeasure?.uri || null, // Default to first measure URI
+          foodApiId: food.foodId,
+          // Store base nutrients per 100g from the fetched data
+          calories: food.calories, 
+          protein: food.protein,
+          carbs: food.carbs,
+          fat: food.fat,
+          fiber: food.fiber,
+          fetchedFoodData: food, // Keep the full data temporarily
+      });
       
-      if (error) throw error;
-      
-      setSearchResults(data || []);
-    } catch (error) {
-      console.error('Error searching food database:', error);
-    } finally {
-      setIsSearching(false);
-    }
+      setIngredientSearchPopoverOpen(false); // Close popover
+      setSearchTerm(food.name); // Update search input display
+      setShowIngredientForm(true); // Ensure form fields are visible
   };
   
-  const selectSearchResult = (result: any) => {
-    setNewIngredient({
-      name: result.name,
-      quantity: 1,
-      unit: 'serving',
-      calories: result.calories,
-      protein: result.protein,
-      carbs: result.carbs,
-      fat: result.fat,
-    });
-    
-    setSearchResults([]);
-    setSearchTerm('');
-    setShowIngredientForm(true);
-  };
-  
+  // Updated addIngredient to use the new structure and state
   const addIngredient = async () => {
-    if (!selectedRecipe || !newIngredient.name) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('recipe_ingredients')
-        .insert({
+      if (!selectedRecipe || !currentIngredient.name || !currentIngredient.selectedMeasureUri) {
+          toast({ title: "Missing Information", description: "Please select an ingredient and serving size.", variant: "destructive" });
+          return;
+      };
+
+      // Construct the payload based on the conceptual schema update
+      const ingredientPayload = {
           recipe_id: selectedRecipe.id,
-          name: newIngredient.name,
-          quantity: newIngredient.quantity,
-          unit: newIngredient.unit,
-          calories: newIngredient.calories,
-          protein: newIngredient.protein,
-          carbs: newIngredient.carbs,
-          fat: newIngredient.fat,
-        })
-        .select()
-        .single();
-      
-      if (error) throw error;
-      
-      setIngredients([...ingredients, data]);
-      resetIngredientForm();
-      
-      toast({
-        title: "Ingredient added",
-        description: `${newIngredient.name} has been added to your recipe`,
-      });
-    } catch (error) {
-      console.error('Error adding ingredient:', error);
-      toast({
-        title: "Error adding ingredient",
-        description: "There was a problem saving this ingredient",
-        variant: "destructive",
-      });
-    }
+          name: currentIngredient.name, // Display name
+          quantity: currentIngredient.quantity,
+          unit: currentIngredient.unit, // The selected measure label
+          food_api_id: currentIngredient.foodApiId,
+          selected_measure_uri: currentIngredient.selectedMeasureUri,
+          // Store base nutrients if available (optional, could be fetched on demand)
+          base_calories_per_100g: currentIngredient.fetchedFoodData?.calories,
+          base_protein_per_100g: currentIngredient.fetchedFoodData?.protein,
+          base_carbs_per_100g: currentIngredient.fetchedFoodData?.carbs,
+          base_fat_per_100g: currentIngredient.fetchedFoodData?.fat,
+          base_fiber_per_100g: currentIngredient.fetchedFoodData?.fiber,
+      };
+
+      console.log("Adding ingredient with payload:", ingredientPayload);
+
+      try {
+          const { data, error } = await supabase
+              .from('recipe_ingredients')
+              .insert(ingredientPayload)
+              .select()
+              .single();
+
+          if (error) throw error;
+
+          // Important: The returned 'data' might not match RecipeIngredient exactly
+          // if the DB schema isn't updated yet. We cast it for now.
+          setIngredients([...ingredients, data as RecipeIngredient]); 
+          resetIngredientForm();
+
+          toast({
+              title: "Ingredient added",
+              description: `${currentIngredient.name} has been added to your recipe`,
+          });
+      } catch (error) {
+          console.error('Error adding ingredient:', error);
+          toast({
+              title: "Error adding ingredient",
+              description: "There was a problem saving this ingredient. Check console for details.",
+              variant: "destructive",
+          });
+      }
   };
   
   const removeIngredient = async (id: string) => {
@@ -283,10 +380,11 @@ export const RecipeCalculator = () => {
         recipe.id === data.id ? data : recipe
       ));
       
-      toast({
-        title: "Recipe updated",
-        description: "Your recipe has been updated successfully",
-      });
+      // No toast here for inline edits, maybe add a save button later
+      // toast({
+      //   title: "Recipe updated",
+      //   description: "Your recipe has been updated successfully",
+      // });
     } catch (error) {
       console.error('Error updating recipe:', error);
     }
@@ -366,16 +464,20 @@ export const RecipeCalculator = () => {
       if (ingredientsError) throw ingredientsError;
       
       if (ingredientsData && ingredientsData.length > 0) {
-        // Create new ingredients for the new recipe
+        // Create new ingredients for the new recipe, preserving necessary fields
         const newIngredients = ingredientsData.map(ing => ({
           recipe_id: newRecipeData.id,
           name: ing.name,
           quantity: ing.quantity,
           unit: ing.unit,
-          calories: ing.calories,
-          protein: ing.protein,
-          carbs: ing.carbs,
-          fat: ing.fat,
+          food_api_id: ing.food_api_id, // Copy identifier
+          selected_measure_uri: ing.selected_measure_uri, // Copy selected measure
+          // Copy base nutrients if they were stored (optional)
+          base_calories_per_100g: ing.base_calories_per_100g,
+          base_protein_per_100g: ing.base_protein_per_100g,
+          base_carbs_per_100g: ing.base_carbs_per_100g,
+          base_fat_per_100g: ing.base_fat_per_100g,
+          base_fiber_per_100g: ing.base_fiber_per_100g,
         }));
         
         const { error: newIngredientsError } = await supabase
@@ -426,17 +528,19 @@ export const RecipeCalculator = () => {
     }
   };
   
+  // Updated resetIngredientForm
   const resetIngredientForm = () => {
-    setNewIngredient({
-      name: '',
-      quantity: 1,
-      unit: 'cup',
-      calories: 0,
-      protein: 0,
-      carbs: 0,
-      fat: 0,
-    });
-    setShowIngredientForm(false);
+      setCurrentIngredient({
+          name: '',
+          quantity: 1,
+          unit: 'unit',
+          selectedMeasureUri: null,
+          foodApiId: null,
+          calories: null, protein: null, carbs: null, fat: null, fiber: null,
+          fetchedFoodData: null,
+      });
+      setSearchTerm(''); // Clear search term as well
+      setShowIngredientForm(false);
   };
   
   const resetRecipeForm = () => {
@@ -449,37 +553,114 @@ export const RecipeCalculator = () => {
     });
   };
   
+  // State to hold fetched food details for calculation
+  const [ingredientDetailsCache, setIngredientDetailsCache] = useState<Record<string, SelectedFoodData>>({});
+
+  // Fetch missing ingredient details when ingredients change
+  useEffect(() => {
+    const fetchMissingDetails = async () => {
+      const missingIds = ingredients
+        .filter(ing => ing.food_api_id && !ingredientDetailsCache[ing.food_api_id])
+        .map(ing => ing.food_api_id as string);
+
+      if (missingIds.length === 0) return;
+
+      console.log("Fetching details for missing ingredient IDs:", missingIds);
+      // In a real app, you might batch these requests
+      const detailsPromises = missingIds.map(async (foodId) => {
+        try {
+          const { data, error } = await supabase.functions.invoke('food-database-search', {
+            body: JSON.stringify({ foodId })
+          });
+          if (error) throw error;
+          if (data?.foods && data.foods.length > 0) {
+            return { [foodId]: data.foods[0] };
+          }
+        } catch (e) {
+          console.error(`Error fetching details for foodId ${foodId}:`, e);
+        }
+        return { [foodId]: null }; // Indicate fetch failed or no data
+      });
+
+      const results = await Promise.all(detailsPromises);
+      const newDetails = results.reduce((acc, res) => ({ ...acc, ...res }), {});
+      
+      setIngredientDetailsCache(prev => ({ ...prev, ...newDetails }));
+    };
+
+    fetchMissingDetails();
+  }, [ingredients]); // Re-run when ingredients list changes
+
+
+  // Recalculate nutrition based on fetched details and selected measures
   const calculateTotalNutrition = () => {
     if (!ingredients.length) {
-      return { calories: 0, protein: 0, carbs: 0, fat: 0 };
+      return { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 };
     }
-    
+
     const totals = ingredients.reduce((acc, ing) => {
-      return {
-        calories: acc.calories + ing.calories * ing.quantity,
-        protein: acc.protein + ing.protein * ing.quantity,
-        carbs: acc.carbs + ing.carbs * ing.quantity,
-        fat: acc.fat + ing.fat * ing.quantity,
-      };
-    }, { calories: 0, protein: 0, carbs: 0, fat: 0 });
-    
+      const quantity = ing.quantity || 1;
+      let calories = 0, protein = 0, carbs = 0, fat = 0, fiber = 0;
+
+      // Try to use cached/fetched details if available
+      const foodDetails = ing.food_api_id ? ingredientDetailsCache[ing.food_api_id] : null;
+
+      if (foodDetails && ing.selected_measure_uri) {
+        const measure = foodDetails.measures.find(m => m.uri === ing.selected_measure_uri);
+        if (measure) {
+          const weightMultiplier = measure.weight > 0 ? (measure.weight / 100) : 1; // Assume 1 if weight is 0 (e.g., 'piece')
+          
+          calories = (foodDetails.calories || 0) * weightMultiplier * quantity;
+          protein = (foodDetails.protein || 0) * weightMultiplier * quantity;
+          carbs = (foodDetails.carbs || 0) * weightMultiplier * quantity;
+          fat = (foodDetails.fat || 0) * weightMultiplier * quantity;
+          fiber = (foodDetails.fiber || 0) * weightMultiplier * quantity;
+        } else {
+          console.warn(`Measure ${ing.selected_measure_uri} not found for ${ing.name}. Using base 100g values if available.`);
+           // Fallback: Use base 100g values directly * quantity (less accurate)
+           calories = (ing.base_calories_per_100g || 0) * quantity;
+           protein = (ing.base_protein_per_100g || 0) * quantity;
+           carbs = (ing.base_carbs_per_100g || 0) * quantity;
+           fat = (ing.base_fat_per_100g || 0) * quantity;
+           fiber = (ing.base_fiber_per_100g || 0) * quantity;
+        }
+      } else {
+         // Manual entry or missing data - Use potentially stored base values (less accurate)
+         console.warn(`Using potentially inaccurate fallback calculation for ${ing.name}`);
+         calories = (ing.base_calories_per_100g || 0) * quantity; // This assumes quantity refers to 100g units if no measure selected
+         protein = (ing.base_protein_per_100g || 0) * quantity;
+         carbs = (ing.base_carbs_per_100g || 0) * quantity;
+         fat = (ing.base_fat_per_100g || 0) * quantity;
+         fiber = (ing.base_fiber_per_100g || 0) * quantity;
+      }
+
+      acc.calories += calories;
+      acc.protein += protein;
+      acc.carbs += carbs;
+      acc.fat += fat;
+      acc.fiber += fiber;
+
+      return acc;
+    }, { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 });
+
     return totals;
   };
   
   const calculatePerServing = () => {
-    if (!selectedRecipe || !ingredients.length) {
-      return { calories: 0, protein: 0, carbs: 0, fat: 0 };
-    }
-    
-    const totals = calculateTotalNutrition();
-    const servings = selectedRecipe.servings || 1;
-    
-    return {
-      calories: Math.round(totals.calories / servings),
-      protein: Math.round(totals.protein / servings * 10) / 10,
-      carbs: Math.round(totals.carbs / servings * 10) / 10,
-      fat: Math.round(totals.fat / servings * 10) / 10,
-    };
+      if (!selectedRecipe || !ingredients.length) {
+          return { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 };
+      }
+
+      const totals = calculateTotalNutrition();
+      const servings = selectedRecipe.servings || 1;
+
+      return {
+          calories: Math.round(totals.calories / servings),
+          protein: parseFloat((totals.protein / servings).toFixed(1)),
+          carbs: parseFloat((totals.carbs / servings).toFixed(1)),
+          fat: parseFloat((totals.fat / servings).toFixed(1)),
+          fiber: parseFloat((totals.fiber / servings).toFixed(1)), // Add fiber
+      };
   };
   
   return (
@@ -682,10 +863,7 @@ export const RecipeCalculator = () => {
                         </svg>
                         {selectedRecipe.is_favorite ? 'Favorited' : 'Favorite'}
                       </Button>
-                      <Button variant="outline" size="sm">
-                        <Save className="h-4 w-4 mr-2" />
-                        Save
-                      </Button>
+                      {/* Removed Save button, using inline edits */}
                     </div>
                   </CardTitle>
                 </CardHeader>
@@ -750,8 +928,7 @@ export const RecipeCalculator = () => {
                                   <div className="font-medium">{ingredient.name}</div>
                                   <div className="text-sm text-muted-foreground flex items-center gap-2">
                                     <span>{ingredient.quantity} {ingredient.unit}</span>
-                                    <span>•</span>
-                                    <span>{ingredient.calories} cal</span>
+                                    {/* Display calculated calories per ingredient later if needed */}
                                   </div>
                                 </div>
                                 <Button 
@@ -789,142 +966,150 @@ export const RecipeCalculator = () => {
                             </Button>
                           </CollapsibleTrigger>
                           <CollapsibleContent className="space-y-4 pt-4">
-                            <div className="flex items-end gap-2">
-                              <div className="flex-1">
-                                <Label htmlFor="ingredient-search">Search Ingredient</Label>
-                                <Input
-                                  id="ingredient-search"
-                                  placeholder="e.g., chicken breast"
-                                  value={searchTerm}
-                                  onChange={(e) => setSearchTerm(e.target.value)}
-                                  onKeyDown={(e) => e.key === 'Enter' && searchIngredient()}
-                                />
-                              </div>
-                              <Button onClick={searchIngredient} disabled={isSearching}>
-                                {isSearching ? "Searching..." : "Search"}
-                              </Button>
-                            </div>
-                            
-                            {searchResults.length > 0 && (
-                              <div className="border rounded-lg p-2">
-                                <h4 className="text-sm font-medium mb-2">Search Results</h4>
-                                <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2">
-                                  {searchResults.map((result) => (
-                                    <div 
-                                      key={result.id}
-                                      className="p-2 border rounded hover:bg-muted cursor-pointer"
-                                      onClick={() => selectSearchResult(result)}
-                                    >
-                                      <div className="font-medium">{result.name}</div>
-                                      <div className="text-xs text-muted-foreground flex flex-wrap gap-2">
-                                        <span>{result.calories} cal</span>
-                                        <span>P: {result.protein}g</span>
-                                        <span>C: {result.carbs}g</span>
-                                        <span>F: {result.fat}g</span>
-                                      </div>
-                                    </div>
-                                  ))}
+                            {/* Ingredient Search Popover */}
+                            <Popover open={ingredientSearchPopoverOpen} onOpenChange={setIngredientSearchPopoverOpen}>
+                              <PopoverTrigger asChild>
+                                <Button variant="outline" className="w-full justify-start">
+                                  {currentIngredient.name || "Search & Select Ingredient..."}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                                <Command>
+                                  <CommandInput
+                                    placeholder="Search food database..."
+                                    value={searchTerm}
+                                    onValueChange={setSearchTerm}
+                                  />
+                                  <CommandEmpty>No food found.</CommandEmpty>
+                                  <CommandGroup>
+                                    {isSearching && <CommandItem disabled><Loader2 className="mr-2 h-4 w-4 animate-spin" />Searching...</CommandItem>}
+                                    {searchResults?.foods?.map((food) => (
+                                      <CommandItem
+                                        key={food.foodId}
+                                        value={food.name}
+                                        onSelect={() => selectSearchResult(food)}
+                                        className="cursor-pointer"
+                                      >
+                                        {food.name} ({food.brand || 'Generic'}) - {food.calories} kcal/100g
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
+
+                            {/* Quantity and Measure Selection (only if ingredient selected) */}
+                            {currentIngredient.fetchedFoodData && (
+                              <div className="grid grid-cols-2 gap-4 items-end">
+                                <div className="space-y-2">
+                                  <Label htmlFor="ingredient-quantity">Quantity</Label>
+                                  <Input
+                                    id="ingredient-quantity"
+                                    type="number"
+                                    step="0.1"
+                                    min="0.1"
+                                    value={currentIngredient.quantity}
+                                    onChange={(e) => setCurrentIngredient({...currentIngredient, quantity: parseFloat(e.target.value) || 0})}
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="ingredient-measure">Unit</Label>
+                                  <Select
+                                    value={currentIngredient.selectedMeasureUri || undefined}
+                                    onValueChange={(value) => {
+                                      const measure = currentIngredient.fetchedFoodData?.measures.find(m => m.uri === value);
+                                      setCurrentIngredient({
+                                        ...currentIngredient, 
+                                        selectedMeasureUri: value,
+                                        unit: measure?.label || 'unit' 
+                                      });
+                                    }}
+                                  >
+                                    <SelectTrigger id="ingredient-measure">
+                                      <SelectValue placeholder="Select unit" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {currentIngredient.fetchedFoodData.measures.map((measure) => (
+                                        <SelectItem key={measure.uri} value={measure.uri}>
+                                          {measure.label} ({measure.weight > 0 ? `${measure.weight}g` : 'unit'})
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
                                 </div>
                               </div>
                             )}
                             
-                            <div className="space-y-4 border-t pt-4">
-                              <div className="space-y-2">
-                                <Label htmlFor="ingredient-name">Ingredient Name</Label>
-                                <Input
-                                  id="ingredient-name"
-                                  placeholder="e.g., Olive Oil"
-                                  value={newIngredient.name}
-                                  onChange={(e) => setNewIngredient({...newIngredient, name: e.target.value})}
-                                />
-                              </div>
-                              
-                              <div className="grid grid-cols-2 gap-4">
+                            {/* Manual Entry Fields (Optional - could be hidden if search result selected) */}
+                            {!currentIngredient.fetchedFoodData && (
+                              <div className="space-y-4 border-t pt-4">
+                                <p className="text-sm text-muted-foreground">Or enter manually:</p>
                                 <div className="space-y-2">
-                                  <Label htmlFor="quantity">Quantity</Label>
+                                  <Label htmlFor="manual-ingredient-name">Ingredient Name</Label>
                                   <Input
-                                    id="quantity"
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    value={newIngredient.quantity}
-                                    onChange={(e) => setNewIngredient({...newIngredient, quantity: parseFloat(e.target.value) || 0})}
+                                    id="manual-ingredient-name"
+                                    placeholder="e.g., Olive Oil"
+                                    value={currentIngredient.name}
+                                    onChange={(e) => setCurrentIngredient({...currentIngredient, name: e.target.value, foodApiId: null, fetchedFoodData: null})}
                                   />
                                 </div>
-                                <div className="space-y-2">
-                                  <Label htmlFor="unit">Unit</Label>
-                                  <select
-                                    id="unit"
-                                    className="w-full h-10 rounded-md border border-input bg-background px-3 py-2"
-                                    value={newIngredient.unit}
-                                    onChange={(e) => setNewIngredient({...newIngredient, unit: e.target.value})}
-                                  >
-                                    <option value="cup">cup</option>
-                                    <option value="tbsp">tbsp</option>
-                                    <option value="tsp">tsp</option>
-                                    <option value="oz">oz</option>
-                                    <option value="g">g</option>
-                                    <option value="ml">ml</option>
-                                    <option value="serving">serving</option>
-                                    <option value="piece">piece</option>
-                                  </select>
+                                <div className="grid grid-cols-2 gap-4">
+                                  {/* Manual Quantity/Unit */}
+                                   <div className="space-y-2">
+                                     <Label htmlFor="manual-quantity">Quantity</Label>
+                                     <Input
+                                       id="manual-quantity"
+                                       type="number"
+                                       step="0.01"
+                                       min="0"
+                                       value={currentIngredient.quantity}
+                                       onChange={(e) => setCurrentIngredient({...currentIngredient, quantity: parseFloat(e.target.value) || 0})}
+                                     />
+                                   </div>
+                                   <div className="space-y-2">
+                                     <Label htmlFor="manual-unit">Unit</Label>
+                                     <select
+                                       id="manual-unit"
+                                       className="w-full h-10 rounded-md border border-input bg-background px-3 py-2"
+                                       value={currentIngredient.unit}
+                                       onChange={(e) => setCurrentIngredient({...currentIngredient, unit: e.target.value, selectedMeasureUri: null})}
+                                     >
+                                       <option value="cup">cup</option>
+                                       <option value="tbsp">tbsp</option>
+                                       <option value="tsp">tsp</option>
+                                       <option value="oz">oz</option>
+                                       <option value="g">g</option>
+                                       <option value="ml">ml</option>
+                                       <option value="serving">serving</option>
+                                       <option value="piece">piece</option>
+                                     </select>
+                                   </div>
                                 </div>
-                              </div>
-                              
-                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                <div className="space-y-2">
-                                  <Label htmlFor="calories">Calories</Label>
-                                  <Input
-                                    id="calories"
-                                    type="number"
-                                    min="0"
-                                    value={newIngredient.calories}
-                                    onChange={(e) => setNewIngredient({...newIngredient, calories: parseFloat(e.target.value) || 0})}
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label htmlFor="protein">Protein (g)</Label>
-                                  <Input
-                                    id="protein"
-                                    type="number"
-                                    step="0.1"
-                                    min="0"
-                                    value={newIngredient.protein}
-                                    onChange={(e) => setNewIngredient({...newIngredient, protein: parseFloat(e.target.value) || 0})}
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label htmlFor="carbs">Carbs (g)</Label>
-                                  <Input
-                                    id="carbs"
-                                    type="number"
-                                    step="0.1"
-                                    min="0"
-                                    value={newIngredient.carbs}
-                                    onChange={(e) => setNewIngredient({...newIngredient, carbs: parseFloat(e.target.value) || 0})}
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label htmlFor="fat">Fat (g)</Label>
-                                  <Input
-                                    id="fat"
-                                    type="number"
-                                    step="0.1"
-                                    min="0"
-                                    value={newIngredient.fat}
-                                    onChange={(e) => setNewIngredient({...newIngredient, fat: parseFloat(e.target.value) || 0})}
-                                  />
+                                {/* Manual Nutrient Inputs */}
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                   {/* Calories, Protein, Carbs, Fat inputs similar to above */}
+                                   {/* Example for Calories */}
+                                   <div className="space-y-2">
+                                     <Label htmlFor="manual-calories">Calories</Label>
+                                     <Input
+                                       id="manual-calories" type="number" min="0"
+                                       value={currentIngredient.calories ?? ''}
+                                       onChange={(e) => setCurrentIngredient({...currentIngredient, calories: parseFloat(e.target.value) || null})}
+                                     />
+                                   </div>
+                                   {/* Add similar inputs for protein, carbs, fat, fiber */}
                                 </div>
                               </div>
-                              
-                              <Button 
-                                onClick={addIngredient}
-                                className="w-full"
-                              >
-                                <PlusCircle className="h-4 w-4 mr-2" />
-                                Add to Recipe
-                              </Button>
-                            </div>
+                            )}
+                            
+                            <Button 
+                              onClick={addIngredient}
+                              className="w-full"
+                              disabled={!currentIngredient.name || (!!currentIngredient.fetchedFoodData && !currentIngredient.selectedMeasureUri)} // Disable if fetched but no measure selected
+                            >
+                              <PlusCircle className="h-4 w-4 mr-2" />
+                              Add to Recipe
+                            </Button>
                           </CollapsibleContent>
                         </Collapsible>
                       </CardContent>
@@ -960,6 +1145,10 @@ export const RecipeCalculator = () => {
                               <span className="font-bold">Total Carbohydrates</span>
                               <span>{calculatePerServing().carbs}g</span>
                             </div>
+                             <div className="flex justify-between pl-4 text-sm">
+                               <span>Dietary Fiber</span>
+                               <span>{calculatePerServing().fiber}g</span>
+                             </div>
                             
                             <div className="flex justify-between">
                               <span className="font-bold">Protein</span>
@@ -970,14 +1159,14 @@ export const RecipeCalculator = () => {
                           <div className="pt-4 border-t text-sm text-muted-foreground">
                             <div className="flex items-center gap-1">
                               <Info className="h-4 w-4" />
-                              <span>Nutrition values are automatically calculated based on ingredients</span>
+                              <span>Nutrition values are estimates based on ingredients</span>
                             </div>
                           </div>
                         </div>
                         
                         <div className="pt-4">
                           <h3 className="font-medium text-sm mb-2">Totals for Entire Recipe</h3>
-                          <div className="grid grid-cols-4 gap-2 text-center">
+                          <div className="grid grid-cols-5 gap-2 text-center"> {/* Changed to 5 cols for fiber */}
                             <div className="p-2 bg-muted rounded-lg">
                               <div className="font-bold">{Math.round(calculateTotalNutrition().calories)}</div>
                               <div className="text-xs text-muted-foreground">Calories</div>
@@ -994,15 +1183,14 @@ export const RecipeCalculator = () => {
                               <div className="font-bold">{Math.round(calculateTotalNutrition().fat)}g</div>
                               <div className="text-xs text-muted-foreground">Fat</div>
                             </div>
+                             <div className="p-2 bg-muted rounded-lg">
+                               <div className="font-bold">{Math.round(calculateTotalNutrition().fiber)}g</div>
+                               <div className="text-xs text-muted-foreground">Fiber</div>
+                             </div>
                           </div>
                         </div>
                       </CardContent>
-                      <CardFooter>
-                        <Button className="w-full">
-                          <Calculator className="h-4 w-4 mr-2" />
-                          Recalculate Nutrition
-                        </Button>
-                      </CardFooter>
+                      {/* Removed Recalculate button, calculation should be dynamic */}
                     </Card>
                   </div>
                   

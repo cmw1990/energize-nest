@@ -9,27 +9,27 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
   DialogDescription,
-  DialogFooter 
+  DialogFooter
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-  Activity, 
-  Brain, 
-  Calendar, 
-  Heart, 
-  LineChart, 
+import {
+  Activity,
+  Brain,
+  Calendar,
+  Heart,
+  LineChart,
   Stethoscope,
-  Moon, 
-  Plus, 
-  Sun, 
-  Utensils, 
-  Weight 
+  Moon,
+  Plus,
+  Sun,
+  Utensils,
+  Weight
 } from 'lucide-react';
 import {
   LineChart as RechartsLineChart,
@@ -42,6 +42,7 @@ import {
   Legend,
 } from 'recharts';
 import { format, subDays } from 'date-fns';
+import { EnergyPatternAnalysis } from '@/components/health/EnergyPatternAnalysis'; // Import the component
 
 interface HealthMetric {
   id: string;
@@ -72,7 +73,7 @@ const HealthDashboard = () => {
   const [logDialogOpen, setLogDialogOpen] = useState(false);
   const [chartPeriod, setChartPeriod] = useState<'week' | 'month'>('week');
   const [viewingMetric, setViewingMetric] = useState<'mood' | 'energy' | 'stress' | 'sleep'>('mood');
-  
+
   const [newLog, setNewLog] = useState({
     mood_rating: 5,
     energy_level: 5,
@@ -90,43 +91,43 @@ const HealthDashboard = () => {
     symptoms: '',
     notes: '',
   });
-  
+
   const { data: healthMetrics, isLoading } = useQuery({
     queryKey: ['health_metrics', session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return null;
-      
+
       const { data, error } = await supabase
         .from('health_metrics')
         .select('*')
         .eq('user_id', session.user.id)
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
-        
-      if (error && error.code !== 'PGRST116') throw error;
+        .maybeSingle(); // Use maybeSingle to handle no rows found gracefully
+
+      if (error && error.code !== 'PGRST116') throw error; // Ignore 'No rows found' error
       return data as HealthMetric | null;
     },
     enabled: !!session?.user?.id,
   });
-  
+
   const { data: chartData, isLoading: chartLoading } = useQuery({
     queryKey: ['health_metrics_history', session?.user?.id, chartPeriod],
     queryFn: async () => {
       if (!session?.user?.id) return [];
-      
+
       const daysAgo = chartPeriod === 'week' ? 7 : 30;
       const startDate = format(subDays(new Date(), daysAgo), 'yyyy-MM-dd');
-      
+
       const { data, error } = await supabase
         .from('health_metrics')
         .select('*')
         .eq('user_id', session.user.id)
         .gte('date', startDate)
         .order('date', { ascending: true });
-        
+
       if (error) throw error;
-      
+
       return data.map((metric: HealthMetric) => ({
         date: format(new Date(metric.date), 'MMM dd'),
         mood: metric.mood_rating,
@@ -138,26 +139,26 @@ const HealthDashboard = () => {
     },
     enabled: !!session?.user?.id,
   });
-  
+
   const createLogMutation = useMutation({
     mutationFn: async () => {
       if (!session?.user?.id) throw new Error('Not authenticated');
-      
+
       const today = new Date().toISOString().split('T')[0];
-      
+
       const { data: existingEntry, error: checkError } = await supabase
         .from('health_metrics')
         .select('id')
         .eq('user_id', session.user.id)
         .eq('date', today)
         .maybeSingle();
-      
+
       if (checkError) throw checkError;
-      
+
       const symptomsArray = newLog.symptoms
         ? newLog.symptoms.split(',').map(s => s.trim()).filter(Boolean)
         : [];
-      
+
       const metricData = {
         user_id: session.user.id,
         date: today,
@@ -177,20 +178,20 @@ const HealthDashboard = () => {
         symptoms: symptomsArray.length > 0 ? symptomsArray : null,
         notes: newLog.notes || null,
       };
-      
+
       if (existingEntry) {
         const { error: updateError } = await supabase
           .from('health_metrics')
           .update(metricData)
           .eq('id', existingEntry.id);
-        
+
         if (updateError) throw updateError;
         return 'updated';
       } else {
         const { error: insertError } = await supabase
           .from('health_metrics')
           .insert([metricData]);
-        
+
         if (insertError) throw insertError;
         return 'created';
       }
@@ -198,12 +199,12 @@ const HealthDashboard = () => {
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['health_metrics'] });
       queryClient.invalidateQueries({ queryKey: ['health_metrics_history'] });
-      
+
       toast({
         title: `Health log ${result}`,
         description: `Your health metrics have been ${result} successfully.`,
       });
-      
+
       setLogDialogOpen(false);
     },
     onError: (error) => {
@@ -215,40 +216,40 @@ const HealthDashboard = () => {
       });
     },
   });
-  
+
   const handleLogSubmit = () => {
     createLogMutation.mutate();
   };
-  
+
   const getWellnessStatus = (value: number) => {
     if (value <= 3) return 'Needs Attention';
     if (value <= 7) return 'Good';
     return 'Excellent';
   };
-  
+
   const getWellnessColor = (value: number) => {
     if (value <= 3) return 'text-red-500';
     if (value <= 7) return 'text-yellow-500';
     return 'text-green-500';
   };
-  
+
   const getDaysSinceLastLog = () => {
     if (!healthMetrics?.date) return 'Never';
-    
+
     const lastLogDate = new Date(healthMetrics.date);
     const today = new Date();
-    
+
     lastLogDate.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
-    
+
     const diffTime = today.getTime() - lastLogDate.getTime();
     const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Yesterday';
     return `${diffDays} days ago`;
   };
-  
+
   return (
     <div className="container mx-auto p-4 space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -268,6 +269,7 @@ const HealthDashboard = () => {
         <div className="text-center py-8">Loading health metrics...</div>
       ) : healthMetrics ? (
         <>
+          {/* Top Metric Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card>
               <CardHeader className="pb-2">
@@ -338,21 +340,22 @@ const HealthDashboard = () => {
             </Card>
           </div>
 
+          {/* Chart and Other Metrics Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <Card className="lg:col-span-2">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>Health Trends</CardTitle>
                   <div className="flex items-center space-x-2">
-                    <Button 
-                      variant={chartPeriod === 'week' ? 'default' : 'outline'} 
+                    <Button
+                      variant={chartPeriod === 'week' ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => setChartPeriod('week')}
                     >
                       Week
                     </Button>
-                    <Button 
-                      variant={chartPeriod === 'month' ? 'default' : 'outline'} 
+                    <Button
+                      variant={chartPeriod === 'month' ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => setChartPeriod('month')}
                     >
@@ -362,9 +365,9 @@ const HealthDashboard = () => {
                 </div>
                 <CardDescription>
                   Tracking your {
-                    viewingMetric === 'mood' ? 'mood' : 
-                    viewingMetric === 'energy' ? 'energy levels' : 
-                    viewingMetric === 'stress' ? 'stress levels' : 
+                    viewingMetric === 'mood' ? 'mood' :
+                    viewingMetric === 'energy' ? 'energy levels' :
+                    viewingMetric === 'stress' ? 'stress levels' :
                     'sleep quality'
                   } over time
                 </CardDescription>
@@ -441,36 +444,36 @@ const HealthDashboard = () => {
               </CardContent>
               <CardFooter>
                 <div className="flex flex-wrap gap-2 w-full">
-                  <Button 
-                    variant={viewingMetric === 'mood' ? 'default' : 'outline'} 
-                    size="sm" 
+                  <Button
+                    variant={viewingMetric === 'mood' ? 'default' : 'outline'}
+                    size="sm"
                     onClick={() => setViewingMetric('mood')}
                     className="flex-1"
                   >
                     <Brain className="mr-2 h-4 w-4" />
                     Mood
                   </Button>
-                  <Button 
-                    variant={viewingMetric === 'energy' ? 'default' : 'outline'} 
-                    size="sm" 
+                  <Button
+                    variant={viewingMetric === 'energy' ? 'default' : 'outline'}
+                    size="sm"
                     onClick={() => setViewingMetric('energy')}
                     className="flex-1"
                   >
                     <Sun className="mr-2 h-4 w-4" />
                     Energy
                   </Button>
-                  <Button 
-                    variant={viewingMetric === 'stress' ? 'default' : 'outline'} 
-                    size="sm" 
+                  <Button
+                    variant={viewingMetric === 'stress' ? 'default' : 'outline'}
+                    size="sm"
                     onClick={() => setViewingMetric('stress')}
                     className="flex-1"
                   >
                     <Activity className="mr-2 h-4 w-4" />
                     Stress
                   </Button>
-                  <Button 
-                    variant={viewingMetric === 'sleep' ? 'default' : 'outline'} 
-                    size="sm" 
+                  <Button
+                    variant={viewingMetric === 'sleep' ? 'default' : 'outline'}
+                    size="sm"
                     onClick={() => setViewingMetric('sleep')}
                     className="flex-1"
                   >
@@ -565,8 +568,8 @@ const HealthDashboard = () => {
                     </div>
                     <div className="flex flex-wrap gap-1">
                       {healthMetrics.symptoms.map((symptom, i) => (
-                        <span 
-                          key={i} 
+                        <span
+                          key={i}
                           className="bg-muted px-2 py-1 rounded-full text-xs"
                         >
                           {symptom}
@@ -590,6 +593,10 @@ const HealthDashboard = () => {
               </CardContent>
             </Card>
           </div>
+
+          {/* Energy Pattern Analysis Section */}
+          <EnergyPatternAnalysis />
+
         </>
       ) : (
         <Card className="p-6 text-center">
@@ -606,6 +613,7 @@ const HealthDashboard = () => {
         </Card>
       )}
 
+      {/* Log Dialog */}
       <Dialog open={logDialogOpen} onOpenChange={setLogDialogOpen}>
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -615,69 +623,57 @@ const HealthDashboard = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-6 py-4">
+            {/* Mood Slider */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <Label>Mood</Label>
                 <span className="text-sm text-muted-foreground">{newLog.mood_rating}/10</span>
               </div>
               <Slider
-                defaultValue={[5]}
-                max={10}
-                step={1}
-                value={[newLog.mood_rating]}
+                defaultValue={[5]} max={10} step={1} value={[newLog.mood_rating]}
                 onValueChange={(vals) => setNewLog({ ...newLog, mood_rating: vals[0] })}
               />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Low</span>
-                <span>High</span>
+                <span>Low</span><span>High</span>
               </div>
             </div>
 
+            {/* Energy Slider */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <Label>Energy Level</Label>
                 <span className="text-sm text-muted-foreground">{newLog.energy_level}/10</span>
               </div>
               <Slider
-                defaultValue={[5]}
-                max={10}
-                step={1}
-                value={[newLog.energy_level]}
+                defaultValue={[5]} max={10} step={1} value={[newLog.energy_level]}
                 onValueChange={(vals) => setNewLog({ ...newLog, energy_level: vals[0] })}
               />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Low</span>
-                <span>High</span>
+                <span>Low</span><span>High</span>
               </div>
             </div>
 
+            {/* Stress Slider */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <Label>Stress Level</Label>
                 <span className="text-sm text-muted-foreground">{newLog.stress_level}/10</span>
               </div>
               <Slider
-                defaultValue={[5]}
-                max={10}
-                step={1}
-                value={[newLog.stress_level]}
+                defaultValue={[5]} max={10} step={1} value={[newLog.stress_level]}
                 onValueChange={(vals) => setNewLog({ ...newLog, stress_level: vals[0] })}
               />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Low</span>
-                <span>High</span>
+                <span>Low</span><span>High</span>
               </div>
             </div>
 
+            {/* Sleep Inputs */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Sleep Hours</Label>
                 <Input
-                  type="number"
-                  step="0.5"
-                  min="0"
-                  max="24"
-                  value={newLog.sleep_hours}
+                  type="number" step="0.5" min="0" max="24" value={newLog.sleep_hours}
                   onChange={(e) => setNewLog({ ...newLog, sleep_hours: parseFloat(e.target.value) || 0 })}
                 />
               </div>
@@ -687,55 +683,48 @@ const HealthDashboard = () => {
                   <span className="text-sm text-muted-foreground">{newLog.sleep_quality}/10</span>
                 </div>
                 <Slider
-                  defaultValue={[5]}
-                  max={10}
-                  step={1}
-                  value={[newLog.sleep_quality]}
+                  defaultValue={[5]} max={10} step={1} value={[newLog.sleep_quality]}
                   onValueChange={(vals) => setNewLog({ ...newLog, sleep_quality: vals[0] })}
                 />
               </div>
             </div>
 
+            {/* Exercise & Water Inputs */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Exercise (minutes)</Label>
                 <Input
-                  type="number"
-                  min="0"
-                  value={newLog.exercise_minutes}
+                  type="number" min="0" value={newLog.exercise_minutes}
                   onChange={(e) => setNewLog({ ...newLog, exercise_minutes: parseInt(e.target.value) || 0 })}
                 />
               </div>
               <div className="space-y-2">
                 <Label>Water Intake (glasses)</Label>
                 <Input
-                  type="number"
-                  min="0"
-                  value={newLog.water_intake}
+                  type="number" min="0" value={newLog.water_intake}
                   onChange={(e) => setNewLog({ ...newLog, water_intake: parseInt(e.target.value) || 0 })}
                 />
               </div>
             </div>
 
+            {/* Meditation Input */}
             <div className="space-y-2">
               <Label>Meditation (minutes)</Label>
               <Input
-                type="number"
-                min="0"
-                value={newLog.meditation_minutes}
+                type="number" min="0" value={newLog.meditation_minutes}
                 onChange={(e) => setNewLog({ ...newLog, meditation_minutes: parseInt(e.target.value) || 0 })}
               />
             </div>
 
-            <div className="space-y-4">
+            {/* Additional Metrics Section */}
+            <div className="space-y-4 pt-4 border-t">
               <h3 className="text-lg font-medium">Additional Metrics (Optional)</h3>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Weight (kg)</Label>
                   <Input
-                    type="text"
-                    value={newLog.weight}
+                    type="text" value={newLog.weight}
                     onChange={(e) => setNewLog({ ...newLog, weight: e.target.value })}
                     placeholder="e.g., 70.5"
                   />
@@ -743,8 +732,7 @@ const HealthDashboard = () => {
                 <div className="space-y-2">
                   <Label>Heart Rate (bpm)</Label>
                   <Input
-                    type="text"
-                    value={newLog.heart_rate}
+                    type="text" value={newLog.heart_rate}
                     onChange={(e) => setNewLog({ ...newLog, heart_rate: e.target.value })}
                     placeholder="e.g., 75"
                   />
@@ -755,8 +743,7 @@ const HealthDashboard = () => {
                 <div className="space-y-2">
                   <Label>Blood Pressure (systolic)</Label>
                   <Input
-                    type="text"
-                    value={newLog.blood_pressure_sys}
+                    type="text" value={newLog.blood_pressure_sys}
                     onChange={(e) => setNewLog({ ...newLog, blood_pressure_sys: e.target.value })}
                     placeholder="e.g., 120"
                   />
@@ -764,8 +751,7 @@ const HealthDashboard = () => {
                 <div className="space-y-2">
                   <Label>Blood Pressure (diastolic)</Label>
                   <Input
-                    type="text"
-                    value={newLog.blood_pressure_dia}
+                    type="text" value={newLog.blood_pressure_dia}
                     onChange={(e) => setNewLog({ ...newLog, blood_pressure_dia: e.target.value })}
                     placeholder="e.g., 80"
                   />
@@ -775,8 +761,7 @@ const HealthDashboard = () => {
               <div className="space-y-2">
                 <Label>Body Temperature (°C)</Label>
                 <Input
-                  type="text"
-                  value={newLog.body_temperature}
+                  type="text" value={newLog.body_temperature}
                   onChange={(e) => setNewLog({ ...newLog, body_temperature: e.target.value })}
                   placeholder="e.g., 36.8"
                 />
