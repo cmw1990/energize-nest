@@ -1,171 +1,170 @@
 
-// Binaural beat generator utilities
+import { NatureSound } from '@/types/audio';
 
-export interface AudioPlayer {
-  play: () => Promise<void>;
-  stop: () => void;
-  setVolume: (volume: number) => void;
-  isPlaying: boolean;
-}
-
-/**
- * Generates a binaural beat - when two slightly different frequencies
- * are played in each ear, the brain perceives a beating tone
- */
-export function generateBinauralBeat(
-  baseFrequency: number, 
-  beatFrequency: number, 
-  volume = 0.5
-): AudioPlayer & { setFrequency: (beatFreq: number) => void } {
+// Function to generate a binaural beat
+export function generateBinauralBeat(baseFreq: number, beatFreq: number, volume = 0.5) {
   let audioContext: AudioContext | null = null;
-  let oscillatorLeft: OscillatorNode | null = null;
-  let oscillatorRight: OscillatorNode | null = null;
+  let leftOscillator: OscillatorNode | null = null;
+  let rightOscillator: OscillatorNode | null = null;
   let gainNode: GainNode | null = null;
+  let pannerLeft: StereoPannerNode | null = null;
+  let pannerRight: StereoPannerNode | null = null;
   let isPlaying = false;
   
-  const initialize = () => {
+  const setupAudio = () => {
     try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      audioContext = new AudioCtx();
+      audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       
-      // Create the oscillator nodes for left and right ears
-      oscillatorLeft = audioContext.createOscillator();
-      oscillatorRight = audioContext.createOscillator();
-      
-      // Create stereo output
-      const merger = audioContext.createChannelMerger(2);
+      // Create oscillators for each ear
+      leftOscillator = audioContext.createOscillator();
+      rightOscillator = audioContext.createOscillator();
       
       // Create gain node for volume control
       gainNode = audioContext.createGain();
       gainNode.gain.value = volume;
       
-      // Set frequency values
-      oscillatorLeft.frequency.value = baseFrequency;
-      oscillatorRight.frequency.value = baseFrequency + beatFrequency;
+      // Create stereo panner nodes
+      pannerLeft = audioContext.createStereoPanner();
+      pannerRight = audioContext.createStereoPanner();
       
-      // Connect left oscillator to left channel
-      oscillatorLeft.connect(merger, 0, 0);
+      // Set panning (left = -1, right = 1)
+      pannerLeft.pan.value = -1;
+      pannerRight.pan.value = 1;
       
-      // Connect right oscillator to right channel
-      oscillatorRight.connect(merger, 0, 1);
+      // Set frequencies
+      leftOscillator.frequency.value = baseFreq;
+      rightOscillator.frequency.value = baseFreq + beatFreq;
       
-      // Connect merger to gain node and gain node to output
-      merger.connect(gainNode);
+      // Connect nodes
+      leftOscillator.connect(pannerLeft);
+      rightOscillator.connect(pannerRight);
+      pannerLeft.connect(gainNode);
+      pannerRight.connect(gainNode);
       gainNode.connect(audioContext.destination);
-      
-      console.log(`Binaural beat created: Base ${baseFrequency}Hz, Beat ${beatFrequency}Hz`);
+
+      // Start oscillators
+      leftOscillator.start();
+      rightOscillator.start();
     } catch (error) {
-      console.error("Error initializing audio context:", error);
-      throw new Error("Could not initialize audio context");
+      console.error('Error initializing audio:', error);
     }
   };
   
-  const cleanup = () => {
-    if (oscillatorLeft) {
-      oscillatorLeft.stop();
-      oscillatorLeft.disconnect();
-      oscillatorLeft = null;
-    }
-    
-    if (oscillatorRight) {
-      oscillatorRight.stop();
-      oscillatorRight.disconnect();
-      oscillatorRight = null;
-    }
-    
-    if (gainNode) {
-      gainNode.disconnect();
-      gainNode = null;
-    }
-    
-    if (audioContext) {
+  const cleanupAudio = () => {
+    if (!audioContext) return;
+
+    try {
+      if (leftOscillator) {
+        leftOscillator.stop();
+        leftOscillator.disconnect();
+      }
+      
+      if (rightOscillator) {
+        rightOscillator.stop();
+        rightOscillator.disconnect();
+      }
+      
+      if (pannerLeft) pannerLeft.disconnect();
+      if (pannerRight) pannerRight.disconnect();
+      if (gainNode) gainNode.disconnect();
+      
       audioContext.close();
+      
       audioContext = null;
+      leftOscillator = null;
+      rightOscillator = null;
+      gainNode = null;
+      pannerLeft = null;
+      pannerRight = null;
+    } catch (error) {
+      console.error('Error cleaning up audio:', error);
     }
-    
-    isPlaying = false;
   };
   
   return {
+    baseFrequency: baseFreq,
+    beatFrequency: beatFreq,
+    volume,
+    isPlaying,
+    
     async play() {
-      if (isPlaying) return Promise.resolve();
+      if (isPlaying) return;
       
-      initialize();
-      
-      if (oscillatorLeft && oscillatorRight) {
-        oscillatorLeft.start();
-        oscillatorRight.start();
-        isPlaying = true;
-      }
-      
+      setupAudio();
+      isPlaying = true;
       return Promise.resolve();
     },
     
+    pause() {
+      if (!isPlaying) return;
+      
+      if (audioContext) {
+        audioContext.suspend();
+      }
+      
+      isPlaying = false;
+    },
+    
     stop() {
-      cleanup();
+      if (!isPlaying && !audioContext) return;
+      
+      cleanupAudio();
+      isPlaying = false;
     },
     
     setVolume(newVolume: number) {
+      volume = newVolume;
+      
       if (gainNode) {
         gainNode.gain.value = newVolume;
       }
     },
     
-    setFrequency(beatFreq: number) {
-      if (oscillatorRight && baseFrequency) {
-        oscillatorRight.frequency.value = baseFrequency + beatFreq;
+    setFrequencies(newBaseFreq: number, newBeatFreq: number) {
+      if (leftOscillator && rightOscillator) {
+        leftOscillator.frequency.value = newBaseFreq;
+        rightOscillator.frequency.value = newBaseFreq + newBeatFreq;
       }
-    },
-    
-    get isPlaying() {
-      return isPlaying;
     }
   };
 }
 
-/**
- * Creates a player for nature sounds
- */
-export async function createNatureSoundPlayer(
-  soundUrl: string, 
-  volume = 0.5
-): Promise<AudioPlayer> {
-  const audio = new Audio(soundUrl);
-  audio.volume = volume;
+// Function to create a nature sound player
+export async function createNatureSoundPlayer(url: string, volume = 0.5) {
+  const audio = new Audio(url);
   audio.loop = true;
+  audio.volume = volume;
   let isPlaying = false;
   
-  // Preload the audio
-  return new Promise((resolve) => {
-    audio.addEventListener('canplaythrough', () => {
-      resolve({
-        async play() {
-          try {
-            await audio.play();
-            isPlaying = true;
-            return Promise.resolve();
-          } catch (error) {
-            console.error("Error playing audio:", error);
-            return Promise.reject(error);
-          }
-        },
-        
-        stop() {
-          audio.pause();
-          audio.currentTime = 0;
-          isPlaying = false;
-        },
-        
-        setVolume(newVolume: number) {
-          audio.volume = newVolume;
-        },
-        
-        get isPlaying() {
-          return isPlaying;
-        }
-      });
-    }, { once: true });
+  return {
+    isPlaying,
+    volume,
     
-    audio.load();
-  });
+    async play() {
+      try {
+        await audio.play();
+        isPlaying = true;
+        return Promise.resolve();
+      } catch (error) {
+        console.error(`Error playing nature sound: ${error}`);
+        throw error;
+      }
+    },
+    
+    pause() {
+      audio.pause();
+      isPlaying = false;
+    },
+    
+    stop() {
+      audio.pause();
+      audio.currentTime = 0;
+      isPlaying = false;
+    },
+    
+    setVolume(newVolume: number) {
+      volume = newVolume;
+      audio.volume = newVolume;
+    }
+  };
 }
