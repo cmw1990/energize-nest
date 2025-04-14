@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./components/ThemeProvider";
@@ -45,6 +46,7 @@ import Caffeine from './pages/Caffeine';
 import SleepCalculator from './pages/tools/SleepCalculator';
 import SleepGoals from './pages/tools/SleepGoals';
 import WithdrawalTracker from './pages/tools/WithdrawalTracker';
+import WellnessProductDirectory from './pages/tools/WellnessProductDirectory';
 import Community from './pages/Community';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
@@ -73,6 +75,11 @@ function App() {
               <Route path="/" element={<LandingPage />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/why-us" element={<WhyUs />} />
+              
+              {/* Web Tools (Publicly Accessible) */}
+              <Route path="/tools/sleep-calculator" element={<SleepCalculator />} />
+              <Route path="/tools/withdrawal-tracker" element={<WithdrawalTracker />} />
+              <Route path="/tools/wellness-products" element={<WellnessProductDirectory />} />
               
               <Route path="/app" element={<Layout />}>
                 <Route index element={<Navigate to="/app/dashboard" replace />} />
@@ -107,11 +114,14 @@ function App() {
                 <Route path="profile" element={<Profile />} />
                 <Route path="settings" element={<Settings />} />
                 <Route path="help" element={<Help />} />
+                <Route path="weight" element={<Weight />} />
+                <Route path="beverages" element={<BeveragesPage />} />
                 
+                {/* Nested routes for web tools accessible within the app */}
                 <Route path="web-tools/sleep-calculator" element={<SleepCalculator />} />
                 <Route path="web-tools/sleep-goals" element={<SleepGoals />} />
                 <Route path="web-tools/withdrawal-tracker" element={<WithdrawalTracker />} />
-                <Route path="/app/breathing" element={<Breathing />} />
+                <Route path="web-tools/wellness-products" element={<WellnessProductDirectory />} />
               </Route>
               
               <Route path="*" element={<Navigate to="/" replace />} />

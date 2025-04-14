@@ -12,6 +12,7 @@
 - ✅ Implemented Beverage tracking system with analytics for water, caffeine, and alcohol
 - ✅ Built CBT Thought Record component for cognitive behavioral therapy
 - ✅ Fixed UI issues in SleepAnalytics component
+- ✅ Added WellnessProductDirectory as a web tool for visitors
 
 ## Current Issues
 - ⚠️ TypeScript errors in useAudioGenerator.ts - ignoring for now to focus on features
@@ -48,7 +49,7 @@
    - ✅ Withdrawal Tracker
    - ⏳ NRT Directory & Guide
    - ⏳ Product Reviews & Ratings
-   - ⏳ Vendor Directory
+   - ✅ Vendor Directory
 
 6. ⏳ Nutrition & Weight
    - ✅ Food Log
@@ -66,10 +67,11 @@
 8. ⏳ Web Tools (Visitor Facing)
    - ✅ Sleep Calculator
    - ✅ Smoking Cost Calculator
-   - ⏳ BMI Calculator
-   - ⏳ Water Intake Calculator
+   - ✅ BMI Calculator
+   - ✅ Water Intake Calculator
    - ⏳ Calories Needed Calculator
    - ⏳ Fasting Timer
+   - ✅ Wellness Product Directory
 
 9. ⏳ Integration & User Experience
    - ⏳ User Flow Optimization
@@ -80,7 +82,7 @@
 
 ## Next Steps
 1. Complete Stress Management & Anxiety Reduction tools
-2. Enhance Quitting Assistance with comprehensive directories
+2. Enhance Quitting Assistance with comprehensive NRT directory
 3. Finish remaining Nutrition & Weight features (meal planning)
 4. Complete Energy Support tools with supplement guides
 5. Build out remaining visitor-facing Web Tools
