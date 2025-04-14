@@ -1,3 +1,4 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
@@ -13,45 +14,35 @@ import {
   Sparkles,
   Dumbbell,
   Pill,
-  // Package, // Replaced by Flame for Nicotine
   Heart,
   Eye,
   Wrench,
-  // Bath, // Removed, not in use
-  // TestTube, // Removed, not in use
-  // Grid3X3, // Removed, not in use
-  // Target, // Removed, not in use
   Battery,
   CalendarDays,
   ListTodo,
   LineChart,
   Apple,
-  // Scale, // Removed, handled in Nutrition/Health
-  // Cigarette, // Replaced by Flame
-  // Droplet, // Removed, handled in Nutrition/Health
   Monitor,
   LayoutDashboard,
-  UserCheck, // Keeping for Therapist Connect link
-  Flame, // New icon for Nicotine
-  Sun, // Used in Layout
-  // FileSpreadsheet, // Removed, tool link
+  UserCheck,
+  Flame,
+  Sun,
   ShieldPlus,
   UserCog,
   Rocket,
-  // ThumbsUp, // Replaced by Award for Sobriety
-  // ZapOff, // Removed, tool link
-  // Sparkle, // Removed, tool link
-  // Clock, // Removed, tool link
   Shield,
-  Baby, // New icon for Pregnancy
-  Award, // New icon for Sobriety
-  Users, // New icon for Mental Health / Therapist Connect
-  BookOpen, // New icon for CBT
-  HeartPulse, // New icon for Cycle Tracking
-  FlaskConical, // New icon for Recovery
-  Settings, // Added for Settings link
-  HelpCircle, // Added for Help link
-  Scale as ScaleIcon, // Import Scale and alias it
+  Baby,
+  Award,
+  Users,
+  BookOpen,
+  HeartPulse,
+  FlaskConical,
+  Settings,
+  HelpCircle,
+  Scale as ScaleIcon,
+  Store,
+  Package,
+  CircleDot
 } from "lucide-react";
 
 // Improved navigation structure with clearer categories and more relevant icons
@@ -72,13 +63,13 @@ export const navigationGroups = [
       },
       {
         to: "/app/health",
-        icon: HeartPulse, // Changed from Heart for distinction
+        icon: HeartPulse,
         label: "Health Hub",
       },
     ]
   },
   {
-    label: "Mind & Energy", // Renamed for better grouping
+    label: "Mind & Energy",
     links: [
       {
         to: "/app/energy-plans",
@@ -98,9 +89,8 @@ export const navigationGroups = [
       {
         to: "/app/sleep",
         icon: Moon,
-        label: "Sleep Hub", // Renamed for consistency
+        label: "Sleep Hub",
       },
-      // Removed /app/sleep-tracking as it's likely part of Sleep Hub
       {
         to: "/app/motivation",
         icon: Rocket,
@@ -137,175 +127,162 @@ export const navigationGroups = [
         label: "Calendar",
       },
       {
-        to: "/app/tracking", // Consider renaming or clarifying purpose
+        to: "/app/tracking",
         icon: LineChart,
         label: "Tracking",
       },
-      // Removed Focus Timer link - access via Focus Center or Tools Hub
+      {
+        to: "/app/brain-games",
+        icon: Gamepad2,
+        label: "Brain Training",
+      },
     ]
   },
   {
-    label: "Body & Nutrition", // Renamed for better grouping
+    label: "Health & Nutrition",
     links: [
+      {
+        to: "/app/food",
+        icon: Utensils,
+        label: "Food Tracking",
+      },
       {
         to: "/app/nutrition",
         icon: Apple,
-        label: "Nutrition Hub",
+        label: "Nutrition",
       },
       {
-        to: "/app/weight", // Add Weight link here
+        to: "/app/weight",
         icon: ScaleIcon,
         label: "Weight",
       },
-      // Removed /app/food - likely part of Nutrition Hub
       {
-        to: "/app/supplements",
-        icon: Pill,
-        label: "Supplements",
+        to: "/app/beverages",
+        icon: Coffee,
+        label: "Beverages",
       },
-      // Removed /app/water (Hydration) - likely part of Nutrition/Health Hub
-      // Removed /app/weight - likely part of Nutrition/Health Hub
       {
         to: "/app/exercise",
         icon: Dumbbell,
         label: "Exercise",
       },
+    ]
+  },
+  {
+    label: "Mental Wellness",
+    links: [
       {
-        to: "/app/eye-exercises",
-        icon: Eye,
-        label: "Eye Care",
+        to: "/app/mental-health",
+        icon: Brain,
+        label: "Mental Health",
+      },
+      {
+        to: "/app/cbt",
+        icon: BookOpen,
+        label: "CBT Tools",
+      },
+      {
+        to: "/app/therapist-connect",
+        icon: Users,
+        label: "Therapist Connect",
       },
     ]
   },
   {
-    label: "Specialized Support",
+    label: "Lifestyle",
     links: [
-       {
-        to: "/app/mentalHealth", // Assuming this page exists or will be created
-        icon: Users, // Changed icon
-        label: "Mental Health", // Renamed from Therapist Connect
-      },
-       {
-        to: "/app/cbt",
-        icon: BookOpen, // Changed icon
-        label: "CBT Exercises",
-      },
       {
         to: "/app/sobriety",
-        icon: Award, // Changed icon
-        label: "Sobriety",
+        icon: Award,
+        label: "Sobriety Tracker",
       },
       {
-        to: "/app/nicotine",
-        icon: Flame, // Changed icon for "Mission Fresh"
-        label: "Nicotine Freedom", // Renamed for "Mission Fresh"
-      },
-      {
-        to: "/app/caffeine",
-        icon: Coffee,
-        label: "Caffeine",
-      },
-      {
-        to: "/app/cycle",
-        icon: HeartPulse, // Changed icon
-        label: "Cycle Tracking",
-      },
-      {
-        to: "/app/pregnancy",
-        icon: Baby, // Changed icon
-        label: "Pregnancy",
-      },
-       {
-        to: "/app/recovery", // Added Recovery link if page exists
+        to: "/app/recovery",
         icon: FlaskConical,
         label: "Recovery",
       },
+      {
+        to: "/app/supplements",
+        icon: Pill,
+        label: "Supplements",
+      },
+      {
+        to: "/app/nicotine-products",
+        icon: Package,
+        label: "NRT Products",
+      },
+      {
+        to: "/app/vendors",
+        icon: Store,
+        label: "Vendors",
+      },
+      {
+        to: "/app/tapering-guide",
+        icon: CircleDot,
+        label: "Tapering Guide",
+      },
     ]
   },
   {
-    label: "Tools & Games", // Consolidated
+    label: "System",
     links: [
       {
-        to: "/app/web-tools",
-        icon: Wrench,
-        label: "Web Tools Hub",
-      },
-      {
-        to: "/app/brain-games",
-        icon: Gamepad2,
-        label: "Brain Games Hub",
-      },
-      // Removed individual tool/game links
-    ]
-  },
-  {
-    label: "Account", // Renamed from Account & Services
-    links: [
-      {
-        to: "/app/profile", // Corrected route from App.tsx
+        to: "/app/profile",
         icon: UserCog,
         label: "Profile",
       },
       {
-        to: "/app/settings", // Corrected route from App.tsx
+        to: "/app/settings",
         icon: Settings,
         label: "Settings",
       },
       {
-        to: "/app/insurance/dashboard", // Assuming this route exists or will be created
-        icon: ShieldPlus,
-        label: "Insurance",
-      },
-       {
-        to: "/app/help", // Added Help link
+        to: "/app/help",
         icon: HelpCircle,
-        label: "Help & Support",
+        label: "Help & Support", 
       },
-      // Removed Therapist Connect (moved to Specialized Support)
-      ...(import.meta.env.DEV ? [{
-        to: "/app/development", // Keep dev tools link conditional
-        icon: Wrench,
-        label: "Development Tools",
-      }] : []),
     ]
-  },
+  }
 ];
 
-export const AppSidebar = () => {
+export function AppSidebar() {
   const location = useLocation();
 
   return (
-    <div className="pb-12 w-full">
-      <div className="space-y-4 py-4"> {/* Reduced vertical space */}
-        {navigationGroups.map((group, index) => (
-          <div key={index} className="px-3 py-2">
-            <h2 className="mb-2 px-4 text-base font-semibold tracking-tight text-primary/80"> {/* Adjusted heading style */}
+    <div className="py-4 px-0 flex-col gap-6 h-screen flex overflow-y-auto">
+      <div className="pl-7 py-2 flex items-center gap-2">
+        <Battery className="h-5 w-5" />
+        <span className="font-semibold">Well-Charged</span>
+      </div>
+      
+      <nav className="flex-1 space-y-1">
+        {navigationGroups.map((group, groupIndex) => (
+          <div key={groupIndex} className="space-y-1 px-3">
+            <h2 className="px-4 text-xs font-medium text-muted-foreground mb-1 mt-4">
               {group.label}
             </h2>
-            <div className="space-y-1">
-              {group.links.map((link) => (
+            {group.links.map((link, linkIndex) => {
+              const isActive = location.pathname.includes(link.to);
+              
+              return (
                 <Link
-                  key={link.to}
+                  key={linkIndex}
                   to={link.to}
                   className={cn(
-                    "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground group", // Use md radius, adjusted padding
-                    location.pathname === link.to || location.pathname.startsWith(link.to + '/') // Keep active state logic
-                      ? "bg-accent text-accent-foreground font-semibold" // Make active bolder
-                      : "text-muted-foreground hover:text-foreground" // Improve hover state contrast
+                    "flex items-center px-4 py-2 text-sm font-medium rounded-md",
+                    isActive
+                      ? "text-primary-foreground bg-primary"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                   )}
                 >
-                  <link.icon className={cn("mr-2 h-4 w-4 flex-shrink-0", // Ensure icon doesn't shrink text
-                     location.pathname === link.to || location.pathname.startsWith(link.to + '/')
-                       ? "text-primary" // Use primary color for active icon
-                       : "text-muted-foreground group-hover:text-foreground"
-                  )} />
+                  <link.icon className={cn("mr-3 h-4 w-4", isActive ? "text-primary-foreground" : "text-muted-foreground")} />
                   {link.label}
                 </Link>
-              ))}
-            </div>
+              );
+            })}
           </div>
         ))}
-      </div>
+      </nav>
     </div>
   );
-};
+}

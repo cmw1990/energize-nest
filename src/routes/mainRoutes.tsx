@@ -25,6 +25,13 @@ const WebTools = lazy(() => import('@/pages/WebTools'));
 const Relax = lazy(() => import('@/pages/Relax'));
 const Auth = lazy(() => import('@/pages/Auth'));
 const Test = lazy(() => import('@/pages/Test'));
+const Sobriety = lazy(() => import('@/pages/Sobriety'));
+const NicotineProducts = lazy(() => import('@/pages/NicotineProducts'));
+const Vendors = lazy(() => import('@/pages/Vendors'));
+const TaperingGuide = lazy(() => import('@/pages/TaperingGuide'));
+
+// Tools
+const SmokingCostCalculator = lazy(() => import('@/pages/tools/SmokingCostCalculator'));
 
 export const mainRoutes: RouteObject[] = [
   {
@@ -50,10 +57,15 @@ export const mainRoutes: RouteObject[] = [
       { path: 'settings', element: <Settings /> },
       { path: 'web-tools', element: <WebTools /> },
       { path: 'relax', element: <Relax /> },
-      { path: 'test', element: <Test /> }
+      { path: 'test', element: <Test /> },
+      { path: 'sobriety', element: <Sobriety /> },
+      { path: 'nicotine-products', element: <NicotineProducts /> },
+      { path: 'vendors', element: <Vendors /> },
+      { path: 'tapering-guide', element: <TaperingGuide /> },
     ],
   },
   { path: '/auth', element: <Auth /> },
+  { path: '/tools/smoking-cost-calculator', element: <SmokingCostCalculator /> },
 ];
 
 export default mainRoutes;
