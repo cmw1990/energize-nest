@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -82,7 +81,6 @@ export function StressManagement() {
   const [isLoggingStress, setIsLoggingStress] = useState(false);
   const [selectedTechnique, setSelectedTechnique] = useState<StressTechnique | null>(null);
   
-  // Fetch user's stress log
   const { data: stressLog = [], isLoading: isLoadingStressLog } = useQuery({
     queryKey: ['stress-log', session?.user?.id],
     queryFn: async () => {
@@ -105,7 +103,6 @@ export function StressManagement() {
     enabled: !!session?.user?.id
   });
   
-  // Log a new stress level
   const logStress = useMutation({
     mutationFn: async () => {
       if (!session?.user?.id) throw new Error('User not authenticated');
@@ -131,7 +128,6 @@ export function StressManagement() {
         description: 'Your stress level has been recorded successfully.',
       });
       setIsLoggingStress(false);
-      // Reset form
       setStressLevel(5);
       setSelectedTriggers([]);
       setNotes('');
@@ -145,7 +141,6 @@ export function StressManagement() {
     }
   });
   
-  // Common stress triggers
   const stressTriggers: StressTrigger[] = [
     { id: 'work', name: 'Work', category: 'occupation', icon: <Zap className="h-4 w-4 text-amber-500" /> },
     { id: 'deadlines', name: 'Deadlines', category: 'occupation', icon: <Clock className="h-4 w-4 text-amber-500" /> },
@@ -161,7 +156,6 @@ export function StressManagement() {
     { id: 'uncertainty', name: 'Uncertainty', category: 'cognitive', icon: <Lightbulb className="h-4 w-4 text-yellow-500" /> }
   ];
   
-  // Stress relief techniques
   const stressTechniques: StressTechnique[] = [
     { 
       id: 'box-breathing', 
@@ -298,14 +292,12 @@ export function StressManagement() {
     }
   ];
   
-  // Get stress level color
   const getStressLevelColor = (level: number) => {
     if (level <= 3) return 'text-green-500';
     if (level <= 6) return 'text-amber-500';
     return 'text-red-500';
   };
   
-  // Get stress level text
   const getStressLevelText = (level: number) => {
     if (level <= 2) return 'Very Low';
     if (level <= 4) return 'Low';
@@ -314,7 +306,6 @@ export function StressManagement() {
     return 'Very High';
   };
   
-  // Toggle trigger selection
   const toggleTrigger = (triggerId: string) => {
     if (selectedTriggers.includes(triggerId)) {
       setSelectedTriggers(selectedTriggers.filter(id => id !== triggerId));
@@ -323,14 +314,12 @@ export function StressManagement() {
     }
   };
   
-  // Calculate average stress level
   const averageStressLevel = React.useMemo(() => {
     if (stressLog.length === 0) return null;
     const sum = stressLog.reduce((acc, log) => acc + log.stress_level, 0);
-    return Math.round((sum / stressLog.length) * 10) / 10; // Round to 1 decimal place
+    return Math.round((sum / stressLog.length) * 10) / 10;
   }, [stressLog]);
   
-  // Get most common triggers
   const mostCommonTriggers = React.useMemo(() => {
     if (stressLog.length === 0) return [];
     
@@ -343,7 +332,6 @@ export function StressManagement() {
       }
     });
     
-    // Convert to array, sort by count, and take top 3
     return Object.entries(triggerCounts)
       .map(([id, count]) => ({ 
         id, 
@@ -355,7 +343,6 @@ export function StressManagement() {
       .slice(0, 3);
   }, [stressLog, stressTriggers]);
   
-  // Render log stress form
   const renderLogStressForm = () => (
     <div className="space-y-6">
       <div className="space-y-4">
