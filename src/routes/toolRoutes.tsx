@@ -15,6 +15,8 @@ import Tools from "@/pages/tools/Tools";
 import BlueLightBlockers from "@/pages/tools/BlueLightBlockers";
 import CaloriesNeededCalculator from "@/pages/tools/CaloriesNeededCalculator";
 import FastingTimer from "@/pages/tools/FastingTimer";
+import StressCheck from "@/pages/tools/StressCheck";
+import BinauralBeats from "@/pages/tools/BinauralBeats";
 
 export const toolRoutes: RouteObject[] = [
   {
@@ -79,6 +81,14 @@ export const toolRoutes: RouteObject[] = [
       {
         path: "fasting-timer",
         element: <FastingTimer />,
+      },
+      {
+        path: "stress-check",
+        element: <StressCheck />,
+      },
+      {
+        path: "binaural-beats",
+        element: <BinauralBeats />,
       }
     ],
   }

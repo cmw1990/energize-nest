@@ -25,7 +25,8 @@ import {
   Zap,
   Award,
   Calendar,
-  Plus 
+  Plus,
+  BarChart 
 } from "lucide-react";
 import { format } from "date-fns";
 import {
